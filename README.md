@@ -4,6 +4,7 @@
 
 <h1 align="center">crosscorr</h1>
 <p align="center"><i>International open-source project for cross-correlation analysis</i></p>
+
 # CrossCorr
 
 **Кросс-корреляционный анализ аномалий в разнородных временных рядах**
