@@ -1,3 +1,9 @@
+<p align="center">
+  <img src="assets/logo.svg" alt="crosscorr — global data stream logo" width="400"/>
+</p>
+
+<h1 align="center">crosscorr</h1>
+<p align="center"><i>International open-source project for cross-correlation analysis</i></p>
 # CrossCorr
 
 **Кросс-корреляционный анализ аномалий в разнородных временных рядах**
