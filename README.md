@@ -61,43 +61,36 @@
 
    ```text
    timestamp_utc, detector_id, detector_type, residual, meta
-   ```
+Базовая модель.
+Оценка остатков через смешанную линейную модель:
 
-2. **Базовая модель.**
-   Оценка остатков через смешанную линейную модель:
+text
+v0 ~ T_заряда + масса + (1|полигон)
+Реализация: statsmodels MixedLM.
 
-   ```text
-   v0 ~ T_заряда + масса + (1|полигон)
-   ```
+Пространственная модель.
+Байесовская модель с экспоненциальным ядром ковариации для учёта пространственной структуры.
+Реализация: PyMC.
 
-   Реализация: `statsmodels` MixedLM.
+Кросс-корреляционный анализ.
+Построение матрицы корреляций между детекторами и временными рядами.
+Реализация: code/analysis/cross_correlation.py.
 
-3. **Пространственная модель.**
-   Байесовская модель с экспоненциальным ядром ковариации для учёта пространственной структуры.
-   Реализация: `PyMC`.
+Мультифрактальный анализ.
+MFDFA для оценки фрактальных свойств рядов.
+Реализация: MFDFA, code/analysis/mfdfa.py.
 
-4. **Кросс-корреляционный анализ.**
-   Построение матрицы корреляций между детекторами и временными рядами.
-   Реализация: [`code/analysis/cross_correlation.py`](code/analysis/cross_correlation.py).
+Surrogate-тесты.
+Генерация 1000+ фазовых суррогатов для проверки значимости наблюдаемых корреляций.
+Реализация: code/analysis/surrogate.py.
 
-5. **Мультифрактальный анализ.**
-   MFDFA для оценки фрактальных свойств рядов.
-   Реализация: [`MFDFA`](https://pypi.org/project/MFDFA/), [`code/analysis/mfdfa.py`](code/analysis/mfdfa.py).
+FDR-коррекция.
+Контроль доли ложных обнаружений (Benjamini–Hochberg) при множественных сравнениях.
 
-6. **Surrogate-тесты.**
-   Генерация 1000+ фазовых суррогатов для проверки значимости наблюдаемых корреляций.
-   Реализация: [`code/analysis/surrogate.py`](code/analysis/surrogate.py).
+Подробнее: docs/methodology.md
 
-7. **FDR-коррекция.**
-   Контроль доли ложных обнаружений (Benjamini–Hochberg) при множественных сравнениях.
-
-Подробнее: [docs/methodology.md](docs/methodology.md)
-
----
-
-## 📁 Структура репозитория
-
-```text
+📁 Структура репозитория
+text
 crosscorr/
 ├── README.md
 ├── LICENSE
@@ -135,77 +128,54 @@ crosscorr/
 └── paper/
     ├── work.tex
     └── references.bib
-```
+🚀 Быстрый старт
+Требования
+Python 3.10+
 
----
+Git
 
-## 🚀 Быстрый старт
+Streamlit
 
-### Требования
+Рекомендуется виртуальное окружение
 
-- Python 3.10+
-- Git
-- Streamlit
-- Рекомендуется виртуальное окружение
-
-### Установка
-
-```bash
+Установка
+bash
 git clone https://github.com/FelixRLEPERS/crosscorr.git
 cd crosscorr
 python -m venv .venv
 source .venv/bin/activate      # Linux / macOS
 # .venv\Scripts\activate       # Windows
 pip install -r requirements.txt
-```
-
-### Запуск игры
-
-```bash
+Запуск игры
+bash
 streamlit run code/quest.py
-```
-
-### Запуск голосового наставника
-
-```bash
+Запуск голосового наставника
+bash
 python code/narrator.py
-```
-
-### Запуск AI-наставника
-
-```bash
+Запуск AI-наставника
+bash
 python code/ai_narrator.py
-```
+🗄️ Данные
+Проект использует открытые источники. Сырые данные не коммитятся в репозиторий — только скрипты загрузки и небольшие примеры (data/samples/).
 
----
+Источник	Тип данных	Ссылка
+WSPR	Распространение радиосигналов	wsprnet.org
+NGL	GNSS-данные	ngl.unavco.org
+INTERMAGNET	Магнитное поле Земли	intermagnet.org
+Oulu	Ионосферные данные	cosmic.rl.ac.uk
+Ammolytics	Баллистические данные	ammolytics.com
+BIPM	Метрологические данные	bipm.org
+1000 Genomes	Генетические данные	internationalgenome.org
+JPL Horizons	Эфемериды	ssd.jpl.nasa.gov
+Формат унифицированной таблицы и правила добавления данных описаны в data/README.md.
+JSON-схема: data/schema/unified_schema.json.
 
-## 🗄️ Данные
-
-Проект использует открытые источники. Сырые данные **не коммитятся** в репозиторий — только скрипты загрузки и небольшие примеры (`data/samples/`).
-
-| Источник | Тип данных | Ссылка |
-|---|---|---|
-| WSPR | Распространение радиосигналов | [wsprnet.org](https://wsprnet.org/) |
-| NGL | GNSS-данные | [ngl.unavco.org](https://ngl.unavco.org/) |
-| INTERMAGNET | Магнитное поле Земли | [intermagnet.org](https://intermagnet.org/) |
-| Oulu | Ионосферные данные | [cosmic.rl.ac.uk](https://cosmic.rl.ac.uk/) |
-| Ammolytics | Баллистические данные | [ammolytics.com](https://ammolytics.com/) |
-| BIPM | Метрологические данные | [bipm.org](https://www.bipm.org/) |
-| 1000 Genomes | Генетические данные | [internationalgenome.org](https://www.internationalgenome.org/) |
-| JPL Horizons | Эфемериды | [ssd.jpl.nasa.gov](https://ssd.jpl.nasa.gov/horizons/) |
-
-Формат унифицированной таблицы и правила добавления данных описаны в [data/README.md](data/README.md).
-JSON-схема: [data/schema/unified_schema.json](data/schema/unified_schema.json).
-
----
-
-## 🔬 Пайплайн анализа
-
-Полное описание: [code/analysis/README.md](code/analysis/README.md).
+🔬 Пайплайн анализа
+Полное описание: code/analysis/README.md.
 
 Кратко:
 
-```bash
+bash
 # 1. Скачать данные
 python data/scripts/download_wspr.py --date 2025-01-01
 python data/scripts/download_intermagnet.py --file path/to/file.min
@@ -225,130 +195,119 @@ python code/analysis/surrogate.py --n 1000 --alpha 0.05
 
 # 6. MFDFA
 python code/analysis/mfdfa.py
-```
+Артефакты анализа сохраняются в results/:
 
-Артефакты анализа сохраняются в `results/`:
+results/cross_correlation.csv
 
-- `results/cross_correlation.csv`
-- `results/cross_correlation.png`
-- `results/surrogate_pvalues.csv`
-- `results/surrogate_significant.csv`
-- `results/mfdfa_spectra.csv`
+results/cross_correlation.png
 
----
+results/surrogate_pvalues.csv
 
-## 🎮 Игра и голосовой наставник
+results/surrogate_significant.csv
 
+results/mfdfa_spectra.csv
+
+🎮 Игра и голосовой наставник
 Игровой модуль для детей 11–13 лет. Сюжет — «Охота на призрака»: ребёнок ищет сверхмалые корреляции в данных.
 
-- [`code/quest.py`](code/quest.py) — интерактивный квест (Streamlit, видео-фон, музыка).
-- [`code/narrator.py`](code/narrator.py) — голосовой наставник на базе `edge-tts` (бесплатно, без API-ключей).
-- [`code/ai_narrator.py`](code/ai_narrator.py) — AI-наставник, объясняющий результаты анализа.
+code/quest.py — интерактивный квест (Streamlit, видео-фон, музыка).
 
-Подробное описание сюжета и уровней: [docs/quest.md](docs/quest.md).
+code/narrator.py — голосовой наставник на базе edge-tts (бесплатно, без API-ключей).
 
----
+code/ai_narrator.py — AI-наставник, объясняющий результаты анализа.
 
-## 📈 Результаты
+Подробное описание сюжета и уровней: docs/quest.md.
 
+📈 Результаты
 Раздел будет пополняться по мере прогонов пайплайна.
 
-- [ ] Первый прогон на одном дне WSPR + Horizons
-- [ ] Кросс-корреляционная матрица за неделю
-- [ ] Surrogate-тесты (n=1000) с FDR
-- [ ] MFDFA-спектры по всем детекторам
+□ Первый прогон на одном дне WSPR + Horizons
+□ Кросс-корреляционная матрица за неделю
+□ Surrogate-тесты (n=1000) с FDR
+□ MFDFA-спектры по всем детекторам
+Графики появятся в results/ и будут вставлены в Скриншоты.
 
-Графики появятся в `results/` и будут вставлены в [Скриншоты](#скриншоты).
+📌 Статус проекта
+✅ Пайплайн загрузки данных (WSPR, INTERMAGNET, Horizons)
 
----
+✅ Унификация схемы данных
 
-## 📌 Статус проекта
+✅ Кросс-корреляционный анализ
 
-- ✅ Пайплайн загрузки данных (WSPR, INTERMAGNET, Horizons)
-- ✅ Унификация схемы данных
-- ✅ Кросс-корреляционный анализ
-- ✅ Surrogate-тесты + FDR
-- ✅ MFDFA-анализ
-- ✅ Игра для детей
-- 🚧 Голосовой наставник (в разработке)
-- 🚧 AI-наставник (в разработке)
-- 🚧 Базовая MixedLM-модель для оценки остатков
-- 🚧 Тесты (`pytest`) и CI (GitHub Actions)
-- 📅 Публикация препринта (план: Q1 2026)
+✅ Surrogate-тесты + FDR
 
-Актуальный план: [docs/roadmap.md](docs/roadmap.md)
+✅ MFDFA-анализ
 
----
+✅ Игра для детей
 
-## 👨‍👩‍👦 Команда
+🚧 Голосовой наставник (в разработке)
 
-| Роль | Участник | Зона ответственности |
-|---|---|---|
-| CEO | Папа | Стратегия, архитектура, код |
-| Communications | Мама | Тексты, презентации, связи |
-| Research | Макар | Исследования, эксперименты |
-| Researcher | Егор | Данные, визуализация |
+🚧 AI-наставник (в разработке)
 
----
+🚧 Базовая MixedLM-модель для оценки остатков
 
-## 📚 Документация
+🚧 Тесты (pytest) и CI (GitHub Actions)
 
-- [Методология](docs/methodology.md)
-- [План развития](docs/roadmap.md)
-- [Игра и сюжет](docs/quest.md)
-- [Пайплайн анализа](code/analysis/README.md)
-- [Описание данных](data/README.md)
-- [Статья (LaTeX)](paper/work.tex)
-- [Библиография](paper/references.bib)
+📅 Публикация препринта (план: Q1 2026)
 
----
+Актуальный план: docs/roadmap.md
 
-## 🤖 Вклад ИИ
+👨‍👩‍👦 Команда
+Роль	Участник	Зона ответственности
+CEO	Папа	Стратегия, архитектура, код
+Communications	Мама	Тексты, презентации, связи
+Research	Макар	Исследования, эксперименты
+Researcher	Егор	Данные, визуализация
+📚 Документация
+Методология
 
+План развития
+
+Игра и сюжет
+
+Пайплайн анализа
+
+Описание данных
+
+Статья (LaTeX)
+
+Библиография
+
+🤖 Вклад ИИ
 Проект использует ИИ как вспомогательный инструмент. Это указано явно, чтобы избежать вопросов о самостоятельности исследования.
 
-**Что делает ИИ:**
+Что делает ИИ:
 
-- генерация черновиков кода и текстов,
-- помощь в формулировке гипотез,
-- озвучка (через `edge-tts`),
-- структурирование документации.
+генерация черновиков кода и текстов,
 
-**Что делает человек:**
+помощь в формулировке гипотез,
 
-- постановка задачи и гипотез,
-- выбор методов и интерпретация результатов,
-- валидация кода и данных,
-- финальные выводы и публикации.
+озвучка (через edge-tts),
 
----
+структурирование документации.
 
-## 🖼️ Скриншоты
+Что делает человек:
 
-![Скриншот игры](images/quest_screenshot.png)
+постановка задачи и гипотез,
 
-<!-- Раскомментировать после первого прогона пайплайна:
+выбор методов и интерпретация результатов,
 
-![Кросс-корреляционная матрица](results/cross_correlation.png)
+валидация кода и данных,
 
-![MFDFA-анализ](results/mfdfa.png)
+финальные выводы и публикации.
 
--->
+🖼️ Скриншоты
+https://images/quest_screenshot.png
 
----
+<!-- Раскомментировать после первого прогона пайплайна: ![Кросс-корреляционная матрица](results/cross_correlation.png) ![MFDFA-анализ](results/mfdfa.png) -->
+📄 Лицензия
+Проект распространяется под лицензией MIT. Подробнее: LICENSE.
 
-## 📄 Лицензия
+📬 Контакты
+GitHub Issues: github.com/FelixRLEPERS/crosscorr/issues
 
-Проект распространяется под лицензией **MIT**. Подробнее: [LICENSE](LICENSE).
+Email: felixrlepers@gmail.com
 
----
+Сайт проекта: felixrlepers.github.io/crosscorr
 
-## 📬 Контакты
-
-- GitHub Issues: [github.com/FelixRLEPERS/crosscorr/issues](https://github.com/FelixRLEPERS/crosscorr/issues)
-- Email: [felixrlepers@gmail.com](mailto:felixrlepers@gmail.com)
-- Сайт проекта: [felixrlepers.github.io/crosscorr](https://felixrlepers.github.io/crosscorr/)
-
----
-
-> Если вы нашли ошибку или хотите предложить идею — создайте Issue или Pull Request. Мы открыты к сотрудничеству.
+Если вы нашли ошибку или хотите предложить идею — создайте Issue или Pull Request. Мы открыты к сотрудничеству.
