@@ -1,18 +1,81 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 120" width="400" height="120">
+  <defs>
+    <!-- Свечение для волн -->
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="2.5" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Градиенты -->
+    <linearGradient id="wave1" x1="0" x2="1">
+      <stop offset="0%"  stop-color="#4fa3ff"/>
+      <stop offset="100%" stop-color="#7dd3fc"/>
+    </linearGradient>
+    <linearGradient id="wave2" x1="0" x2="1">
+      <stop offset="0%"  stop-color="#a78bfa"/>
+      <stop offset="100%" stop-color="#f0abfc"/>
+    </linearGradient>
+  </defs>
+
   <!-- Фон -->
   <rect width="400" height="120" fill="#0d1117" rx="16"/>
 
   <!-- Иконка: две волны + крест -->
   <g transform="translate(20, 20)">
-    <!-- Первая волна -->
-    <path d="M0 40 Q10 10 20 40 T40 40 T60 40" 
-          stroke="#4fa3ff" stroke-width="4" fill="none" stroke-linecap="round"/>
-    <!-- Вторая волна -->
-    <path d="M0 55 Q10 85 20 55 T40 55 T60 55" 
-          stroke="#a78bfa" stroke-width="4" fill="none" stroke-linecap="round"/>
-    <!-- Крест -->
-    <line x1="70" y1="20" x2="70" y2="60" stroke="#4fa3ff" stroke-width="4" stroke-linecap="round"/>
-    <line x1="50" y1="40" x2="90" y2="40" stroke="#4fa3ff" stroke-width="4" stroke-linecap="round"/>
+
+    <!-- Первая волна: бесконечный поток через два path, смещённых по фазе -->
+    <g clip-path="url(#clip-waves)" filter="url(#glow)">
+      <path fill="none" stroke="url(#wave1)" stroke-width="4" stroke-linecap="round">
+        <animate attributeName="d"
+          dur="2.4s" repeatCount="indefinite"
+          values="
+            M-80 40 Q-70 10 -60 40 T-40 40 T-20 40 T0 40 T20 40 T40 40 T60 40 T80 40;
+            M-80 40 Q-70 10 -60 40 T-40 40 T-20 40 T0 40 T20 40 T40 40 T60 40 T80 40
+          "/>
+      </path>
+
+      <!-- Сплошная базовая волна (рисуется один раз, а сверху «пробегает» блик) -->
+      <path d="M0 40 Q10 10 20 40 T40 40 T60 40"
+            fill="none" stroke="#4fa3ff" stroke-width="4" stroke-linecap="round"/>
+
+      <!-- Бегущий блик по первой волне -->
+      <path d="M-30 40 Q-20 10 -10 40 T10 40 T30 40"
+            fill="none" stroke="#e0f2fe" stroke-width="4" stroke-linecap="round" opacity="0.9">
+        <animateTransform attributeName="transform" type="translate"
+          from="-60 0" to="120 0" dur="2.4s" repeatCount="indefinite"/>
+      </path>
+
+      <!-- Вторая волна -->
+      <path d="M0 55 Q10 85 20 55 T40 55 T60 55"
+            fill="none" stroke="#a78bfa" stroke-width="4" stroke-linecap="round"/>
+
+      <!-- Бегущий блик по второй волне (в противофазе — они «встречаются») -->
+      <path d="M-30 55 Q-20 85 -10 55 T10 55 T30 55"
+            fill="none" stroke="#f5d0fe" stroke-width="4" stroke-linecap="round" opacity="0.9">
+        <animateTransform attributeName="transform" type="translate"
+          from="120 0" to="-60 0" dur="2.4s" repeatCount="indefinite"/>
+      </path>
+    </g>
+
+    <!-- Крест: пульсирует в такт совпадению волн -->
+    <g stroke="#4fa3ff" stroke-width="4" stroke-linecap="round">
+      <line x1="70" y1="20" x2="70" y2="60">
+        <animate attributeName="stroke" 
+          values="#4fa3ff;#7dd3fc;#4fa3ff" dur="2.4s" repeatCount="indefinite"/>
+      </line>
+      <line x1="50" y1="40" x2="90" y2="40">
+        <animate attributeName="stroke" 
+          values="#4fa3ff;#7dd3fc;#4fa3ff" dur="2.4s" repeatCount="indefinite"/>
+      </line>
+      <!-- Пульсирующая точка в центре креста -->
+      <circle cx="70" cy="40" r="3" fill="#ffffff" stroke="none">
+        <animate attributeName="r" values="2;4.5;2" dur="1.2s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.6;1;0.6" dur="1.2s" repeatCount="indefinite"/>
+      </circle>
+    </g>
   </g>
 
   <!-- Текст -->
@@ -21,9 +84,15 @@
         font-size="42" font-weight="700" fill="#ffffff">
     cross<tspan fill="#4fa3ff">corr</tspan>
   </text>
+
+  <!-- Подпись с мигающим курсором -->
   <text x="132" y="92" 
         font-family="Arial, Helvetica, sans-serif" 
         font-size="13" fill="#8b949e" letter-spacing="3">
     INTERNATIONAL PROJECT
+    <tspan fill="#4fa3ff">
+      <animate attributeName="opacity" values="1;0;1" dur="1.2s" repeatCount="indefinite"/>
+      _
+    </tspan>
   </text>
 </svg>

@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 120" width="400" height="120">
+  <!-- Фон -->
+  <rect width="400" height="120" fill="#0d1117" rx="16"/>
+
+  <!-- Иконка: две волны + крест -->
+  <g transform="translate(20, 20)">
+    <!-- Первая волна -->
+    <path d="M0 40 Q10 10 20 40 T40 40 T60 40" 
+          stroke="#4fa3ff" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <!-- Вторая волна -->
+    <path d="M0 55 Q10 85 20 55 T40 55 T60 55" 
+          stroke="#a78bfa" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <!-- Крест -->
+    <line x1="70" y1="20" x2="70" y2="60" stroke="#4fa3ff" stroke-width="4" stroke-linecap="round"/>
+    <line x1="50" y1="40" x2="90" y2="40" stroke="#4fa3ff" stroke-width="4" stroke-linecap="round"/>
+  </g>
+
+  <!-- Текст -->
+  <text x="130" y="70" 
+        font-family="Arial, Helvetica, sans-serif" 
+        font-size="42" font-weight="700" fill="#ffffff">
+    cross<tspan fill="#4fa3ff">corr</tspan>
+  </text>
+  <text x="132" y="92" 
+        font-family="Arial, Helvetica, sans-serif" 
+        font-size="13" fill="#8b949e" letter-spacing="3">
+    INTERNATIONAL PROJECT
+  </text>
+</svg>

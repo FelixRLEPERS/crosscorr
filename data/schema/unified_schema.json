@@ -1,0 +1,16 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "UnifiedCrossCorrRow",
+  "type": "object",
+  "properties": {
+    "timestamp_utc": { "type": "string", "format": "date-time" },
+    "detector_id": { "type": "string", "minLength": 1 },
+    "detector_type": {
+      "type": "string",
+      "enum": ["wspr", "magnetometer", "gnss", "ionosonde", "ballistic", "metrology", "genome", "ephemeris"]
+    },
+    "residual": { "type": "number" },
+    "meta": { "type": "object" }
+  },
+  "required": ["timestamp_utc", "detector_id", "detector_type", "residual"]
+}
