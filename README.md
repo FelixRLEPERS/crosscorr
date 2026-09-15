@@ -337,7 +337,7 @@ python code/analysis/mfdfa.py
 ## 📬 Контакты
 
 - GitHub Issues: [github.com/FelixRLEPERS/crosscorr/issues](https://github.com/FelixRLEPERS/crosscorr/issues)
-- Email: [felixrpepers@gmail.com]
+- Email: [felixrlepers@gmail.com]
 - Сайт проекта: [felixrlepers.github.io/crosscorr](https://felixrlepers.github.io/crosscorr/)
 
 ---
