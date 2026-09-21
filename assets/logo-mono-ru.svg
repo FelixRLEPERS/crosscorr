@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 320" width="1200" height="320" role="img" aria-label="КРОССКОР">
+  <rect width="1200" height="320" rx="24" fill="#ffffff"/>
+
+  <g transform="translate(40 40) scale(0.47)" stroke="#0b1220" fill="none">
+    <g transform="translate(256 256) rotate(-30)" stroke-width="2">
+      <ellipse rx="182" ry="58" stroke-opacity="0.5"/>
+    </g>
+    <path d="M 100 100 C 160 120, 180 170, 210 210 C 230 240, 240 250, 256 256 C 272 262, 282 272, 302 302 C 332 342, 352 392, 412 412"
+          stroke-width="7" stroke-linecap="round"/>
+    <path d="M 412 100 C 352 120, 332 170, 302 210 C 282 240, 272 250, 256 256 C 240 262, 230 272, 210 302 C 180 342, 160 392, 100 412"
+          stroke-width="7" stroke-linecap="round"/>
+    <circle cx="256" cy="256" r="15" fill="#0b1220" stroke="none"/>
+    <circle cx="256" cy="256" r="26" stroke-width="2" stroke-opacity="0.6"/>
+  </g>
+
+  <text x="330" y="176"
+        font-family="Inter, 'PT Sans', system-ui, -apple-system, sans-serif"
+        font-size="104" font-weight="700" fill="#0b1220" letter-spacing="-1">
+    КРОССКОР
+  </text>
+  <text x="332" y="222"
+        font-family="Inter, 'PT Sans', system-ui, -apple-system, sans-serif"
+        font-size="22" font-weight="400" fill="#0b1220" letter-spacing="4" opacity="0.7">
+    КРОСС-КОРРЕЛЯЦИЯ · СЕТЬ ДАТЧИКОВ
+  </text>
+</svg>

@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080" role="img" aria-label="КРОССКОР — финальный кадр">
+  <defs>
+    <radialGradient id="star-glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%"   stop-color="#fff8d8" stop-opacity="1"/>
+      <stop offset="20%"  stop-color="#ffcc00" stop-opacity="0.85"/>
+      <stop offset="55%"  stop-color="#ffcc00" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#ffcc00" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="ghost-glow" cx="50%" cy="40%" r="60%">
+      <stop offset="0%"   stop-color="#fff5cc" stop-opacity="1"/>
+      <stop offset="60%"  stop-color="#ffcc00" stop-opacity="0.7"/>
+      <stop offset="100%" stop-color="#ffcc00" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="wave-cyan" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%"   stop-color="#7ee0ff" stop-opacity="0"/>
+      <stop offset="50%"  stop-color="#7ee0ff" stop-opacity="1"/>
+      <stop offset="100%" stop-color="#7ee0ff" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="wave-gold" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%"   stop-color="#ffcc00" stop-opacity="0"/>
+      <stop offset="50%"  stop-color="#ffcc00" stop-opacity="1"/>
+      <stop offset="100%" stop-color="#ffcc00" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="vignette" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%"   stop-color="#0b1220" stop-opacity="0.9"/>
+      <stop offset="30%"  stop-color="#0b1220" stop-opacity="0"/>
+      <stop offset="70%"  stop-color="#0b1220" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#0b1220" stop-opacity="0.9"/>
+    </linearGradient>
+    <filter id="soft-glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="6" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="big-glow" x="-100%" y="-100%" width="300%" height="300%">
+      <feGaussianBlur stdDeviation="22"/>
+    </filter>
+    <filter id="text-glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="3" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <rect width="1920" height="1080" fill="#0b1220"/>
+
+  <g fill="#7ee0ff">
+    <circle cx="140" cy="120" r="1.6" opacity="0.55"/>
+    <circle cx="380" cy="60"  r="1.1" opacity="0.40"/>
+    <circle cx="720" cy="100" r="1.4" opacity="0.50"/>
+    <circle cx="1240" cy="80" r="0.9" opacity="0.35"/>
+    <circle cx="1660" cy="140" r="1.5" opacity="0.55"/>
+    <circle cx="1830" cy="260" r="1.2" opacity="0.45"/>
+    <circle cx="80"  cy="380" r="1.0" opacity="0.35"/>
+    <circle cx="1820" cy="480" r="1.3" opacity="0.45"/>
+    <circle cx="200" cy="600" r="1.2" opacity="0.40"/>
+    <circle cx="1740" cy="700" r="1.1" opacity="0.40"/>
+    <circle cx="100" cy="820" r="1.4" opacity="0.50"/>
+    <circle cx="1780" cy="900" r="1.0" opacity="0.35"/>
+    <circle cx="420" cy="960" r="1.3" opacity="0.45"/>
+    <circle cx="1480" cy="980" r="1.2" opacity="0.45"/>
+    <circle cx="880" cy="1020" r="1.0" opacity="0.35"/>
+    <circle cx="1260" cy="30" r="0.8" opacity="0.30"/>
+    <circle cx="560" cy="540" r="0.9" opacity="0.30"/>
+  </g>
+  <g fill="#ffcc00">
+    <circle cx="520" cy="140" r="0.9" opacity="0.45"/>
+    <circle cx="1080" cy="180" r="1.2" opacity="0.50"/>
+    <circle cx="300" cy="780" r="0.8" opacity="0.35"/>
+    <circle cx="1620" cy="820" r="1.0" opacity="0.40"/>
+    <circle cx="700" cy="980" r="1.1" opacity="0.45"/>
+    <circle cx="1400" cy="60" r="0.9" opacity="0.40"/>
+  </g>
+
+  <g filter="url(#soft-glow)" fill="none" stroke-linecap="round">
+    <path d="M 60,540 C 460,300 620,780 960,540 C 1300,300 1460,780 1860,540"
+          stroke="url(#wave-cyan)" stroke-width="4" opacity="0.9"/>
+    <path d="M 60,540 C 460,300 620,780 960,540 C 1300,300 1460,780 1860,540"
+          stroke="url(#wave-cyan)" stroke-width="12" opacity="0.15"/>
+    <path d="M 60,540 C 460,780 620,300 960,540 C 1300,780 1460,300 1860,540"
+          stroke="url(#wave-gold)" stroke-width="4" opacity="0.9"/>
+    <path d="M 60,540 C 460,780 620,300 960,540 C 1300,780 1460,300 1860,540"
+          stroke="url(#wave-gold)" stroke-width="12" opacity="0.15"/>
+  </g>
+
+  <circle cx="960" cy="540" r="260" fill="url(#star-glow)" opacity="0.35"/>
+  <circle cx="960" cy="540" r="130" fill="url(#star-glow)"/>
+  <circle cx="960" cy="540" r="22"  fill="#fff8d8"/>
+  <circle cx="960" cy="540" r="38"  fill="none" stroke="#ffcc00" stroke-width="1.6" stroke-opacity="0.75"/>
+  <circle cx="960" cy="540" r="56"  fill="none" stroke="#ffcc00" stroke-width="0.9" stroke-opacity="0.35"/>
+
+  <text x="120" y="480" text-anchor="start"
+        font-family="'Golos Text','PT Sans','Inter',system-ui,sans-serif"
+        font-size="120" font-weight="800" fill="#e6edf3" letter-spacing="-2"
+        filter="url(#text-glow)">
+    КРОССКОР
+  </text>
+  <text x="124" y="546" text-anchor="start"
+        font-family="'Inter','Space Grotesk',system-ui,sans-serif"
+        font-size="30" font-weight="500" fill="#7ee0ff" letter-spacing="10">
+    CROSSCORR
+  </text>
+
+  <line x1="120" y1="590" x2="580" y2="590"
+        stroke="#7ee0ff" stroke-width="1" stroke-opacity="0.5"/>
+
+  <text x="120" y="650" text-anchor="start"
+        font-family="'JetBrains Mono','Fira Code','Courier New',monospace"
+        font-size="26" font-weight="500" fill="#e6edf3" letter-spacing="0.5">
+    github.com/FelixRLEPERS/crosscorr
+  </text>
+
+  <text x="120" y="730" text-anchor="start"
+        font-family="'Golos Text','PT Sans','Inter',system-ui,sans-serif"
+        font-size="40" font-weight="800" fill="#ffcc00" letter-spacing="6"
+        filter="url(#text-glow)">
+    ПРИСОЕДИНЯЙСЯ
+  </text>
+
+  <g transform="translate(1620 780)">
+    <circle cx="60" cy="90" r="110" fill="url(#ghost-glow)" opacity="0.45" filter="url(#big-glow)"/>
+    <path d="M 0,70 Q 0,0 60,0 Q 120,0 120,70 L 120,160
+             Q 105,148 90,160 Q 75,148 60,160 Q 45,148 30,160 Q 15,148 0,160 Z"
+          fill="#fff5cc" opacity="0.95" filter="url(#soft-glow)"/>
+    <circle cx="42" cy="60" r="7" fill="#0b1220"/>
+    <circle cx="78" cy="60" r="7" fill="#0b1220"/>
+    <path d="M 48,88 Q 60,100 72,88" fill="none" stroke="#0b1220" stroke-width="3" stroke-linecap="round"/>
+    <path d="M 118,90 Q 150,60 148,20" fill="none" stroke="#fff5cc" stroke-width="9"
+          stroke-linecap="round" opacity="0.95" filter="url(#soft-glow)"/>
+    <circle cx="150" cy="16" r="9" fill="#fff5cc" filter="url(#soft-glow)"/>
+  </g>
+
+  <rect width="1920" height="1080" fill="url(#vignette)" pointer-events="none"/>
+</svg>

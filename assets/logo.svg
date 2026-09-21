@@ -1,98 +1,62 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 120" width="400" height="120">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="CrossCorr">
   <defs>
-    <!-- Свечение для волн -->
-    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur stdDeviation="2.5" result="blur"/>
+    <radialGradient id="cc-glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%"   stop-color="#fff5cc" stop-opacity="1"/>
+      <stop offset="25%"  stop-color="#ffcc00" stop-opacity="0.7"/>
+      <stop offset="100%" stop-color="#ffcc00" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="cc-w1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#7ee0ff"/>
+      <stop offset="100%" stop-color="#ffcc00"/>
+    </linearGradient>
+    <linearGradient id="cc-w2" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%"   stop-color="#7ee0ff"/>
+      <stop offset="100%" stop-color="#ffcc00"/>
+    </linearGradient>
+    <filter id="cc-glowFilter" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="5" result="b"/>
       <feMerge>
-        <feMergeNode in="blur"/>
+        <feMergeNode in="b"/>
         <feMergeNode in="SourceGraphic"/>
       </feMerge>
     </filter>
-
-    <!-- Градиенты -->
-    <linearGradient id="wave1" x1="0" x2="1">
-      <stop offset="0%"  stop-color="#4fa3ff"/>
-      <stop offset="100%" stop-color="#7dd3fc"/>
-    </linearGradient>
-    <linearGradient id="wave2" x1="0" x2="1">
-      <stop offset="0%"  stop-color="#a78bfa"/>
-      <stop offset="100%" stop-color="#f0abfc"/>
-    </linearGradient>
   </defs>
 
-  <!-- Фон -->
-  <rect width="400" height="120" fill="#0d1117" rx="16"/>
+  <rect width="512" height="512" rx="96" fill="#0b1220"/>
 
-  <!-- Иконка: две волны + крест -->
-  <g transform="translate(20, 20)">
-
-    <!-- Первая волна: бесконечный поток через два path, смещённых по фазе -->
-    <g clip-path="url(#clip-waves)" filter="url(#glow)">
-      <path fill="none" stroke="url(#wave1)" stroke-width="4" stroke-linecap="round">
-        <animate attributeName="d"
-          dur="2.4s" repeatCount="indefinite"
-          values="
-            M-80 40 Q-70 10 -60 40 T-40 40 T-20 40 T0 40 T20 40 T40 40 T60 40 T80 40;
-            M-80 40 Q-70 10 -60 40 T-40 40 T-20 40 T0 40 T20 40 T40 40 T60 40 T80 40
-          "/>
-      </path>
-
-      <!-- Сплошная базовая волна (рисуется один раз, а сверху «пробегает» блик) -->
-      <path d="M0 40 Q10 10 20 40 T40 40 T60 40"
-            fill="none" stroke="#4fa3ff" stroke-width="4" stroke-linecap="round"/>
-
-      <!-- Бегущий блик по первой волне -->
-      <path d="M-30 40 Q-20 10 -10 40 T10 40 T30 40"
-            fill="none" stroke="#e0f2fe" stroke-width="4" stroke-linecap="round" opacity="0.9">
-        <animateTransform attributeName="transform" type="translate"
-          from="-60 0" to="120 0" dur="2.4s" repeatCount="indefinite"/>
-      </path>
-
-      <!-- Вторая волна -->
-      <path d="M0 55 Q10 85 20 55 T40 55 T60 55"
-            fill="none" stroke="#a78bfa" stroke-width="4" stroke-linecap="round"/>
-
-      <!-- Бегущий блик по второй волне (в противофазе — они «встречаются») -->
-      <path d="M-30 55 Q-20 85 -10 55 T10 55 T30 55"
-            fill="none" stroke="#f5d0fe" stroke-width="4" stroke-linecap="round" opacity="0.9">
-        <animateTransform attributeName="transform" type="translate"
-          from="120 0" to="-60 0" dur="2.4s" repeatCount="indefinite"/>
-      </path>
-    </g>
-
-    <!-- Крест: пульсирует в такт совпадению волн -->
-    <g stroke="#4fa3ff" stroke-width="4" stroke-linecap="round">
-      <line x1="70" y1="20" x2="70" y2="60">
-        <animate attributeName="stroke" 
-          values="#4fa3ff;#7dd3fc;#4fa3ff" dur="2.4s" repeatCount="indefinite"/>
-      </line>
-      <line x1="50" y1="40" x2="90" y2="40">
-        <animate attributeName="stroke" 
-          values="#4fa3ff;#7dd3fc;#4fa3ff" dur="2.4s" repeatCount="indefinite"/>
-      </line>
-      <!-- Пульсирующая точка в центре креста -->
-      <circle cx="70" cy="40" r="3" fill="#ffffff" stroke="none">
-        <animate attributeName="r" values="2;4.5;2" dur="1.2s" repeatCount="indefinite"/>
-        <animate attributeName="opacity" values="0.6;1;0.6" dur="1.2s" repeatCount="indefinite"/>
-      </circle>
-    </g>
+  <g fill="#7ee0ff" opacity="0.4">
+    <circle cx="72"  cy="112" r="1.4"/>
+    <circle cx="430" cy="88"  r="1.1"/>
+    <circle cx="96"  cy="408" r="1.1"/>
+    <circle cx="416" cy="432" r="1.4"/>
+    <circle cx="52"  cy="272" r="0.9"/>
+    <circle cx="460" cy="300" r="0.9"/>
+    <circle cx="250" cy="60"  r="1"/>
+    <circle cx="262" cy="452" r="1"/>
   </g>
 
-  <!-- Текст -->
-  <text x="130" y="70" 
-        font-family="Arial, Helvetica, sans-serif" 
-        font-size="42" font-weight="700" fill="#ffffff">
-    cross<tspan fill="#4fa3ff">corr</tspan>
-  </text>
+  <g transform="translate(256 256) rotate(-30)">
+    <ellipse rx="182" ry="58" fill="none" stroke="#7ee0ff" stroke-width="1.4" stroke-opacity="0.55"/>
+    <ellipse rx="182" ry="58" fill="none" stroke="#7ee0ff" stroke-width="5"   stroke-opacity="0.12"/>
+  </g>
 
-  <!-- Подпись с мигающим курсором -->
-  <text x="132" y="92" 
-        font-family="Arial, Helvetica, sans-serif" 
-        font-size="13" fill="#8b949e" letter-spacing="3">
-    INTERNATIONAL PROJECT
-    <tspan fill="#4fa3ff">
-      <animate attributeName="opacity" values="1;0;1" dur="1.2s" repeatCount="indefinite"/>
-      _
-    </tspan>
-  </text>
+  <path d="M 100 100
+           C 160 120, 180 170, 210 210
+           C 230 240, 240 250, 256 256
+           C 272 262, 282 272, 302 302
+           C 332 342, 352 392, 412 412"
+        fill="none" stroke="url(#cc-w1)" stroke-width="6"
+        stroke-linecap="round" filter="url(#cc-glowFilter)"/>
+
+  <path d="M 412 100
+           C 352 120, 332 170, 302 210
+           C 282 240, 272 250, 256 256
+           C 240 262, 230 272, 210 302
+           C 180 342, 160 392, 100 412"
+        fill="none" stroke="url(#cc-w2)" stroke-width="6"
+        stroke-linecap="round" filter="url(#cc-glowFilter)"/>
+
+  <circle cx="256" cy="256" r="76" fill="url(#cc-glow)"/>
+  <circle cx="256" cy="256" r="15" fill="#fff8d8"/>
+  <circle cx="256" cy="256" r="26" fill="none" stroke="#ffcc00" stroke-width="1.5" stroke-opacity="0.7"/>
 </svg>

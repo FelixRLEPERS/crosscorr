@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 640" width="512" height="640" role="img" aria-label="КРОССКОР">
+  <defs>
+    <radialGradient id="cc-glow-sq" cx="50%" cy="50%" r="50%">
+      <stop offset="0%"   stop-color="#fff5cc" stop-opacity="1"/>
+      <stop offset="25%"  stop-color="#ffcc00" stop-opacity="0.7"/>
+      <stop offset="100%" stop-color="#ffcc00" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="cc-w1-sq" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#7ee0ff"/>
+      <stop offset="100%" stop-color="#ffcc00"/>
+    </linearGradient>
+    <linearGradient id="cc-w2-sq" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%"   stop-color="#7ee0ff"/>
+      <stop offset="100%" stop-color="#ffcc00"/>
+    </linearGradient>
+    <filter id="cc-glowFilter-sq" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="5" result="b"/>
+      <feMerge>
+        <feMergeNode in="b"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <rect width="512" height="640" rx="48" fill="#0b1220"/>
+
+  <g transform="translate(0 32) scale(0.94)">
+    <g fill="#7ee0ff" opacity="0.4">
+      <circle cx="72"  cy="112" r="1.4"/>
+      <circle cx="430" cy="88"  r="1.1"/>
+      <circle cx="96"  cy="408" r="1.1"/>
+      <circle cx="416" cy="432" r="1.4"/>
+    </g>
+    <g transform="translate(256 256) rotate(-30)">
+      <ellipse rx="182" ry="58" fill="none" stroke="#7ee0ff" stroke-width="1.4" stroke-opacity="0.55"/>
+      <ellipse rx="182" ry="58" fill="none" stroke="#7ee0ff" stroke-width="5"   stroke-opacity="0.12"/>
+    </g>
+    <path d="M 100 100 C 160 120, 180 170, 210 210 C 230 240, 240 250, 256 256 C 272 262, 282 272, 302 302 C 332 342, 352 392, 412 412"
+          fill="none" stroke="url(#cc-w1-sq)" stroke-width="6" stroke-linecap="round" filter="url(#cc-glowFilter-sq)"/>
+    <path d="M 412 100 C 352 120, 332 170, 302 210 C 282 240, 272 250, 256 256 C 240 262, 230 272, 210 302 C 180 342, 160 392, 100 412"
+          fill="none" stroke="url(#cc-w2-sq)" stroke-width="6" stroke-linecap="round" filter="url(#cc-glowFilter-sq)"/>
+    <circle cx="256" cy="256" r="76" fill="url(#cc-glow-sq)"/>
+    <circle cx="256" cy="256" r="15" fill="#fff8d8"/>
+    <circle cx="256" cy="256" r="26" fill="none" stroke="#ffcc00" stroke-width="1.5" stroke-opacity="0.7"/>
+  </g>
+
+  <text x="256" y="560" text-anchor="middle"
+        font-family="Inter, 'PT Sans', system-ui, -apple-system, sans-serif"
+        font-size="52" font-weight="700" fill="#e6edf3" letter-spacing="-1">
+    КРОССКОР
+  </text>
+  <text x="256" y="596" text-anchor="middle"
+        font-family="Inter, 'PT Sans', system-ui, -apple-system, sans-serif"
+        font-size="16" font-weight="400" fill="#7ee0ff" letter-spacing="3">
+    CROSSCORR · СЕТЬ ДАТЧИКОВ
+  </text>
+</svg>
