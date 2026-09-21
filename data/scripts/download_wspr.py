@@ -18,8 +18,11 @@ import requests
 RAW_DIR = Path(__file__).resolve().parents[1] / "raw" / "wspr"
 RAW_DIR.mkdir(parents=True, exist_ok=True)
 
-# Пример публичного эндпоинта (замените на актуальный)
+# ВНИМАНИЕ: WSPR API крайне нестабилен. Используем декоратор для повторных попыток.
 WSPR_API = "https://db1.wsprnet.org/drupal/wsprnet/spotquery"
+
+MAX_RETRIES = 3 # Максимальное количество попыток запроса
+INITIAL_BACKOFF = 5 # Начальная задержка в секундах
 
 
 def fetch_wspr(date: dt.date, band: str = "20m", limit: int = 5000) -> pd.DataFrame:
