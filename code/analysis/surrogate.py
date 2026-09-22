@@ -117,12 +117,26 @@ def main() -> None:
 
     pvals = surrogate_test(wide, n_surrogates=args.n)
     significant = fdr_bh(pvals.values, alpha=args.alpha)
-    sig_df = pd.DataFrame(significant, index=pvals.index, columns=pvals.columns)
 
     pvals.to_csv(DEFAULT_OUT / "surrogate_pvalues.csv")
-    sig_df.to_csv(DEFAULT_OUT / "surrogate_significant.csv")
+
+    # Сохраняем плоский список значимых пар
+    cols = pvals.columns.tolist()
+    pairs = []
+    for i in range(len(cols)):
+        for j in range(i + 1, len(cols)):
+            if significant[i, j]:
+                pairs.append({
+                    "Detector1": cols[i],
+                    "Detector2": cols[j],
+                    "p_value": float(pvals.iloc[i, j]),
+                })
+
+    pd.DataFrame(pairs).to_csv(
+        DEFAULT_OUT / "surrogate_significant.csv", index=False
+    )
     print(f"[OK] p-values -> {DEFAULT_OUT / 'surrogate_pvalues.csv'}")
-    print(f"[OK] significant pairs: {int(significant.sum())}")
+    print(f"[OK] significant pairs: {len(pairs)}")
 
 
 if __name__ == "__main__":
