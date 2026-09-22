@@ -1,5 +1,5 @@
 import numpy as np
-from code.analysis.surrogate import fdr_bh
+from crosscorr_lib.analysis.surrogate import fdr_bh
 
 
 def test_fdr_uses_upper_triangle():

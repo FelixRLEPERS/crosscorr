@@ -1,6 +1,6 @@
 import pandas as pd
 from data.scripts import SourceRegistry
-from code.narrator import speak
+from crosscorr_lib.narrator import speak
 
 # --- КОНСТАНТЫ ПУТЕЙ К ДАННЫМ ---
 CC_CSV = "results/cross_correlation.csv"

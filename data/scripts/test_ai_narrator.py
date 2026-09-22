@@ -2,7 +2,7 @@ import unittest
 from unittest import mock
 from data.scripts.api_client import DataClient # Используем для имитации доступа к структуре API
 # Импортируем наш модуль, который мы только что написали
-from code.ai_narrator import AINarrator 
+from crosscorr_lib.ai_narrator import AINarrator 
 
 class TestAINarrator(unittest.TestCase):
     """Тестирует логику генерации повествования и оркестровку AI-наставника."""
