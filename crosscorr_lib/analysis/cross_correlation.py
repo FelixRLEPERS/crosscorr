@@ -29,6 +29,8 @@ DEFAULT_INPUT = ROOT / "data" / "processed" / "unified.parquet"
 DEFAULT_OUT = ROOT / "results"
 
 
+from crosscorr_lib.analysis.surrogate import fdr_bh_q as _benjamini_hochberg
+
 def load_unified(path: Path) -> pd.DataFrame:
     df = pd.read_parquet(path)
     df["timestamp_utc"] = pd.to_datetime(df["timestamp_utc"], utc=True)
@@ -92,26 +94,6 @@ def lagged_cross_correlation(x: np.ndarray, y: np.ndarray, max_lag: int = 72):
 
     return lags, corrs, pvals
 
-
-def _benjamini_hochberg(pvals: np.ndarray, alpha: float = 0.05):
-    """FDR-коррекция. Возвращает (significant_mask, q_values)."""
-    p = np.asarray(pvals, dtype=float)
-    n = p.size
-    order = np.argsort(p)
-    ranked = p[order]
-    thresholds = alpha * (np.arange(1, n + 1) / n)
-    passed = ranked <= thresholds
-
-    q = np.empty(n)
-    prev = 1.0
-    for i in range(n - 1, -1, -1):
-        rank = i + 1
-        val = ranked[i] * n / rank
-        prev = min(prev, val)
-        q[order[i]] = prev
-
-    sig = q <= alpha
-    return sig, q
 
 
 def cross_correlation_pairs(

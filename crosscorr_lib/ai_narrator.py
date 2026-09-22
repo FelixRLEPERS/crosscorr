@@ -3,7 +3,9 @@ from data.scripts import SourceRegistry
 from crosscorr_lib.narrator import speak
 
 # --- КОНСТАНТЫ ПУТЕЙ К ДАННЫМ ---
-CC_CSV = "results/cross_correlation.csv"
+# Cross-correlation results (новый формат: detector_1, detector_2, lag, ...)
+CC_CSV = "results/cross_correlation_pairs.csv"
+# Surrogate significant pairs (formatted by surrogate.py)
 SIG_CSV = "results/surrogate_significant.csv"
 NARRATOR_MODULE = "code.narrator"
 

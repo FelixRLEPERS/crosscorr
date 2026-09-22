@@ -130,6 +130,43 @@ def fdr_bh(pvals: np.ndarray, alpha: float = 0.05) -> np.ndarray:
 
     raise ValueError(f"fdr_bh ожидает 1D или 2D массив, получил {pvals.ndim}D")
 
+def fdr_bh_q(
+    pvals: np.ndarray,
+    alpha: float = 0.05,
+) -> tuple[np.ndarray, np.ndarray]:
+    """
+    Benjamini-Hochberg FDR с возвратом q-values.
+
+    Работает с 1D массивом p-values.
+
+    Returns:
+        (significant_mask, q_values)
+        significant_mask: bool массив, True для значимых
+        q_values:         adjusted p-values (q-values)
+    """
+    pvals = np.asarray(pvals, dtype=float)
+    if pvals.ndim != 1:
+        raise ValueError(
+            f"fdr_bh_q ожидает 1D массив, получил {pvals.ndim}D"
+        )
+
+    n = pvals.size
+    if n == 0:
+        return np.array([], dtype=bool), np.array([])
+
+    order = np.argsort(pvals)
+    ranked = pvals[order]
+
+    q = np.empty(n, dtype=float)
+    prev = 1.0
+    for i in range(n - 1, -1, -1):
+        rank = i + 1
+        val = ranked[i] * n / rank
+        prev = min(prev, val)
+        q[order[i]] = prev
+
+    mask = q <= alpha
+    return mask, q
 
 def main() -> None:
     parser = argparse.ArgumentParser()
