@@ -1,0 +1,11 @@
+detector_id,lat,lon,detector_type
+D_MOSCOW,55.7558,37.6173,wspr
+D_SPB,59.9311,30.3609,wspr
+D_KALININGRAD,54.7104,20.4522,intermagnet
+D_EKATERINBURG,56.8389,60.6057,intermagnet
+D_NOVOSIBIRSK,55.0084,82.9357,ngl
+D_Krasnoyarsk,56.0153,92.8932,ngl
+D_IRKUTSK,52.287,104.305,wspr
+D_Vladivostok,43.1332,131.9113,intermagnet
+D_MURMANSK,68.9585,33.0827,ngl
+D_SOCHI,43.5855,39.7231,wspr
