@@ -174,12 +174,13 @@ def main() -> None:
     parser.add_argument("--n", type=int, default=1000)
     parser.add_argument("--alpha", type=float, default=0.05)
     parser.add_argument("--freq", default="1h")
+    parser.add_argument("--seed", type=int, default=42)  
     args = parser.parse_args()
 
     df = pd.read_parquet(args.input)
     wide = build_wide(df, freq=args.freq)
 
-    pvals = surrogate_test(wide, n_surrogates=args.n)
+    pvals = surrogate_test(wide, n_surrogates=args.n, seed=args.seed)
     significant = fdr_bh(pvals.values, alpha=args.alpha)
 
     pvals.to_csv(DEFAULT_OUT / "surrogate_pvalues.csv")

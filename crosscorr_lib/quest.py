@@ -9,13 +9,16 @@ import glob
 import base64
 import streamlit as st
 import streamlit.components.v1 as components
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # ============================================================
 # ПОИСК МЕДИА-ФАЙЛОВ
 # ============================================================
 
 def _find_first(ext):
-    files = sorted(glob.glob(f"*.{ext}"))
+    """Ищет файл в директории скрипта, не в CWD."""
+    pattern = os.path.join(SCRIPT_DIR, f"*.{ext}")
+    files = sorted(glob.glob(pattern))
     return files[0] if files else None
 
 BG_VIDEO_FILE = _find_first("mp4")
