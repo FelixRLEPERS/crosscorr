@@ -22,7 +22,6 @@
 
 - [О проекте](#о-проекте)
 - [Методология](#методология)
-- [Научная строгость](#научная-строгость)
 - [Структура репозитория](#структура-репозитория)
 - [Быстрый старт](#быстрый-старт)
 - [Данные](#данные)
@@ -80,15 +79,15 @@
 
 4. **Кросс-корреляционный анализ.**
    Построение матрицы корреляций между детекторами и временными рядами.
-   Реализация: [`crosscorr_lib/analysis/cross_correlation.py`](crosscorr_lib/analysis/cross_correlation.py).
+   Реализация: [`code/analysis/cross_correlation.py`](code/analysis/cross_correlation.py).
 
 5. **Мультифрактальный анализ.**
    MFDFA для оценки фрактальных свойств рядов.
-   Реализация: [`MFDFA`](https://pypi.org/project/MFDFA/), [`crosscorr_lib/analysis/mfdfa.py`](crosscorr_lib/analysis/mfdfa.py).
+   Реализация: [`MFDFA`](https://pypi.org/project/MFDFA/), [`code/analysis/mfdfa.py`](code/analysis/mfdfa.py).
 
 6. **Surrogate-тесты.**
    Генерация 1000+ фазовых суррогатов для проверки значимости наблюдаемых корреляций.
-   Реализация: [`crosscorr_lib/analysis/surrogate.py`](crosscorr_lib/analysis/surrogate.py).
+   Реализация: [`code/analysis/surrogate.py`](code/analysis/surrogate.py).
 
 7. **FDR-коррекция.**
    Контроль доли ложных обнаружений (Benjamini–Hochberg) при множественных сравнениях.
@@ -97,55 +96,47 @@
 
 ---
 
-
-## Научная строгость
-
-- **Max-statistic null** — p-value учитывает поиск по всем лагам, а не только по лучшему.
-  Без этого значимость завышалась бы (145 тестов на пару).
-- **Negative controls** — на чистом шуме 45 пар: **0 ложных срабатываний** (alpha=0.05).
-- **FDR** — единая реализация Benjamini–Hochberg в `crosscorr_lib/analysis/surrogate.py`,
-  поддержка 1D и 2D входов.
-- **Distance-based analysis** — регрессия `correlation ~ distance_km`.
-  Подтверждена гипотеза: близкие детекторы коррелируют сильнее.
-- **Block bootstrap** — в разработке (P1-3).
-- **Effective sample size** — в разработке (P1-2).
-- **Physical confounders** (Kp, Dst, F10.7) — в разработке (P1-6).
-
-Проверки запускаются одной командой:
-
-```bash
-python -m pytest tests/ -v -k "not negative_control"
-```
-
----
-
 ## 📁 Структура репозитория
 
 ```text
 crosscorr/
-├── assets/                      # SVG-логотипы и финальные кадры
-├── crosscorr_lib/               # ядро проекта
-│   ├── analysis/                # cross_correlation, surrogate, mfdfa, distance_analysis
-│   ├── safe_exec.py             # безопасное выполнение кода (P0-6)
-│   ├── ai_narrator.py
-│   ├── narrator.py
-│   └── quest.py
-├── data/
-│   ├── scripts/                 # download_*, unify_schema, make_sample
-│   ├── detectors.csv            # координаты детекторов (lat, lon)
-│   └── processed/               # unified.parquet (gitignored)
-├── scripts/
-│   └── make_synthetic_unified.py # генератор тестовых данных
-├── tests/                       # pytest-тесты
-│   ├── test_cross_correlation_synthetic.py
-│   ├── test_fdr.py
-│   ├── test_max_statistic.py
-│   ├── test_negative_control.py
-│   └── test_distance_analysis.py
-├── results/                     # выходные CSV (gitignored)
-├── docs/
 ├── README.md
-└── requirements.txt
+├── LICENSE
+├── requirements.txt
+├── .gitignore
+├── code/
+│   ├── quest.py                # Streamlit-игра
+│   ├── narrator.py             # голосовой наставник (edge-tts)
+│   ├── ai_narrator.py          # AI-наставник
+│   └── analysis/
+│       ├── README.md
+│       ├── cross_correlation.py
+│       ├── surrogate.py
+│       └── mfdfa.py
+├── data/
+│   ├── README.md
+│   ├── raw/                    # сырые данные (не коммитятся)
+│   ├── interim/                # промежуточные (не коммитятся)
+│   ├── processed/              # унифицированные (не коммитятся)
+│   ├── samples/                # небольшие примеры для тестов
+│   ├── schema/
+│   │   └── unified_schema.json
+│   └── scripts/
+│       ├── download_wspr.py
+│       ├── download_intermagnet.py
+│       ├── download_horizons.py
+│       ├── unify_schema.py
+│       └── make_sample.py
+├── docs/
+│   ├── methodology.md
+│   ├── roadmap.md
+│   ├── quest.md
+│   └── fund.md
+├── results/                    # графики, таблицы, p-values
+├── images/                     # логотип и скриншоты
+└── paper/
+    ├── work.tex
+    └── references.bib
 ```
 
 ---
@@ -173,19 +164,19 @@ pip install -r requirements.txt
 ### Запуск игры
 
 ```bash
-streamlit run crosscorr_lib/quest.py
+streamlit run code/quest.py
 ```
 
 ### Запуск голосового наставника
 
 ```bash
-python crosscorr_lib/narrator.py
+python code/narrator.py
 ```
 
 ### Запуск AI-наставника
 
 ```bash
-python crosscorr_lib/ai_narrator.py
+python code/ai_narrator.py
 ```
 
 ---
@@ -212,7 +203,7 @@ JSON-схема: [data/schema/unified_schema.json](data/schema/unified_schema.js
 
 ## 🔬 Пайплайн анализа
 
-Полное описание: [crosscorr_lib/analysis/README.md](crosscorr_lib/analysis/README.md).
+Полное описание: [code/analysis/README.md](code/analysis/README.md).
 
 Кратко:
 
@@ -229,44 +220,22 @@ python data/scripts/unify_schema.py
 python data/scripts/make_sample.py
 
 # 4. Кросс-корреляция
-python crosscorr_lib/analysis/cross_correlation.py --freq 1h --method spearman
+python code/analysis/cross_correlation.py --freq 1h --method spearman
 
 # 5. Surrogate-тесты и FDR
-python crosscorr_lib/analysis/surrogate.py --n 1000 --alpha 0.05
+python code/analysis/surrogate.py --n 1000 --alpha 0.05
 
 # 6. MFDFA
-python crosscorr_lib/analysis/mfdfa.py
-
-# 7. Distance-based analysis (корреляция vs расстояние)
-python -m crosscorr_lib.analysis.distance_analysis
-
-# 8. Тесты (без долгих negative_control)
-python -m pytest tests/ -v -k "not negative_control"
-
-# 9. Долгие negative controls (по желанию, ~2 минуты)
-python -m pytest tests/test_negative_control.py -v -s -n 2
-
+python code/analysis/mfdfa.py
 ```
 
 Артефакты анализа сохраняются в `results/`:
 
-- `results/distance_analysis.csv` — пары + distance_km
-- `results/distance_summary.csv` — сводка по бинам расстояний
-- `results/cross_correlation_pairs.csv` — tidy-формат: `detector_1, detector_2, lag, correlation, p_value, q_value, n_obs, significant`
+- `results/cross_correlation.csv`
 - `results/cross_correlation.png`
 - `results/surrogate_pvalues.csv`
 - `results/surrogate_significant.csv`
 - `results/mfdfa_spectra.csv`
-
-### Безопасность выполнения кода
-
-Код, который пишет ребёнок, выполняется в **изолированном subprocess** с timeout 5 секунд. Опасные имена (`open`, `exec`, `eval`, `__import__`, `import os`, `import sys`) блокируются через **AST-парсер** — не наивный поиск подстроки.
-
-- `while True: pass` — прерывается через timeout.
-- `import os; os.system(...)` — блокируется до выполнения.
-- `pos = 5` (содержит `os`) — **разрешается**, ложных срабатываний нет.
-
-Реализация: [`crosscorr_lib/safe_exec.py`](crosscorr_lib/safe_exec.py).
 
 ---
 
@@ -274,9 +243,9 @@ python -m pytest tests/test_negative_control.py -v -s -n 2
 
 Игровой модуль для детей 11–13 лет. Сюжет — «Охота на призрака»: ребёнок ищет сверхмалые корреляции в данных.
 
-- [`crosscorr_lib/quest.py`](crosscorr_lib/quest.py) — интерактивный квест (Streamlit, видео-фон, музыка).
-- [`crosscorr_lib/narrator.py`](crosscorr_lib/narrator.py) — голосовой наставник на базе `edge-tts` (бесплатно, без API-ключей).
-- [`crosscorr_lib/ai_narrator.py`](crosscorr_lib/ai_narrator.py) — AI-наставник, объясняющий результаты анализа.
+- [`code/quest.py`](code/quest.py) — интерактивный квест (Streamlit, видео-фон, музыка).
+- [`code/narrator.py`](code/narrator.py) — голосовой наставник на базе `edge-tts` (бесплатно, без API-ключей).
+- [`code/ai_narrator.py`](code/ai_narrator.py) — AI-наставник, объясняющий результаты анализа.
 
 Подробное описание сюжета и уровней: [docs/quest.md](docs/quest.md).
 
@@ -323,11 +292,7 @@ python -m pytest tests/test_negative_control.py -v -s -n 2
 
 Раздел будет пополняться по мере прогонов пайплайна.
 
-- [x] Синтетический бенчмарк: лаговая CC восстанавливает lag=6
-- [x] Negative controls: 0 ложных срабатываний на 45 парах шума
-- [x] Distance-based analysis: slope < 0 (близкие коррелируют сильнее)
-- [x] Max-statistic null: p-value учитывает поиск по всем лагам
-- [ ] Первый прогон на реальных WSPR + Horizons
+- [ ] Первый прогон на одном дне WSPR + Horizons
 - [ ] Кросс-корреляционная матрица за неделю
 - [ ] Surrogate-тесты (n=1000) с FDR
 - [ ] MFDFA-спектры по всем детекторам
@@ -338,19 +303,19 @@ python -m pytest tests/test_negative_control.py -v -s -n 2
 
 ## 📌 Статус проекта
 
-- ✅ Голосовой наставник (`crosscorr_lib/narrator.py`)
-- ✅ AI-наставник (`crosscorr_lib/ai_narrator.py`)
-- ✅ Безопасное выполнение кода (`crosscorr_lib/safe_exec.py`)
-- ✅ Тесты (`pytest`, 11 тестов в 5 файлах)
-- ✅ Distance-based analysis (`correlation ~ distance_km`)
-- ✅ Max-statistic null для лагов
-- ✅ Negative controls (0 ложных на шуме)
-- ✅ Единая FDR (1D + 2D)
-- 🚧 MixedLM для остатков
-- 🚧 CI (GitHub Actions)
-- 🚧 Physical confounders (Kp, Dst, F10.7)
-- 🚧 Effective sample size
-- 🚧 Block bootstrap
+- ✅ Пайплайн загрузки данных (WSPR, INTERMAGNET, Horizons)
+- ✅ Унификация схемы данных
+- ✅ Кросс-корреляционный анализ
+- ✅ Surrogate-тесты + FDR
+- ✅ MFDFA-анализ
+- ✅ Игра для детей
+- 🚧 Голосовой наставник (в разработке)
+- 🚧 AI-наставник (в разработке)
+- 🚧 Базовая MixedLM-модель для оценки остатков
+- 🚧 Тесты (`pytest`) и CI (GitHub Actions)
+- 🚧 Концепция CrossCorr Fund (whitepaper готов)
+- 📅 Публикация препринта (план: Q1 2026)
+- 📅 Запуск CrossCorr Fund (план: Q2 2026)
 
 Актуальный план: [docs/roadmap.md](docs/roadmap.md)
 
@@ -382,7 +347,7 @@ python -m pytest tests/test_negative_control.py -v -s -n 2
 - [Игра и сюжет](docs/quest.md)
 - [CrossCorr Fund](docs/fund.md)
 - [Whitepaper фонда](docs/fund-whitepaper.md)
-- [Пайплайн анализа](crosscorr_lib/analysis/README.md)
+- [Пайплайн анализа](code/analysis/README.md)
 - [Описание данных](data/README.md)
 - [Статья (LaTeX)](paper/work.tex)
 - [Библиография](paper/references.bib)
