@@ -77,31 +77,58 @@ def surrogate_test(wide: pd.DataFrame, n_surrogates: int = 1000, seed: int = 42)
 
 
 def fdr_bh(pvals: np.ndarray, alpha: float = 0.05) -> np.ndarray:
-    """Benjamini-Hochberg FDR на верхнем треугольнике матрицы.
+    """Benjamini-Hochberg FDR.
 
-    Работает только с уникальными парами (i<j), а не со всей
-    симметричной матрицей. Возвращает симметричную булеву маску.
+    Работает в двух режимах:
+    - 2D матрица (N×N): использует верхний треугольник (i<j),
+      возвращает симметричную булеву маску той же формы.
+    - 1D массив: применяет BH напрямую к списку p-values,
+      возвращает 1D булеву маску.
+
+    Args:
+        pvals: 1D или 2D массив p-values.
+        alpha: уровень значимости.
+
+    Returns:
+        Булева маска той же размерности, что вход.
     """
-    n_total = pvals.shape[0]
-    iu = np.triu_indices(n_total, k=1)
-    flat = pvals[iu]
-    n = flat.size
+    pvals = np.asarray(pvals, dtype=float)
 
-    order = np.argsort(flat)
-    ranked = flat[order]
-    thresholds = alpha * (np.arange(1, n + 1) / n)
-    passed = ranked <= thresholds
+    if pvals.ndim == 1:
+        n = pvals.size
+        order = np.argsort(pvals)
+        ranked = pvals[order]
+        thresholds = alpha * (np.arange(1, n + 1) / n)
+        passed = ranked <= thresholds
 
-    mask_flat = np.zeros(n, dtype=bool)
-    if passed.any():
-        k = int(np.max(np.where(passed)[0]))
-        mask_flat[order[: k + 1]] = True
+        mask_flat = np.zeros(n, dtype=bool)
+        if passed.any():
+            k = int(np.max(np.where(passed)[0]))
+            mask_flat[order[: k + 1]] = True
+        return mask_flat
 
-    # Создаём симметричную маску на основе flat
-    mask = np.zeros((n_total, n_total), dtype=bool)
-    mask[iu] = mask_flat
-    mask = mask | mask.T
-    return mask
+    if pvals.ndim == 2:
+        n_total = pvals.shape[0]
+        iu = np.triu_indices(n_total, k=1)
+        flat = pvals[iu]
+        n = flat.size
+
+        order = np.argsort(flat)
+        ranked = flat[order]
+        thresholds = alpha * (np.arange(1, n + 1) / n)
+        passed = ranked <= thresholds
+
+        mask_flat = np.zeros(n, dtype=bool)
+        if passed.any():
+            k = int(np.max(np.where(passed)[0]))
+            mask_flat[order[: k + 1]] = True
+
+        mask = np.zeros((n_total, n_total), dtype=bool)
+        mask[iu] = mask_flat
+        mask = mask | mask.T
+        return mask
+
+    raise ValueError(f"fdr_bh ожидает 1D или 2D массив, получил {pvals.ndim}D")
 
 
 def main() -> None:
@@ -138,6 +165,95 @@ def main() -> None:
     print(f"[OK] p-values -> {DEFAULT_OUT / 'surrogate_pvalues.csv'}")
     print(f"[OK] significant pairs: {len(pairs)}")
 
+def max_lag_surrogate_pvalue(
+    x: np.ndarray,
+    y: np.ndarray,
+    max_lag: int = 72,
+    n_surrogates: int = 500,
+    seed: int = 42,
+) -> tuple[float, float, int]:
+    """
+    Max-statistic p-value для лаговой кросс-корреляции.
+
+    Тестирует гипотезу: "нет связи ни на одном лаге".
+    Учитывает, что мы ищем максимум по всем 2*max_lag+1 лагам.
+
+    Args:
+        x, y          : ряды (1D)
+        max_lag       : максимальный лаг
+        n_surrogates  : число суррогатов
+        seed          : seed для воспроизводимости
+
+    Returns:
+        (t_obs, p_value, best_lag)
+        t_obs    : max|corr| на реальных данных
+        p_value  : доля суррогатов, где max|corr_surr| >= t_obs
+        best_lag : лаг, на котором достигнут t_obs
+    """
+    x = np.asarray(x, dtype=float)
+    y = np.asarray(y, dtype=float)
+
+    # Реальное значение
+    lags, corrs, _ = _lagged_cc(x, y, max_lag)
+    if np.all(np.isnan(corrs)):
+        return np.nan, 1.0, 0
+
+    best_idx = int(np.nanargmax(np.abs(corrs)))
+    t_obs = float(np.abs(corrs[best_idx]))
+    best_lag = int(lags[best_idx])
+
+    # Суррогаты
+    rng = np.random.default_rng(seed)
+    n_extreme = 0
+
+    for _ in range(n_surrogates):
+        y_surr = _phase_surrogate_keep_length(y, rng)
+        _, corrs_surr, _ = _lagged_cc(x, y_surr, max_lag)
+        if np.all(np.isnan(corrs_surr)):
+            continue
+        t_surr = float(np.nanmax(np.abs(corrs_surr)))
+        if t_surr >= t_obs:
+            n_extreme += 1
+
+    p_value = (n_extreme + 1) / (n_surrogates + 1)
+    return t_obs, p_value, best_lag
+
+
+def _lagged_cc(x, y, max_lag):
+    """Внутренняя обёртка: избегаем циклического импорта."""
+    from crosscorr_lib.analysis.cross_correlation import (
+        lagged_cross_correlation,
+    )
+    return lagged_cross_correlation(x, y, max_lag)
+
+
+def _phase_surrogate_keep_length(x, rng):
+    """
+    Фазовый суррогат, сохраняющий длину ряда.
+    В отличие от phase_surrogate, здесь NaN не удаляются
+    (используется интерполяция).
+    """
+    x = np.asarray(x, dtype=float)
+    if np.isnan(x).any():
+        # Простая интерполяция для NaN
+        mask = ~np.isnan(x)
+        if mask.sum() < 4:
+            return x
+        idx = np.arange(x.size)
+        x = np.interp(idx, idx[mask], x[mask])
+
+    n = x.size
+    if n < 4:
+        return x
+
+    fft = np.fft.rfft(x)
+    magnitudes = np.abs(fft)
+    phases = rng.uniform(-np.pi, np.pi, size=magnitudes.shape)
+    phases[0] = 0.0
+    if n % 2 == 0:
+        phases[-1] = 0.0
+    fft_surr = magnitudes * np.exp(1j * phases)
+    return np.fft.irfft(fft_surr, n=n)
 
 if __name__ == "__main__":
     main()
