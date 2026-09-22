@@ -14,13 +14,17 @@ import multiprocessing as mp
 
 # Запрещённые имена модулей/функций (проверяются через AST)
 FORBIDDEN_NAMES = {
+    # Опасные встроенные функции
     "open", "exec", "eval", "compile",
     "__import__", "input", "exit", "quit",
     "globals", "locals", "vars",
     "breakpoint", "memoryview",
+    # Опасные модули
     "os", "sys", "subprocess", "shutil",
     "socket", "requests", "urllib", "http",
+    "pathlib", "tempfile", "pickle", "shelve",
 }
+
 
 # Разрешённые встроенные функции
 SAFE_BUILTINS = {
