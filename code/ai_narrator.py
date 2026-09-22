@@ -1,6 +1,6 @@
 import pandas as pd
 from data.scripts import SourceRegistry
-from code.narrator import narrate # Предполагаем, что это функция для озвучивания
+from code.narrator import speak
 
 # --- КОНСТАНТЫ ПУТЕЙ К ДАННЫМ ---
 CC_CSV = "results/cross_correlation.csv"
@@ -80,7 +80,7 @@ class AINarrator:
         
         # 2. Озвучивание истории (Вызов внешнего модуля)
         try:
-            narrate(final_message, speaker="Child", style="Excited")
+            speak(final_message, autoplay=True)
             print("Narrator успешно запущен и озвучил финальную историю.")
         except Exception as e:
             print(f"ВНИМАНИЕ: Не удалось вызвать модуль narrator.py для озвучивания. Ошибка: {e}")

@@ -1,8 +1,10 @@
 from typing import Dict, List, Any, Optional
-import re # Импортируем для потенциальной обработки Regex в будущем
+import re  # импортируем для потенциальной обработки Regex в будущем
+
 
 # Типизация для метаданных источника данных
 SourceMetadata = Dict[str, Any]
+
 
 class SourceRegistry:
     """
@@ -28,6 +30,7 @@ class SourceRegistry:
         """Проверяет, известен ли источник данных."""
         return source_name in cls._registry
 
+
 # ==============================================
 # Инициализация и регистрация известных источников
 # Эта секция должна быть расширена при добавлении новых источников.
@@ -36,51 +39,49 @@ class SourceRegistry:
 def _initialize_registry():
     """Автоматическая инициализация реестра известными источниками."""
     print("Initializing CrossCorr Source Registry...")
-    
+
     # 1. WSPR (Worldwide Survey of Pulsars and Radio sources)
-    register_source(
+    SourceRegistry.register_source(
         "WSPR",
         {
             "description": "Данные о радиосигналах от источников пульсаров.",
             "expected_fields": ["timestamp", "detector_id", "residual"],
             "download_script": "data/scripts/download_wspr.py",
-            "parser_module": "WSPRParser", 
+            "parser_module": "WSPRParser",
             "is_critical": True,
-            # --- НОВЫЕ ПОЛЯ ДЛЯ API ВЗАИМОДЕЙСТВИЯ ---
-            "base_url": "https://api.crosscorr.org/v1/", # Базовый URL для запросов
-            "api_endpoint": "sources/wspr",          # Конкретный эндпоинт WSPR
+            "base_url": "https://api.crosscorr.org/v1/",
+            "api_endpoint": "sources/wspr",
         }
     )
 
     # 2. INTERMAGNET (Магнитное поле Земли)
-    register_source(
+    SourceRegistry.register_source(
         "INTERMAGNET",
         {
             "description": "Измерения магнитного поля Earth's field.",
             "expected_fields": ["timestamp", "detector_id", "field_strength"],
             "download_script": "data/scripts/download_intermagnet.py",
-            "parser_module": "InterMagnetParser", 
+            "parser_module": "InterMagnetParser",
             "is_critical": True,
-            # --- НОВЫЕ ПОЛЯ ДЛЯ API ВЗАИМОДЕЙСТВИЯ ---
             "base_url": "https://api.crosscorr.org/v1/",
             "api_endpoint": "sources/intermagnet",
         }
     )
 
     # 3. NGL (GNSS данные)
-    register_source(
+    SourceRegistry.register_source(
         "NGL",
         {
             "description": "Глобальные навигационные спутниковые данные.",
             "expected_fields": ["timestamp", "detector_id", "latitude"],
             "download_script": "data/scripts/download_ngl.py",
-            "parser_module": "NGLParser", 
+            "parser_module": "NGLParser",
             "is_critical": False,
-            # --- НОВЫЕ ПОЛЯ ДЛЯ API ВЗАИМОДЕЙСТВИЯ ---
             "base_url": "https://api.crosscorr.org/v1/",
             "api_endpoint": "sources/ngl",
         }
     )
+
 
 # Вызов инициализации при импорте модуля
 _initialize_registry()
