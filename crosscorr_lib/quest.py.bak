@@ -1439,12 +1439,11 @@ def show_branch_level():
 # МАРШРУТИЗАЦИЯ
 # ============================================================
 
-if __name__ == "__main__":
-    if not st.session_state.game_started:
-        show_start_screen()
-    elif st.session_state.branch is not None:
-        show_branch_level()
-    elif st.session_state.get("show_branches", False):
-        show_branch_selection()
-    else:
-        show_level()
+if not st.session_state.game_started:
+    show_start_screen()
+elif st.session_state.branch is not None:
+    show_branch_level()
+elif st.session_state.get("show_branches", False):
+    show_branch_selection()
+else:
+    show_level()
