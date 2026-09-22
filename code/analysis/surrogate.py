@@ -77,20 +77,31 @@ def surrogate_test(wide: pd.DataFrame, n_surrogates: int = 1000, seed: int = 42)
 
 
 def fdr_bh(pvals: np.ndarray, alpha: float = 0.05) -> np.ndarray:
-    """Benjamini-Hochberg FDR. Возвращает булеву маску значимости."""
-    flat = pvals.flatten()
+    """Benjamini-Hochberg FDR на верхнем треугольнике матрицы.
+
+    Работает только с уникальными парами (i<j), а не со всей
+    симметричной матрицей. Возвращает симметричную булеву маску.
+    """
+    n_total = pvals.shape[0]
+    iu = np.triu_indices(n_total, k=1)
+    flat = pvals[iu]
     n = flat.size
+
     order = np.argsort(flat)
     ranked = flat[order]
     thresholds = alpha * (np.arange(1, n + 1) / n)
     passed = ranked <= thresholds
-    if not passed.any():
-        mask = np.zeros_like(flat, dtype=bool)
-    else:
-        k = np.max(np.where(passed)[0])
-        mask = np.zeros_like(flat, dtype=bool)
-        mask[order[: k + 1]] = True
-    return mask.reshape(pvals.shape)
+
+    mask_flat = np.zeros(n, dtype=bool)
+    if passed.any():
+        k = int(np.max(np.where(passed)[0]))
+        mask_flat[order[: k + 1]] = True
+
+    # Создаём симметричную маску на основе flat
+    mask = np.zeros((n_total, n_total), dtype=bool)
+    mask[iu] = mask_flat
+    mask = mask | mask.T
+    return mask
 
 
 def main() -> None:
