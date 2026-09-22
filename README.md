@@ -11,9 +11,13 @@
 <p align="center">
   <a href="https://www.python.org/"><img src="https://img.shields.io/badge/python-3.10%2B-blue" alt="Python"></a>
   <a href="https://streamlit.io/"><img src="https://img.shields.io/badge/Streamlit-1.30%2B-FF4B4B?logo=streamlit&logoColor=white" alt="Streamlit"></a>
+  <a href="https://github.com/FelixRLEPERS/crosscorr/actions">
+    <img src="https://github.com/FelixRLEPERS/crosscorr/actions/workflows/ci.yaml/badge.svg" alt="CI">
+</a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
   <img src="https://img.shields.io/badge/status-active-brightgreen" alt="Status">
-  <a href="https://github.com/FelixRLEPERS/crosscorr/commits/main"><img src="https://img.shields.io/github/last-commit/FelixRLEPERS/crosscorr" alt="Last commit"></a>
+  <a href="https://github.com/FelixRLEPERS/crosscorr/commits/main"><img src="https://img.shields.io/github/last-commit/FelixRLEPERS/crosscorr" alt="Last commit">
+</a>
 </p>
 
 ---
