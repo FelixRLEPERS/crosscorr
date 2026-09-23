@@ -62,7 +62,7 @@ def make_synthetic_confounders(
     return pd.DataFrame(
         {"kp": kp, "dst": dst, "f107": f107},
         index=timestamps,
-    ).rename_axis("timestamp_utc")
+    )
 
 
 def _align_confounders(
