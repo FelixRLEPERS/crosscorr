@@ -55,7 +55,7 @@ def test_negative_control_no_false_positives():
             x = wide[cols[i]].values
             y = wide[cols[j]].values
             t_obs, p, best_lag = max_lag_surrogate_pvalue(
-                x, y, max_lag=24, n_surrogates=200, seed=42
+              x, y, max_lag=24, n_surrogates=200, seed=42 + i * 100 + j
             )
             rows.append({
                 "detector_1": cols[i],
@@ -102,7 +102,9 @@ def test_negative_control_min_p_value_distribution():
             x = wide[cols[i]].values
             y = wide[cols[j]].values
             _, p, _ = max_lag_surrogate_pvalue(
-                x, y, max_lag=24, n_surrogates=200, seed=42
+                _, p, _ = max_lag_surrogate_pvalue(
+                    x, y, max_lag=24, n_surrogates=200, seed=42 + i * 100 + j
+                )
             )
             p_values.append(p)
 

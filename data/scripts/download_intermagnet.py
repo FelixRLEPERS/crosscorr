@@ -38,6 +38,20 @@ def parse_iaga2002(path: Path) -> pd.DataFrame:
             rows.append({"timestamp": ts, "X": x, "Y": y, "Z": z})
     return pd.DataFrame(rows)
 
+def download_and_save_intermagnet(station: str, year: int, month: int) -> Path:
+    """Скачать данные INTERMAGNET для станции и месяца.
+
+    Примечание: INTERMAGNET требует ручной загрузки через веб-интерфейс.
+    Эта функция — заглушка: создаёт пустой файл, чтобы не падать.
+    Для реальной загрузки см. https://intermagnet.org
+    """
+    out_dir = Path("data/raw/intermagnet")
+    out_dir.mkdir(parents=True, exist_ok=True)
+    out_path = out_dir / f"{station}_{year}_{month:02d}.min"
+    # TODO: реальная загрузка через API
+    out_path.touch()
+    print(f"[STUB] {out_path}")
+    return out_path
 
 def main() -> None:
     parser = argparse.ArgumentParser()
