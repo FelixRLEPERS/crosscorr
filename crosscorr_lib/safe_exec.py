@@ -23,6 +23,13 @@ FORBIDDEN_NAMES = {
     "os", "sys", "subprocess", "shutil",
     "socket", "requests", "urllib", "http",
     "pathlib", "tempfile", "pickle", "shelve",
+    # Dunder-обходы (НЕ ДАВАТЬ вырваться из песочницы)
+    "__class__", "__base__", "__subclasses__",
+    "__bases__", "__mro__", "__globals__",
+    "__builtins__", "__dict__", "__getattribute__",
+    "__getattr__", "__setattr__", "__delattr__",
+    "__reduce__", "__reduce_ex__",
+    "importlib",
 }
 
 

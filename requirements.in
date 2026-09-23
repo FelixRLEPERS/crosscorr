@@ -1,0 +1,12 @@
+streamlit
+pandas
+numpy
+scipy
+matplotlib
+astroquery
+astropy
+requests
+statsmodels
+pymc
+arviz
+MFDFA
