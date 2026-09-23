@@ -47,9 +47,9 @@ def _initialize_registry():
             "description": "Данные о радиосигналах от источников пульсаров.",
             "expected_fields": ["timestamp", "detector_id", "residual"],
             "download_script": "data/scripts/download_wspr.py",
-            "parser_module": "WSPRParser",
+            "parser_module": "TODO: не реализован",
             "is_critical": True,
-            "base_url": "https://api.crosscorr.org/v1/",
+            "base_url": "https://TODO: указать реальный API/v1/",
             "api_endpoint": "sources/wspr",
         }
     )
@@ -63,7 +63,7 @@ def _initialize_registry():
             "download_script": "data/scripts/download_intermagnet.py",
             "parser_module": "InterMagnetParser",
             "is_critical": True,
-            "base_url": "https://api.crosscorr.org/v1/",
+            "base_url": "https://TODO: указать реальный API/v1/",
             "api_endpoint": "sources/intermagnet",
         }
     )
@@ -77,7 +77,7 @@ def _initialize_registry():
             "download_script": "data/scripts/download_ngl.py",
             "parser_module": "NGLParser",
             "is_critical": False,
-            "base_url": "https://api.crosscorr.org/v1/",
+            "base_url": "https://TODO: указать реальный API/v1/",
             "api_endpoint": "sources/ngl",
         }
     )

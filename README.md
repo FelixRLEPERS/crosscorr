@@ -111,9 +111,10 @@
   поддержка 1D и 2D входов.
 - **Distance-based analysis** — регрессия `correlation ~ distance_km`.
   Подтверждена гипотеза: близкие детекторы коррелируют сильнее.
-- **Block bootstrap** — в разработке (P1-3).
-- **Effective sample size** — в разработке (P1-2).
-- **Physical confounders** (Kp, Dst, F10.7) — в разработке (P1-6).
+- **Block bootstrap** — реализован (`crosscorr_lib/analysis/block_bootstrap.py`).
+- **Effective sample size** — реализован (`crosscorr_lib/analysis/effective_sample.py`).
+- **Physical confounders** (Kp, Dst, F10.7) — реализованы (`crosscorr_lib/analysis/confounders.py`).
+- **ADF stationarity test** — реализован (`crosscorr_lib/analysis/stationarity.py`).
 
 Проверки запускаются одной командой:
 

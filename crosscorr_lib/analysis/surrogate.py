@@ -20,18 +20,28 @@ DEFAULT_OUT.mkdir(parents=True, exist_ok=True)
 
 
 def phase_surrogate(x: np.ndarray, rng: np.random.Generator) -> np.ndarray:
-    """Возвращает фазовый суррогат для одномерного ряда."""
+    """Возвращает фазовый суррогат для одномерного ряда.
+
+    Фиксирует фазу DC (индекс 0) и Nyquist (последний индекс для чётной
+    длины), чтобы сохранить нулевое среднее и вещественность сигнала.
+    """
     x = np.asarray(x, dtype=float)
     x = x[~np.isnan(x)]
     if x.size < 4:
         return x
+
     fft = np.fft.rfft(x)
-    phases = np.angle(fft)
     magnitudes = np.abs(fft)
-    random_phases = rng.uniform(-np.pi, np.pi, size=phases.shape)
+    random_phases = rng.uniform(-np.pi, np.pi, size=magnitudes.shape)
+
+    # Фиксация DC (сохраняет нулевое среднее)
+    random_phases[0] = 0.0
+    # Фиксация Nyquist для чётных длин (сохраняет вещественность)
+    if x.size % 2 == 0:
+        random_phases[-1] = 0.0
+
     fft_surrogate = magnitudes * np.exp(1j * random_phases)
-    surrogate = np.fft.irfft(fft_surrogate, n=x.size)
-    return surrogate
+    return np.fft.irfft(fft_surrogate, n=x.size)
 
 
 def build_wide(df: pd.DataFrame, freq: str = "1h") -> pd.DataFrame:
