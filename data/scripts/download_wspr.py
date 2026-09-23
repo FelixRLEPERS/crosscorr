@@ -14,6 +14,7 @@ from pathlib import Path
 
 import pandas as pd
 import requests
+import time
 
 RAW_DIR = Path(__file__).resolve().parents[1] / "raw" / "wspr"
 RAW_DIR.mkdir(parents=True, exist_ok=True)
@@ -26,7 +27,7 @@ INITIAL_BACKOFF = 5 # Начальная задержка в секундах
 
 
 def fetch_wspr(date: dt.date, band: str = "20m", limit: int = 5000) -> pd.DataFrame:
-    """Скачивает споты WSPR за указанную дату."""
+    """Скачивает споты WSPR за указанную дату с retry-логикой."""
     params = {
         "start": date.isoformat(),
         "end": date.isoformat(),
@@ -34,11 +35,27 @@ def fetch_wspr(date: dt.date, band: str = "20m", limit: int = 5000) -> pd.DataFr
         "limit": limit,
         "format": "csv",
     }
-    resp = requests.get(WSPR_API, params=params, timeout=60)
-    resp.raise_for_status()
-    from io import StringIO
-    df = pd.read_csv(StringIO(resp.text))
-    return df
+
+    last_error = None
+    for attempt in range(MAX_RETRIES):
+        try:
+            resp = requests.get(WSPR_API, params=params, timeout=60)
+            resp.raise_for_status()
+            from io import StringIO
+            df = pd.read_csv(StringIO(resp.text))
+            return df
+        except requests.RequestException as e:
+            last_error = e
+            backoff = INITIAL_BACKOFF * (2 ** attempt)
+            if attempt < MAX_RETRIES - 1:
+                print(f"[RETRY] Попытка {attempt + 1}/{MAX_RETRIES} "
+                      f"не удалась: {e}. Ждём {backoff} сек...")
+                time.sleep(backoff)
+
+    raise RuntimeError(
+        f"WSPR API не ответил за {MAX_RETRIES} попыток. "
+        f"Последняя ошибка: {last_error}"
+    )
 
 
 def normalize(df: pd.DataFrame) -> pd.DataFrame:

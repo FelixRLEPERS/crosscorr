@@ -39,9 +39,9 @@ def build_wide(df: pd.DataFrame, freq: str = "1h") -> pd.DataFrame:
     df["timestamp_utc"] = pd.to_datetime(df["timestamp_utc"], utc=True)
     df["bucket"] = df["timestamp_utc"].dt.floor(freq)
     wide = (
-        df.groupby(["detector_type", "bucket"])["residual"]
+        df.groupby(["detector_id", "bucket"])["residual"]
         .mean()
-        .unstack("detector_type")
+        .unstack("detector_id")
         .sort_index()
     )
     return wide

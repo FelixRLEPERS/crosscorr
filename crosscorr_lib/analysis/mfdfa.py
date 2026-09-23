@@ -71,11 +71,10 @@ def main() -> None:
     df["timestamp_utc"] = pd.to_datetime(df["timestamp_utc"], utc=True)
     df["bucket"] = df["timestamp_utc"].dt.floor(args.freq)
     wide = (
-        df.groupby(["detector_type", "bucket"])["residual"]
+        df.groupby(["detector_id", "bucket"])["residual"]
         .mean()
-        .unstack("detector_type")
+        .unstack("detector_id")
     )
-
     rows = []
     for col in wide.columns:
         try:
