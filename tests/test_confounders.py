@@ -34,7 +34,6 @@ def _make_two_detectors_driven_by_kp(
     idx = pd.date_range("2025-01-01", periods=n_time, freq="1h", tz="UTC")
     conf = make_synthetic_confounders(idx, seed=seed)
 
-    # Два детектора: общая компонента от Kp + независимый шум
     common = coupling * conf["kp"].values
 
     y1 = common + rng.normal(0, 0.3, n_time)
@@ -48,16 +47,13 @@ def test_confounders_correlation_before_after():
     """Корреляция падает после удаления конфаундера."""
     wide, conf = _make_two_detectors_driven_by_kp(n_time=1500, coupling=0.8)
 
-    # До удаления — высокая корреляция (общий Kp)
     corr_before = wide["D1"].corr(wide["D2"])
     assert corr_before > 0.7, (
         f"Ожидали высокую корреляцию, получили {corr_before:.3f}"
     )
 
-    # Удаляем конфаундеры
     cleaned = remove_confounders(wide, conf)
 
-    # После удаления — низкая корреляция
     corr_after = cleaned["D1"].corr(cleaned["D2"])
     assert corr_after < 0.2, (
         f"Ожидали низкую корреляцию, получили {corr_after:.3f}"
@@ -83,7 +79,6 @@ def test_confounders_no_confounders_in_data():
     idx = pd.date_range("2025-01-01", periods=n, freq="1h", tz="UTC")
     conf = make_synthetic_confounders(idx, seed=99)
 
-    # Оба ряда — независимый шум
     wide = pd.DataFrame(
         {"D1": rng.normal(size=n), "D2": rng.normal(size=n)},
         index=idx,
@@ -93,7 +88,6 @@ def test_confounders_no_confounders_in_data():
     cleaned = remove_confounders(wide, conf)
     corr_after = cleaned["D1"].corr(cleaned["D2"])
 
-    # Оба близки к нулю, разница маленькая
     assert abs(corr_before) < 0.1
     assert abs(corr_after) < 0.1
     print(f"\n  corr до: {corr_before:.4f}, после: {corr_after:.4f}")

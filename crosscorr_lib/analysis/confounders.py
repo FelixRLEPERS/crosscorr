@@ -70,9 +70,7 @@ def _align_confounders(
     confounders: pd.DataFrame,
 ) -> pd.DataFrame:
     """Привести конфаундеры к индексу wide: ресемплинг + интерполяция."""
-    # Ресемплинг к тому же индексу, что у wide
     conf = confounders.reindex(wide.index, method="ffill")
-    # Линейная интерполяция для дырок
     conf = conf.interpolate(method="linear", limit_direction="both")
     return conf
 
@@ -88,14 +86,6 @@ def remove_confounders(
     Для каждого детектора:
         y(t) = α + β1*Kp(t) + β2*Dst(t) + β3*F107(t) + residual(t)
     Возвращает DataFrame с residual'ами той же формы, что wide.
-
-    Args:
-        wide: wide-таблица (строки — время, колонки — detector_id).
-        confounders: DataFrame с колонками kp, dst, f107.
-        columns: какие конфаундеры использовать. По умолчанию — все.
-
-    Returns:
-        wide_residuals: DataFrame той же формы, что wide.
     """
     if columns is None:
         columns = [c for c in ["kp", "dst", "f107"] if c in confounders.columns]
@@ -103,39 +93,32 @@ def remove_confounders(
     if not columns:
         raise ValueError("Нет доступных конфаундеров для удаления")
 
-    # Синхронизация индексов
     conf = _align_confounders(wide, confounders)
 
-    # Общая маска: строки, где все конфаундеры валидны
     mask = conf[columns].notna().all(axis=1)
 
     X = conf.loc[mask, columns].values
-    # Добавляем intercept
     X = np.column_stack([np.ones(len(X)), X])
 
     result = pd.DataFrame(index=wide.index, columns=wide.columns, dtype=float)
 
     for col in wide.columns:
         y = wide[col].values
-        # Маска: где и y, и конфаундеры валидны
         valid = mask.values & ~np.isnan(y)
 
         if valid.sum() < len(columns) + 2:
-            # Слишком мало данных — оставляем как есть
             result[col] = y
             continue
 
         X_v = X[valid]
         y_v = y[valid]
 
-        # OLS: β = (X^T X)^-1 X^T y
         try:
             beta, *_ = np.linalg.lstsq(X_v, y_v, rcond=None)
         except np.linalg.LinAlgError:
             result[col] = y
             continue
 
-        # Residual = y - X β
         y_pred = X_v @ beta
         residuals = np.full_like(y, np.nan, dtype=float)
         residuals[valid] = y_v - y_pred
