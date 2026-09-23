@@ -144,26 +144,166 @@ def cross_correlation_pairs(
 
     return result
 
+def cross_correlation_pairs_with_max_stat(
+    wide: pd.DataFrame,
+    max_lag: int = 72,
+    alpha: float = 0.05,
+    n_surrogates: int = 200,
+    seed: int = 42,
+) -> pd.DataFrame:
+    """
+    Все пары детекторов → лаговая CC → max-statistic p-value → FDR.
+
+    Отличается от cross_correlation_pairs тем, что p-value
+    корректируется на множественное тестирование по всем лагам
+    (max-statistic null), а не берётся с одного лучшего лага.
+
+    Это научно корректный метод, но медленнее: n_surrogates × n_pairs
+    × n_lags вычислений. Для 45 пар × 200 суррогатов × 145 лагов
+    ~ 5-10 минут.
+
+    Args:
+        wide: wide-таблица (строки — время, колонки — detector_id).
+        max_lag: максимальный лаг.
+        alpha: уровень значимости для FDR.
+        n_surrogates: число фазовых суррогатов (200 для теста,
+                      1000+ для публикации).
+        seed: базовый seed (для каждой пары используется свой).
+
+    Returns:
+        Tidy DataFrame с колонками:
+        detector_1, detector_2, lag, correlation, p_value,
+        q_value, n_obs, significant, n_surrogates.
+    """
+    # Ленивый импорт: избегаем циклической зависимости
+    from crosscorr_lib.analysis.surrogate import (
+        fdr_bh_q,
+        max_lag_surrogate_pvalue,
+    )
+
+    cols = wide.columns.tolist()
+    rows = []
+
+    n_pairs = len(cols) * (len(cols) - 1) // 2
+    print(f"[MAX-STAT] Пар: {n_pairs}, "
+          f"суррогатов на пару: {n_surrogates}, "
+          f"max_lag: {max_lag}")
+    print(f"[MAX-STAT] Ожидаемое время: "
+          f"~{n_pairs * n_surrogates * (2 * max_lag + 1) / 100000:.0f} сек")
+
+    pair_idx = 0
+    for i in range(len(cols)):
+        for j in range(i + 1, len(cols)):
+            d1, d2 = cols[i], cols[j]
+            x = wide[d1].values
+            y = wide[d2].values
+
+            # Свой seed для каждой пары — суррогаты независимы
+            pair_seed = seed + i * 1000 + j
+
+            t_obs, p, best_lag = max_lag_surrogate_pvalue(
+                x, y,
+                max_lag=max_lag,
+                n_surrogates=n_surrogates,
+                seed=pair_seed,
+            )
+
+            if np.isnan(t_obs):
+                continue
+
+            # n_obs — число валидных пар значений
+            mask = ~(np.isnan(x) | np.isnan(y))
+            n_obs = int(mask.sum())
+
+            rows.append({
+                "detector_1": d1,
+                "detector_2": d2,
+                "lag": int(best_lag),
+                "correlation": float(t_obs),
+                "p_value": float(p),
+                "n_obs": n_obs,
+                "n_surrogates": int(n_surrogates),
+            })
+
+            pair_idx += 1
+            if pair_idx % 5 == 0:
+                print(f"  [{pair_idx}/{n_pairs}] "
+                      f"{d1} — {d2}: p={p:.4f}")
+
+    if not rows:
+        return pd.DataFrame(columns=[
+            "detector_1", "detector_2", "lag", "correlation",
+            "p_value", "q_value", "n_obs", "significant", "n_surrogates",
+        ])
+
+    result = pd.DataFrame(rows)
+
+    # FDR на всех парах
+    sig_mask, q_vals = fdr_bh_q(result["p_value"].values, alpha)
+    result["q_value"] = q_vals
+    result["significant"] = sig_mask
+
+    return result
 
 def main() -> None:
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(
+        description="Кросс-корреляционный анализ детекторов."
+    )
     parser.add_argument("--input", type=Path, default=DEFAULT_INPUT)
     parser.add_argument("--freq", default="1h")
     parser.add_argument("--max-lag", type=int, default=72)
     parser.add_argument("--alpha", type=float, default=0.05)
+    parser.add_argument(
+        "--use-max-stat",
+        action="store_true",
+        help="Использовать max-statistic null (медленно, научно). "
+             "По умолчанию — быстрый наивный p-value.",
+    )
+    parser.add_argument(
+        "--n-surrogates",
+        type=int,
+        default=200,
+        help="Число фазовых суррогатов для max-stat (по умолчанию 200).",
+    )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=42,
+        help="Seed для воспроизводимости (по умолчанию 42).",
+    )
     args = parser.parse_args()
 
     DEFAULT_OUT.mkdir(parents=True, exist_ok=True)
 
     df = load_unified(args.input)
     wide = build_wide_by_detector(df, freq=args.freq)
-    result = cross_correlation_pairs(wide, max_lag=args.max_lag, alpha=args.alpha)
+
+    print(f"[INFO] Детекторов: {wide.shape[1]}, точек: {wide.shape[0]}")
+    print(f"[INFO] Пар: {wide.shape[1] * (wide.shape[1] - 1) // 2}")
+    print(f"[INFO] Режим: "
+          f"{'max-statistic (научный)' if args.use_max_stat else 'наивный (быстрый)'}")
+
+    if args.use_max_stat:
+        result = cross_correlation_pairs_with_max_stat(
+            wide,
+            max_lag=args.max_lag,
+            alpha=args.alpha,
+            n_surrogates=args.n_surrogates,
+            seed=args.seed,
+        )
+    else:
+        result = cross_correlation_pairs(
+            wide,
+            max_lag=args.max_lag,
+            alpha=args.alpha,
+        )
 
     out_csv = DEFAULT_OUT / "cross_correlation_pairs.csv"
     result.to_csv(out_csv, index=False)
-    print(f"[OK] {out_csv}")
+    print(f"\n[OK] {out_csv}")
     print(f"[OK] Пар: {len(result)}")
-    print(f"[OK] Значимых: {int(result['significant'].sum())}")
+    if "significant" in result.columns:
+        print(f"[OK] Значимых: {int(result['significant'].sum())}")
 
 
 if __name__ == "__main__":
