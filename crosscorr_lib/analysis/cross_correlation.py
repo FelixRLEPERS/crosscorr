@@ -256,20 +256,30 @@ def main() -> None:
     parser.add_argument(
         "--use-max-stat",
         action="store_true",
-        help="Использовать max-statistic null (медленно, научно). "
-             "По умолчанию — быстрый наивный p-value.",
+        help="Использовать max-statistic null (медленно, научно).",
+    )
+    parser.add_argument(
+        "--use-ess",
+        action="store_true",
+        help="Скорректировать p-values на автокорреляцию (ESS).",
+    )
+    parser.add_argument(
+        "--remove-confounders",
+        type=Path,
+        default=None,
+        help="CSV с Kp/Dst/F10.7. Удалить их вклад из всех рядов.",
     )
     parser.add_argument(
         "--n-surrogates",
         type=int,
         default=200,
-        help="Число фазовых суррогатов для max-stat (по умолчанию 200).",
+        help="Число фазовых суррогатов для max-stat.",
     )
     parser.add_argument(
         "--seed",
         type=int,
         default=42,
-        help="Seed для воспроизводимости (по умолчанию 42).",
+        help="Seed для воспроизводимости.",
     )
     args = parser.parse_args()
 
@@ -278,10 +288,20 @@ def main() -> None:
     df = load_unified(args.input)
     wide = build_wide_by_detector(df, freq=args.freq)
 
+    # Удаление конфаундеров (если запрошено)
+    if args.remove_confounders is not None:
+        from crosscorr_lib.analysis.confounders import (
+            load_confounders,
+            remove_confounders,
+        )
+        conf = load_confounders(args.remove_confounders)
+        wide = remove_confounders(wide, conf)
+        print(f"[INFO] Конфаундеры удалены: {args.remove_confounders}")
+
     print(f"[INFO] Детекторов: {wide.shape[1]}, точек: {wide.shape[0]}")
-    print(f"[INFO] Пар: {wide.shape[1] * (wide.shape[1] - 1) // 2}")
     print(f"[INFO] Режим: "
-          f"{'max-statistic (научный)' if args.use_max_stat else 'наивный (быстрый)'}")
+          f"{'max-stat' if args.use_max_stat else 'наивный'} / "
+          f"{'ESS' if args.use_ess else 'без ESS'}")
 
     if args.use_max_stat:
         result = cross_correlation_pairs_with_max_stat(
@@ -298,13 +318,31 @@ def main() -> None:
             alpha=args.alpha,
         )
 
+    # ESS-коррекция p-values (если запрошено)
+    if args.use_ess and len(result) > 0:
+        from crosscorr_lib.analysis.effective_sample import (
+            correlation_pvalue_with_ess,
+        )
+        from crosscorr_lib.analysis.surrogate import fdr_bh_q
+
+        for idx, row in result.iterrows():
+            d1 = row["detector_1"]
+            d2 = row["detector_2"]
+            _, p_ess, _ = correlation_pvalue_with_ess(
+                wide[d1].values, wide[d2].values, method="spearman"
+            )
+            result.at[idx, "p_value"] = p_ess
+
+        sig_mask, q_vals = fdr_bh_q(result["p_value"].values, args.alpha)
+        result["q_value"] = q_vals
+        result["significant"] = sig_mask
+
     out_csv = DEFAULT_OUT / "cross_correlation_pairs.csv"
     result.to_csv(out_csv, index=False)
     print(f"\n[OK] {out_csv}")
     print(f"[OK] Пар: {len(result)}")
     if "significant" in result.columns:
         print(f"[OK] Значимых: {int(result['significant'].sum())}")
-
-
+        
 if __name__ == "__main__":
     main()
