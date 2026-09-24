@@ -373,11 +373,16 @@ python -m pytest tests/ -v
 - ✅ Max-statistic null для лагов
 - ✅ Negative controls (0 ложных на шуме)
 - ✅ Единая FDR (1D + 2D)
+- ✅ Physical confounders (Kp, Dst, F10.7)
+- ✅ Effective sample size
+- ✅ Block bootstrap
+- ✅ ADF stationarity test
+- ✅ Mantel test (заменяет OLS)
+- ✅ BY-FDR (Benjamini-Yekutieli)
+- ✅ IAAFT surrogate
+- ✅ CI (GitHub Actions) — fast + slow jobs
 - 🚧 MixedLM для остатков
-- 🚧 CI (GitHub Actions)
-- 🚧 Physical confounders (Kp, Dst, F10.7)
-- 🚧 Effective sample size
-- 🚧 Block bootstrap
+- 🚧 PyMC пространственная модель
 
 Актуальный план: [docs/roadmap.md](docs/roadmap.md)
 
