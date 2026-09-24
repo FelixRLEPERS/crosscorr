@@ -10,9 +10,8 @@ import pandas as pd
 import pytest
 
 from crosscorr_lib.analysis.cross_correlation import (
-    build_wide_by_detector,
-    lagged_cross_correlation,
     cross_correlation_pairs,
+    lagged_cross_correlation,
 )
 
 

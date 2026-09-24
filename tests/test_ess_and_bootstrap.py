@@ -5,16 +5,15 @@
 import numpy as np
 import pytest
 
+from crosscorr_lib.analysis.block_bootstrap import (
+    block_bootstrap_pvalue,
+    block_bootstrap_surrogate,
+)
 from crosscorr_lib.analysis.effective_sample import (
     correlation_pvalue_with_ess,
     effective_sample_size,
     integrated_autocorrelation_time,
 )
-from crosscorr_lib.analysis.block_bootstrap import (
-    block_bootstrap_pvalue,
-    block_bootstrap_surrogate,
-)
-
 
 # ============ ESS ============
 

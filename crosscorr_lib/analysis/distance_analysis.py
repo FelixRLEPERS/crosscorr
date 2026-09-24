@@ -151,7 +151,7 @@ def main() -> None:
 
     # 3. Регрессия
     model = fit_distance_model(df)
-    print(f"\n[STAT] Регрессия correlation ~ distance_km:")
+    print("\n[STAT] Регрессия correlation ~ distance_km:")
     print(f"    slope     = {model['slope']:.6f}")
     print(f"    intercept = {model['intercept']:.4f}")
     print(f"    R²        = {model['r_squared']:.4f}")

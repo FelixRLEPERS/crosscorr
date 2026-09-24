@@ -32,3 +32,8 @@ jobs:
       - name: Run fast tests (no negative_control)
         run: |
           python -m pytest tests/ -v -k "not negative_control"
+
+      - name: Lint with ruff
+        run: |
+          pip install ruff
+          ruff check crosscorr_lib/ tests/ scripts/ --output-format=github

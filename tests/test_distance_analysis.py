@@ -9,14 +9,13 @@ import numpy as np
 import pandas as pd
 import pytest
 
+from crosscorr_lib.analysis.cross_correlation import (
+    cross_correlation_pairs,
+)
 from crosscorr_lib.analysis.distance_analysis import (
     add_distances,
     fit_distance_model,
     haversine_km,
-)
-from crosscorr_lib.analysis.cross_correlation import (
-    build_wide_by_detector,
-    cross_correlation_pairs,
 )
 
 
@@ -89,7 +88,7 @@ def test_end_to_end_synthetic():
 
     # Собираем wide-таблицу
     idx = pd.date_range("2025-01-01", periods=n_time, freq="1h", tz="UTC")
-    wide = pd.DataFrame({k: v for k, v in signals.items()}, index=idx)
+    wide = pd.DataFrame(dict(signals), index=idx)
 
     # CC-пары
     cc = cross_correlation_pairs(wide, max_lag=10, alpha=0.05)

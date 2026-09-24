@@ -84,11 +84,11 @@ def main() -> None:
             # если библиотека исключила q=0.
             n_q_cols = dq.shape[1]
 
-            for i, l in enumerate(lag):
+            for i, lag_val in enumerate(lag):
                 for j in range(n_q_cols):
                     rows.append({
                         "detector": col,
-                        "lag": int(l),
+                        "lag": int(lag_val),
                         "q_index": int(j),
                         "dq": float(dq[i, j]),
                     })

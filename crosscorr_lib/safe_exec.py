@@ -7,10 +7,9 @@
 from __future__ import annotations
 
 import ast
-import io
 import contextlib
+import io
 import multiprocessing as mp
-
 
 # Запрещённые имена модулей/функций (проверяются через AST)
 FORBIDDEN_NAMES = {

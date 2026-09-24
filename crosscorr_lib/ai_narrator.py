@@ -1,5 +1,5 @@
 import pandas as pd
-from data.scripts import SourceRegistry
+
 from crosscorr_lib.narrator import speak
 
 # --- КОНСТАНТЫ ПУТЕЙ К ДАННЫМ ---
@@ -11,8 +11,8 @@ NARRATOR_MODULE = "code.narrator"
 
 class AINarrator:
     """
-    Оркестратор, который принимает научные данные и превращает их в 
-    повествование для ребёнка (11-13 лет).
+    Оркестратор, который принимает научные данные и превращает их в
+            повествование для ребёнка (11-13 лет).
     """
     def __init__(self):
         pass
@@ -34,7 +34,7 @@ class AINarrator:
 
         # Извлекаем только те пары, которые прошли ВСЕ проверки (это наш результат)
         significant_pairs = set()
-        for index, row in df_sig.iterrows():
+        for _index, row in df_sig.iterrows():
             # Предполагаем, что столбцы содержат детекторы A и B
             pair = tuple(sorted([row['Detector1'], row['Detector2']]))
             significant_pairs.add(pair)
@@ -73,7 +73,7 @@ class AINarrator:
     def run_narrative(self):
         """Главный метод, запускающий полный пайплайн: Анализ -> Текст -> Голос."""
         print("--- AI Narrator запущен ---")
-        
+
         # 1. Анализ результатов
         significant_pairs = self._analyze_results()
 
@@ -83,7 +83,7 @@ class AINarrator:
         else:
             story = self.generate_story(significant_pairs)
             final_message = story
-        
+
         # 2. Озвучивание истории (Вызов внешнего модуля)
         try:
             speak(final_message, autoplay=True)

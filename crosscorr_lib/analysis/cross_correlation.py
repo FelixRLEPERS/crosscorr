@@ -9,9 +9,9 @@
    на всех лагах от -max_lag до +max_lag.
 4. Найти лаг с максимальной |correlation|.
 5. Скорректировать p-value через Benjamini-Hochberg (FDR).
-6. Сохранить tidy-таблицу: 
-   detector_1, detector_2, lag, correlation, p_value, 
-   q_value, n_obs, significant.
+6. Сохранить tidy-таблицу:
+   detector_1, detector_2, lag, correlation, p_value,
+         q_value, n_obs, significant.
 """
 
 from __future__ import annotations
@@ -24,12 +24,12 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 
+from crosscorr_lib.analysis.surrogate import fdr_bh_q as _benjamini_hochberg
+
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_INPUT = ROOT / "data" / "processed" / "unified.parquet"
 DEFAULT_OUT = ROOT / "results"
 
-
-from crosscorr_lib.analysis.surrogate import fdr_bh_q as _benjamini_hochberg
 
 def load_unified(path: Path) -> pd.DataFrame:
     df = pd.read_parquet(path)
@@ -343,6 +343,6 @@ def main() -> None:
     print(f"[OK] Пар: {len(result)}")
     if "significant" in result.columns:
         print(f"[OK] Значимых: {int(result['significant'].sum())}")
-        
+
 if __name__ == "__main__":
     main()

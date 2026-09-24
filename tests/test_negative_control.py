@@ -10,10 +10,6 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from crosscorr_lib.analysis.cross_correlation import (
-    build_wide_by_detector,
-    lagged_cross_correlation,
-)
 from crosscorr_lib.analysis.surrogate import (
     fdr_bh,
     max_lag_surrogate_pvalue,

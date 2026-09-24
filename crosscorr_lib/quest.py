@@ -4,11 +4,13 @@
 Запуск: python -m streamlit run quest.py
 """
 
-import os
-import glob
 import base64
+import glob
+import os
+
 import streamlit as st
 import streamlit.components.v1 as components
+
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # ============================================================
@@ -46,10 +48,15 @@ MUSIC_B64    = _file_to_b64(MUSIC_FILE)
 
 try:
     from narrator import (
+        narrator_branch_intro,
+        narrator_branch_success,
+        narrator_error,
+        narrator_intro,
+        narrator_level_start,
+        narrator_praise,
+        narrator_skip,
+        narrator_victory,
         speak,
-        narrator_intro, narrator_level_start,
-        narrator_praise, narrator_error, narrator_skip,
-        narrator_victory, narrator_branch_intro, narrator_branch_success
     )
 except Exception:
     def speak(*a, **k): pass
@@ -1158,7 +1165,7 @@ def show_level():
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    if st.session_state.get(f"spoken_{level}") != True:
+    if not st.session_state.get(f"spoken_{level}"):
         narrator_level_start(level, data["title"], data["story"][:200])
         st.session_state[f"spoken_{level}"] = True
 
@@ -1229,7 +1236,7 @@ def show_level():
 def show_victory():
     st.balloons()
 
-    if st.session_state.get("victory_spoken") != True:
+    if not st.session_state.get("victory_spoken"):
         narrator_victory(st.session_state.name)
         st.session_state["victory_spoken"] = True
 
@@ -1281,7 +1288,7 @@ def show_branch_selection():
         unsafe_allow_html=True
     )
 
-    if st.session_state.get("branch_select_spoken") != True:
+    if not st.session_state.get("branch_select_spoken"):
         speak("Академия CrossCorr открыта. Выбери свою специализацию, исследователь.")
         st.session_state["branch_select_spoken"] = True
 
@@ -1363,11 +1370,11 @@ def show_branch_level():
 
     data = levels[level]
 
-    if st.session_state.get(f"branch_intro_{branch_key}") != True:
+    if not st.session_state.get(f"branch_intro_{branch_key}"):
         narrator_branch_intro(branch_info["name"])
         st.session_state[f"branch_intro_{branch_key}"] = True
 
-    if st.session_state.get(f"branch_spoken_{branch_key}_{level}") != True:
+    if not st.session_state.get(f"branch_spoken_{branch_key}_{level}"):
         speak(f"Уровень {level}. {data['story'][:200]}")
         st.session_state[f"branch_spoken_{branch_key}_{level}"] = True
 

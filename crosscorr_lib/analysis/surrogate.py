@@ -184,7 +184,7 @@ def main() -> None:
     parser.add_argument("--n", type=int, default=1000)
     parser.add_argument("--alpha", type=float, default=0.05)
     parser.add_argument("--freq", default="1h")
-    parser.add_argument("--seed", type=int, default=42)  
+    parser.add_argument("--seed", type=int, default=42)
     args = parser.parse_args()
 
     df = pd.read_parquet(args.input)

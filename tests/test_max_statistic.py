@@ -55,10 +55,10 @@ def test_max_stat_is_stricter_than_naive():
     Max-statistic p-value должен быть больше (строже),
     чем обычный p-value на лучшем лаге.
     """
+
     from crosscorr_lib.analysis.cross_correlation import (
         lagged_cross_correlation,
     )
-    from scipy import stats
 
     x, y = _make_signal(n=2000, lag=6, strength=0.3, seed=7)
 

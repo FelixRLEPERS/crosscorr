@@ -12,13 +12,25 @@ CrossCorr: кросс-корреляционный анализ гетероге
 __version__ = "0.1.0"
 
 # Основной пайплайн
+from crosscorr_lib.analysis.block_bootstrap import block_bootstrap_pvalue
+from crosscorr_lib.analysis.confounders import (
+    load_confounders,
+    remove_confounders,
+)
 from crosscorr_lib.analysis.cross_correlation import (
-    load_unified,
     build_wide_by_detector,
-    lagged_cross_correlation,
     cross_correlation_pairs,
     cross_correlation_pairs_with_max_stat,
+    lagged_cross_correlation,
+    load_unified,
 )
+
+# Дополнительные методы
+from crosscorr_lib.analysis.effective_sample import (
+    correlation_pvalue_with_ess,
+    effective_sample_size,
+)
+from crosscorr_lib.analysis.stationarity import adf_test, check_stationarity_wide
 
 # Статистические утилиты
 from crosscorr_lib.analysis.surrogate import (
@@ -28,18 +40,6 @@ from crosscorr_lib.analysis.surrogate import (
     phase_surrogate,
     surrogate_test,
 )
-
-# Дополнительные методы
-from crosscorr_lib.analysis.effective_sample import (
-    effective_sample_size,
-    correlation_pvalue_with_ess,
-)
-from crosscorr_lib.analysis.block_bootstrap import block_bootstrap_pvalue
-from crosscorr_lib.analysis.confounders import (
-    load_confounders,
-    remove_confounders,
-)
-from crosscorr_lib.analysis.stationarity import adf_test, check_stationarity_wide
 
 __all__ = [
     # Пайплайн

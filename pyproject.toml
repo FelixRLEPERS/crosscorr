@@ -1,0 +1,110 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "crosscorr-lib"
+version = "0.1.0"
+description = "Cross-correlation analysis of heterogeneous time series"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+    { name = "FelixRLEPERS", email = "felixrlepers@gmail.com" },
+]
+keywords = [
+    "cross-correlation",
+    "time-series",
+    "signal-processing",
+    "geophysics",
+    "statistics",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Physics",
+]
+dependencies = [
+    "pandas>=2.0",
+    "numpy>=1.24",
+    "scipy>=1.10",
+    "matplotlib>=3.7",
+    "statsmodels>=0.14",
+    "requests>=2.31",
+]
+
+[project.optional-dependencies]
+astro = ["astroquery>=0.4.6", "astropy>=5.0"]
+bayes = ["pymc>=5.10", "arviz>=0.16"]
+mfdfa = ["MFDFA>=0.4"]
+game = ["streamlit>=1.30", "edge-tts>=6.1"]
+dev = [
+    "pytest>=7.4",
+    "pytest-xdist>=3.5",
+    "ruff>=0.6",
+    "pip-tools>=7.4",
+]
+all = [
+    "astroquery>=0.4.6",
+    "astropy>=5.0",
+    "pymc>=5.10",
+    "arviz>=0.16",
+    "MFDFA>=0.4",
+    "streamlit>=1.30",
+    "edge-tts>=6.1",
+]
+
+[project.urls]
+Homepage = "https://github.com/FelixRLEPERS/crosscorr"
+Repository = "https://github.com/FelixRLEPERS/crosscorr"
+Issues = "https://github.com/FelixRLEPERS/crosscorr/issues"
+
+[tool.setuptools.packages.find]
+include = ["crosscorr_lib*"]
+exclude = ["tests*", "data*", "scripts*", "docs*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-ra --strict-markers"
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+exclude = [
+    ".venv",
+    "venv",
+    "__pycache__",
+    "build",
+    "dist",
+    "*.egg-info",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes
+    "I",    # isort
+    "B",    # flake8-bugbear
+    "UP",   # pyupgrade
+    "C4",   # flake8-comprehensions
+]
+ignore = [
+    "E501",  # line too long (handled by formatter)
+    "B008",  # function call in default argument
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["B011"]                              # assert False in tests
+"crosscorr_lib/quest.py" = ["E402"]               # imports after st.set_page_config
+"crosscorr_lib/__init__.py" = ["F401"]            # re-exports for public API
+"crosscorr_lib/analysis/__init__.py" = ["F401"]   # re-exports for public API
