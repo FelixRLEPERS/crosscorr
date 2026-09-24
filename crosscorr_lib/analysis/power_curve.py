@@ -28,7 +28,7 @@ from pathlib import Path
 
 import numpy as np
 
-from core import benchmark  # локальный импорт из той же папки
+from crosscorr_lib.analysis.benchmark_utils import benchmark  # локальный импорт из той же папки
 
 
 # ------------------------------------------------------------------ #

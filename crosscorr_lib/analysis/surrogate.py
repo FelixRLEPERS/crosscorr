@@ -219,6 +219,7 @@ def max_lag_surrogate_pvalue(
     max_lag: int = 72,
     n_surrogates: int = 500,
     seed: int = 42,
+    fisher: bool = True,
 ) -> tuple[float, float, int]:
     """
     Max-statistic p-value для лаговой кросс-корреляции.
@@ -231,23 +232,35 @@ def max_lag_surrogate_pvalue(
         max_lag       : максимальный лаг
         n_surrogates  : число суррогатов
         seed          : seed для воспроизводимости
+        fisher        : использовать Fisher-weighted max (по умолчанию True).
+                        Если False — обычный max|rho|.
 
     Returns:
         (t_obs, p_value, best_lag)
-        t_obs    : max|corr| на реальных данных
-        p_value  : доля суррогатов, где max|corr_surr| >= t_obs
+        t_obs    : Fisher-weighted (или обычный) max|corr| на реальных данных
+        p_value  : доля суррогатов, где max_stat_surr >= t_obs
         best_lag : лаг, на котором достигнут t_obs
     """
     x = np.asarray(x, dtype=float)
     y = np.asarray(y, dtype=float)
 
-    # Реальное значение
+    # Реальное значение: считаем rho и n для всех лагов
     lags, corrs, _ = _lagged_cc(x, y, max_lag)
+
+    # Считаем n (число валидных наблюдений) на каждом лаге
+    n_lags = np.array([_count_valid_at_lag(x, y, int(tau)) for tau in lags])
+
     if np.all(np.isnan(corrs)):
         return np.nan, 1.0, 0
 
-    best_idx = int(np.nanargmax(np.abs(corrs)))
-    t_obs = float(np.abs(corrs[best_idx]))
+    if fisher:
+        t_obs, best_idx, _ = fisher_weighted_max_stat(corrs, n_lags)
+        if not np.isfinite(t_obs) or t_obs == 0.0:
+            return np.nan, 1.0, 0
+    else:
+        best_idx = int(np.nanargmax(np.abs(corrs)))
+        t_obs = float(np.abs(corrs[best_idx]))
+
     best_lag = int(lags[best_idx])
 
     # Суррогаты
@@ -257,14 +270,35 @@ def max_lag_surrogate_pvalue(
     for _ in range(n_surrogates):
         y_surr = _phase_surrogate_keep_length(y, rng)
         _, corrs_surr, _ = _lagged_cc(x, y_surr, max_lag)
+
         if np.all(np.isnan(corrs_surr)):
             continue
-        t_surr = float(np.nanmax(np.abs(corrs_surr)))
+
+        if fisher:
+            t_surr, _, _ = fisher_weighted_max_stat(corrs_surr, n_lags)
+            if not np.isfinite(t_surr):
+                continue
+        else:
+            t_surr = float(np.nanmax(np.abs(corrs_surr)))
+
         if t_surr >= t_obs:
             n_extreme += 1
 
     p_value = (n_extreme + 1) / (n_surrogates + 1)
     return t_obs, p_value, best_lag
+
+
+def _count_valid_at_lag(x: np.ndarray, y: np.ndarray, tau: int) -> int:
+    """Число валидных (не-NaN) пар на данном лаге."""
+    n = len(x)
+    if tau >= 0:
+        a = x[: n - tau] if tau > 0 else x
+        b = y[tau:]
+    else:
+        a = x[-tau:]
+        b = y[: n + tau]
+    mask = np.isfinite(a) & np.isfinite(b)
+    return int(mask.sum())
 
 
 def _lagged_cc(x, y, max_lag):
@@ -305,3 +339,50 @@ def _phase_surrogate_keep_length(x, rng):
 
 if __name__ == "__main__":
     main()
+def fisher_weighted_max_stat(
+    rho: np.ndarray,
+    n: np.ndarray,
+    *,
+    clip_eps: float = 1e-6,
+) -> tuple[float, int, float]:
+    """
+    Fisher-weighted max of |rho| over lags.
+
+    Если на разных лагах разное число наблюдений n(tau),
+    обычный max|rho| смещён в сторону лагов с большим n.
+    Fisher-weighting исправляет это:
+
+        z(tau)     = arctanh(rho(tau))
+        w(tau)     = sqrt(n(tau) - 3)
+        score(tau) = |z(tau)| * w(tau)
+
+    Args:
+        rho: массив корреляций (NaN для невалидных лагов)
+        n:   массив числа наблюдений на каждом лаге
+        clip_eps: клип для arctanh, чтобы избежать inf
+
+    Returns:
+        (max_score, argmax_index, rho_at_argmax)
+    """
+    rho = np.asarray(rho, dtype=float)
+    n = np.asarray(n, dtype=int)
+
+    if rho.shape != n.shape:
+        raise ValueError("rho and n must have the same shape")
+
+    finite = np.isfinite(rho) & (n > 3)
+    if not finite.any():
+        return 0.0, 0, 0.0
+
+    # Fisher z-transform с клипом
+    rho_clipped = np.clip(rho, -1 + clip_eps, 1 - clip_eps)
+    z = np.arctanh(rho_clipped)
+
+    # Веса
+    w = np.sqrt(np.maximum(n - 3, 1.0))
+
+    # Score
+    score = np.where(finite, np.abs(z) * w, -np.inf)
+
+    idx = int(np.argmax(score))
+    return float(score[idx]), idx, float(rho[idx])
