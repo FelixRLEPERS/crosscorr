@@ -128,16 +128,34 @@ def main() -> None:
     parser.add_argument("--cc", type=Path, default=DEFAULT_CC)
     parser.add_argument("--detectors", type=Path, default=DEFAULT_DETECTORS)
     parser.add_argument("--out", type=Path, default=DEFAULT_OUT)
+    parser.add_argument(
+        "--method",
+        choices=["ols", "mantel"],
+        default="mantel",
+        help="'ols' (устаревший) или 'mantel' (по умолчанию, корректный).",
+    )
+    parser.add_argument(
+        "--n-permutations",
+        type=int,
+        default=9999,
+        help="Число пермутаций для Mantel test.",
+    )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=42,
+        help="Seed для Mantel test.",
+    )
     args = parser.parse_args()
 
     # 1. Загрузка
     if not args.cc.exists():
         raise SystemExit(
-            f"{args.cc} не найден. Сначала запустите cross_correlation.py"
+            f"{args.cc} не найден. Оначала запустите cross_correlation.py"
         )
     if not args.detectors.exists():
         raise SystemExit(
-            f"{args.detectors} не найден. Сначала запустите "
+            f"{args.detectors} не найден. Оначала запустите "
             f"scripts/make_synthetic_unified.py"
         )
 
@@ -146,19 +164,56 @@ def main() -> None:
     print(f"[OK] Загружено пар: {len(cc_df)}")
     print(f"[OK] Детекторов: {len(detectors)}")
 
+    args.out.mkdir(parents=True, exist_ok=True)
+
     # 2. Расстояния
     df = add_distances(cc_df, detectors)
 
-    # 3. Регрессия
-    model = fit_distance_model(df)
-    print("\n[STAT] Регрессия correlation ~ distance_km:")
-    print(f"    slope     = {model['slope']:.6f}")
-    print(f"    intercept = {model['intercept']:.4f}")
-    print(f"    R²        = {model['r_squared']:.4f}")
-    print(f"    n         = {model['n']}")
+    # 3. Метод анализа
+    if args.method == "mantel":
+        from crosscorr_lib.analysis.mantel import (
+            build_corr_matrix,
+            build_dist_matrix,
+            mantel_test,
+        )
+
+        detector_ids = sorted(detectors.index.tolist())
+
+        corr_mat = build_corr_matrix(df, detector_ids)
+        dist_mat = build_dist_matrix(
+            detectors.reset_index(), detector_ids
+        )
+
+        print(f"\n[MANTEL] Матрицы {len(detector_ids)}x{len(detector_ids)}")
+        print(f"[MANTEL] Пермутаций: {args.n_permutations}")
+
+        result = mantel_test(
+            dist_mat, corr_mat,
+            n_permutations=args.n_permutations,
+            seed=args.seed,
+            alternative="less",
+        )
+
+        print(f"\n[STAT] Mantel test:")
+        print(f"    r_obs     = {result['r_obs']:.4f}")
+        print(f"    p_value   = {result['p_value']:.4f}")
+        print(f"    n_perm    = {result['n_permutations']}")
+        print(f"    (альтернатива: r < 0, корреляция падает с расстоянием)")
+
+        result_path = args.out / "mantel_result.csv"
+        pd.DataFrame([result]).to_csv(result_path, index=False)
+        print(f"\n[OK] {result_path}")
+
+    else:
+        # OLS (устаревший метод)
+        model = fit_distance_model(df)
+        print(f"\n[STAT] OLS регрессия correlation ~ distance_km:")
+        print(f"    slope     = {model['slope']:.6f}")
+        print(f"    intercept = {model['intercept']:.4f}")
+        print(f"    R²        = {model['r_squared']:.4f}")
+        print(f"    n         = {model['n']}")
 
     # 4. Сохранение
-    args.out.mkdir(parents=True, exist_ok=True)
     out_csv = args.out / "distance_analysis.csv"
     df.to_csv(out_csv, index=False)
     print(f"\n[OK] {out_csv}")
