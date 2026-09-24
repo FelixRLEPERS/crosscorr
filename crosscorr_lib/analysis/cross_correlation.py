@@ -100,6 +100,7 @@ def cross_correlation_pairs(
     wide: pd.DataFrame,
     max_lag: int = 72,
     alpha: float = 0.05,
+    fdr_method: str = "by",
 ) -> pd.DataFrame:
     """
     Все пары детекторов → лаговая корреляция → FDR-коррекция.
@@ -138,7 +139,9 @@ def cross_correlation_pairs(
     result = pd.DataFrame(rows)
 
     # FDR на всех парах
-    sig_mask, q_vals = _benjamini_hochberg(result["p_value"].values, alpha)
+    sig_mask, q_vals = _benjamini_hochberg(
+        result["p_value"].values, alpha, method=fdr_method
+    )
     result["q_value"] = q_vals
     result["significant"] = sig_mask
 
@@ -150,6 +153,7 @@ def cross_correlation_pairs_with_max_stat(
     alpha: float = 0.05,
     n_surrogates: int = 200,
     seed: int = 42,
+    fdr_method: str = "by",
 ) -> pd.DataFrame:
     """
     Все пары детекторов → лаговая CC → max-statistic p-value → FDR.
@@ -239,7 +243,9 @@ def cross_correlation_pairs_with_max_stat(
     result = pd.DataFrame(rows)
 
     # FDR на всех парах
-    sig_mask, q_vals = fdr_bh_q(result["p_value"].values, alpha)
+    sig_mask, q_vals = _benjamini_hochberg(
+        result["p_value"].values, alpha, method=fdr_method
+    )
     result["q_value"] = q_vals
     result["significant"] = sig_mask
 
@@ -281,6 +287,12 @@ def main() -> None:
         default=42,
         help="Seed для воспроизводимости.",
     )
+    parser.add_argument(
+        "--fdr-method",
+        choices=["by", "bh"],
+        default="by",
+        help="FDR-метод: 'by' (Benjamini-Yekutieli, default) или 'bh'.",
+    )
     args = parser.parse_args()
 
     DEFAULT_OUT.mkdir(parents=True, exist_ok=True)
@@ -310,12 +322,14 @@ def main() -> None:
             alpha=args.alpha,
             n_surrogates=args.n_surrogates,
             seed=args.seed,
+            fdr_method=args.fdr_method,
         )
     else:
         result = cross_correlation_pairs(
             wide,
             max_lag=args.max_lag,
             alpha=args.alpha,
+            fdr_method=args.fdr_method,
         )
 
     # ESS-коррекция p-values (если запрошено)
@@ -333,7 +347,11 @@ def main() -> None:
             )
             result.at[idx, "p_value"] = p_ess
 
-        sig_mask, q_vals = fdr_bh_q(result["p_value"].values, args.alpha)
+        sig_mask, q_vals = fdr_bh_q(
+            result["p_value"].values,
+            args.alpha,
+            method=args.fdr_method,
+        )
         result["q_value"] = q_vals
         result["significant"] = sig_mask
 

@@ -86,97 +86,152 @@ def surrogate_test(wide: pd.DataFrame, n_surrogates: int = 1000, seed: int = 42)
     return result
 
 
-def fdr_bh(pvals: np.ndarray, alpha: float = 0.05) -> np.ndarray:
-    """Benjamini-Hochberg FDR.
+def fdr_bh(
+    pvals: np.ndarray,
+    alpha: float = 0.05,
+    method: str = "by",
+) -> np.ndarray:
+    """
+    FDR-коррекция с поддержкой 1D и 2D.
 
-    Работает в двух режимах:
-    - 2D матрица (N×N): использует верхний треугольник (i<j),
-      возвращает симметричную булеву маску той же формы.
-    - 1D массив: применяет BH напрямую к списку p-values,
-      возвращает 1D булеву маску.
+    По умолчанию используется Benjamini-Yekutieli (для зависимых тестов,
+    что необходимо в графе детекторов).
 
     Args:
-        pvals: 1D или 2D массив p-values.
-        alpha: уровень значимости.
+        pvals: 1D массив или 2D симметричная матрица p-values.
+        alpha: целевой уровень FDR.
+        method: 'by' (default) или 'bh'.
 
     Returns:
-        Булева маска той же размерности, что вход.
+        1D или 2D булева маска той же формы, что вход.
     """
     pvals = np.asarray(pvals, dtype=float)
 
     if pvals.ndim == 1:
-        n = pvals.size
-        order = np.argsort(pvals)
-        ranked = pvals[order]
-        thresholds = alpha * (np.arange(1, n + 1) / n)
-        passed = ranked <= thresholds
-
-        mask_flat = np.zeros(n, dtype=bool)
-        if passed.any():
-            k = int(np.max(np.where(passed)[0]))
-            mask_flat[order[: k + 1]] = True
-        return mask_flat
+        reject, _ = fdr_bh_q(pvals, alpha=alpha, method=method)
+        return reject
 
     if pvals.ndim == 2:
         n_total = pvals.shape[0]
         iu = np.triu_indices(n_total, k=1)
         flat = pvals[iu]
-        n = flat.size
 
-        order = np.argsort(flat)
-        ranked = flat[order]
-        thresholds = alpha * (np.arange(1, n + 1) / n)
-        passed = ranked <= thresholds
-
-        mask_flat = np.zeros(n, dtype=bool)
-        if passed.any():
-            k = int(np.max(np.where(passed)[0]))
-            mask_flat[order[: k + 1]] = True
+        reject_flat, _ = fdr_bh_q(flat, alpha=alpha, method=method)
 
         mask = np.zeros((n_total, n_total), dtype=bool)
-        mask[iu] = mask_flat
+        mask[iu] = reject_flat
         mask = mask | mask.T
         return mask
 
     raise ValueError(f"fdr_bh ожидает 1D или 2D массив, получил {pvals.ndim}D")
 
-def fdr_bh_q(
+def benjamini_yekutieli(
     pvals: np.ndarray,
     alpha: float = 0.05,
 ) -> tuple[np.ndarray, np.ndarray]:
     """
-    Benjamini-Hochberg FDR с возвратом q-values.
+    Benjamini-Yekutieli FDR для произвольно зависимых тестов.
 
-    Работает с 1D массивом p-values.
+    Использует гармоническую поправку c(M) = sum(1/k, k=1..M).
+    Даёт строгий контроль FDR при ЛЮБОЙ структуре зависимости,
+    включая зависимые пары в графе детекторов (общий узел → PRDS не выполнен).
+
+    Reference:
+        Benjamini, Y., Yekutieli, D. (2001).
+        The control of the false discovery rate in multiple testing
+        under dependency. Annals of Statistics, 29(4), 1165–1188.
+
+    Args:
+        pvals: 1D массив p-values.
+        alpha: целевой уровень FDR.
 
     Returns:
-        (significant_mask, q_values)
-        significant_mask: bool массив, True для значимых
-        q_values:         adjusted p-values (q-values)
+        (reject_mask, q_values)
     """
-    pvals = np.asarray(pvals, dtype=float)
-    if pvals.ndim != 1:
-        raise ValueError(
-            f"fdr_bh_q ожидает 1D массив, получил {pvals.ndim}D"
-        )
+    p = np.asanyarray(pvals, dtype=float)
+    m = len(p)
+    if m == 0:
+        return np.array([], dtype=bool), np.array([], dtype=float)
 
-    n = pvals.size
-    if n == 0:
-        return np.array([], dtype=bool), np.array([])
+    # Гармоническая сумма c(M) = sum(1/k for k in 1..M)
+    c_m = np.sum(1.0 / np.arange(1, m + 1))
 
-    order = np.argsort(pvals)
-    ranked = pvals[order]
+    order = np.argsort(p)
+    p_sorted = p[order]
 
-    q = np.empty(n, dtype=float)
-    prev = 1.0
-    for i in range(n - 1, -1, -1):
-        rank = i + 1
-        val = ranked[i] * n / rank
-        prev = min(prev, val)
-        q[order[i]] = prev
+    # Пороги: k / (m * c_m) * alpha
+    thresholds = (np.arange(1, m + 1) / (m * c_m)) * alpha
+    passed = p_sorted <= thresholds
 
-    mask = q <= alpha
-    return mask, q
+    reject_sorted = np.zeros(m, dtype=bool)
+    if passed.any():
+        max_k = int(np.max(np.where(passed)[0]))
+        reject_sorted[: max_k + 1] = True
+
+    # q-values: q_(k) = min_{j >= k} (p_(j) * m * c_m / j)
+    q_sorted = p_sorted * (m * c_m) / np.arange(1, m + 1)
+    q_sorted = np.minimum.accumulate(q_sorted[::-1])[::-1]
+    q_sorted = np.clip(q_sorted, 0.0, 1.0)
+
+    reject = np.empty(m, dtype=bool)
+    reject[order] = reject_sorted
+
+    q = np.empty(m, dtype=float)
+    q[order] = q_sorted
+
+    return reject, q
+
+
+def fdr_bh_q(
+    pvals: np.ndarray,
+    alpha: float = 0.05,
+    method: str = "by",
+) -> tuple[np.ndarray, np.ndarray]:
+    """
+    FDR-коррекция. По умолчанию — Benjamini-Yekutieli (для зависимых тестов).
+
+    Args:
+        pvals: 1D массив p-values.
+        alpha: целевой уровень FDR.
+        method: 'by' (Benjamini-Yekutieli, по умолчанию) или
+                'bh' (Benjamini-Hochberg, требует независимости или PRDS).
+
+    Returns:
+        (reject_mask, q_values)
+    """
+    if method == "by":
+        return benjamini_yekutieli(pvals, alpha)
+
+    if method == "bh":
+        p = np.asanyarray(pvals, dtype=float)
+        m = len(p)
+        if m == 0:
+            return np.array([], dtype=bool), np.array([], dtype=float)
+
+        order = np.argsort(p)
+        p_sorted = p[order]
+
+        thresholds = alpha * np.arange(1, m + 1) / m
+        passed = p_sorted <= thresholds
+
+        reject_sorted = np.zeros(m, dtype=bool)
+        if passed.any():
+            max_k = int(np.max(np.where(passed)[0]))
+            reject_sorted[: max_k + 1] = True
+
+        q_sorted = p_sorted * m / np.arange(1, m + 1)
+        q_sorted = np.minimum.accumulate(q_sorted[::-1])[::-1]
+        q_sorted = np.clip(q_sorted, 0.0, 1.0)
+
+        reject = np.empty(m, dtype=bool)
+        reject[order] = reject_sorted
+
+        q = np.empty(m, dtype=float)
+        q[order] = q_sorted
+
+        return reject, q
+
+    raise ValueError(f"Неизвестный метод FDR: {method}. Используйте 'by' или 'bh'.")
 
 def main() -> None:
     parser = argparse.ArgumentParser()
