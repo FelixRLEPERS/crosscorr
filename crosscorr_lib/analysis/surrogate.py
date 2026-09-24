@@ -275,6 +275,7 @@ def max_lag_surrogate_pvalue(
     n_surrogates: int = 500,
     seed: int = 42,
     fisher: bool = True,
+    surrogate_method: str = "phase",
 ) -> tuple[float, float, int]:
     """
     Max-statistic p-value для лаговой кросс-корреляции.
@@ -289,7 +290,10 @@ def max_lag_surrogate_pvalue(
         seed          : seed для воспроизводимости
         fisher        : использовать Fisher-weighted max (по умолчанию True).
                         Если False — обычный max|rho|.
-
+        surrogate_method : 'phase' (по умолчанию) или 'iaaft'.
+                           'phase' — классическая фазовая рандомизация.
+                           'iaaft' — сохраняет и спектр, и распределение
+                           (Schreiber-Schmitz 1996), важно для heavy-tailed.
     Returns:
         (t_obs, p_value, best_lag)
         t_obs    : Fisher-weighted (или обычный) max|corr| на реальных данных
@@ -323,7 +327,10 @@ def max_lag_surrogate_pvalue(
     n_extreme = 0
 
     for _ in range(n_surrogates):
-        y_surr = _phase_surrogate_keep_length(y, rng)
+        if surrogate_method == "iaaft":
+            y_surr = iaaft_surrogate(y, rng)
+        else:
+            y_surr = _phase_surrogate_keep_length(y, rng)
         _, corrs_surr, _ = _lagged_cc(x, y_surr, max_lag)
 
         if np.all(np.isnan(corrs_surr)):
