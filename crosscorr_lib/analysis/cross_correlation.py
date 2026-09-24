@@ -181,7 +181,6 @@ def cross_correlation_pairs_with_max_stat(
     """
     # Ленивый импорт: избегаем циклической зависимости
     from crosscorr_lib.analysis.surrogate import (
-        fdr_bh_q,
         max_lag_surrogate_pvalue,
     )
 

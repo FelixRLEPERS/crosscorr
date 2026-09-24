@@ -23,13 +23,12 @@ import csv
 import json
 import sys
 import time
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 from pathlib import Path
 
 import numpy as np
 
 from crosscorr_lib.analysis.benchmark_utils import benchmark  # локальный импорт из той же папки
-
 
 # ------------------------------------------------------------------ #
 #                         конфигурация                               #

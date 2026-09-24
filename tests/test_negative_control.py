@@ -34,7 +34,7 @@ def _make_noise_wide(n_detectors=10, n_time=500, seed=42):
 
     return pd.DataFrame(data, index=idx)
 
-
+@pytest.mark.slow
 def test_negative_control_no_false_positives():
     """
     На чистом шуме алгоритм не должен находить значимых пар.
@@ -81,7 +81,7 @@ def test_negative_control_no_false_positives():
         f"Ожидали ≤ 1. Это ложные срабатывания."
     )
 
-
+@pytest.mark.slow
 def test_negative_control_min_p_value_distribution():
     """
     Распределение p-values на шуме должно быть близко к uniform.

@@ -194,11 +194,11 @@ def main() -> None:
             alternative="less",
         )
 
-        print(f"\n[STAT] Mantel test:")
+        print("\n[STAT] Mantel test:")
         print(f"    r_obs     = {result['r_obs']:.4f}")
         print(f"    p_value   = {result['p_value']:.4f}")
         print(f"    n_perm    = {result['n_permutations']}")
-        print(f"    (альтернатива: r < 0, корреляция падает с расстоянием)")
+        print("    (альтернатива: r < 0, корреляция падает с расстоянием)")
 
         result_path = args.out / "mantel_result.csv"
         pd.DataFrame([result]).to_csv(result_path, index=False)
@@ -207,7 +207,7 @@ def main() -> None:
     else:
         # OLS (устаревший метод)
         model = fit_distance_model(df)
-        print(f"\n[STAT] OLS регрессия correlation ~ distance_km:")
+        print("\n[STAT] OLS регрессия correlation ~ distance_km:")
         print(f"    slope     = {model['slope']:.6f}")
         print(f"    intercept = {model['intercept']:.4f}")
         print(f"    R²        = {model['r_squared']:.4f}")

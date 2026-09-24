@@ -21,7 +21,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_FIG_DIR = ROOT / "results" / "figures"
 
@@ -93,7 +92,7 @@ def plot_detectors_map(
     fig, ax = plt.subplots(figsize=(10, 5))
 
     # Границы России (упрощённые)
-    rx, ry = zip(*RUSSIA_OUTLINE)
+    rx, ry = zip(*RUSSIA_OUTLINE, strict=False)
     ax.plot(rx, ry, color="0.7", linewidth=1.0, zorder=1)
 
     # Детекторы
@@ -177,7 +176,7 @@ def plot_distance_correlation(
             transform=ax.transAxes,
             verticalalignment="top",
             fontsize=10,
-            bbox=dict(boxstyle="round", facecolor="white", alpha=0.85),
+            bbox={"boxstyle": "round", "facecolor": "white", "alpha": 0.85},
         )
 
     ax.axhline(0, color="gray", linewidth=0.5, linestyle="--")

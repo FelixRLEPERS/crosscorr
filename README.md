@@ -119,7 +119,7 @@
 Проверки запускаются одной командой:
 
 ```bash
-python -m pytest tests/ -v -k "not negative_control"
+python -m pytest tests/ -v -m "not slow"
 ```
 
 ---
@@ -267,11 +267,11 @@ python crosscorr_lib/analysis/mfdfa.py
 # 7. Distance-based analysis (корреляция vs расстояние)
 python -m crosscorr_lib.analysis.distance_analysis
 
-# 8. Тесты (без долгих negative_control)
-python -m pytest tests/ -v -k "not negative_control"
+# 8. Быстрые тесты (skip slow)
+python -m pytest tests/ -v -m "not slow"
 
-# 9. Долгие negative controls (по желанию, ~2 минуты)
-python -m pytest tests/test_negative_control.py -v -s -n 2
+# 9. Полный научный прогон (включая slow-тесты, ~3 минуты)
+python -m pytest tests/ -v
 
 ```
 
