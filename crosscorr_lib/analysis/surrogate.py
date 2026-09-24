@@ -392,8 +392,6 @@ def _phase_surrogate_keep_length(x, rng):
     fft_surr = magnitudes * np.exp(1j * phases)
     return np.fft.irfft(fft_surr, n=n)
 
-if __name__ == "__main__":
-    main()
 def fisher_weighted_max_stat(
     rho: np.ndarray,
     n: np.ndarray,
@@ -441,3 +439,79 @@ def fisher_weighted_max_stat(
 
     idx = int(np.argmax(score))
     return float(score[idx]), idx, float(rho[idx])
+
+
+def iaaft_surrogate(
+    x: np.ndarray,
+    rng: np.random.Generator,
+    max_iter: int = 50,
+    tol: float = 1e-6,
+) -> np.ndarray:
+    """
+    IAAFT-суррогат (Iterative Amplitude Adjusted Fourier Transform).
+
+    Сохраняет одновременно:
+    - амплитудный спектр Фурье (как phase surrogates),
+    - эмпирическое распределение амплитуд (rank-preserving).
+
+    Это исправляет проблему классических phase surrogates:
+    ЦПТ делает распределение гауссовским, что занижает дисперсию
+    пиков для heavy-tailed данных (Kp, Dst).
+
+    Reference:
+        Schreiber, T., Schmitz, A. (1996).
+        Improved surrogate data for nonlinearity tests.
+        Physical Review Letters, 77(4), 635–638.
+
+    Args:
+        x: 1D временной ряд (без NaN).
+        rng: генератор случайных чисел.
+        max_iter: максимум итераций (обычно сходится за 20-30).
+        tol: критерий сходимости по изменению значений.
+
+    Returns:
+        Суррогатный ряд той же длины, что x.
+    """
+    x = np.asarray(x, dtype=float)
+    n = x.size
+
+    if n < 4:
+        return x.copy()
+
+    if np.isnan(x).any():
+        idx = np.arange(n)
+        good = np.isfinite(x)
+        if good.sum() < 4:
+            return x.copy()
+        x = np.interp(idx, idx[good], x[good])
+
+    sorted_x = np.sort(x)
+    fft_orig = np.fft.rfft(x)
+    target_amplitudes = np.abs(fft_orig)
+
+    s_curr = rng.permutation(x)
+    prev_s = None
+
+    for _ in range(max_iter):
+        fft_s = np.fft.rfft(s_curr)
+        phases = np.angle(fft_s)
+        s_spectrum_matched = np.fft.irfft(
+            target_amplitudes * np.exp(1j * phases), n=n
+        )
+
+        ranks = np.argsort(np.argsort(s_spectrum_matched))
+        s_new = sorted_x[ranks]
+
+        if prev_s is not None:
+            delta = np.max(np.abs(s_new - prev_s))
+            if delta < tol:
+                return s_new
+
+        prev_s = s_new
+        s_curr = s_new
+
+    return s_curr
+
+
+if __name__ == "__main__":
+    main()
