@@ -153,31 +153,41 @@ def benjamini_yekutieli(
     if m == 0:
         return np.array([], dtype=bool), np.array([], dtype=float)
 
-    # Гармоническая сумма c(M) = sum(1/k for k in 1..M)
-    c_m = np.sum(1.0 / np.arange(1, m + 1))
+    # NaN-safe: работаем только с конечными p-values
+    finite_mask = np.isfinite(p)
+    n_finite = int(finite_mask.sum())
 
-    order = np.argsort(p)
-    p_sorted = p[order]
+    if n_finite == 0:
+        return np.zeros(m, dtype=bool), np.full(m, np.nan)
 
-    # Пороги: k / (m * c_m) * alpha
-    thresholds = (np.arange(1, m + 1) / (m * c_m)) * alpha
+    # Гармоническая сумма по числу валидных тестов
+    c_m = np.sum(1.0 / np.arange(1, n_finite + 1))
+
+    # Индексы только валидных
+    finite_idx = np.where(finite_mask)[0]
+    p_finite = p[finite_idx]
+
+    order_local = np.argsort(p_finite)
+    p_sorted = p_finite[order_local]
+
+    thresholds = (np.arange(1, n_finite + 1) / (n_finite * c_m)) * alpha
     passed = p_sorted <= thresholds
 
-    reject_sorted = np.zeros(m, dtype=bool)
+    reject_local = np.zeros(n_finite, dtype=bool)
     if passed.any():
         max_k = int(np.max(np.where(passed)[0]))
-        reject_sorted[: max_k + 1] = True
+        reject_local[: max_k + 1] = True
 
-    # q-values: q_(k) = min_{j >= k} (p_(j) * m * c_m / j)
-    q_sorted = p_sorted * (m * c_m) / np.arange(1, m + 1)
-    q_sorted = np.minimum.accumulate(q_sorted[::-1])[::-1]
-    q_sorted = np.clip(q_sorted, 0.0, 1.0)
+    q_local = p_sorted * (n_finite * c_m) / np.arange(1, n_finite + 1)
+    q_local = np.minimum.accumulate(q_local[::-1])[::-1]
+    q_local = np.clip(q_local, 0.0, 1.0)
 
-    reject = np.empty(m, dtype=bool)
-    reject[order] = reject_sorted
+    # Разворачиваем обратно в полный массив
+    reject = np.zeros(m, dtype=bool)
+    q = np.full(m, np.nan)
 
-    q = np.empty(m, dtype=float)
-    q[order] = q_sorted
+    reject[finite_idx[order_local]] = reject_local
+    q[finite_idx[order_local]] = q_local
 
     return reject, q
 
@@ -208,26 +218,38 @@ def fdr_bh_q(
         if m == 0:
             return np.array([], dtype=bool), np.array([], dtype=float)
 
-        order = np.argsort(p)
-        p_sorted = p[order]
+        # NaN-safe: работаем только с конечными p-values
+        finite_mask = np.isfinite(p)
+        n_finite = int(finite_mask.sum())
 
-        thresholds = alpha * np.arange(1, m + 1) / m
+        if n_finite == 0:
+            return np.zeros(m, dtype=bool), np.full(m, np.nan)
+
+        # Индексы только валидных
+        finite_idx = np.where(finite_mask)[0]
+        p_finite = p[finite_idx]
+
+        order_local = np.argsort(p_finite)
+        p_sorted = p_finite[order_local]
+
+        thresholds = alpha * np.arange(1, n_finite + 1) / n_finite
         passed = p_sorted <= thresholds
 
-        reject_sorted = np.zeros(m, dtype=bool)
+        reject_local = np.zeros(n_finite, dtype=bool)
         if passed.any():
             max_k = int(np.max(np.where(passed)[0]))
-            reject_sorted[: max_k + 1] = True
+            reject_local[: max_k + 1] = True
 
-        q_sorted = p_sorted * m / np.arange(1, m + 1)
-        q_sorted = np.minimum.accumulate(q_sorted[::-1])[::-1]
-        q_sorted = np.clip(q_sorted, 0.0, 1.0)
+        q_local = p_sorted * n_finite / np.arange(1, n_finite + 1)
+        q_local = np.minimum.accumulate(q_local[::-1])[::-1]
+        q_local = np.clip(q_local, 0.0, 1.0)
 
-        reject = np.empty(m, dtype=bool)
-        reject[order] = reject_sorted
+        # Разворачиваем обратно в полный массив
+        reject = np.zeros(m, dtype=bool)
+        q = np.full(m, np.nan)
 
-        q = np.empty(m, dtype=float)
-        q[order] = q_sorted
+        reject[finite_idx[order_local]] = reject_local
+        q[finite_idx[order_local]] = q_local
 
         return reject, q
 
@@ -276,6 +298,7 @@ def max_lag_surrogate_pvalue(
     seed: int = 42,
     fisher: bool = True,
     surrogate_method: str = "phase",
+    randomize_both: bool = True,
 ) -> tuple[float, float, int]:
     """
     Max-statistic p-value для лаговой кросс-корреляции.
@@ -290,10 +313,16 @@ def max_lag_surrogate_pvalue(
         seed          : seed для воспроизводимости
         fisher        : использовать Fisher-weighted max (по умолчанию True).
                         Если False — обычный max|rho|.
-        surrogate_method : 'phase' (по умолчанию) или 'iaaft'.
+        surrogate_method : 'phase' | 'iaaft' | 'time_shift'.
                            'phase' — классическая фазовая рандомизация.
                            'iaaft' — сохраняет и спектр, и распределение
                            (Schreiber-Schmitz 1996), важно для heavy-tailed.
+                           'time_shift' — циклический сдвиг (быстрый).
+        randomize_both : bool (по умолчанию True)
+            Если True — рандомизировать и x, и y. Это консервативный
+            тест для автокоррелированных пар (правильная нулевая
+            дисперсия). Если False — только y (быстрее, но занижает
+            p-value для автокоррелированных данных).
     Returns:
         (t_obs, p_value, best_lag)
         t_obs    : Fisher-weighted (или обычный) max|corr| на реальных данных
@@ -329,9 +358,15 @@ def max_lag_surrogate_pvalue(
     for _ in range(n_surrogates):
         if surrogate_method == "iaaft":
             y_surr = iaaft_surrogate(y, rng)
+            x_surr = iaaft_surrogate(x, rng) if randomize_both else x
+        elif surrogate_method == "time_shift":
+            y_surr = _time_shift(y, rng)
+            x_surr = _time_shift(x, rng) if randomize_both else x
         else:
             y_surr = _phase_surrogate_keep_length(y, rng)
-        _, corrs_surr, _ = _lagged_cc(x, y_surr, max_lag)
+            x_surr = _phase_surrogate_keep_length(x, rng) if randomize_both else x
+
+        _, corrs_surr, _ = _lagged_cc(x_surr, y_surr, max_lag)
 
         if np.all(np.isnan(corrs_surr)):
             continue
@@ -518,6 +553,37 @@ def iaaft_surrogate(
         s_curr = s_new
 
     return s_curr
+
+
+def _time_shift(
+    y: np.ndarray,
+    rng: np.random.Generator,
+    min_shift: int = 1,
+) -> np.ndarray:
+    """
+    Циклический сдвиг ряда на случайное смещение.
+
+    Быстрая альтернатива phase randomization. Сохраняет
+    автокорреляционную структуру, но разрушает кросс-корреляцию
+    с x. Для коротких рядов или exploratory анализа.
+
+    Args:
+        y: 1D временной ряд.
+        rng: генератор случайных чисел.
+        min_shift: минимальное смещение (>= 1).
+
+    Returns:
+        Сдвинутый ряд той же длины.
+    """
+    y = np.asarray(y, dtype=float)
+    n = y.size
+    if n < 4:
+        return y.copy()
+
+    # Cap shift at n//4 чтобы избежать коллизий
+    max_shift = max(min_shift, n // 4)
+    shift = int(rng.integers(min_shift, max_shift + 1))
+    return np.roll(y, shift)
 
 
 if __name__ == "__main__":

@@ -101,6 +101,7 @@ def cross_correlation_pairs(
     max_lag: int = 72,
     alpha: float = 0.05,
     fdr_method: str = "by",
+    apply_preprocessing: bool = True,
 ) -> pd.DataFrame:
     """
     Все пары детекторов → лаговая корреляция → FDR-коррекция.
@@ -108,6 +109,11 @@ def cross_correlation_pairs(
     """
     cols = wide.columns.tolist()
     rows = []
+    if apply_preprocessing:
+        from crosscorr_lib.analysis.preprocessing import preprocess
+        wide = wide.copy()
+        for col in wide.columns:
+            wide[col] = preprocess(wide[col].values)
 
     for d1, d2 in combinations(cols, 2):
         x = wide[d1].values
@@ -154,6 +160,7 @@ def cross_correlation_pairs_with_max_stat(
     n_surrogates: int = 200,
     seed: int = 42,
     fdr_method: str = "by",
+    apply_preprocessing: bool = True,
 ) -> pd.DataFrame:
     """
     Все пары детекторов → лаговая CC → max-statistic p-value → FDR.
@@ -184,8 +191,17 @@ def cross_correlation_pairs_with_max_stat(
         max_lag_surrogate_pvalue,
     )
 
+    # Per-pair RNG via spawn() for guaranteed independence
+    parent_rng = np.random.default_rng(seed)
+    child_rngs = parent_rng.spawn(len(wide.columns) * (len(wide.columns) - 1) // 2)
+
     cols = wide.columns.tolist()
     rows = []
+    if apply_preprocessing:
+        from crosscorr_lib.analysis.preprocessing import preprocess
+        wide = wide.copy()
+        for col in wide.columns:
+            wide[col] = preprocess(wide[col].values)
 
     n_pairs = len(cols) * (len(cols) - 1) // 2
     print(f"[MAX-STAT] Пар: {n_pairs}, "
@@ -201,8 +217,8 @@ def cross_correlation_pairs_with_max_stat(
             x = wide[d1].values
             y = wide[d2].values
 
-            # Свой seed для каждой пары — суррогаты независимы
-            pair_seed = seed + i * 1000 + j
+            # Свой seed через spawn() — гарантированная независимость
+            pair_seed = int(child_rngs[pair_idx].integers(0, 2**31))
 
             t_obs, p, best_lag = max_lag_surrogate_pvalue(
                 x, y,

@@ -34,9 +34,12 @@ def block_bootstrap_surrogate(
     x = np.asarray(x, dtype=float)
     n = x.size
 
-    if block_size >= n or block_size < 2:
-        # Слишком большой блок — возвращаем перемешанный x
-        return rng.permutation(x)
+    # Cap block_size at n//4 (гарантирует минимум 4 блока)
+    block_size = int(max(2, min(block_size, n // 4)))
+
+    if block_size < 2 or block_size >= n:
+        # Серия слишком короткая для block bootstrap
+        return x.copy()
 
     # Число блоков, необходимое для покрытия n
     n_blocks = int(np.ceil(n / block_size))
@@ -55,7 +58,7 @@ def block_bootstrap_surrogate(
 def block_bootstrap_pvalue(
     x: np.ndarray,
     y: np.ndarray,
-    block_size: int = 24,
+    block_size: int | None = None,
     n_surrogates: int = 500,
     seed: int = 42,
 ) -> tuple[float, float]:
@@ -66,7 +69,8 @@ def block_bootstrap_pvalue(
 
     Args:
         x, y: 1D ряды.
-        block_size: длина блока (обычно ≥ IAT).
+        block_size: длина блока. Если None — адаптивный default:
+            max(2, round(n**(1/3))). Обычно ≥ IAT.
         n_surrogates: число суррогатов.
         seed: seed для воспроизводимости.
 
@@ -75,6 +79,10 @@ def block_bootstrap_pvalue(
     """
     x = np.asarray(x, dtype=float)
     y = np.asarray(y, dtype=float)
+
+    if block_size is None:
+        n_eff = len(x)
+        block_size = max(2, int(round(n_eff ** (1 / 3))))
 
     mask = ~(np.isnan(x) | np.isnan(y))
     x_v, y_v = x[mask], y[mask]

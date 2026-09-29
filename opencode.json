@@ -1,0 +1,21 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "lmstudio": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "LM Studio (Local)",
+      "options": {
+        "baseURL": "http://127.0.0.1:1234/v1"
+      },
+      "models": {
+        "google/gemma-4-e4b": {
+          "name": "Gemma 4 E4B (Local)"
+        },
+        "qwen/qwen2.5-coder-7b-instruct": {
+          "name": "Qwen2.5 Coder 7B (Local)"
+        }
+      }
+    }
+  },
+  "model": "lmstudio/google/gemma-4-e4b"
+}
