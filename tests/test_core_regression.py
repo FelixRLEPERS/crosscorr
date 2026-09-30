@@ -108,6 +108,107 @@ def test_fix7_apply_preprocessing_flag_and_preprocess_body():
 
 
 # ---------------------------------------------------------------------------
+# Фикс 7b–7h — поведение apply_preprocessing и инварианты preprocessing
+# ---------------------------------------------------------------------------
+def _make_wide(n: int = 200):
+    """Синтетический wide-фрейм в формате, который ждёт cross_correlation_pairs."""
+    import pandas as pd
+
+    t = pd.date_range("2024-01-01", periods=n, freq="h")
+    idx = np.linspace(0.0, 4.0 * np.pi, n)
+    return pd.DataFrame({"a": np.sin(idx), "b": np.cos(idx)}, index=t)
+
+
+def test_fix7b_apply_preprocessing_false_skips_preprocess(monkeypatch):
+    """apply_preprocessing=False → preprocess() не вызывается ни раза."""
+    from crosscorr_lib.analysis import cross_correlation as cc
+    from crosscorr_lib.analysis import preprocessing as pp
+
+    calls = []
+    real = pp.preprocess
+
+    def spy(x, *args, **kwargs):
+        calls.append(np.asarray(x).copy())
+        return real(x, *args, **kwargs)
+
+    monkeypatch.setattr(pp, "preprocess", spy)
+    cc.cross_correlation_pairs(_make_wide(), max_lag=5, apply_preprocessing=False)
+    assert calls == [], f"preprocess вызван {len(calls)} раз при apply_preprocessing=False"
+
+
+def test_fix7c_apply_preprocessing_true_calls_preprocess_per_column(monkeypatch):
+    """apply_preprocessing=True → preprocess() вызывается по разу на колонку."""
+    from crosscorr_lib.analysis import cross_correlation as cc
+    from crosscorr_lib.analysis import preprocessing as pp
+
+    calls = []
+    real = pp.preprocess
+
+    def spy(x, *args, **kwargs):
+        calls.append(np.asarray(x).copy())
+        return real(x, *args, **kwargs)
+
+    monkeypatch.setattr(pp, "preprocess", spy)
+    wide = _make_wide()
+    cc.cross_correlation_pairs(wide, max_lag=5, apply_preprocessing=True)
+    assert len(calls) == wide.shape[1], (
+        f"preprocess вызван {len(calls)} раз, ожидалось {wide.shape[1]}"
+    )
+
+
+def test_fix7d_preprocess_is_pure():
+    """preprocess не мутирует входной массив."""
+    from crosscorr_lib.analysis.preprocessing import preprocess
+
+    x = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
+    x_before = x.copy()
+    _ = preprocess(x)
+    np.testing.assert_array_equal(x, x_before)
+
+
+def test_fix7e_preprocess_robust_branch():
+    """robust=True даёт конечный результат и центр ~0 даже с выбросом."""
+    from crosscorr_lib.analysis.preprocessing import preprocess
+
+    rng = np.random.default_rng(0)
+    x = rng.normal(size=200)
+    x[10] = 1e6
+    out = preprocess(x, robust=True)
+    assert np.isfinite(out).all()
+    assert abs(np.median(out)) < 1e-6
+
+
+def test_fix7f_preprocess_all_nan_returns_all_nan():
+    """Весь ряд NaN → возврат как есть, без исключений."""
+    from crosscorr_lib.analysis.preprocessing import preprocess
+
+    x = np.full(10, np.nan)
+    out = preprocess(x)
+    assert out.shape == x.shape
+    assert np.isnan(out).all()
+
+
+def test_fix7g_preprocess_interpolates_internal_gaps():
+    """Внутренние NaN интерполируются."""
+    from crosscorr_lib.analysis.preprocessing import preprocess
+
+    x = np.array([1.0, 2.0, np.nan, 4.0, 5.0])
+    out = preprocess(x, detrend=False, standardize=False)
+    assert np.isfinite(out).all()
+    assert abs(out[2] - 3.0) < 1e-9
+
+
+def test_fix7h_preprocess_constant_series():
+    """Константный ряд → нули, без деления на ноль."""
+    from crosscorr_lib.analysis.preprocessing import preprocess
+
+    x = np.full(50, 7.0)
+    out = preprocess(x)
+    assert np.isfinite(out).all()
+    assert np.allclose(out, 0.0)
+
+
+# ---------------------------------------------------------------------------
 # Фикс 8 — этот файл больше не тянет удалённый core.py
 # ---------------------------------------------------------------------------
 def test_fix8_no_imports_from_core_module():
