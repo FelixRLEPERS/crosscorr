@@ -31,6 +31,7 @@
 - [Быстрый старт](#быстрый-старт)
 - [Данные](#данные)
 - [Пайплайн анализа](#пайплайн-анализа)
+- [Two pipelines](#two-pipelines)
 - [Игра и голосовой наставник](#игра-и-голосовой-наставник)
 - [Финансирование: CrossCorr Fund](#финансирование-crosscorr-fund)
 - [Результаты](#результаты)
@@ -100,7 +101,6 @@
 Подробнее: [docs/methodology.md](docs/methodology.md)
 
 ---
-
 
 ## Научная строгость
 
@@ -295,6 +295,73 @@ python -m pytest tests/ -v
 
 Реализация: [`crosscorr_lib/safe_exec.py`](crosscorr_lib/safe_exec.py).
 > **⚠️ Важно:** `safe_exec.py` — это **фильтр для обучающих сценариев** в детской игре, а не полноценная песочница для недоверенного кода. Он блокирует очевидные опасные вызовы (`open`, `exec`, `import os`) через AST-парсер и изолирует процесс с timeout. Но он **не заменяет** контейнеризацию (Docker, seccomp, cgroups) для production-сценариев с произвольным пользовательским кодом.
+
+---
+
+## Two pipelines
+
+CrossCorr provides two implementations of pair-level analysis. Choose
+based on network size and reproducibility requirements.
+
+| | `cross_correlation_pairs_with_max_stat` | `pairs.cross_correlation_pairs_with_max_stat` |
+|---|---|---|
+| Module | `crosscorr_lib.analysis.cross_correlation` | `crosscorr_lib.pairs` |
+| Surrogate generation | per-pair, from scratch | pre-generated once per detector |
+| Parallelization | joblib + pickle | `multiprocessing.shared_memory` |
+| FFT batch correlation | no | yes (`_batch_max_stat_corr`) |
+| Complexity (N pairs) | O(N² · B · T log T) | O(N · B · T log T + N² · T log T) |
+| Memory | pickled copies per worker | single shared block |
+| Verdicts | — | INVARIANT / CANDIDATE / NOISE |
+| Method choices | `phase`, `iaaft`, `time_shift` | `shuffle`, `phase`, `ar` |
+| FDR | BY or BH | BH with monotonicity |
+
+### Interactive / exploratory
+
+Use the older implementation for small networks or interactive work.
+It runs serially by default and does not require shared memory.
+
+```python
+from crosscorr_lib import cross_correlation_pairs_with_max_stat
+
+result = cross_correlation_pairs_with_max_stat(
+    wide,
+    max_lag=72,
+    n_surrogates=200,
+    alpha=0.05,
+    fdr_method="by",
+)
+# columns: detector_1, detector_2, lag, correlation,
+#          p_value, q_value, n_obs, significant, n_surrogates
+```
+
+### Production / large networks
+
+Use the shared-memory pipeline for N > 20, B > 100, or dense sampling.
+It pre-generates surrogates once per detector and shares them across
+workers via `multiprocessing.shared_memory`, avoiding pickle overhead.
+
+```python
+from crosscorr_lib import pairs
+
+result = pairs.cross_correlation_pairs_with_max_stat(
+    wide,
+    seed=42,
+    method="phase",
+    B=200,
+    n_jobs=-1,
+)
+# columns: detector_a, detector_b, C_obs,
+#          p_value, q_value, verdict
+```
+
+### Which to choose
+
+- **N ≤ 20, exploratory analysis** → `cross_correlation_pairs_with_max_stat`
+- **N > 20, publication-quality run** → `pairs.cross_correlation_pairs_with_max_stat`
+- **Memory-limited environment** → `cross_correlation_pairs_with_max_stat`
+- **HPC / many CPUs** → `pairs.cross_correlation_pairs_with_max_stat`
+
+Both pipelines apply FDR correction and produce tidy DataFrames.
 
 ---
 
