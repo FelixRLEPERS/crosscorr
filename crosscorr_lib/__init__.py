@@ -6,11 +6,13 @@ CrossCorr: кросс-корреляционный анализ гетероге
     from crosscorr_lib import (
         load_unified, build_wide_by_detector,
         lagged_cross_correlation, cross_correlation_pairs,
+        pairs,
     )
 """
 
 __version__ = "0.1.0"
 
+# Параллельная реализация через shared memory (новый API)
 # Основной пайплайн
 from crosscorr_lib.analysis.block_bootstrap import block_bootstrap_pvalue
 from crosscorr_lib.analysis.confounders import (
@@ -41,6 +43,8 @@ from crosscorr_lib.analysis.surrogate import (
     surrogate_test,
 )
 
+from . import pairs
+
 __all__ = [
     # Пайплайн
     "load_unified",
@@ -48,6 +52,8 @@ __all__ = [
     "lagged_cross_correlation",
     "cross_correlation_pairs",
     "cross_correlation_pairs_with_max_stat",
+    # Параллельный shared-memory pipeline
+    "pairs",
     # FDR и суррогаты
     "fdr_bh",
     "fdr_bh_q",
