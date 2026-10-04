@@ -61,6 +61,7 @@ def block_bootstrap_pvalue(
     block_size: int | None = None,
     n_surrogates: int = 500,
     seed: int = 42,
+    randomize_both: bool = True,
 ) -> tuple[float, float]:
     """
     p-value корреляции через block bootstrap.
@@ -73,6 +74,7 @@ def block_bootstrap_pvalue(
             max(2, round(n**(1/3))). Обычно ≥ IAT.
         n_surrogates: число суррогатов.
         seed: seed для воспроизводимости.
+        randomize_both: если True (по умолчанию), суррогируются оба ряда; если False — только y, x фиксирован.
 
     Returns:
         (r_observed, p_value).
@@ -100,7 +102,11 @@ def block_bootstrap_pvalue(
 
     for _ in range(n_surrogates):
         y_surr = block_bootstrap_surrogate(y_v, block_size, rng)
-        r_surr = np.corrcoef(x_v, y_surr)[0, 1]
+        if randomize_both:
+            x_surr = block_bootstrap_surrogate(x_v, block_size, rng)
+            r_surr = np.corrcoef(x_surr, y_surr)[0, 1]
+        else:
+            r_surr = np.corrcoef(x_v, y_surr)[0, 1]
         if np.isnan(r_surr):
             continue
         if abs(r_surr) >= abs(r_obs):
