@@ -30,7 +30,15 @@ from collections.abc import Callable
 
 import numpy as np
 import pandas as pd
-from joblib import Parallel, delayed
+
+try:
+    from joblib import Parallel, delayed
+    _HAS_JOBLIB = True
+except ImportError:
+    _HAS_JOBLIB = False
+    Parallel = None
+    delayed = None
+
 from scipy.signal import lfilter
 
 
@@ -220,21 +228,38 @@ def cross_correlation_pairs_with_max_stat(
 
     try:
         # --- Step 2 & 3: Parallel computation over pairs using shared memory ---
-        results = Parallel(n_jobs=n_jobs, prefer="processes")(
-            delayed(_worker)(
-                shm_surr.name,
-                shm_X.name,
-                out.shape,
-                X.shape,
-                i,
-                j,
-                detectors[i],
-                detectors[j],
-                B,
-                dtype,
+        if _HAS_JOBLIB and n_jobs != 1:
+            results = Parallel(n_jobs=n_jobs, prefer="processes")(
+                delayed(_worker)(
+                    shm_surr.name,
+                    shm_X.name,
+                    out.shape,
+                    X.shape,
+                    i,
+                    j,
+                    detectors[i],
+                    detectors[j],
+                    B,
+                    dtype,
+                )
+                for (i, j) in pairs
             )
-            for (i, j) in pairs
-        )
+        else:
+            results = [
+                _worker(
+                    shm_surr.name,
+                    shm_X.name,
+                    out.shape,
+                    X.shape,
+                    i,
+                    j,
+                    detectors[i],
+                    detectors[j],
+                    B,
+                    dtype,
+                )
+                for (i, j) in pairs
+            ]
 
     finally:
         # Patch #1: close AND unlink BOTH shared memory blocks.
