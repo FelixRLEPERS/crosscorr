@@ -44,6 +44,9 @@ SAFE_BUILTINS = {
     "enumerate": enumerate, "zip": zip, "map": map,
     "filter": filter, "any": any, "all": all,
     "isinstance": isinstance, "type": type,
+    # D11: True/False/None — ключевые слова Python (AST Constant), а не имена,
+    # поэтому в exec они не разрешаются через __builtins__ и записи ниже
+    # недостижимы. Оставлены для обратной совместимости набора.
     "True": True, "False": False, "None": None,
 }
 

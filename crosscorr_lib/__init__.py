@@ -8,12 +8,32 @@ CrossCorr: кросс-корреляционный анализ гетероге
         lagged_cross_correlation, cross_correlation_pairs,
         pairs,
     )
+
+Две реализации парного анализа
+==============================
+
+В проекте есть две функции с одинаковым именем
+``cross_correlation_pairs_with_max_stat``:
+
+* ``crosscorr_lib.analysis.cross_correlation.cross_correlation_pairs_with_max_stat``
+  — Spearman-корреляция на лагах, суррогаты генерируются на пару; колонки
+  ``detector_1, detector_2, lag, correlation, ...``. Экспортируется здесь как
+  ``crosscorr_lib.cross_correlation_pairs_with_max_stat``.
+* ``crosscorr_lib.pairs.cross_correlation_pairs_with_max_stat``
+  — FFT-batch корреляция с shared memory; колонки
+  ``detector_a, detector_b, C_obs, ...`` и verdict
+  ``INVARIANT / CANDIDATE / NOISE``. Доступна через модуль ``pairs``.
+
+Функции не взаимозаменяемы: различаются статистикой, форматом вывода и FDR.
+Переименование одной из них было бы breaking change и не выполнялось.
 """
 
 __version__ = "0.1.0"
 
-# Параллельная реализация через shared memory (новый API)
-# Основной пайплайн
+# Основной пайплайн.
+# ВНИМАНИЕ (D1): cross_correlation_pairs_with_max_stat импортируется из
+# analysis.cross_correlation, а не из pairs; у pairs — собственная функция
+# с тем же именем и другим контрактом (см. docstring модуля).
 from crosscorr_lib.analysis.block_bootstrap import block_bootstrap_pvalue
 from crosscorr_lib.analysis.confounders import (
     load_confounders,
@@ -54,7 +74,9 @@ __all__ = [
     "cross_correlation_pairs_with_max_stat",
     # Параллельный shared-memory pipeline
     "pairs",
-    # FDR и суррогаты
+    # FDR и суррогаты.
+    # fdr_bh -> только reject-массив; fdr_bh_q -> (reject, q). Оба используют
+    # method="by" (Benjamini-Yekutieli) по умолчанию; "bh" доступен опцией.
     "fdr_bh",
     "fdr_bh_q",
     "max_lag_surrogate_pvalue",
