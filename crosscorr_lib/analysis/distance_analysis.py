@@ -93,6 +93,10 @@ def fit_distance_model(df: pd.DataFrame) -> dict:
     """
     Простая линейная регрессия: correlation ~ distance_km.
     Возвращает коэффициенты и R².
+
+    При вырожденном входе (все distance_km равны, или n < 3)
+    возвращает NaN вместо slope = ±inf: бесконечный наклон не имеет
+    статистического смысла и ломает агрегированную статистику.
     """
     x = df["distance_km"].values
     y = df["correlation"].values
@@ -107,13 +111,19 @@ def fit_distance_model(df: pd.DataFrame) -> dict:
     n = x.size
     x_mean = x.mean()
     y_mean = y.mean()
-    b = np.sum((x - x_mean) * (y - y_mean)) / np.sum((x - x_mean) ** 2)
+
+    denom = np.sum((x - x_mean) ** 2)
+    if not np.isfinite(denom) or denom <= 0:
+        return {"slope": np.nan, "intercept": np.nan,
+                "r_squared": np.nan, "n": int(n)}
+
+    b = np.sum((x - x_mean) * (y - y_mean)) / denom
     a = y_mean - b * x_mean
 
     y_pred = a + b * x
     ss_res = np.sum((y - y_pred) ** 2)
     ss_tot = np.sum((y - y_mean) ** 2)
-    r_squared = 1 - ss_res / ss_tot if ss_tot > 0 else np.nan
+    r_squared = 1 - ss_res / ss_tot if np.isfinite(ss_tot) and ss_tot > 0 else np.nan
 
     return {
         "slope": float(b),

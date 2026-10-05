@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import numpy as np
 from scipy import stats
+from scipy.signal import fftconvolve
 
 
 def integrated_autocorrelation_time(
@@ -45,7 +46,12 @@ def integrated_autocorrelation_time(
         τ_int ≥ 1. Для белого шума ≈ 1.
     """
     x = np.asarray(x, dtype=float)
-    x = x[~np.isnan(x)]
+    if np.isnan(x).any():
+        idx = np.arange(x.size)
+        good = np.isfinite(x)
+        if good.sum() < 2:
+            return 1.0
+        x = np.interp(idx, idx[good], x[good])
     n = x.size
 
     if n < 10:
@@ -59,20 +65,30 @@ def integrated_autocorrelation_time(
     if var == 0:
         return 1.0
 
-    # Автокорреляция через FFT (быстрее, чем цикл)
-    acf = np.correlate(x_centered, x_centered, mode="full")
+    # FFT-based свёртка (O(n log n)) вместо прямой свёртки (O(n²)).
+    # Корреляция = свёртка с развёрнутым рядом; lag 0 совпадает с var(x).
+    acf = fftconvolve(x_centered, x_centered[::-1], mode="full")
     acf = acf[n - 1 :]  # положительные лаги
     acf = acf / acf[0]  # нормировка ρ(0) = 1
 
-    # Автоматическая обрезка: суммируем до первого незначимого
+    # Окно обрезки: суммируем, пока |rho_k| не остаётся ниже порога
+    # на протяжении N_CONSECUTIVE подряд лагов. Одиночное пересечение
+    # порога — флуктуация, а не конец автокорреляции; прежний break
+    # обрывал сумму на первом же таком лаге, занижая tau и завышая N_eff.
+    N_CONSECUTIVE = 5
+    threshold = 1.96 / np.sqrt(n)
+
     tau = 1.0
+    below = 0
     for k in range(1, min(max_lag + 1, len(acf))):
         rho_k = acf[k]
-        # Порог для значимости автокорреляции
-        threshold = 1.96 / np.sqrt(n)
         if abs(rho_k) < threshold:
-            break
-        tau += 2 * rho_k
+            below += 1
+            if below >= N_CONSECUTIVE:
+                break
+        else:
+            below = 0
+            tau += 2 * rho_k
 
     return max(tau, 1.0)
 
@@ -135,8 +151,18 @@ def correlation_pvalue_with_ess(
     else:
         r, _ = stats.pearsonr(x_v, y_v)
 
-    if np.isnan(r) or abs(r) >= 1.0:
-        return float(r), 0.0 if abs(r) >= 1.0 else 1.0, float(n)
+    if np.isnan(r):
+        return float(r), 1.0, float(n)
+
+    if abs(r) >= 1.0:
+        # Ровно 0.0 невозможен для корректного теста: логарифмы ломаются,
+        # агрегированная статистика (Fisher) даёт -inf. Нижняя граница 1/n_eff.
+        n_eff = effective_sample_size(x_v, y_v)
+        if np.isfinite(n_eff) and n_eff > 0:
+            p_floor = min(1.0, 1.0 / float(n_eff))
+        else:
+            p_floor = 1.0
+        return float(r), float(p_floor), float(n_eff)
 
     # Эффективный размер выборки
     n_eff = effective_sample_size(x_v, y_v)

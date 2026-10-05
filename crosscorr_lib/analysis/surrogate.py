@@ -28,7 +28,9 @@ def phase_surrogate(x: np.ndarray, rng: np.random.Generator) -> np.ndarray:
     x = np.asarray(x, dtype=float)
     x = x[~np.isnan(x)]
     if x.size < 4:
-        return x
+        # Возврат оригинала был бы не суррогатом: в surrogate_test такой
+        # «суррогат» совпал бы с наблюдаемым рядом и исказил p-value.
+        return np.full_like(x, np.nan, dtype=float)
 
     fft = np.fft.rfft(x)
     magnitudes = np.abs(fft)
@@ -73,17 +75,25 @@ def surrogate_test(wide: pd.DataFrame, n_surrogates: int = 1000, seed: int = 42)
         surro_df = pd.DataFrame(surro, columns=cols)
         surrogate_corrs[i] = surro_df.corr(method="spearman").values
 
-    # p-value: доля суррогатов, где |corr| >= |real|
+    # p-value: доля валидных суррогатов, где |corr| >= |real|.
+    # Вырожденные суррогаты (NaN) исключаются из знаменателя, иначе
+    # они искусственно раздувают B и занижают p-value.
     pvals = np.zeros_like(real)
     for r in range(len(cols)):
         for c in range(len(cols)):
             if r == c:
                 pvals[r, c] = 0.0
                 continue
-            n_extreme = np.sum(
-                np.abs(surrogate_corrs[:, r, c]) >= abs(real[r, c])
-            )
-            pvals[r, c] = (n_extreme + 1) / (n_surrogates + 1)
+            cell = surrogate_corrs[:, r, c]
+            valid = np.isfinite(cell)
+            n_used = int(valid.sum())
+            if n_used == 0:
+                pvals[r, c] = 1.0
+                continue
+            n_extreme = int(np.sum(
+                np.abs(cell[valid]) >= abs(real[r, c])
+            ))
+            pvals[r, c] = (n_extreme + 1) / (n_used + 1)
 
     result = pd.DataFrame(pvals, index=cols, columns=cols)
     return result
@@ -588,10 +598,22 @@ def _time_shift(
     if n < 4:
         return y.copy()
 
-    # Cap shift at n//4 чтобы избежать коллизий
+    # Сдвиг выбирается из [n/4, 3n/4]: он обязан заметно превышать время
+    # корреляции, иначе разрушения кросс-корреляции не происходит.
     max_shift = max(min_shift, n // 4)
-    shift = int(rng.integers(min_shift, max_shift + 1))
-    return np.roll(y, shift)
+    upper = max(max_shift + 1, 3 * n // 4)
+    shift = int(rng.integers(max_shift, upper))
+
+    # Линейный сдвиг с NaN на краях: np.roll замыкал ряд циклически и
+    # создавал разрыв на границе, добавляя ложную низкочастотную структуру.
+    out = np.full_like(y, np.nan, dtype=float)
+    if shift > 0:
+        out[shift:] = y[:-shift]
+    elif shift < 0:
+        out[:shift] = y[-shift:]
+    else:
+        out[:] = y
+    return out
 
 
 if __name__ == "__main__":

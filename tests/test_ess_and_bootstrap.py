@@ -145,5 +145,55 @@ def test_block_bootstrap_rejects_noise():
     print(f"\n  r={r:.4f}, p={p:.4f} (чистый шум)")
 
 
+def test_iat_uses_fft_not_correlate():
+    """В исходнике IAT не должно быть прямой корреляции O(n^2)."""
+    import inspect
+
+    from crosscorr_lib.analysis import effective_sample
+
+    src = inspect.getsource(
+        effective_sample.integrated_autocorrelation_time
+    )
+    assert "np.correlate" not in src, (
+        "IAT должен использовать FFT-based свёртку, не прямую корреляцию"
+    )
+
+
+def test_ess_pvalue_never_zero():
+    """p-value не может быть 0.0 при |r|=1."""
+    from crosscorr_lib.analysis.effective_sample import (
+        correlation_pvalue_with_ess,
+    )
+
+    n = 100
+    x = np.linspace(-1, 1, n)
+    y = x.copy()  # |r|=1
+    _, p, _ = correlation_pvalue_with_ess(x, y)
+    assert p > 0.0, f"p-value = {p}, ожидалось > 0"
+    assert np.isfinite(p), f"p-value = {p}, ожидалось конечное"
+
+
+def test_ess_handles_nan_by_interpolation():
+    """NaN интерполируются, а не удаляются."""
+    import inspect
+
+    from crosscorr_lib.analysis import effective_sample
+
+    src = inspect.getsource(effective_sample)
+    assert "x = x[~np.isnan(x)]" not in src, (
+        "NaN должны интерполироваться, не удаляться"
+    )
+
+
+def test_iat_is_nan_tolerant():
+    """IAT принимает ряд с пропусками и не падает."""
+    rng = np.random.default_rng(0)
+    x = rng.normal(size=500)
+    x[10] = np.nan
+    x[200] = np.nan
+    tau = integrated_autocorrelation_time(x)
+    assert np.isfinite(tau) and tau >= 1.0, f"tau={tau}"
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v", "-s"])

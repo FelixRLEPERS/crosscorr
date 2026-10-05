@@ -295,3 +295,50 @@ def test_fix11_skipped_surrogates_reduce_denominator():
 
     assert "n_used" in src_sur, "max_lag_surrogate_pvalue не считает n_used"
     assert "n_used" in src_bb, "block_bootstrap_pvalue не считает n_used"
+
+
+# ---------------------------------------------------------------------------
+# Фикс 12 — phase_surrogate при n<4 возвращает NaN, а не оригинал
+# ---------------------------------------------------------------------------
+def test_fix12_phase_surrogate_short_input():
+    """phase_surrogate при n<4 не возвращает исходные данные."""
+    import numpy as np
+
+    from crosscorr_lib.analysis.surrogate import phase_surrogate
+
+    x = np.array([1.0, 2.0, 3.0])
+    out = phase_surrogate(x, np.random.default_rng(0))
+    assert not np.array_equal(out, x), (
+        "phase_surrogate вернул исходный ряд при n<4"
+    )
+    assert np.all(np.isnan(out)), (
+        "phase_surrogate должен вернуть NaN при n<4"
+    )
+
+
+# ---------------------------------------------------------------------------
+# Фикс 13 — fit_distance_model не делит на ноль при constant x
+# ---------------------------------------------------------------------------
+def test_fix13_distance_model_constant_x():
+    """При constant distance_km fit_distance_model не даёт inf."""
+    import numpy as np
+    import pandas as pd
+
+    from crosscorr_lib.analysis.distance_analysis import (
+        fit_distance_model,
+    )
+
+    x = np.array([5.0, 5.0, 5.0, 5.0, 5.0])
+    y = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
+    df = pd.DataFrame({"distance_km": x, "correlation": y})
+
+    try:
+        result = fit_distance_model(df)
+    except Exception as e:  # noqa: BLE001
+        pytest.fail(f"fit_distance_model упал: {e}")
+
+    for key, val in result.items():
+        if isinstance(val, float):
+            assert np.isfinite(val) or np.isnan(val), (
+                f"{key}={val} — inf недопустим"
+            )
