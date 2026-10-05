@@ -1,9 +1,7 @@
-from typing import Dict, List, Any, Optional
-import re  # импортируем для потенциальной обработки Regex в будущем
-
+from typing import Any
 
 # Типизация для метаданных источника данных
-SourceMetadata = Dict[str, Any]
+SourceMetadata = dict[str, Any]
 
 
 class SourceRegistry:
@@ -11,7 +9,7 @@ class SourceRegistry:
     Централизованный реестр всех поддерживаемых источников данных CrossCorr.
     Содержит информацию о том, как и какие данные мы ожидаем от каждого источника.
     """
-    _registry: Dict[str, SourceMetadata] = {}
+    _registry: dict[str, SourceMetadata] = {}
 
     @classmethod
     def register_source(cls, source_name: str, metadata: SourceMetadata):
@@ -21,7 +19,7 @@ class SourceRegistry:
         cls._registry[source_name] = metadata
 
     @classmethod
-    def get_all_sources(cls) -> Dict[str, SourceMetadata]:
+    def get_all_sources(cls) -> dict[str, SourceMetadata]:
         """Возвращает все зарегистрированные источники."""
         return cls._registry
 

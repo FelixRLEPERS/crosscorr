@@ -68,17 +68,30 @@
    Все источники приводятся к единому формату:
 
    ```text
-   timestamp_utc, detector_id, detector_type, residual, meta
+   timestamp_utc, detector_id, detector_type, value,
+   residual, residual_method, unit, quality_flag, meta
    ```
+
+   `value` — сырое наблюдение (SNR в дБ, X-компонента в нТ, расстояние
+   в а.е. — в зависимости от типа детектора). `residual` — остаток
+   после базовой модели; именно `residual` используется в анализе.
 
 2. **Базовая модель.**
-   Оценка остатков через смешанную линейную модель:
+   Оценка остатков `residual = value - model(value)` в
+   [`crosscorr_lib/analysis/residuals.py`](crosscorr_lib/analysis/residuals.py):
+   для `detector_type == "ballistic"` — смешанная линейная модель,
+   для остальных типов — МНК по физическим конфаундерам.
 
    ```text
-   v0 ~ T_заряда + масса + (1|полигон)
+   ballistic:  value ~ charge_temp + mass + (1|range_id)
+   прочие:     value ~ kp + dst + f107
    ```
 
-   Реализация: `statsmodels` MixedLM.
+   Без конфаундеров модель не оценивается: `residual_method = "none"`,
+   `residual = value`. При ошибке фита: `residual = NaN`,
+   `quality_flag = 1`.
+
+   Реализация: `statsmodels` MixedLM (ballistic) и МНК (остальные).
 
 3. **Пространственная модель.**
    Байесовская модель с экспоненциальным ядром ковариации для учёта пространственной структуры.
@@ -495,7 +508,7 @@ python scripts/simulate_network.py --n-detectors 10 --n-hidden 3 \
 - ✅ BY-FDR (Benjamini-Yekutieli)
 - ✅ IAAFT surrogate
 - ✅ CI (GitHub Actions) — fast + slow jobs
-- 🚧 MixedLM для остатков
+- ✅ MixedLM для остатков (`crosscorr_lib/analysis/residuals.py`)
 - 🚧 PyMC пространственная модель
 
 Актуальный план: [docs/roadmap.md](docs/roadmap.md)

@@ -23,7 +23,7 @@ PLANETS = {
 }
 
 
-def fetch_ephemeris(planet: str, start: str, stop: str, step: str = "1h") -> "object":
+def fetch_ephemeris(planet: str, start: str, stop: str, step: str = "1h") -> object:
     code = PLANETS[planet.lower()]
     obj = Horizons(id=code, location="@sun", epochs={"start": start, "stop": stop, "step": step})
     return obj.ephemerides()

@@ -7,8 +7,17 @@
 | timestamp_utc | datetime64[ns, UTC] | Время наблюдения |
 | detector_id | string | Уникальный идентификатор источника/детектора |
 | detector_type | string | Тип: wspr, magnetometer, gnss, ionosonde, ballistic, ... |
-| residual | float | Остаток после базовой модели |
+| value | float | Сырое наблюдение до применения модели |
+| residual | float | Остаток после базовой модели (`value - model`) |
+| residual_method | string | Какая модель дала остаток: mixedlm_ballistic, ols_geomagnetic, none |
+| unit | string | Единица `value`: dB (WSPR), nT (магнитометр), AU (эфемериды) |
+| quality_flag | int | 0 — наблюдение есть и модель оценена; 1 — нет данных или модель не сошлась |
 | meta | json | Доп. поля (широта, долгота, оператор и т.п.) |
+
+Базовая модель выбирается по `detector_type` и описана в
+[`crosscorr_lib/analysis/residuals.py`](../crosscorr_lib/analysis/residuals.py).
+Если конфаундеры (`data/confounders.csv`) недоступны, модель не оценивается:
+`residual_method = "none"`, `residual = value`.
 
 ## Источники
 

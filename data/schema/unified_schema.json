@@ -9,7 +9,29 @@
       "type": "string",
       "enum": ["wspr", "magnetometer", "gnss", "ionosonde", "ballistic", "metrology", "genome", "ephemeris"]
     },
-    "residual": { "type": "number" },
+    "value": {
+      "type": "number",
+      "description": "Raw observation as measured, before any model is subtracted. Unit depends on detector_type: wspr -> dB (SNR), magnetometer -> nT (X component), ephemeris -> AU (heliocentric distance). See DETECTOR_UNITS in crosscorr_lib/analysis/residuals.py."
+    },
+    "residual": {
+      "type": "number",
+      "description": "Observation minus the prediction of the base model fitted for this detector_type. For ballistic this is the MixedLM residual of `value ~ charge_temp + mass + (1|range_id)`; for every other detector_type it is the OLS residual of `value ~ kp + dst + f107`; when no confounders are available the model is not estimated, residual_method is 'none' and residual equals value. This is the column consumed by cross_correlation, mfdfa, stationarity and surrogate."
+    },
+    "residual_method": {
+      "type": "string",
+      "enum": ["mixedlm_ballistic", "ols_geomagnetic", "none"],
+      "description": "Which base model produced residual. 'none' means no model was estimated and residual is the raw value."
+    },
+    "unit": {
+      "type": "string",
+      "description": "Physical unit of value, e.g. dB, nT, AU. Taken from DETECTOR_UNITS in crosscorr_lib/analysis/residuals.py."
+    },
+    "quality_flag": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "0 = observation present and model fitted, 1 = observation missing (value is NaN) or the base model failed to fit (residual is NaN)."
+    },
     "meta": { "type": "object" }
   },
   "required": ["timestamp_utc", "detector_id", "detector_type", "residual"]

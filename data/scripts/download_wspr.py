@@ -10,11 +10,11 @@ from __future__ import annotations
 
 import argparse
 import datetime as dt
+import time
 from pathlib import Path
 
 import pandas as pd
 import requests
-import time
 
 RAW_DIR = Path(__file__).resolve().parents[1] / "raw" / "wspr"
 RAW_DIR.mkdir(parents=True, exist_ok=True)
