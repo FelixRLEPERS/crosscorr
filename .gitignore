@@ -43,5 +43,6 @@ opencode.json
 
 # Local analysis artifacts
 results/
-audit/
+#audit/
 bench.log
+aep/

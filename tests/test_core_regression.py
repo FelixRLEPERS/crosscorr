@@ -340,5 +340,38 @@ def test_fix13_distance_model_constant_x():
     for key, val in result.items():
         if isinstance(val, float):
             assert np.isfinite(val) or np.isnan(val), (
-                f"{key}={val} — inf недопустим"
+                f"{key}={val} — inf недопустимо"
             )
+
+
+# ---------------------------------------------------------------------------
+# Фикс 14 — phase_surrogate не компактифицирует ряд при NaN
+# ---------------------------------------------------------------------------
+def test_fix14_phase_surrogate_preserves_length():
+    """phase_surrogate не меняет длину при NaN."""
+    import numpy as np
+    from crosscorr_lib.analysis.surrogate import phase_surrogate
+
+    x = np.random.default_rng(0).normal(size=100)
+    x[10] = np.nan
+    x[20:30] = np.nan
+    out = phase_surrogate(x, np.random.default_rng(0))
+    assert len(out) == len(x), (
+        f"phase_surrogate вернул {len(out)} вместо {len(x)}"
+    )
+    assert np.isfinite(out).all(), "NaN не интерполированы"
+
+
+# ---------------------------------------------------------------------------
+# Фикс 15 — iaaft_surrogate при вырожденном входе даёт NaN, не оригинал
+# ---------------------------------------------------------------------------
+def test_fix15_iaaft_surrogate_degenerate_input():
+    """iaaft_surrogate при вырожденном входе даёт NaN, не оригинал."""
+    import numpy as np
+    from crosscorr_lib.analysis.surrogate import iaaft_surrogate
+
+    x = np.array([np.nan, np.nan, 1.0, np.nan, np.nan])
+    out = iaaft_surrogate(x, np.random.default_rng(0))
+    assert not np.array_equal(out, x), (
+        "iaaft_surrogate вернул исходник при вырожденном входе"
+    )

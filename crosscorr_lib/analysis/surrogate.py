@@ -24,12 +24,27 @@ def phase_surrogate(x: np.ndarray, rng: np.random.Generator) -> np.ndarray:
 
     Фиксирует фазу DC (индекс 0) и Nyquist (последний индекс для чётной
     длины), чтобы сохранить нулевое среднее и вещественность сигнала.
+
+    NaN не удаляются, а интерполируются по индексу: длина результата всегда
+    равна длине входа. Удаление NaN сдвигало бы все последующие отсчёты и
+    разрушало лаговую структуру, из-за чего наблюдение и нулевое
+    распределение считались бы на рядах разной длины.
+
+    Returns:
+        Массив той же длины, что и x. Если конечных значений меньше двух
+        либо длина входа меньше 4 — массив NaN, а НЕ исходный ряд:
+        совпадение с наблюдением исказило бы p-value.
     """
     x = np.asarray(x, dtype=float)
-    x = x[~np.isnan(x)]
+
+    if np.isnan(x).any():
+        idx = np.arange(x.size)
+        good = np.isfinite(x)
+        if good.sum() < 2:
+            return np.full_like(x, np.nan, dtype=float)
+        x = np.interp(idx, idx[good], x[good])
+
     if x.size < 4:
-        # Возврат оригинала был бы не суррогатом: в surrogate_test такой
-        # «суррогат» совпал бы с наблюдаемым рядом и исказил p-value.
         return np.full_like(x, np.nan, dtype=float)
 
     fft = np.fft.rfft(x)
@@ -427,21 +442,29 @@ def _lagged_cc(x, y, max_lag):
 def _phase_surrogate_keep_length(x, rng):
     """
     Фазовый суррогат, сохраняющий длину ряда.
-    В отличие от phase_surrogate, здесь NaN не удаляются
-    (используется интерполяция).
+
+    NaN не удаляются, а интерполируются по индексу. Длина результата всегда
+    равна длине входа, поэтому наблюдение и нулевое распределение считаются
+    на рядах одинаковой длины.
+
+    Returns:
+        Массив той же длины, что и x. Если конечных значений меньше четырёх
+        либо длина входа меньше 4 — массив NaN, а НЕ исходный ряд:
+        возврат наблюдения в нулевом распределении занижает p-value.
+        Вызывающий код исключает такой суррогат из знаменателя через n_used.
     """
     x = np.asarray(x, dtype=float)
     if np.isnan(x).any():
         # Простая интерполяция для NaN
-        mask = ~np.isnan(x)
+        mask = np.isfinite(x)
         if mask.sum() < 4:
-            return x
+            return np.full(x.size, np.nan, dtype=float)
         idx = np.arange(x.size)
         x = np.interp(idx, idx[mask], x[mask])
 
     n = x.size
     if n < 4:
-        return x
+        return np.full(n, np.nan, dtype=float)
 
     fft = np.fft.rfft(x)
     magnitudes = np.abs(fft)
@@ -530,19 +553,22 @@ def iaaft_surrogate(
         tol: критерий сходимости по изменению значений.
 
     Returns:
-        Суррогатный ряд той же длины, что x.
+        Суррогатный ряд той же длины, что x. Если длина входа меньше 4
+        либо конечных значений меньше четырёх — массив NaN, а НЕ исходный
+        ряд: возврат наблюдения в нулевом распределении занижает p-value.
+        Вызывающий код исключает такой суррогат из знаменателя через n_used.
     """
     x = np.asarray(x, dtype=float)
     n = x.size
 
     if n < 4:
-        return x.copy()
+        return np.full(n, np.nan, dtype=float)
 
     if np.isnan(x).any():
         idx = np.arange(n)
         good = np.isfinite(x)
         if good.sum() < 4:
-            return x.copy()
+            return np.full(n, np.nan, dtype=float)
         x = np.interp(idx, idx[good], x[good])
 
     sorted_x = np.sort(x)
