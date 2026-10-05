@@ -31,7 +31,7 @@ classifiers = [
 ]
 dependencies = [
     "pandas>=2.0",
-    "numpy>=1.24",
+    "numpy>=1.25",
     "scipy>=1.10",
     "matplotlib>=3.7",
     "statsmodels>=0.14",

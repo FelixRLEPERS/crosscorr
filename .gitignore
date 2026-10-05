@@ -33,6 +33,10 @@ data/processed/
 *.pyc
 *.pyo
 .pytest_cache/
+.coverage
+coverage.xml
+*.cover
+htmlcov/
 # Backup files
 *.bak
 opencode.json
