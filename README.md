@@ -110,7 +110,8 @@
 - **Negative controls** — на чистом шуме 45 пар: **0 ложных срабатываний** (alpha=0.05).
 - **FDR** — единая реализация Benjamini–Hochberg в `crosscorr_lib/analysis/surrogate.py`,
   поддержка 1D и 2D входов.
-- **Distance-based analysis** — регрессия `correlation ~ distance_km`.
+- **Distance-based analysis** — Mantel test для матриц корреляции и расстояния (default);
+  OLS-регрессия доступна опционально.
   Подтверждена гипотеза: близкие детекторы коррелируют сильнее.
 - **Block bootstrap** — реализован (`crosscorr_lib/analysis/block_bootstrap.py`).
 - **Effective sample size** — реализован (`crosscorr_lib/analysis/effective_sample.py`).
@@ -261,7 +262,7 @@ python data/scripts/unify_schema.py
 python data/scripts/make_sample.py
 
 # 4. Кросс-корреляция
-python crosscorr_lib/analysis/cross_correlation.py --freq 1h --method spearman
+python -m crosscorr_lib.analysis.cross_correlation --freq 1h
 
 # 5. Surrogate-тесты и FDR
 python crosscorr_lib/analysis/surrogate.py --n 1000 --alpha 0.05
@@ -473,7 +474,8 @@ python scripts/simulate_network.py --n-detectors 10 --n-hidden 3 \
 - ✅ AI-наставник (`crosscorr_lib/ai_narrator.py`)
 - ✅ Безопасное выполнение кода (`crosscorr_lib/safe_exec.py`)
 - ✅ Тесты (`pytest`, 11 тестов в 5 файлах)
-- ✅ Distance-based analysis (`correlation ~ distance_km`)
+- ✅ Distance-based analysis (Mantel test для матриц корреляции и расстояния (default);
+  OLS-регрессия доступна опционально)
 - ✅ Max-statistic null для лагов
 - ✅ Negative controls (0 ложных на шуме)
 - ✅ Единая FDR (1D + 2D)
@@ -481,7 +483,6 @@ python scripts/simulate_network.py --n-detectors 10 --n-hidden 3 \
 - ✅ Effective sample size
 - ✅ Block bootstrap
 - ✅ ADF stationarity test
-- ✅ Mantel test (заменяет OLS)
 - ✅ BY-FDR (Benjamini-Yekutieli)
 - ✅ IAAFT surrogate
 - ✅ CI (GitHub Actions) — fast + slow jobs
