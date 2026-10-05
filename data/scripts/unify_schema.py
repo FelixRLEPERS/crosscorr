@@ -29,14 +29,16 @@ residual_method, unit, quality_flag, meta
 from __future__ import annotations
 
 import json
+import logging
 from pathlib import Path
 
 import pandas as pd
 
+logger = logging.getLogger(__name__)
+
 ROOT = Path(__file__).resolve().parents[1]
 RAW = ROOT / "raw"
 PROCESSED = ROOT / "processed"
-PROCESSED.mkdir(parents=True, exist_ok=True)
 
 #: Файл конфаундеров (timestamp_utc, kp, dst, f107) для OLS-базовой модели.
 DEFAULT_CONFOUNDERS = ROOT / "confounders.csv"
@@ -55,20 +57,52 @@ UNIFIED_COLUMNS = [
 ]
 
 
+def _join_unique(values: pd.Series) -> str:
+    """Уникальные непустые значения серии, соединённые через запятую."""
+    seen: list[str] = []
+    for value in values:
+        if pd.isna(value):
+            continue
+        text = str(value)
+        if text not in seen:
+            seen.append(text)
+    return ",".join(seen)
+
+
+def _first_non_null(values: pd.Series):
+    """Первое непустое значение серии либо ``None``."""
+    for value in values:
+        if not pd.isna(value):
+            return value
+    return None
+
+
 def load_wspr(path: Path) -> pd.DataFrame:
-    """Прочитать WSPR-выгрузку в unified-формат (сырое наблюдение = SNR)."""
+    """Прочитать WSPR-выгрузку в unified-формат (сырое наблюдение = SNR).
+
+    Один приёмник (``rx_call``) может принять несколько передатчиков
+    (``tx_call``) в один момент времени. Ключ unified-таблицы —
+    ``(timestamp_utc, detector_id)`` — должен быть уникален, поэтому SNR
+    агрегируется по ``(timestamp, rx_call)`` средним, а список передатчиков
+    сохраняется в ``meta`` (находка A5 / V2-17).
+    """
     df = pd.read_csv(path)
-    out = pd.DataFrame({
-        "timestamp_utc": pd.to_datetime(df["timestamp"], utc=True),
-        "detector_id": df["rx_call"].astype(str),
-        "detector_type": "wspr",
-        "value": df["snr"].astype(float),
-    })
-    out["meta"] = df.apply(
-        lambda r: json.dumps({"tx": r.get("tx_call"), "band": r.get("band")}),
-        axis=1,
+    df = df.copy()
+    df["timestamp_utc"] = pd.to_datetime(df["timestamp"], utc=True)
+    df["detector_id"] = df["rx_call"].astype(str)
+    df["value"] = df["snr"].astype(float)
+
+    grouped = df.groupby(["timestamp_utc", "detector_id"], as_index=False).agg(
+        value=("value", "mean"),
+        tx=("tx_call", _join_unique),
+        band=("band", _first_non_null),
     )
-    return out
+    grouped["detector_type"] = "wspr"
+    grouped["meta"] = [
+        json.dumps({"tx": tx, "band": band})
+        for tx, band in zip(grouped["tx"], grouped["band"], strict=True)
+    ]
+    return grouped[["timestamp_utc", "detector_id", "detector_type", "value", "meta"]]
 
 
 def load_intermagnet(path: Path) -> pd.DataFrame:
@@ -84,19 +118,47 @@ def load_intermagnet(path: Path) -> pd.DataFrame:
     return out
 
 
+#: Возможные имена колонки времени в выгрузке JPL Horizons.
+HORIZONS_TIME_COLUMNS = ("datetime_str", "Date__(UT)__HR:MN", "date")
+
+#: Колонка расстояния от Солнца (а.е.) в выгрузке JPL Horizons.
+HORIZONS_RANGE_COLUMN = "r"
+
+
 def load_horizons(path: Path) -> pd.DataFrame:
-    """Прочитать выгрузку JPL Horizons (сырое наблюдение = расстояние r)."""
+    """Прочитать выгрузку JPL Horizons (сырое наблюдение = расстояние r).
+
+    Колонка времени ищется по известным именам (``HORIZONS_TIME_COLUMNS``),
+    а не берётся как первая колонка файла: слепой fallback мог принять за
+    время любую колонку (находка A15 / V2-19). Строки без времени или без
+    расстояния отбрасываются явно.
+    """
     df = pd.read_csv(path)
-    # Horizons отдаёт колонку 'datetime_str' или 'Date__(UT)__HR:MN'
-    ts_col = "datetime_str" if "datetime_str" in df.columns else df.columns[0]
+    ts_col = next((c for c in HORIZONS_TIME_COLUMNS if c in df.columns), None)
+    if ts_col is None:
+        raise ValueError(
+            f"В выгрузке Horizons нет колонки времени; ожидались "
+            f"{list(HORIZONS_TIME_COLUMNS)}, есть {list(df.columns)}"
+        )
+    if HORIZONS_RANGE_COLUMN not in df.columns:
+        raise ValueError(
+            f"В выгрузке Horizons нет колонки {HORIZONS_RANGE_COLUMN!r}; "
+            f"есть {list(df.columns)}"
+        )
     out = pd.DataFrame({
         "timestamp_utc": pd.to_datetime(df[ts_col], utc=True, errors="coerce"),
         "detector_id": path.stem,
         "detector_type": "ephemeris",
-        "value": pd.to_numeric(df.get("r"), errors="coerce"),  # расстояние от Солнца, а.е.
-    }).dropna(subset=["timestamp_utc"])
+        "value": pd.to_numeric(df[HORIZONS_RANGE_COLUMN], errors="coerce"),
+    })
+    dropped = int(out["timestamp_utc"].isna().sum() + out["value"].isna().sum())
+    if dropped:
+        logger.warning(
+            "%s: отброшено %d строк без времени или расстояния", path.name, dropped
+        )
+    out = out.dropna(subset=["timestamp_utc", "value"])
     out["meta"] = json.dumps({})
-    return out
+    return out[["timestamp_utc", "detector_id", "detector_type", "value", "meta"]]
 
 
 LOADERS = {
@@ -175,7 +237,14 @@ def fit_residuals(
 
 
 def main() -> None:
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s [%(levelname)s] %(message)s",
+    )
+    PROCESSED.mkdir(parents=True, exist_ok=True)
+
     frames = []
+    skipped = 0
     for folder, loader in LOADERS.items():
         d = RAW / folder
         if not d.exists():
@@ -183,9 +252,10 @@ def main() -> None:
         for f in d.glob("*.csv"):
             try:
                 frames.append(loader(f))
-                print(f"[OK] {f.name}")
+                logger.info("[OK] %s", f.name)
             except Exception as e:  # noqa: BLE001
-                print(f"[SKIP] {f.name}: {e}")
+                skipped += 1
+                logger.warning("[SKIP] %s: %s", f.name, e)
 
     if not frames:
         raise SystemExit("Не найдено ни одного файла в data/raw/*")
@@ -194,17 +264,29 @@ def main() -> None:
 
     confounders = load_confounders_if_present(DEFAULT_CONFOUNDERS)
     if confounders is None:
-        print(
-            f"[WARN] {DEFAULT_CONFOUNDERS} не найден: базовая модель не "
-            "оценивается, residual_method = 'none', residual = value."
+        logger.warning(
+            "%s не найден: базовая модель не оценивается, "
+            "residual_method = 'none', residual = value.",
+            DEFAULT_CONFOUNDERS,
         )
     unified = fit_residuals(unified, confounders=confounders)
+
+    n_nan_residual = int(unified["residual"].isna().sum())
+    if n_nan_residual:
+        logger.warning(
+            "residual содержит %d NaN строк из %d; они не удаляются, "
+            "quality_flag помечает их как missing.",
+            n_nan_residual, len(unified),
+        )
 
     unified = unified[UNIFIED_COLUMNS].sort_values("timestamp_utc").reset_index(drop=True)
 
     out = PROCESSED / "unified.parquet"
     unified.to_parquet(out, index=False)
-    print(f"[DONE] {len(unified)} строк -> {out}")
+    logger.info(
+        "[DONE] %d строк -> %s (пропущено файлов: %d)",
+        len(unified), out, skipped,
+    )
 
 
 if __name__ == "__main__":

@@ -53,7 +53,6 @@ from pathlib import Path
 import pandas as pd
 
 RAW_DIR = Path(__file__).resolve().parents[1] / "raw" / "intermagnet"
-RAW_DIR.mkdir(parents=True, exist_ok=True)
 
 #: Колонки результата парсинга.
 OUTPUT_COLUMNS = ["timestamp", "X", "Y", "Z", "F"]
@@ -303,24 +302,45 @@ def parse_iaga2002(path: Path) -> pd.DataFrame:
 
 
 def download_and_save_intermagnet(station: str, year: int, month: int) -> Path:
-    """Скачать данные INTERMAGNET для станции и месяца.
+    """Зарезервировать путь под данные INTERMAGNET (заглушка загрузки).
 
-    Примечание: INTERMAGNET требует ручной загрузки через веб-интерфейс.
-    Эта функция — заглушка: создаёт пустой файл, чтобы не падать.
-    Для реальной загрузки см. https://intermagnet.org
+    INTERMAGNET требует ручной загрузки через веб-интерфейс
+    (https://intermagnet.org), автоматического API нет. Функция **не**
+    создаёт файл: прежняя версия делала ``out_path.touch()`` и создавала
+    пустой ``.min``, который затем молча парсился в пустой DataFrame
+    (находки A20 / V2-26). Возвращается целевой путь; файл должен быть
+    положен туда вручную.
+
+    Parameters
+    ----------
+    station : str
+        Код станции IAGA.
+    year, month : int
+        Год и месяц.
+
+    Returns
+    -------
+    Path
+        Абсолютный путь ``RAW_DIR / f"{station}_{year}_{month:02d}.min"``.
     """
-    out_dir = Path("data/raw/intermagnet")
-    out_dir.mkdir(parents=True, exist_ok=True)
-    out_path = out_dir / f"{station}_{year}_{month:02d}.min"
-    # TODO: реальная загрузка через API
-    out_path.touch()
-    print(f"[STUB] {out_path}")
+    RAW_DIR.mkdir(parents=True, exist_ok=True)
+    out_path = RAW_DIR / f"{station}_{year}_{month:02d}.min"
+    print(
+        f"[MANUAL] Скачайте данные INTERMAGNET для {station} "
+        f"{year}-{month:02d} и положите в {out_path}"
+    )
     return out_path
+
 
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--file", required=True, help="Путь к .min файлу IAGA-2002")
-    parser.add_argument("--station", default="UNKNOWN")
+    parser.add_argument(
+        "--station",
+        required=True,
+        help="Код станции IAGA (например 'ABBR'). Обязателен: UNKNOWN "
+        "по умолчанию приводил к безымянным детекторам (находка A21).",
+    )
     args = parser.parse_args()
 
     src = Path(args.file)
@@ -328,6 +348,12 @@ def main() -> None:
         raise SystemExit(f"Файл не найден: {src}")
 
     df = parse_iaga2002(src)
+    if df.empty:
+        raise SystemExit(
+            f"В {src} нет читаемых строк IAGA-2002. Проверьте формат файла."
+        )
+
+    RAW_DIR.mkdir(parents=True, exist_ok=True)
     out = RAW_DIR / f"{args.station}_{src.stem}.csv"
     df.to_csv(out, index=False)
     print(f"[OK] {len(df)} строк -> {out}")

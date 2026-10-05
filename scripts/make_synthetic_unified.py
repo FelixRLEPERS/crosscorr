@@ -20,6 +20,18 @@
     quality_flag == 0, meta == "{}". Детекторы, время и значения
     не меняются относительно прежней версии.
 
+Известные ограничения синтетики
+================================
+* Пространственная корреляция ``K(i,j) = exp(-d/L)`` задана мгновенно,
+  без задержки распространения. Поэтому максимум кросс-корреляции на
+  этих данных всегда при ``lag = 0``, и лаговый поиск здесь проверяет
+  только отсутствие ложных срабатываний, а не восстановление задержки
+  (находка A31 / V2-45).
+* В одном пуле смешаны типы ``wspr``, ``magnetometer`` и ``gnss`` с
+  разными физическими величинами. Кросс-корреляция между разными типами
+  на синтетике не имеет физического смысла; для содержательного анализа
+  фильтруйте по ``detector_type`` (находка A30 / V2-44).
+
 Запуск:
     python scripts/make_synthetic_unified.py
 """
@@ -34,20 +46,22 @@ import pandas as pd
 ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = ROOT / "data"
 PROCESSED_DIR = DATA_DIR / "processed"
-PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
 
 
-# 10 детекторов в разных точках России и Европы
+# 10 детекторов в разных точках России и Европы.
+# detector_type берётся из enum data/schema/unified_schema.json:
+# "wspr", "magnetometer", "gnss". Прежние значения "intermagnet" и "ngl"
+# не входили в enum и ломали валидацию схемы (находка A4 / V2-16).
 DETECTORS = [
     ("D_MOSCOW",  55.7558, 37.6173, "wspr"),
     ("D_SPB",     59.9311, 30.3609, "wspr"),
-    ("D_KALININGRAD", 54.7104, 20.4522, "intermagnet"),
-    ("D_EKATERINBURG", 56.8389, 60.6057, "intermagnet"),
-    ("D_NOVOSIBIRSK", 55.0084, 82.9357, "ngl"),
-    ("D_Krasnoyarsk", 56.0153, 92.8932, "ngl"),
+    ("D_KALININGRAD", 54.7104, 20.4522, "magnetometer"),
+    ("D_EKATERINBURG", 56.8389, 60.6057, "magnetometer"),
+    ("D_NOVOSIBIRSK", 55.0084, 82.9357, "gnss"),
+    ("D_KRASNOYARSK", 56.0153, 92.8932, "gnss"),
     ("D_IRKUTSK", 52.2870, 104.3050, "wspr"),
-    ("D_Vladivostok", 43.1332, 131.9113, "intermagnet"),
-    ("D_MURMANSK", 68.9585, 33.0827, "ngl"),
+    ("D_VLADIVOSTOK", 43.1332, 131.9113, "magnetometer"),
+    ("D_MURMANSK", 68.9585, 33.0827, "gnss"),
     ("D_SOCHI", 43.5855, 39.7231, "wspr"),
 ]
 
@@ -82,6 +96,7 @@ def build_covariance_matrix(coords, L):
 
 
 def main():
+    PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
     rng = np.random.default_rng(SEED)
 
     # 1. Координаты

@@ -5,12 +5,13 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
+import json
 from pathlib import Path
 
 from astroquery.jplhorizons import Horizons
 
 RAW_DIR = Path(__file__).resolve().parents[1] / "raw" / "horizons"
-RAW_DIR.mkdir(parents=True, exist_ok=True)
 
 # Коды планет в Horizons
 PLANETS = {
@@ -40,9 +41,31 @@ def main() -> None:
     table = fetch_ephemeris(args.planet, args.start, args.stop, args.step)
     df = table.to_pandas()
 
+    RAW_DIR.mkdir(parents=True, exist_ok=True)
     out = RAW_DIR / f"horizons_{args.planet}_{args.start}_{args.stop}.csv"
     df.to_csv(out, index=False)
-    print(f"[OK] {len(df)} строк -> {out}")
+    # ВАЖНО: JPL Horizons пересчитывает положения планет при обновлении
+    # DE-ядер, поэтому без сохранения исходного ответа позиция за прошлую
+    # дату не воспроизводима (находка A28 / V2-36). Сохраняем рядом
+    # метаданные запроса.
+    meta = RAW_DIR / f"horizons_{args.planet}_{args.start}_{args.stop}.json"
+    meta.write_text(
+        json.dumps({
+            "planet": args.planet,
+            "horizons_id": PLANETS[args.planet.lower()],
+            "start": args.start,
+            "stop": args.stop,
+            "step": args.step,
+            "location": "@sun",
+            "rows": int(len(df)),
+        }, indent=2, ensure_ascii=False),
+        encoding="utf-8",
+    )
+    digest = hashlib.sha256(out.read_bytes()).hexdigest()
+    (RAW_DIR / f"horizons_{args.planet}_{args.start}_{args.stop}.sha256").write_text(
+        f"{digest}  {out.name}\n", encoding="utf-8"
+    )
+    print(f"[OK] {len(df)} строк -> {out} (sha256 записан)")
 
 
 if __name__ == "__main__":

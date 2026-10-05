@@ -1,6 +1,6 @@
 """
 Загрузка данных WSPR через публичный API wsprnet.org (или WSPR Live).
-Сохраняет сырой CSV в data/raw/wspr/<date>.csv.
+Сохраняет сырой CSV в data/raw/wspr/wspr_<date>_<band>.csv.
 
 Примечание: WSPR-API нестабилен, лимиты и форматы меняются.
 Скрипт — заготовка: подставьте актуальный эндпоинт.
@@ -10,14 +10,26 @@ from __future__ import annotations
 
 import argparse
 import datetime as dt
+import hashlib
 import time
 from pathlib import Path
 
 import pandas as pd
 import requests
 
+
+def _write_checksum(path: Path) -> Path:
+    """Записать sha256 файла в сайдкар ``<path>.sha256``.
+
+    Позволяет позже проверить, что сырой файл не изменился между прогонами
+    (находка A8 / V2-35).
+    """
+    digest = hashlib.sha256(path.read_bytes()).hexdigest()
+    sidecar = path.with_suffix(path.suffix + ".sha256")
+    sidecar.write_text(f"{digest}  {path.name}\n", encoding="utf-8")
+    return sidecar
+
 RAW_DIR = Path(__file__).resolve().parents[1] / "raw" / "wspr"
-RAW_DIR.mkdir(parents=True, exist_ok=True)
 
 # ВНИМАНИЕ: WSPR API крайне нестабилен. Используем декоратор для повторных попыток.
 WSPR_API = "https://db1.wsprnet.org/drupal/wsprnet/spotquery"
@@ -27,7 +39,13 @@ INITIAL_BACKOFF = 5 # Начальная задержка в секундах
 
 
 def fetch_wspr(date: dt.date, band: str = "20m", limit: int = 5000) -> pd.DataFrame:
-    """Скачивает споты WSPR за указанную дату с retry-логикой."""
+    """Скачивает споты WSPR за указанную дату с retry-логикой.
+
+    ВНИМАНИЕ: ``limit`` ограничивает число строк ответа. WSPRnet отдаёт
+    споты в порядке времени, поэтому ``limit=5000`` детерминированно
+    отрезает конец суток, а не случайную выборку (находка A26 / V2-32).
+    Для полных суток увеличивайте ``limit`` или разбивайте запрос по часам.
+    """
     params = {
         "start": date.isoformat(),
         "end": date.isoformat(),
@@ -74,16 +92,24 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--date", required=True, help="YYYY-MM-DD")
     parser.add_argument("--band", default="20m")
-    parser.add_argument("--limit", type=int, default=5000)
+    parser.add_argument(
+        "--limit",
+        type=int,
+        default=5000,
+        help="Максимум строк; отдаётся начало суток (см. fetch_wspr).",
+    )
     args = parser.parse_args()
 
     date = dt.date.fromisoformat(args.date)
     df = fetch_wspr(date, band=args.band, limit=args.limit)
     df = normalize(df)
 
+    RAW_DIR.mkdir(parents=True, exist_ok=True)
+
     out = RAW_DIR / f"wspr_{date.isoformat()}_{args.band}.csv"
     df.to_csv(out, index=False)
-    print(f"[OK] {len(df)} строк -> {out}")
+    sidecar = _write_checksum(out)
+    print(f"[OK] {len(df)} строк -> {out} (sha256 -> {sidecar.name})")
 
 
 if __name__ == "__main__":

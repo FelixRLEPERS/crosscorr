@@ -1,4 +1,12 @@
+import logging
 from typing import Any
+
+logger = logging.getLogger(__name__)
+
+#: Имена полей unified-схемы (data/schema/unified_schema.json). Реестр
+#: обязан ссылаться на те же имена, что и загрузчики/схема; прежде здесь
+#: использовалось ``timestamp`` вместо ``timestamp_utc`` (находка A24).
+UNIFIED_FIELDS = ["timestamp_utc", "detector_id", "detector_type", "value"]
 
 # Типизация для метаданных источника данных
 SourceMetadata = dict[str, Any]
@@ -35,34 +43,39 @@ class SourceRegistry:
 # ==============================================
 
 def _initialize_registry():
-    """Автоматическая инициализация реестра известными источниками."""
-    print("Initializing CrossCorr Source Registry...")
+    """Автоматическая инициализация реестра известными источниками.
 
-    # 1. WSPR (Worldwide Survey of Pulsars and Radio sources)
+    ``base_url`` у всех источников пока не задан (``None``): реальные
+    эндпоинты не определены, а прежние значения ``https://TODO...``
+    выглядели как рабочие ссылки (находка A23 / V2-29).
+    """
+    logger.debug("Initializing CrossCorr Source Registry...")
+
+    # 1. WSPR (Weak Signal Propagation Reporter)
     SourceRegistry.register_source(
         "WSPR",
         {
-            "description": "Данные о радиосигналах от источников пульсаров.",
-            "expected_fields": ["timestamp", "detector_id", "residual"],
+            "description": "Споты WSPR (SNR приёмника по передатчикам).",
+            "expected_fields": UNIFIED_FIELDS,
             "download_script": "data/scripts/download_wspr.py",
-            "parser_module": "TODO: не реализован",
+            "parser_module": "load_wspr (data/scripts/unify_schema.py)",
             "is_critical": True,
-            "base_url": "https://TODO: указать реальный API/v1/",
-            "api_endpoint": "sources/wspr",
+            "base_url": None,  # реальный эндпоинт не зафиксирован
+            "api_endpoint": "drupal/wsprnet/spotquery",
         }
     )
 
-    # 2. INTERMAGNET (Магнитное поле Земли)
+    # 2. INTERMAGNET (магнитное поле Земли)
     SourceRegistry.register_source(
         "INTERMAGNET",
         {
-            "description": "Измерения магнитного поля Earth's field.",
-            "expected_fields": ["timestamp", "detector_id", "field_strength"],
+            "description": "Измерения магнитного поля Земли (X/Y/Z, нТ).",
+            "expected_fields": UNIFIED_FIELDS,
             "download_script": "data/scripts/download_intermagnet.py",
-            "parser_module": "TODO: InterMagnetParser (не реализован)",
+            "parser_module": "parse_iaga2002 (data/scripts/download_intermagnet.py)",
             "is_critical": True,
-            "base_url": "https://TODO: указать реальный API/v1/",
-            "api_endpoint": "sources/intermagnet",
+            "base_url": None,  # ручная загрузка через intermagnet.org
+            "api_endpoint": None,
         }
     )
 
@@ -71,15 +84,16 @@ def _initialize_registry():
         "NGL",
         {
             "description": "Глобальные навигационные спутниковые данные.",
-            "expected_fields": ["timestamp", "detector_id", "latitude"],
-            "download_script": "data/scripts/download_ngl.py",
+            "expected_fields": UNIFIED_FIELDS,
+            "download_script": None,  # download_ngl.py отсутствует (находка A22 / V2-28)
             "parser_module": "TODO: NGLParser (не реализован)",
             "is_critical": False,
-            "base_url": "https://TODO: указать реальный API/v1/",
-            "api_endpoint": "sources/ngl",
+            "base_url": None,
+            "api_endpoint": None,
         }
     )
 
 
-# Вызов инициализации при импорте модуля
+# Вызов инициализации при импорте модуля. Логирование вместо print:
+# import data.scripts больше не печатает в stdout (находка A25 / V2-31).
 _initialize_registry()
