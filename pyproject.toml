@@ -47,9 +47,14 @@ mfdfa = ["MFDFA>=0.4"]
 game = ["streamlit>=1.30", "edge-tts>=6.1"]
 dev = [
     "pytest>=7.4",
+    "pytest-cov>=4.1",
     "pytest-xdist>=3.5",
     "ruff>=0.6",
     "pip-tools>=7.4",
+    # mfdfa.py импортирует MFDFA на верхнем уровне, а
+    # test_smoke_import_all_analysis_modules импортирует все модули
+    # analysis/, включая mfdfa. Без MFDFA в dev smoke-тест падает в CI.
+    "MFDFA>=0.4",
 ]
 all = [
     "astroquery>=0.4.6",

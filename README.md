@@ -281,15 +281,24 @@ python -m pytest tests/ -v
 
 ```
 
-Артефакты анализа сохраняются в `results/`:
+Артефакты анализа генерируются локально и не хранятся в git. Основной пайплайн:
 
+```bash
+python -m crosscorr_lib.analysis.cross_correlation --freq 1h
+python -m crosscorr_lib.analysis.distance_analysis
+python -m crosscorr_lib.analysis.mfdfa
+```
+
+Результаты записываются в `results/`:
+
+- `results/cross_correlation_pairs.csv` — tidy-формат: `detector_1, detector_2, lag, correlation, p_value, q_value, n_obs, significant`
+- `results/surrogate_significant.csv` — значимые пары после FDR
+- `results/mantel_result.csv` — результат Mantel-теста
 - `results/distance_analysis.csv` — пары + distance_km
 - `results/distance_summary.csv` — сводка по бинам расстояний
-- `results/cross_correlation_pairs.csv` — tidy-формат: `detector_1, detector_2, lag, correlation, p_value, q_value, n_obs, significant`
-- `results/cross_correlation.png`
-- `results/surrogate_pvalues.csv`
-- `results/surrogate_significant.csv`
-- `results/mfdfa_spectra.csv`
+- `results/figures/` — PNG и SVG графики
+
+Состав и значения зависят от версии кода: при изменении методологии файлы следует перегенерировать, а не переиспользовать из предыдущего прогона.
 
 ### Безопасность выполнения кода
 

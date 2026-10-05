@@ -40,3 +40,8 @@ venv/
 # Backup files
 *.bak
 opencode.json
+
+# Local analysis artifacts
+results/
+audit/
+bench.log

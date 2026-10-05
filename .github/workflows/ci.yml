@@ -27,8 +27,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.lock
-          pip install pytest pytest-xdist ruff
+          pip install -e ".[dev]"
 
       - name: Run fast tests (skip slow)
         run: |
@@ -54,8 +53,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.lock
-          pip install pytest
+          pip install -e ".[dev]"
 
       - name: Run slow tests
         run: |
