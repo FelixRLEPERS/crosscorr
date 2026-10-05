@@ -70,6 +70,16 @@ $$
 T_{ij}^{\text{obs}} = \max_{\tau \in [-L, L]} \bigl| r_{ij}(\tau) \bigr|
 $$
 
+**Fisher-веса (по умолчанию).** При `fisher=True` (default) каждый лаг
+взвешивается числом валидных наблюдений:
+
+$$
+T_{ij}^{\text{obs}} = \max_{\tau} \Bigl| \operatorname{arctanh}\bigl(r_{ij}(\tau)\bigr) \Bigr| \cdot \sqrt{n_{\text{valid}}(\tau) - 3}
+$$
+
+Для суррогата $n_{\text{valid}}$ пересчитывается по самому суррогату
+(после `time_shift` на краях появляются NaN).
+
 Нулевое распределение строится через **phase randomization** (см. §5):
 
 $$
@@ -85,9 +95,10 @@ $$
 **Ключевое свойство:** поиск по лагам **внутри** нулевого распределения.
 Это даёт корректный p-value **без Bonferroni-коррекции**. Bonferroni был бы **слишком консервативным** — он не учитывает, что соседние лаги коррелируют.
 
-**Параметры:**
-- $B = 200$ для быстрого скрининга;
-- $B = 1000+$ для публикации.
+**Параметры $B$:**
+- функция `max_lag_surrogate_pvalue` — default $B = 500$;
+- CLI `--n-surrogates` (модуль `cross_correlation`) — default $B = 200$;
+- $B = 1000+$ рекомендуется для публикационных прогонов.
 
 **Реализация:** `crosscorr_lib/analysis/surrogate.py:max_lag_surrogate_pvalue`.
 
@@ -110,27 +121,45 @@ $$
 Это **не итеративный** (non-ITC) суррогат. Для строгих тестов можно перейти
 к ITC (Schreiber & Schmitz, 2000), но для большинства задач достаточно.
 
-**Реализация:** `crosscorr_lib/analysis/surrogate.py:phase_surrogate`.
+**Доступные методы** (параметр `surrogate_method` у
+`max_lag_surrogate_pvalue`):
+- `phase` — фазовый суррогат (default), сохраняет спектр;
+- `iaaft` — сохраняет и спектр, и распределение;
+- `time_shift` — циклический сдвиг (быстрый).
+
+Методы доступны только через API-параметр; отдельного CLI-флага для выбора
+метода нет (`cross_correlation.py` использует `phase`).
+
+**Реализация:** `crosscorr_lib/analysis/surrogate.py:phase_surrogate`,
+`iaaft_surrogate`, `_time_shift`.
 
 ---
 
-## 6. FDR (Benjamini-Hochberg)
+## 6. FDR (Benjamini-Yekutieli, опционально Benjamini-Hochberg)
 
-После получения p-values для всех пар применяется **BH-коррекция**:
+После получения p-values для всех пар применяется FDR-коррекция.
+**По умолчанию — Benjamini-Yekutieli (BY)** (`method="by"`), устойчивый к
+зависимым тестам; Benjamini-Hochberg (BH) доступен опционально
+(`method="bh"`). Для $m$ гипотез:
 
 $$
-q_{(i)} = \min_{k \geq i} \left\{ \frac{n \cdot p_{(k)}}{k} \right\}
+\text{BY}:\; c(m) = \sum_{k=1}^{m} \frac{1}{k}, \qquad
+q_{(i)} = \min_{k \geq i} \left\{ \frac{m \cdot c(m) \cdot p_{(k)}}{k} \right\}
 $$
 
-где $p_{(1)} \leq p_{(2)} \leq \ldots \leq p_{(n)}$ — отсортированные p-values,
-$n$ — число пар.
+$$
+\text{BH}:\; q_{(i)} = \min_{k \geq i} \left\{ \frac{m \cdot p_{(k)}}{k} \right\}
+$$
 
-Отклоняем $H_{(i)}$ если $q_{(i)} \leq \alpha$.
+где $p_{(1)} \leq p_{(2)} \leq \ldots \leq p_{(m)}$ — отсортированные p-values,
+$m$ — число пар. Отклоняем $H_{(i)}$ если $q_{(i)} \leq \alpha$.
 
 **Для симметричной матрицы:** используется только верхний треугольник
 $\text{triu}(P, k=1)$ — каждая пара учитывается **один раз**.
 
-**Реализация:** `crosscorr_lib/analysis/surrogate.py:fdr_bh_q`.
+**Реализация:** `crosscorr_lib/analysis/surrogate.py:fdr_bh_q`
+(`method="by"` — default, `method="bh"` — опция). CLI-флаг
+`--fdr-method {by,bh}`, default `by`.
 
 ---
 
@@ -265,17 +294,24 @@ $$
 
 где $R = 6371$ км, $\varphi$ — широта, $\lambda$ — долгота.
 
-Регрессия:
+**Основной метод — Mantel test (default).** Permutation-тест на
+корреляции между матрицей корреляций и матрицей расстояний, устойчив к
+зависимости элементов матрицы. Гипотеза `alternative="less"`: корреляция
+убывает с расстоянием.
+
+**OLS-регрессия — опция** (устаревший, менее корректный путь):
 
 $$
 r_{ij} = a + b \cdot d_{ij} + \epsilon_{ij}
 $$
 
-OLS: $\hat{b} = \frac{\sum (d_{ij} - \bar{d})(r_{ij} - \bar{r})}{\sum (d_{ij} - \bar{d})^2}$, R² = $1 - \text{SS}_{\text{res}} / \text{SS}_{\text{tot}}$.
+$\hat{b} = \frac{\sum (d_{ij} - \bar{d})(r_{ij} - \bar{r})}{\sum (d_{ij} - \bar{d})^2}$, R² = $1 - \text{SS}_{\text{res}} / \text{SS}_{\text{tot}}$.
 
 **Гипотеза:** $b < 0$ (близкие детекторы коррелируют сильнее).
 
-**Реализация:** `crosscorr_lib/analysis/distance_analysis.py`.
+**Реализация:** `crosscorr_lib/analysis/distance_analysis.py`
+(`--method mantel` default, `--method ols` опция);
+`crosscorr_lib/analysis/mantel.py:mantel_test`.
 
 ---
 
@@ -300,7 +336,9 @@ python -m crosscorr_lib.analysis.cross_correlation --remove-confounders data/con
 python -m crosscorr_lib.analysis.distance_analysis
 ```
 
-Результаты: `results/*.csv`.
+Результаты: `results/*.csv`. Файлы не хранятся в git и зависят от версии
+кода: при изменении методологии их следует перегенерировать, а не
+переиспользовать из предыдущего прогона.
 
 ---
 

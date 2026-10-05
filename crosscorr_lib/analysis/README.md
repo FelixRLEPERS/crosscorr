@@ -31,3 +31,23 @@ python -m crosscorr_lib.analysis.mfdfa
 
 # 8. Distance-based analysis
 python -m crosscorr_lib.analysis.distance_analysis
+```
+
+## Модули
+
+| Модуль | Назначение |
+|---|---|
+| `cross_correlation.py` | Лаговая CC, max-statistic null, CLI |
+| `surrogate.py` | Фазовые суррогаты, FDR (BY/BH), Davison-Hinkley p-value |
+| `effective_sample.py` | ESS / IAT (только zero-lag, deprecated для лагов) |
+| `block_bootstrap.py` | Block bootstrap для нестационарных рядов |
+| `preprocessing.py` | Detrend + standardize |
+| `confounders.py` | Удаление Kp/Dst/F10.7 (МНК) |
+| `stationarity.py` | ADF-тест |
+| `mantel.py` | Mantel test матриц корреляции и расстояния |
+| `distance_analysis.py` | CC-vs-расстояние (Mantel default, OLS опция) |
+| `mfdfa.py` | Мультифрактальный анализ |
+| `residuals.py` | Базовая модель остатков (MixedLM / МНК) |
+| `power_curve.py` | Оценка мощности теста |
+| `benchmark_utils.py` | Утилиты бенчмарка |
+| `visualization.py` | Графики (scatter, heatmap) |
