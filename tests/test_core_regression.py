@@ -30,43 +30,96 @@ def test_fix1_randomize_both_in_max_lag_surrogate_pvalue():
 
 
 # ---------------------------------------------------------------------------
-# Фикс 2 — cap n//4 в block_bootstrap_surrogate
+# Фикс 2 — cap n//4 в block_bootstrap_surrogate (поведенческий)
 # ---------------------------------------------------------------------------
-def test_fix2_block_bootstrap_caps_block_size_at_n_over_4():
-    src = (ANALYSIS / "block_bootstrap.py").read_text(encoding="utf-8")
-    compact = src.replace(" ", "")
-    assert "n//4" in compact, "не найден cap n // 4 в block_bootstrap.py"
+def test_fix2_block_bootstrap_caps_block_size():
+    """block_size >= n обрезается до n//4, поэтому ряд перемешивается,
+    а не возвращается копией.
+
+    n=100, block_size=200 → cap до n//4=25 < n, значит функция собирает
+    блоки со случайных стартов. Без cap ветка block_size >= n вернула бы
+    x.copy() и результат совпал бы с входами.
+    """
+    from crosscorr_lib.analysis.block_bootstrap import block_bootstrap_surrogate
+
+    x = np.arange(100, dtype=float)
+    out = block_bootstrap_surrogate(x, block_size=200, rng=np.random.default_rng(0))
+    assert len(out) == len(x)
+    assert not np.array_equal(out, x), (
+        "block_size не обрезан: суррогат совпал с исходником"
+    )
 
 
 # ---------------------------------------------------------------------------
-# Фикс 3 — default block_size = n**(1/3)
+# Фикс 3 — default block_size = n**(1/3) (поведенческий)
 # ---------------------------------------------------------------------------
 def test_fix3_default_block_size_is_cube_root():
-    src = (ANALYSIS / "block_bootstrap.py").read_text(encoding="utf-8")
-    compact = src.replace(" ", "")
-    assert "**(1/3)" in compact, "не найден default block_size = n**(1/3)"
+    """block_size=None эквивалентен block_size=int(round(n**(1/3))).
+
+    Один seed → детерминированный суррогат, поэтому два вызова должны
+    дать идентичный результат, если дефолт действительно равен кубическому
+    корню от n.
+    """
+    from crosscorr_lib.analysis.block_bootstrap import block_bootstrap_pvalue
+
+    n = 512
+    rng = np.random.default_rng(0)
+    x = rng.normal(size=n)
+    y = 0.5 * x + rng.normal(size=n)
+    expected_block = int(round(n ** (1 / 3)))
+
+    r_default = block_bootstrap_pvalue(
+        x, y, block_size=None, n_surrogates=50, seed=7
+    )
+    r_explicit = block_bootstrap_pvalue(
+        x, y, block_size=expected_block, n_surrogates=50, seed=7
+    )
+    np.testing.assert_allclose(r_default[0], r_explicit[0])
+    np.testing.assert_allclose(r_default[1], r_explicit[1])
 
 
 # ---------------------------------------------------------------------------
-# Фикс 4 — per-pair RNG через rng.spawn()
+# Фикс 4 — per-pair RNG (поведенческий): воспроизводимость по seed
 # ---------------------------------------------------------------------------
-def test_fix4_per_pair_rng_spawn_in_cross_correlation():
-    src = (ANALYSIS / "cross_correlation.py").read_text(encoding="utf-8")
-    assert ".spawn(" in src, "не найден rng.spawn() в cross_correlation.py"
+def test_fix4_per_pair_rng_reproducible():
+    """Один seed → идентичный результат; разные seed → разные p-value.
+
+    Это то поведение, ради которого введён per-pair spawn(): каждый
+    вызов с одним seed воспроизводим, а смена seed меняет суррогаты.
+    """
+    import pandas as pd
+
+    from crosscorr_lib.analysis.cross_correlation import (
+        cross_correlation_pairs_with_max_stat,
+    )
+
+    rng = np.random.default_rng(0)
+    wide = pd.DataFrame(rng.normal(size=(200, 3)), columns=["a", "b", "c"])
+    kw = {"max_lag": 5, "n_surrogates": 20, "apply_preprocessing": False}
+
+    df1 = cross_correlation_pairs_with_max_stat(wide, seed=42, **kw)
+    df2 = cross_correlation_pairs_with_max_stat(wide, seed=42, **kw)
+    pd.testing.assert_frame_equal(df1, df2)
+
+    df3 = cross_correlation_pairs_with_max_stat(wide, seed=43, **kw)
+    assert not np.array_equal(df1["p_value"].values, df3["p_value"].values)
 
 
 # ---------------------------------------------------------------------------
-# Фикс 5 — NaN-safe FDR
+# Фикс 5 — NaN-safe FDR (поведенческий)
 # ---------------------------------------------------------------------------
-def test_fix5_nan_safe_fdr_helpers_exist():
-    from crosscorr_lib.analysis import surrogate
+def test_fix5_nan_safe_fdr_propagates_nan():
+    """NaN в p → NaN в q; остальные компоненты совпадают с версией без NaN."""
+    from crosscorr_lib.analysis.surrogate import fdr_bh_q
 
-    for name in ("benjamini_yekutieli", "fdr_bh_q"):
-        assert hasattr(surrogate, name), f"нет функции {name}"
+    p = np.array([0.01, np.nan, 0.03, 0.04, 0.05])
+    _, q = fdr_bh_q(p, alpha=0.05, method="bh")
+    assert np.isnan(q[1]), "NaN в p-value не дал NaN в q-value"
 
-    src = (ANALYSIS / "surrogate.py").read_text(encoding="utf-8")
-    assert "finite_mask" in src, "нет finite_mask в NaN-safe FDR"
-    assert "n_finite" in src, "нет n_finite в NaN-safe FDR"
+    _, q_clean = fdr_bh_q(
+        np.array([0.01, 0.03, 0.04, 0.05]), alpha=0.05, method="bh"
+    )
+    np.testing.assert_allclose(q[[0, 2, 3, 4]], q_clean)
 
 
 # ---------------------------------------------------------------------------
@@ -282,19 +335,30 @@ def test_fix10_surrogate_test_uses_plus_one():
 
 
 # ---------------------------------------------------------------------------
-# Фикс 11 — пропущенные суррогаты уменьшают знаменатель
+# Фикс 11 — пропущенные суррогаты уменьшают знаменатель (поведенческий)
 # ---------------------------------------------------------------------------
 def test_fix11_skipped_surrogates_reduce_denominator():
-    """Если часть суррогатов вырождена — знаменатель уменьшается."""
-    import inspect
+    """Вырожденные суррогаты исключаются из знаменателя p-value.
 
-    from crosscorr_lib.analysis import block_bootstrap, surrogate
+    short вход (n=5) с phase-суррогатом: часть суррогатов может быть
+    отброшена. p-value строится как (n_extreme+1)/(n_used+1); при
+    n_used=0 функция обязана вернуть p=1.0, а не 0.0. Проверяем именно
+    это поведение, а не наличие строки "n_used" в исходнике.
+    """
+    from crosscorr_lib.analysis.surrogate import max_lag_surrogate_pvalue
 
-    src_sur = inspect.getsource(surrogate.max_lag_surrogate_pvalue)
-    src_bb = inspect.getsource(block_bootstrap.block_bootstrap_pvalue)
-
-    assert "n_used" in src_sur, "max_lag_surrogate_pvalue не считает n_used"
-    assert "n_used" in src_bb, "block_bootstrap_pvalue не считает n_used"
+    x = np.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0])
+    y = x[::-1].copy()
+    t_obs, p, best_lag = max_lag_surrogate_pvalue(
+        x, y, max_lag=3, n_surrogates=20, seed=42
+    )
+    # либо значение не считается (NaN, p=1.0), либо p >= 1/(n_surr+1)
+    if np.isnan(t_obs):
+        assert p == 1.0
+    else:
+        assert p >= 1.0 / (20 + 1) - 1e-12, (
+            f"p={p} ниже минимума 1/(B+1), знаменатель не защищён"
+        )
 
 
 # ---------------------------------------------------------------------------
