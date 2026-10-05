@@ -12,7 +12,7 @@
   <a href="https://www.python.org/"><img src="https://img.shields.io/badge/python-3.10%2B-blue" alt="Python"></a>
   <a href="https://streamlit.io/"><img src="https://img.shields.io/badge/Streamlit-1.30%2B-FF4B4B?logo=streamlit&logoColor=white" alt="Streamlit"></a>
   <a href="https://github.com/FelixRLEPERS/crosscorr/actions">
-    <img src="https://github.com/FelixRLEPERS/crosscorr/actions/workflows/ci.yaml/badge.svg" alt="CI">
+    <img src="https://github.com/FelixRLEPERS/crosscorr/actions/workflows/ci.yml/badge.svg" alt="CI">
 </a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
   <img src="https://img.shields.io/badge/status-active-brightgreen" alt="Status">
@@ -106,11 +106,14 @@
    Реализация: [`MFDFA`](https://pypi.org/project/MFDFA/), [`crosscorr_lib/analysis/mfdfa.py`](crosscorr_lib/analysis/mfdfa.py).
 
 6. **Surrogate-тесты.**
-   Генерация 1000+ фазовых суррогатов для проверки значимости наблюдаемых корреляций.
+   Генерация фазовых суррогатов для проверки значимости наблюдаемых корреляций
+   (по умолчанию 200, 1000+ для публикационных прогонов).
    Реализация: [`crosscorr_lib/analysis/surrogate.py`](crosscorr_lib/analysis/surrogate.py).
 
 7. **FDR-коррекция.**
-   Контроль доли ложных обнаружений (Benjamini–Hochberg) при множественных сравнениях.
+   Контроль доли ложных обнаружений при множественных сравнениях.
+   По умолчанию используется Benjamini–Yekutieli (устойчив к зависимым тестам),
+   Benjamini–Hochberg доступен опционально.
 
 Подробнее: [docs/methodology.md](docs/methodology.md)
 
@@ -120,8 +123,9 @@
 
 - **Max-statistic null** — p-value учитывает поиск по всем лагам, а не только по лучшему.
   Без этого значимость завышалась бы (145 тестов на пару).
-- **Negative controls** — на чистом шуме 45 пар: **0 ложных срабатываний** (alpha=0.05).
-- **FDR** — единая реализация Benjamini–Hochberg в `crosscorr_lib/analysis/surrogate.py`,
+- **Negative controls** — на чистом шуме 45 пар: **≤1 ложное срабатывание** (alpha=0.05).
+- **FDR** — единая реализация FDR в `crosscorr_lib/analysis/surrogate.py`
+  (по умолчанию Benjamini–Yekutieli, опционально Benjamini–Hochberg),
   поддержка 1D и 2D входов.
 - **Distance-based analysis** — Mantel test для матриц корреляции и расстояния (default);
   OLS-регрессия доступна опционально.
@@ -191,7 +195,7 @@ crosscorr/
 ├── results/                     # выходные CSV (gitignored)
 ├── docs/
 ├── README.md
-└── requirements.txt
+└── pyproject.toml
 ```
 
 ---
@@ -213,7 +217,7 @@ cd crosscorr
 python -m venv .venv
 source .venv/bin/activate      # Linux / macOS
 # .venv\Scripts\activate       # Windows
-pip install -r requirements.txt
+pip install -e ".[dev]"
 ```
 
 ### Запуск игры
@@ -432,7 +436,7 @@ python scripts/simulate_network.py --n-detectors 10 --n-hidden 3 \
 - [`crosscorr_lib/narrator.py`](crosscorr_lib/narrator.py) — голосовой наставник на базе `edge-tts` (бесплатно, без API-ключей).
 - [`crosscorr_lib/ai_narrator.py`](crosscorr_lib/ai_narrator.py) — AI-наставник, объясняющий результаты анализа.
 
-Подробное описание сюжета и уровней: [docs/quest.md](docs/quest.md).
+Подробное описание сюжета и уровней — в `crosscorr_lib/quest.py`.
 
 ---
 
@@ -468,8 +472,7 @@ python scripts/simulate_network.py --n-detectors 10 --n-hidden 3 \
 | Масштаб | 19–36 мес | $2,000,000 | 50 чел. |
 | Экосистема | 37–60 мес | $10,000,000 | 200 чел. |
 
-Подробное описание: [docs/fund.md](docs/fund.md)
-Полный whitepaper: [docs/fund-whitepaper.md](docs/fund-whitepaper.md)
+Подробное описание фонда пока ведётся в этом разделе.
 
 ---
 
@@ -478,7 +481,7 @@ python scripts/simulate_network.py --n-detectors 10 --n-hidden 3 \
 Раздел будет пополняться по мере прогонов пайплайна.
 
 - [x] Синтетический бенчмарк: лаговая CC восстанавливает lag=6
-- [x] Negative controls: 0 ложных срабатываний на 45 парах шума
+- [x] Negative controls: ≤1 ложное срабатывание на 45 парах шума
 - [x] Distance-based analysis: slope < 0 (близкие коррелируют сильнее)
 - [x] Max-statistic null: p-value учитывает поиск по всем лагам
 - [ ] Первый прогон на реальных WSPR + Horizons
@@ -495,11 +498,11 @@ python scripts/simulate_network.py --n-detectors 10 --n-hidden 3 \
 - ✅ Голосовой наставник (`crosscorr_lib/narrator.py`)
 - ✅ AI-наставник (`crosscorr_lib/ai_narrator.py`)
 - ✅ Безопасное выполнение кода (`crosscorr_lib/safe_exec.py`)
-- ✅ Тесты (`pytest`, 11 тестов в 5 файлах)
+- ✅ Тесты (`pytest`, более 150 тестов)
 - ✅ Distance-based analysis (Mantel test для матриц корреляции и расстояния (default);
   OLS-регрессия доступна опционально)
 - ✅ Max-statistic null для лагов
-- ✅ Negative controls (0 ложных на шуме)
+- ✅ Negative controls (≤1 ложное на шуме)
 - ✅ Единая FDR (1D + 2D)
 - ✅ Physical confounders (Kp, Dst, F10.7)
 - ✅ Effective sample size
@@ -537,14 +540,10 @@ python scripts/simulate_network.py --n-detectors 10 --n-hidden 3 \
 ## 📚 Документация
 
 - [Методология](docs/methodology.md)
+- [Математическое описание пайплайна](docs/PIPELINE.md)
 - [План развития](docs/roadmap.md)
-- [Игра и сюжет](docs/quest.md)
-- [CrossCorr Fund](docs/fund.md)
-- [Whitepaper фонда](docs/fund-whitepaper.md)
 - [Пайплайн анализа](crosscorr_lib/analysis/README.md)
 - [Описание данных](data/README.md)
-- [Статья (LaTeX)](paper/work.tex)
-- [Библиография](paper/references.bib)
 
 ---
 

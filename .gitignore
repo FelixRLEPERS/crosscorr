@@ -30,13 +30,9 @@ data/interim/
 data/processed/
 *.parquet
 !data/samples/*.csv
-__pycache__/
 *.pyc
 *.pyo
-*.egg-info/
 .pytest_cache/
-.venv/
-venv/
 # Backup files
 *.bak
 opencode.json

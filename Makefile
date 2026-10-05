@@ -53,7 +53,8 @@ HAS_INKSCAPE := $(shell command -v $(INKSCAPE) 2>/dev/null)
 HAS_FFMPEG   := $(shell command -v $(FFMPEG) 2>/dev/null)
 HAS_SVGASM   := $(shell command -v $(SVGASM) 2>/dev/null)
 
-.PHONY: all svg png png-16x9 png-9x16 png-1x1 mp4 gif webm clean help
+.PHONY: all svg png png-16x9 png-9x16 png-1x1 mp4 gif webm clean help \
+        test test-all lint
 
 # ── ALL ─────────────────────────────────────────────────────
 all: svg png mp4
@@ -134,6 +135,16 @@ webm: $(EXPORTS)/final_16x9.mp4
 $(EXPORTS)/final_16x9.mp4:
 	@$(MAKE) mp4
 
+# ── Tests & Lint ────────────────────────────────────────────
+test:
+	python -m pytest tests/ -m "not slow" -q
+
+test-all:
+	python -m pytest tests/ -v
+
+lint:
+	python -m ruff check crosscorr_lib/ tests/ scripts/ data/
+
 # ── Clean ───────────────────────────────────────────────────
 clean:
 	@printf "\n\033[1;33m▶ Очистка %s/\033[0m\n" "$(EXPORTS)"
@@ -155,6 +166,9 @@ help:
 	@echo "  \033[1mmake mp4\033[0m        MP4 из анимированного SVG"
 	@echo "  \033[1mmake gif\033[0m        GIF из MP4"
 	@echo "  \033[1mmake webm\033[0m       WebM с прозрачностью"
+	@echo "  \033[1mmake test\033[0m       pytest (быстрые тесты)"
+	@echo "  \033[1mmake test-all\033[0m   pytest (все тесты)"
+	@echo "  \033[1mmake lint\033[0m       ruff check"
 	@echo "  \033[1mmake clean\033[0m      удалить exports/"
 	@echo "  \033[1mmake help\033[0m       эта справка"
 	@echo

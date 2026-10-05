@@ -24,6 +24,14 @@ import numpy as np
 from scipy import stats
 from scipy.signal import fftconvolve
 
+# Число подряд идущих лагов ниже порога, после которого суммирование
+# автокорреляции прекращается.
+N_CONSECUTIVE = 5
+# Квантиль нормального распределения для 95% доверия (двусторонний).
+Z_95 = 1.96
+# Минимальное число наблюдений для оценки автокорреляции/корреляции.
+MIN_SAMPLES = 10
+
 
 def integrated_autocorrelation_time(
     x: np.ndarray,
@@ -35,8 +43,11 @@ def integrated_autocorrelation_time(
     τ_int = 1 + 2 * Σ_{k=1}^{K} ρ(k)
 
     где ρ(k) — выборочная автокорреляция на лаге k.
-    Использует окно автоматической обрезки (Sokal): суммирование
-    останавливается, когда ρ(k) перестаёт быть значимо отличной от 0.
+
+    Правило остановки: суммирование продолжается, пока подряд не
+    наберётся N_CONSECUTIVE (5) лагов с |ρ(k)| ниже порога
+    1.96 / sqrt(n); одиночное пересечение порога не прерывает сумму
+    (это флуктуация, а не конец автокорреляции).
 
     Args:
         x: 1D временной ряд (без NaN).
@@ -54,7 +65,7 @@ def integrated_autocorrelation_time(
         x = np.interp(idx, idx[good], x[good])
     n = x.size
 
-    if n < 10:
+    if n < MIN_SAMPLES:
         return 1.0
 
     if max_lag is None:
@@ -75,8 +86,7 @@ def integrated_autocorrelation_time(
     # на протяжении N_CONSECUTIVE подряд лагов. Одиночное пересечение
     # порога — флуктуация, а не конец автокорреляции; прежний break
     # обрывал сумму на первом же таком лаге, занижая tau и завышая N_eff.
-    N_CONSECUTIVE = 5
-    threshold = 1.96 / np.sqrt(n)
+    threshold = Z_95 / np.sqrt(n)
 
     tau = 1.0
     below = 0
@@ -111,7 +121,7 @@ def effective_sample_size(x: np.ndarray, y: np.ndarray) -> float:
     mask = ~(np.isnan(x) | np.isnan(y))
     n = int(mask.sum())
 
-    if n < 10:
+    if n < MIN_SAMPLES:
         return float(n)
 
     tau_x = integrated_autocorrelation_time(x[mask])
@@ -142,7 +152,7 @@ def correlation_pvalue_with_ess(
     x_v, y_v = x[mask], y[mask]
     n = x_v.size
 
-    if n < 10:
+    if n < MIN_SAMPLES:
         return np.nan, 1.0, float(n)
 
     # Корреляция

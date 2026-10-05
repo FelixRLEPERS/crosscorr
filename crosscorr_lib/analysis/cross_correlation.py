@@ -17,6 +17,7 @@
 from __future__ import annotations
 
 import argparse
+import logging
 import warnings
 from itertools import combinations
 from pathlib import Path
@@ -25,11 +26,13 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 
-from crosscorr_lib.analysis.surrogate import fdr_bh_q as _benjamini_hochberg
+from crosscorr_lib.analysis.surrogate import fdr_bh_q as _fdr_correct
 
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_INPUT = ROOT / "data" / "processed" / "unified.parquet"
 DEFAULT_OUT = ROOT / "results"
+
+logger = logging.getLogger(__name__)
 
 
 def load_unified(path: Path) -> pd.DataFrame:
@@ -146,7 +149,7 @@ def cross_correlation_pairs(
     result = pd.DataFrame(rows)
 
     # FDR на всех парах
-    sig_mask, q_vals = _benjamini_hochberg(
+    sig_mask, q_vals = _fdr_correct(
         result["p_value"].values, alpha, method=fdr_method
     )
     result["q_value"] = q_vals
@@ -171,8 +174,7 @@ def cross_correlation_pairs_with_max_stat(
     (max-statistic null), а не берётся с одного лучшего лага.
 
     Это научно корректный метод, но медленнее: n_surrogates × n_pairs
-    × n_lags вычислений. Для 45 пар × 200 суррогатов × 145 лагов
-    ~ 5-10 минут.
+    × n_lags вычислений; время растёт с числом пар, суррогатов и лагов.
 
     Args:
         wide: wide-таблица (строки — время, колонки — detector_id).
@@ -211,11 +213,14 @@ def cross_correlation_pairs_with_max_stat(
             wide[col] = preprocess(wide[col].values)
 
     n_pairs = len(cols) * (len(cols) - 1) // 2
-    print(f"[MAX-STAT] Пар: {n_pairs}, "
-          f"суррогатов на пару: {n_surrogates}, "
-          f"max_lag: {max_lag}")
-    print(f"[MAX-STAT] Ожидаемое время: "
-          f"~{n_pairs * n_surrogates * (2 * max_lag + 1) / 100000:.0f} сек")
+    logger.info(
+        "[MAX-STAT] Пар: %s, суррогатов на пару: %s, max_lag: %s",
+        n_pairs, n_surrogates, max_lag,
+    )
+    logger.info(
+        "[MAX-STAT] Ожидаемое время: ~%.0f сек",
+        n_pairs * n_surrogates * (2 * max_lag + 1) / 100000,
+    )
 
     pair_idx = 0
     for i in range(len(cols)):
@@ -270,8 +275,10 @@ def cross_correlation_pairs_with_max_stat(
             })
 
             if pair_idx % 5 == 0:
-                print(f"  [{pair_idx}/{n_pairs}] "
-                      f"{d1} — {d2}: p={p:.4f}")
+                logger.info(
+                    "  [%s/%s] %s — %s: p=%.4f",
+                    pair_idx, n_pairs, d1, d2, p,
+                )
 
     if not rows:
         return pd.DataFrame(columns=[
@@ -283,7 +290,7 @@ def cross_correlation_pairs_with_max_stat(
     result = pd.DataFrame(rows)
 
     # FDR на всех парах
-    sig_mask, q_vals = _benjamini_hochberg(
+    sig_mask, q_vals = _fdr_correct(
         result["p_value"].values, alpha, method=fdr_method
     )
     result["q_value"] = q_vals
@@ -298,6 +305,10 @@ def cross_correlation_pairs_with_max_stat(
     return result
 
 def main() -> None:
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s [%(levelname)s] %(message)s",
+    )
     parser = argparse.ArgumentParser(
         description=(
             "Кросс-корреляционный анализ детекторов. "

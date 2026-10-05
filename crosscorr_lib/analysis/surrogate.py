@@ -16,7 +16,6 @@ import pandas as pd
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_INPUT = ROOT / "data" / "processed" / "unified.parquet"
 DEFAULT_OUT = ROOT / "results"
-DEFAULT_OUT.mkdir(parents=True, exist_ok=True)
 
 
 def phase_surrogate(x: np.ndarray, rng: np.random.Generator) -> np.ndarray:
@@ -303,6 +302,8 @@ def main() -> None:
     parser.add_argument("--freq", default="1h")
     parser.add_argument("--seed", type=int, default=42)
     args = parser.parse_args()
+
+    DEFAULT_OUT.mkdir(parents=True, exist_ok=True)
 
     df = pd.read_parquet(args.input)
     wide = build_wide(df, freq=args.freq)
