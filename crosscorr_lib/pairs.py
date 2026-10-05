@@ -214,6 +214,17 @@ def cross_correlation_pairs_with_max_stat(
         - FDR uses Benjamini–Hochberg with monotonicity enforcement via np.minimum.accumulate[::-1].
     """
 
+    if B < 1:
+        raise ValueError(
+            f"B must be >= 1, got {B}. "
+            f"Number of surrogates must be positive."
+        )
+    if seed < 0:
+        raise ValueError(
+            f"seed must be >= 0, got {seed}. "
+            f"Use any non-negative integer for reproducibility."
+        )
+
     X = wide.values.astype(np.float64)
     if np.isnan(X).any():
         raise ValueError(

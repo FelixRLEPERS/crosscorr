@@ -218,8 +218,12 @@ def cross_correlation_pairs_with_max_stat(
             x = wide[d1].values
             y = wide[d2].values
 
-            # Свой seed через spawn() — гарантированная независимость
+            # Свой seed через spawn() — гарантированная независимость.
+            # pair_idx увеличивается безусловно сразу после выбора child_rng,
+            # чтобы пропуск пары через continue не приводил к повторному
+            # использованию того же child_rng следующей парой.
             pair_seed = int(child_rngs[pair_idx].integers(0, 2**31))
+            pair_idx += 1
 
             t_obs, p, best_lag = max_lag_surrogate_pvalue(
                 x, y,
@@ -245,7 +249,6 @@ def cross_correlation_pairs_with_max_stat(
                 "n_surrogates": int(n_surrogates),
             })
 
-            pair_idx += 1
             if pair_idx % 5 == 0:
                 print(f"  [{pair_idx}/{n_pairs}] "
                       f"{d1} — {d2}: p={p:.4f}")

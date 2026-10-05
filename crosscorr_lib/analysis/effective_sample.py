@@ -15,7 +15,7 @@ Effective sample size (ESS) для автокоррелированных вре
 Дополнительно: скорректированный t-статистика для корреляции:
 
     t = r * sqrt(N_eff - 2) / sqrt(1 - r²)
-    p = 2 * (1 - CDF_t(|t|, df=N_eff - 2))
+    p = 2 * SF_t(|t|, df=N_eff - 2)
 """
 
 from __future__ import annotations
@@ -170,9 +170,11 @@ def correlation_pvalue_with_ess(
     if n_eff <= 2:
         return float(r), 1.0, float(n_eff)
 
-    # t-статистика с n_eff - 2 степенями свободы
+    # t-статистика с n_eff - 2 степенями свободы.
+    # sf (survival function) вместо 1 - cdf: при |t| >= 37 выражение
+    # 1 - cdf округляется до 0.0 из-за float-точности, sf сохраняет хвост.
     t = r * np.sqrt(n_eff - 2) / np.sqrt(1 - r * r)
-    p = 2 * (1 - stats.t.cdf(abs(t), df=n_eff - 2))
+    p = 2 * stats.t.sf(abs(t), df=n_eff - 2)
 
     return float(r), float(p), float(n_eff)
 

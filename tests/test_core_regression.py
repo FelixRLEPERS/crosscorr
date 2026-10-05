@@ -377,3 +377,42 @@ def test_fix15_iaaft_surrogate_degenerate_input():
     assert not np.array_equal(out, x), (
         "iaaft_surrogate вернул исходник при вырожденном входе"
     )
+
+
+# ---------------------------------------------------------------------------
+# Фикс 16 — валидация B >= 1 и seed >= 0 в pairs.py
+# ---------------------------------------------------------------------------
+def test_fix16_b_zero_raises():
+    """B=0 → ValueError, не падение SharedMemory."""
+    import numpy as np
+    import pandas as pd
+    import pytest
+
+    from crosscorr_lib.pairs import cross_correlation_pairs_with_max_stat
+
+    wide = pd.DataFrame(
+        np.random.default_rng(0).normal(size=(100, 3)),
+        columns=["a", "b", "c"],
+    )
+    with pytest.raises(ValueError, match="B must be"):
+        cross_correlation_pairs_with_max_stat(
+            wide, B=0, seed=42, n_jobs=1,
+        )
+
+
+def test_fix16_negative_seed_raises():
+    """seed=-1 → ValueError с понятным сообщением."""
+    import numpy as np
+    import pandas as pd
+    import pytest
+
+    from crosscorr_lib.pairs import cross_correlation_pairs_with_max_stat
+
+    wide = pd.DataFrame(
+        np.random.default_rng(0).normal(size=(100, 3)),
+        columns=["a", "b", "c"],
+    )
+    with pytest.raises(ValueError, match="seed must be"):
+        cross_correlation_pairs_with_max_stat(
+            wide, B=10, seed=-1, n_jobs=1,
+        )

@@ -173,6 +173,39 @@ def test_ess_pvalue_never_zero():
     assert np.isfinite(p), f"p-value = {p}, ожидалось конечное"
 
 
+def test_fix9_pvalue_not_zero_for_large_t():
+    """p-value не округляется до 0.0 при умеренно большом |t|.
+
+    Диапазон осмысленной проверки: 37 <= |t| <= 343.
+    При |t| >= 343 stats.t.sf тоже возвращает 0.0 из-за float64,
+    это не баг кода. Тест должен попасть в диапазон.
+    """
+    import numpy as np
+
+    from crosscorr_lib.analysis.effective_sample import (
+        correlation_pvalue_with_ess,
+    )
+
+    rng = np.random.default_rng(0)
+    n = 200
+    x = rng.normal(size=n)
+    # умеренная корреляция: r ≈ 0.96-0.99, t ≈ 50-200
+    y = x + 0.2 * rng.normal(size=n)
+
+    r, p, n_eff = correlation_pvalue_with_ess(x, y)
+
+    # sanity check: тест должен попасть в диапазон,
+    # где sf отличается от cdf
+    t_abs = abs(r) * np.sqrt((n_eff - 2) / (1 - r**2))
+    assert 37 < t_abs < 343, (
+        f"t = {t_abs:.1f} вне диапазона [37, 343], "
+        f"тест не проверяет замену cdf→sf"
+    )
+    assert p > 0.0, (
+        f"p-value = {p}, ожидалось > 0 при t = {t_abs:.1f}"
+    )
+
+
 def test_ess_handles_nan_by_interpolation():
     """NaN интерполируются, а не удаляются."""
     import inspect
