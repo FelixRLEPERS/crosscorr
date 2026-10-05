@@ -27,6 +27,7 @@ Output verdicts:
 
 import multiprocessing.shared_memory as shm_module
 from collections.abc import Callable
+from contextlib import ExitStack
 
 import numpy as np
 import pandas as pd
@@ -239,16 +240,24 @@ def cross_correlation_pairs_with_max_stat(
     for i in range(N):
         out[i] = _make_surrogates(X[:, i], method, B, int(sub_seeds[i]))
 
-    shm_surr = shm_module.SharedMemory(create=True, size=out.nbytes)
-    view_surr = np.ndarray(out.shape, dtype=dtype, buffer=shm_surr.buf)
-    view_surr[:] = out[:]
+    # ExitStack ensures BOTH shm blocks are unlinked even if the second
+    # allocation, the view copy, or the worker pool fails.
+    with ExitStack() as stack:
+        shm_surr = shm_module.SharedMemory(create=True, size=out.nbytes)
+        stack.callback(shm_surr.close)
+        stack.callback(shm_surr.unlink)
 
-    # Wrap X in shared memory.
-    shm_X = shm_module.SharedMemory(create=True, size=X.nbytes)
-    view_X = np.ndarray(X.shape, dtype=np.float64, buffer=shm_X.buf)
-    view_X[:] = X
+        view_surr = np.ndarray(out.shape, dtype=dtype, buffer=shm_surr.buf)
+        view_surr[:] = out[:]
 
-    try:
+        # Wrap X in shared memory.
+        shm_X = shm_module.SharedMemory(create=True, size=X.nbytes)
+        stack.callback(shm_X.close)
+        stack.callback(shm_X.unlink)
+
+        view_X = np.ndarray(X.shape, dtype=np.float64, buffer=shm_X.buf)
+        view_X[:] = X
+
         # --- Step 2 & 3: Parallel computation over pairs using shared memory ---
         if _HAS_JOBLIB and n_jobs != 1:
             results = Parallel(n_jobs=n_jobs, prefer="processes")(
@@ -282,13 +291,6 @@ def cross_correlation_pairs_with_max_stat(
                 )
                 for (i, j) in pairs
             ]
-
-    finally:
-        # Patch #1: close AND unlink BOTH shared memory blocks.
-        shm_surr.close()
-        shm_surr.unlink()
-        shm_X.close()
-        shm_X.unlink()
 
     # --- Step 4: Assemble results and compute FDR ---
     df = pd.DataFrame(results, columns=["detector_a", "detector_b", "C_obs", "p_value"])

@@ -80,7 +80,10 @@ def surrogate_test(wide: pd.DataFrame, n_surrogates: int = 1000, seed: int = 42)
             if r == c:
                 pvals[r, c] = 0.0
                 continue
-            pvals[r, c] = np.mean(np.abs(surrogate_corrs[:, r, c]) >= abs(real[r, c]))
+            n_extreme = np.sum(
+                np.abs(surrogate_corrs[:, r, c]) >= abs(real[r, c])
+            )
+            pvals[r, c] = (n_extreme + 1) / (n_surrogates + 1)
 
     result = pd.DataFrame(pvals, index=cols, columns=cols)
     return result
@@ -354,6 +357,7 @@ def max_lag_surrogate_pvalue(
     # Суррогаты
     rng = np.random.default_rng(seed)
     n_extreme = 0
+    n_used = 0
 
     for _ in range(n_surrogates):
         if surrogate_method == "iaaft":
@@ -378,10 +382,14 @@ def max_lag_surrogate_pvalue(
         else:
             t_surr = float(np.nanmax(np.abs(corrs_surr)))
 
+        n_used += 1
         if t_surr >= t_obs:
             n_extreme += 1
 
-    p_value = (n_extreme + 1) / (n_surrogates + 1)
+    if n_used == 0:
+        return np.nan, 1.0, 0
+
+    p_value = (n_extreme + 1) / (n_used + 1)
     return t_obs, p_value, best_lag
 
 

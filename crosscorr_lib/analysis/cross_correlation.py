@@ -17,6 +17,7 @@
 from __future__ import annotations
 
 import argparse
+import warnings
 from itertools import combinations
 from pathlib import Path
 
@@ -268,16 +269,27 @@ def cross_correlation_pairs_with_max_stat(
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Кросс-корреляционный анализ детекторов."
+        description=(
+            "Кросс-корреляционный анализ детекторов. "
+            "По умолчанию используется max-statistic null "
+            "(surrogate-based): он корректно учитывает поиск "
+            "по всем лагам. Наивный single-lag путь доступен "
+            "только через --use-naive и не рекомендован для "
+            "публикаций."
+        )
     )
     parser.add_argument("--input", type=Path, default=DEFAULT_INPUT)
     parser.add_argument("--freq", default="1h")
     parser.add_argument("--max-lag", type=int, default=72)
     parser.add_argument("--alpha", type=float, default=0.05)
     parser.add_argument(
-        "--use-max-stat",
+        "--use-naive",
         action="store_true",
-        help="Использовать max-statistic null (медленно, научно).",
+        help=(
+            "Use naive single-lag p-value (deprecated, "
+            "not recommended for publication). Default is "
+            "max-statistic with surrogate null."
+        ),
     )
     parser.add_argument(
         "--use-ess",
@@ -310,6 +322,30 @@ def main() -> None:
     )
     args = parser.parse_args()
 
+    if args.use_ess and not args.use_naive:
+        parser.error(
+            "--use-ess cannot be combined with the default "
+            "max-statistic path. Use --use-naive if you really "
+            "want ESS on single-lag correlations."
+        )
+
+    if args.use_naive:
+        warnings.warn(
+            "WARNING: --use-naive uses single-lag p-value without "
+            "correction for multiple lag search. For "
+            "publication-quality results, remove this flag.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        if args.use_ess:
+            warnings.warn(
+                "WARNING: ESS correction applies to single-lag "
+                "correlation, not to the max-statistic null. Result "
+                "will not match publication-quality methodology.",
+                UserWarning,
+                stacklevel=2,
+            )
+
     DEFAULT_OUT.mkdir(parents=True, exist_ok=True)
 
     df = load_unified(args.input)
@@ -327,23 +363,23 @@ def main() -> None:
 
     print(f"[INFO] Детекторов: {wide.shape[1]}, точек: {wide.shape[0]}")
     print(f"[INFO] Режим: "
-          f"{'max-stat' if args.use_max_stat else 'наивный'} / "
+          f"{'наивный (--use-naive)' if args.use_naive else 'max-stat (default)'} / "
           f"{'ESS' if args.use_ess else 'без ESS'}")
 
-    if args.use_max_stat:
+    if args.use_naive:
+        result = cross_correlation_pairs(
+            wide,
+            max_lag=args.max_lag,
+            alpha=args.alpha,
+            fdr_method=args.fdr_method,
+        )
+    else:
         result = cross_correlation_pairs_with_max_stat(
             wide,
             max_lag=args.max_lag,
             alpha=args.alpha,
             n_surrogates=args.n_surrogates,
             seed=args.seed,
-            fdr_method=args.fdr_method,
-        )
-    else:
-        result = cross_correlation_pairs(
-            wide,
-            max_lag=args.max_lag,
-            alpha=args.alpha,
             fdr_method=args.fdr_method,
         )
 

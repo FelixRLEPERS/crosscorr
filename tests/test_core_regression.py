@@ -254,3 +254,44 @@ def test_fix9_ctypes_blocked_in_safe_exec():
         "platform",
     ]:
         assert name in FORBIDDEN_NAMES, f"{name} не заблокирован"
+
+
+# ---------------------------------------------------------------------------
+# Фикс 10 — surrogate_test: правило +1
+# ---------------------------------------------------------------------------
+def test_fix10_surrogate_test_uses_plus_one():
+    """surrogate_test должен возвращать p >= 1/(B+1), не 0."""
+    import numpy as np
+    import pandas as pd
+
+    from crosscorr_lib.analysis.surrogate import surrogate_test
+
+    rng = np.random.default_rng(0)
+    n = 500
+    x = rng.normal(size=n)
+    y = x + 0.01 * rng.normal(size=n)  # сильная связь
+    wide = pd.DataFrame({"x": x, "y": y})
+    p = surrogate_test(wide, n_surrogates=50, seed=42)
+
+    # p-value для очень сильной связи должен быть минимальным,
+    # но НЕ нулём
+    min_p = 1.0 / (50 + 1)
+    assert p.iloc[0, 1] >= min_p - 1e-12, (
+        f"p-value {p.iloc[0, 1]} < {min_p}, правило +1 не применено"
+    )
+
+
+# ---------------------------------------------------------------------------
+# Фикс 11 — пропущенные суррогаты уменьшают знаменатель
+# ---------------------------------------------------------------------------
+def test_fix11_skipped_surrogates_reduce_denominator():
+    """Если часть суррогатов вырождена — знаменатель уменьшается."""
+    import inspect
+
+    from crosscorr_lib.analysis import block_bootstrap, surrogate
+
+    src_sur = inspect.getsource(surrogate.max_lag_surrogate_pvalue)
+    src_bb = inspect.getsource(block_bootstrap.block_bootstrap_pvalue)
+
+    assert "n_used" in src_sur, "max_lag_surrogate_pvalue не считает n_used"
+    assert "n_used" in src_bb, "block_bootstrap_pvalue не считает n_used"

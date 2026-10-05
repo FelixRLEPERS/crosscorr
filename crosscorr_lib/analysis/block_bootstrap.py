@@ -99,6 +99,7 @@ def block_bootstrap_pvalue(
 
     rng = np.random.default_rng(seed)
     n_extreme = 0
+    n_used = 0
 
     for _ in range(n_surrogates):
         y_surr = block_bootstrap_surrogate(y_v, block_size, rng)
@@ -109,10 +110,14 @@ def block_bootstrap_pvalue(
             r_surr = np.corrcoef(x_v, y_surr)[0, 1]
         if np.isnan(r_surr):
             continue
+        n_used += 1
         if abs(r_surr) >= abs(r_obs):
             n_extreme += 1
 
-    p = (n_extreme + 1) / (n_surrogates + 1)
+    if n_used == 0:
+        return r_obs, 1.0
+
+    p = (n_extreme + 1) / (n_used + 1)
     return r_obs, float(p)
 
 

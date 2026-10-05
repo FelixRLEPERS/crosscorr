@@ -102,5 +102,37 @@ def test_max_stat_pipeline_tidy_format():
     assert result["n_surrogates"].iloc[0] == 100
 
 
+def test_cli_help_uses_naive_flag():
+    """CLI должен принимать --use-naive, а не --use-max-stat."""
+    import subprocess
+    import sys
+
+    result = subprocess.run(
+        [sys.executable, "-m",
+         "crosscorr_lib.analysis.cross_correlation", "--help"],
+        capture_output=True, text=True, timeout=30,
+    )
+    assert result.returncode == 0
+    assert "--use-naive" in result.stdout
+    assert "--use-max-stat" not in result.stdout, (
+        "--use-max-stat не должен оставаться в CLI"
+    )
+
+
+def test_cli_rejects_max_stat_with_ess():
+    """--use-ess без --use-naive должен падать."""
+    import subprocess
+    import sys
+
+    result = subprocess.run(
+        [sys.executable, "-m",
+         "crosscorr_lib.analysis.cross_correlation",
+         "--use-ess"],
+        capture_output=True, text=True, timeout=30,
+    )
+    assert result.returncode != 0
+    assert "use-naive" in result.stderr.lower(), result.stderr
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v", "-s"])
