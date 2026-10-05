@@ -264,3 +264,60 @@ F-POLISH:
 - `tests/test_F_ci.py` (new)
 - `audit/F_progress.md` (new)
 - `audit/ci_yml_before.yml` (new, backup)
+
+---
+
+## Сессия 2 — STOP-находки F1/F3/F7/F14
+
+HEAD: `49417c9`. Backup: `audit/ci_yml_before_F_stops.yml`.
+
+### F1 — slow tests на PR (conditional)
+- Classification: F-REPRO
+- Start: 2026-10-05 22:29
+- Verify: reading
+- Verify result: CONFIRMED
+- Action: fix
+- Files changed: [`.github/workflows/ci.yml`]
+- YAML check: safe_load passed
+- Tests added: []
+- Notes: выбран **paths-filter** (автоматичнее label-based). Добавлен job `check-changes` с `dorny/paths-filter@v3`, фильтр `slow` по `crosscorr_lib/analysis/**`, `tests/test_negative_control.py`, `tests/test_max_stat_pipeline.py`, `tests/test_pairs.py`. Условие `test-slow`: push (как раньше) ИЛИ PR с `needs.check-changes.outputs.slow == 'true'`. Добавлено `needs: [check-changes]`. Сторонний action: dorny/paths-filter@v3, широко используется; альтернатива label-based зафиксирована в задании. Поведение на push не изменилось.
+
+### F3 — matrix 3.11/3.12
+- Classification: F-REPRO
+- Start: 2026-10-05 22:29
+- Verify: reading
+- Verify result: UNVERIFIED
+- Action: fix
+- Files changed: [`.github/workflows/ci.yml`]
+- YAML check: safe_load passed
+- Tests added: []
+- Notes: matrix `test-fast` расширена до `["3.11", "3.12"]`. test-slow и test-windows оставлены на 3.12. Локально Python 3.13, окружения 3.11 нет; wheels для pandas/numpy/scipy/matplotlib/pyarrow/statsmodels на 3.11 не проверены offline. UNVERIFIED: первый прогон CI подтвердит. 3.10 пока НЕ добавлен (поэтапно, отдельная сессия).
+
+### F7 — Codecov upload
+- Classification: F-COVERAGE
+- Start: 2026-10-05 22:29
+- Verify: reading
+- Verify result: STOP
+- Action: stop (persistent)
+- Files changed: []
+- YAML check: n/a
+- Tests added: []
+- Notes: STOP (persistent). Codecov требует внешний сервис (codecov.io) и секрет `CODECOV_TOKEN`, которого нет. Текущий `--cov-report=term-missing` покрывает локальную потребность. Deferred until: (a) user creates codecov.io account and adds token, OR (b) decision to replace with GitHub-native coverage comment.
+
+### F14 — coverage threshold
+- Classification: F-COVERAGE
+- Start: 2026-10-05 22:29
+- Verify: reading (pytest не запускался; правило сессии запрещает)
+- Verify result: UNVERIFIED
+- Action: fix
+- Files changed: [`.github/workflows/ci.yml`]
+- YAML check: safe_load passed
+- Tests added: []
+- Notes: добавлен `--cov-fail-under=70` в шаг fast-тестов. Фактическое покрытие не измерено (правило 5 запрещает запуск pytest), использован консервативный порог 70 из задания. UNVERIFIED: если фактическое покрытие < 70 — первый CI-прогон упадёт; тогда порог снизить до floor(факт − 5). `[tool.coverage.report]` в pyproject не создавался (его нет).
+
+### Итог сессии 2
+- fix: F1, F3, F14 = 3
+- stop (persistent): F7 = 1
+- YAML check: passed
+- Осталось OPEN после сессии: F7 (persistent STOP).
+- Рекомендация: проверить первый CI-прогон на 3.11 и по покрытию; решить F7.

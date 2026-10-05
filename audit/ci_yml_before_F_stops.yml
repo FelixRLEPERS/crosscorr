@@ -7,30 +7,13 @@ on:
     branches: [main]
 
 jobs:
-  check-changes:
-    name: Detect changes
-    runs-on: ubuntu-24.04
-    outputs:
-      slow: ${{ steps.filter.outputs.slow }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: dorny/paths-filter@v3
-        id: filter
-        with:
-          filters: |
-            slow:
-              - 'crosscorr_lib/analysis/**'
-              - 'tests/test_negative_control.py'
-              - 'tests/test_max_stat_pipeline.py'
-              - 'tests/test_pairs.py'
-
   test-fast:
     name: Fast tests (Python ${{ matrix.python-version }})
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.11", "3.12"]
+        python-version: ["3.12"]
 
     steps:
       - uses: actions/checkout@v4
@@ -57,16 +40,12 @@ jobs:
 
       - name: Run fast tests (skip slow)
         run: |
-          python -m pytest tests/ -v -m "not slow" --cov=crosscorr_lib --cov-report=term-missing --cov-fail-under=45
+          python -m pytest tests/ -v -m "not slow" --cov=crosscorr_lib --cov-report=term-missing
 
   test-slow:
-    name: Slow tests (push to main or PR touching analysis)
+    name: Slow tests (main only)
     runs-on: ubuntu-24.04
-    needs: [check-changes]
-    if: |
-      github.event_name == 'push' ||
-      (github.event_name == 'pull_request' &&
-       needs.check-changes.outputs.slow == 'true')
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v4
 
