@@ -118,6 +118,12 @@ def _batch_max_stat_corr(si: np.ndarray, sj: np.ndarray) -> np.ndarray:
     B, T = si.shape
     EPS = 1e-12
 
+    # C6: при T=1 срез cc[:, -(T-1):] == cc[:, 0:] не пуст, поэтому
+    # конкатенация давала 3 столбца вместо 1. При одном отсчёте линейная
+    # корреляция не определена (std == 0) — корректный ответ 0.
+    if T < 2:
+        return np.zeros(B, dtype=float)
+
     std_i = si.std(axis=1, keepdims=True)
     std_j = sj.std(axis=1, keepdims=True)
     degenerate = (std_i <= EPS) | (std_j <= EPS)
@@ -155,6 +161,11 @@ def _max_stat_corr(x: np.ndarray, y: np.ndarray) -> float:
 
     if not (np.isfinite(x).all() and np.isfinite(y).all()):
         return float("nan")
+
+    # C6: при длине < 2 линейная корреляция не определена (срез
+    # cc[-(len-1):] при len==1 дал бы лишний столбец).
+    if x.size < 2 or y.size < 2:
+        return 0.0
 
     x_std = x.std()
     y_std = y.std()
@@ -244,22 +255,27 @@ def cross_correlation_pairs_with_max_stat(
         return pd.DataFrame(columns=["detector_a", "detector_b", "C_obs", "p_value", "q_value", "verdict"])
 
     # --- Step 1: Pre-generate surrogates and data in shared memory ---
-    out = np.empty((N, B, T), dtype=dtype)
+    surr_shape = (N, B, T)
     rng = np.random.default_rng(seed)
     sub_seeds = rng.integers(0, 2**31 - 1, size=N)
-
-    for i in range(N):
-        out[i] = _make_surrogates(X[:, i], method, B, int(sub_seeds[i]))
 
     # ExitStack ensures BOTH shm blocks are unlinked even if the second
     # allocation, the view copy, or the worker pool fails.
     with ExitStack() as stack:
-        shm_surr = shm_module.SharedMemory(create=True, size=out.nbytes)
+        # C3: раньше создавался `out` в куче (N,B,T) и копировался в shm,
+        # что давало пик памяти ~2x. Теперь view_surr выделяется первым и
+        # заполняется напрямую — без промежуточного массива.
+        shm_surr = shm_module.SharedMemory(
+            create=True, size=N * B * T * np.dtype(dtype).itemsize
+        )
         stack.callback(shm_surr.close)
         stack.callback(shm_surr.unlink)
 
-        view_surr = np.ndarray(out.shape, dtype=dtype, buffer=shm_surr.buf)
-        view_surr[:] = out[:]
+        view_surr = np.ndarray(surr_shape, dtype=dtype, buffer=shm_surr.buf)
+        for i in range(N):
+            view_surr[i] = _make_surrogates(
+                X[:, i], method, B, int(sub_seeds[i])
+            )
 
         # Wrap X in shared memory.
         shm_X = shm_module.SharedMemory(create=True, size=X.nbytes)
@@ -275,7 +291,7 @@ def cross_correlation_pairs_with_max_stat(
                 delayed(_worker)(
                     shm_surr.name,
                     shm_X.name,
-                    out.shape,
+                    surr_shape,
                     X.shape,
                     i,
                     j,
@@ -291,7 +307,7 @@ def cross_correlation_pairs_with_max_stat(
                 _worker(
                     shm_surr.name,
                     shm_X.name,
-                    out.shape,
+                    surr_shape,
                     X.shape,
                     i,
                     j,
