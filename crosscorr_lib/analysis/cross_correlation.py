@@ -113,6 +113,10 @@ def cross_correlation_pairs(
     """
     cols = wide.columns.tolist()
     rows = []
+    # Сырые колонки до preprocess: preprocess интерполирует NaN, поэтому
+    # после него n_obs == длине ряда. Для честного n_obs нужно число
+    # исходно валидных пар (B24: интерполированные точки — не наблюдения).
+    raw_wide = wide.copy()
     if apply_preprocessing:
         from crosscorr_lib.analysis.preprocessing import preprocess
         wide = wide.copy()
@@ -122,6 +126,9 @@ def cross_correlation_pairs(
     for d1, d2 in combinations(cols, 2):
         x = wide[d1].values
         y = wide[d2].values
+
+        raw_x = raw_wide[d1].values
+        raw_y = raw_wide[d2].values
 
         lags, corrs, pvals = lagged_cross_correlation(x, y, max_lag)
 
@@ -137,7 +144,7 @@ def cross_correlation_pairs(
             "lag": int(lags[best_idx]),
             "correlation": float(corrs[best_idx]),
             "p_value": float(pvals[best_idx]),
-            "n_obs": int(np.sum(~np.isnan(x) & ~np.isnan(y))),
+            "n_obs": int(np.sum(~np.isnan(raw_x) & ~np.isnan(raw_y))),
         })
 
     if not rows:
@@ -206,6 +213,10 @@ def cross_correlation_pairs_with_max_stat(
 
     cols = wide.columns.tolist()
     rows = []
+    # Сырые колонки до preprocess: preprocess интерполирует NaN, поэтому
+    # после него n_obs == длине ряда. Для честного n_obs нужно число
+    # исходно валидных пар (B24: интерполированные точки — не наблюдения).
+    raw_wide = wide.copy()
     if apply_preprocessing:
         from crosscorr_lib.analysis.preprocessing import preprocess
         wide = wide.copy()
@@ -246,8 +257,10 @@ def cross_correlation_pairs_with_max_stat(
             if np.isnan(t_obs):
                 continue
 
-            # n_obs — число валидных пар значений
-            mask = ~(np.isnan(x) | np.isnan(y))
+            # n_obs — число исходно валидных пар (до интерполяции NaN).
+            raw_x = raw_wide[d1].values
+            raw_y = raw_wide[d2].values
+            mask = ~(np.isnan(raw_x) | np.isnan(raw_y))
             n_obs = int(mask.sum())
 
             # rho_at_best_lag — Spearman r в [-1, 1] на лучшем лаге.

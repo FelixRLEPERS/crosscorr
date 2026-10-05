@@ -206,7 +206,7 @@ def benjamini_yekutieli(
     finite_idx = np.where(finite_mask)[0]
     p_finite = p[finite_idx]
 
-    order_local = np.argsort(p_finite)
+    order_local = np.argsort(p_finite, kind="stable")
     p_sorted = p_finite[order_local]
 
     thresholds = (np.arange(1, n_finite + 1) / (n_finite * c_m)) * alpha
@@ -268,7 +268,7 @@ def fdr_bh_q(
         finite_idx = np.where(finite_mask)[0]
         p_finite = p[finite_idx]
 
-        order_local = np.argsort(p_finite)
+        order_local = np.argsort(p_finite, kind="stable")
         p_sorted = p_finite[order_local]
 
         thresholds = alpha * np.arange(1, n_finite + 1) / n_finite
