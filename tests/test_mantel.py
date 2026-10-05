@@ -58,5 +58,35 @@ def test_mantel_deterministic_with_seed():
     assert r1["p_value"] == r2["p_value"]
 
 
+def test_mantel_nan_corr_matrix():
+    """NaN в матрице → p_value=1.0, не минимум."""
+    rng = np.random.default_rng(0)
+    n = 10
+    corr = rng.normal(size=(n, n))
+    corr = (corr + corr.T) / 2
+    np.fill_diagonal(corr, 1.0)
+    corr[0, 1] = np.nan
+    corr[1, 0] = np.nan
+
+    dist = rng.uniform(0, 100, size=(n, n))
+    dist = (dist + dist.T) / 2
+    np.fill_diagonal(dist, 0)
+
+    result = mantel_test(corr, dist, n_permutations=99, seed=42)
+    p = result["p_value"]
+    assert p >= 0.5, f"NaN дала p={p}, ожидалось >= 0.5"
+
+
+def test_mantel_unknown_alternative_raises():
+    """Невалидный alternative → ValueError."""
+    n = 5
+    corr = np.eye(n)
+    dist = np.ones((n, n)) - np.eye(n)
+
+    with pytest.raises(ValueError, match="alternative"):
+        mantel_test(corr, dist, n_permutations=50,
+                    alternative="bogus")
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v", "-s"])

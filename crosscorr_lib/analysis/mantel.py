@@ -39,6 +39,9 @@ def mantel_test(
     Returns:
         dict: {'r_obs', 'p_value', 'n_permutations', 'method'}
     """
+    if alternative not in ("two-sided", "less", "greater"):
+        raise ValueError(f"unknown alternative: {alternative!r}")
+
     dist = np.asarray(dist_matrix, dtype=float)
     corr = np.asarray(corr_matrix, dtype=float)
 
@@ -55,9 +58,14 @@ def mantel_test(
     x_norm = np.linalg.norm(x_c)
     y_norm = np.linalg.norm(y_c)
 
-    if x_norm == 0 or y_norm == 0:
+    if (
+        not np.isfinite(x_norm)
+        or not np.isfinite(y_norm)
+        or x_norm == 0
+        or y_norm == 0
+    ):
         return {
-            "r_obs": 0.0,
+            "r_obs": float("nan"),
             "p_value": 1.0,
             "n_permutations": n_permutations,
             "method": "mantel",
@@ -154,7 +162,7 @@ def build_dist_matrix(
         if row["detector_id"] in idx:
             coords[row["detector_id"]] = (row["lat"], row["lon"])
 
-    mat = np.zeros((n, n))
+    mat = np.full((n, n), np.nan)
     for d1, i in idx.items():
         for d2, j in idx.items():
             if i >= j:

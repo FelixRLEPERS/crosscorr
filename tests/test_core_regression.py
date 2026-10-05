@@ -238,3 +238,19 @@ def test_smoke_import_all_analysis_modules():
             failures.append(f"{mod_name}: {exc!r}")
 
     assert not failures, "Не импортируются модули:\n" + "\n".join(failures)
+
+
+# ---------------------------------------------------------------------------
+# Фикс 9 — sandbox: ctypes/code/threading/multiprocessing/platform заблокированы
+# ---------------------------------------------------------------------------
+def test_fix9_ctypes_blocked_in_safe_exec():
+    from crosscorr_lib.safe_exec import FORBIDDEN_NAMES
+
+    for name in [
+        "ctypes",
+        "code",
+        "threading",
+        "multiprocessing",
+        "platform",
+    ]:
+        assert name in FORBIDDEN_NAMES, f"{name} не заблокирован"

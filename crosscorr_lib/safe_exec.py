@@ -22,6 +22,8 @@ FORBIDDEN_NAMES = {
     "os", "sys", "subprocess", "shutil",
     "socket", "requests", "urllib", "http",
     "pathlib", "tempfile", "pickle", "shelve",
+    # Обход песочницы через FFI / интроспекцию / исполнение
+    "ctypes", "code", "threading", "multiprocessing", "platform",
     # Dunder-обходы (НЕ ДАВАТЬ вырваться из песочницы)
     "__class__", "__base__", "__subclasses__",
     "__bases__", "__mro__", "__globals__",

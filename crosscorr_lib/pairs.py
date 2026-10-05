@@ -117,8 +117,12 @@ def _batch_max_stat_corr(si: np.ndarray, sj: np.ndarray) -> np.ndarray:
     B, T = si.shape
     EPS = 1e-12
 
-    si_z = (si - si.mean(axis=1, keepdims=True)) / (si.std(axis=1, keepdims=True) + EPS)
-    sj_z = (sj - sj.mean(axis=1, keepdims=True)) / (sj.std(axis=1, keepdims=True) + EPS)
+    std_i = si.std(axis=1, keepdims=True)
+    std_j = sj.std(axis=1, keepdims=True)
+    degenerate = (std_i <= EPS) | (std_j <= EPS)
+
+    si_z = (si - si.mean(axis=1, keepdims=True)) / (std_i + EPS)
+    sj_z = (sj - sj.mean(axis=1, keepdims=True)) / (std_j + EPS)
 
     n_fft = 2 * T
     Fsi = np.fft.rfft(si_z, n=n_fft, axis=1)
@@ -128,7 +132,9 @@ def _batch_max_stat_corr(si: np.ndarray, sj: np.ndarray) -> np.ndarray:
     # Circular shift to linear correlation: [(T-1) tail, T head] / T
     cc = np.concatenate([cc[:, -(T - 1):], cc[:, :T]], axis=1) / T
 
-    return np.max(np.abs(cc), axis=1)
+    out = np.max(np.abs(cc), axis=1)
+    out[degenerate[:, 0]] = 0.0
+    return out
 
 
 def _max_stat_corr(x: np.ndarray, y: np.ndarray) -> float:
@@ -143,8 +149,19 @@ def _max_stat_corr(x: np.ndarray, y: np.ndarray) -> float:
     Returns:
         float: max(|corr|) over lag ∈ [-(T-1), T-1].
     """
-    x = (x - x.mean()) / (x.std() + 1e-12)
-    y = (y - y.mean()) / (y.std() + 1e-12)
+    x = np.asarray(x, dtype=float)
+    y = np.asarray(y, dtype=float)
+
+    if not (np.isfinite(x).all() and np.isfinite(y).all()):
+        return float("nan")
+
+    x_std = x.std()
+    y_std = y.std()
+    if x_std <= 1e-12 or y_std <= 1e-12:
+        return 0.0
+
+    x = (x - x.mean()) / (x_std + 1e-12)
+    y = (y - y.mean()) / (y_std + 1e-12)
 
     n_fft = 2 * len(x)
     Fx = np.fft.rfft(x, n=n_fft)
@@ -197,6 +214,11 @@ def cross_correlation_pairs_with_max_stat(
     """
 
     X = wide.values.astype(np.float64)
+    if np.isnan(X).any():
+        raise ValueError(
+            "wide contains NaN; interpolate or drop missing rows "
+            "before calling cross_correlation_pairs_with_max_stat"
+        )
     T, N = X.shape
     detectors = list(wide.columns)
 
@@ -343,6 +365,13 @@ def _worker(
         sj = surr[j]
 
         C_obs = _max_stat_corr(X[:, i], X[:, j])
+        if not np.isfinite(C_obs):
+            return {
+                "detector_a": name_a,
+                "detector_b": name_b,
+                "C_obs": float("nan"),
+                "p_value": 1.0,
+            }
         C_null = _batch_max_stat_corr(si, sj)
 
         count_ge = np.sum(C_null >= C_obs)

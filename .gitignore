@@ -39,3 +39,4 @@ __pycache__/
 venv/
 # Backup files
 *.bak
+opencode.json

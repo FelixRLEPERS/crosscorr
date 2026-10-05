@@ -145,3 +145,15 @@ def test_output_number_of_pairs(noisy_wide):
         noisy_wide, B=20, seed=42, n_jobs=1,
     )
     assert len(df) == 6
+
+
+def test_nan_in_input_raises():
+    """NaN в wide → ValueError."""
+    X = np.random.default_rng(0).normal(size=(200, 3))
+    X[10, 1] = np.nan
+    wide = pd.DataFrame(X, columns=["a", "b", "c"])
+
+    with pytest.raises(ValueError, match="NaN"):
+        cross_correlation_pairs_with_max_stat(
+            wide, B=30, seed=42, n_jobs=1,
+        )
