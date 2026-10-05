@@ -32,6 +32,7 @@
 - [Данные](#данные)
 - [Пайплайн анализа](#пайплайн-анализа)
 - [Two pipelines](#two-pipelines)
+- [Demonstration](#demonstration)
 - [Игра и голосовой наставник](#игра-и-голосовой-наставник)
 - [Финансирование: CrossCorr Fund](#финансирование-crosscorr-fund)
 - [Результаты](#результаты)
@@ -362,6 +363,37 @@ result = pairs.cross_correlation_pairs_with_max_stat(
 - **HPC / many CPUs** → `pairs.cross_correlation_pairs_with_max_stat`
 
 Both pipelines apply FDR correction and produce tidy DataFrames.
+
+---
+
+## Demonstration
+
+Synthetic sensor network validation: CrossCorr detects hidden correlations between detectors without any prior knowledge of which pairs are coupled.
+
+![Network simulation](images/network_simulation.png)
+
+**Setup:**
+- 10 detectors at random locations worldwide
+- 45 candidate pairs tested
+- 3 hidden pairs injected with coupling = 0.5 and random lags
+- 1000 phase surrogates per detector
+- Seed: 42
+
+**Result:**
+- Detected: **3 / 3** hidden pairs
+- Precision: 1.0000
+- Recall: 1.0000
+- F1: 1.0000
+- Runtime: 15.72 s
+
+On the map: red lines are correctly detected pairs, orange lines are missed pairs. Grey dots are detectors, colored by type (WSPR, magnetometer, GNSS, ionosonde, ephemeris).
+
+Reproduce:
+
+```bash
+python scripts/simulate_network.py --n-detectors 10 --n-hidden 3 \
+    --coupling 0.5 --B 1000 --seed 42
+```
 
 ---
 
