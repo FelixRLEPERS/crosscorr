@@ -75,18 +75,30 @@ def build_wide(df: pd.DataFrame, freq: str = "1h") -> pd.DataFrame:
 
 
 def surrogate_test(wide: pd.DataFrame, n_surrogates: int = 1000, seed: int = 42) -> pd.DataFrame:
+    """Surrogate-тест значимости корреляций.
+
+    Наблюдение (``real``) и каждое нулевое распределение считаются на
+    ОДНОЙ И ТОЙ ЖЕ NaN-маске: ``wide.corr()`` использует попарное
+    удаление NaN, поэтому суррогат строится из исходных значений, а NaN
+    возвращаются на те же позиции, что и в наблюдении. Иначе real был бы
+    посчитан на попарной подвыборке, а нуль — на полном ряду (после
+    mean-импутации), и сравнение было бы некорректным.
+    """
     rng = np.random.default_rng(seed)
     cols = wide.columns.tolist()
     real = wide.corr(method="spearman").values
 
     # накапливаем распределение корреляций по суррогатам
     surrogate_corrs = np.zeros((n_surrogates, len(cols), len(cols)))
-    filled = wide.fillna(wide.mean())
+    # Позиции исходных NaN: phase_surrogate интерполирует пропуски, но
+    # для корректного pairwise-сравнения NaN нужно вернуть на место.
+    nan_mask = wide.isna().values
 
     for i in range(n_surrogates):
         surro = np.column_stack([
-            phase_surrogate(filled[c].values, rng) for c in cols
+            phase_surrogate(wide[c].values, rng) for c in cols
         ])
+        surro[nan_mask] = np.nan
         surro_df = pd.DataFrame(surro, columns=cols)
         surrogate_corrs[i] = surro_df.corr(method="spearman").values
 
@@ -360,6 +372,18 @@ def max_lag_surrogate_pvalue(
     x = np.asarray(x, dtype=float)
     y = np.asarray(y, dtype=float)
 
+    # Валидация max_lag: при max_lag >= n на дальних лагах нет
+    # перекрывающихся отсчётов, и _count_valid_at_lag получил бы срезы
+    # разной длины (numpy broadcasting ValueError без пояснения).
+    n = x.size
+    if max_lag < 0:
+        raise ValueError(f"max_lag must be >= 0, got {max_lag}")
+    if max_lag >= n:
+        raise ValueError(
+            f"max_lag={max_lag} must be < n={n}. "
+            f"At larger lags there are no valid overlapping samples."
+        )
+
     # Реальное значение: считаем rho и n для всех лагов
     lags, corrs, _ = _lagged_cc(x, y, max_lag)
 
@@ -401,7 +425,16 @@ def max_lag_surrogate_pvalue(
             continue
 
         if fisher:
-            t_surr, _, _ = fisher_weighted_max_stat(corrs_surr, n_lags)
+            # Веса Fisher должны считаться по n валидных пар СУРРОГАТА, а
+            # не наблюдения: у time_shift на краях появляются NaN, поэтому
+            # n_surr(tau) < n_obs(tau). Общие веса делали Var(score) > 1 и
+            # нуль консервативным. Считаем n для тех же рядов, что пошли в
+            # корреляцию, чтобы наблюдение и нуль были соизмеримы.
+            n_lags_surr = np.array([
+                _count_valid_at_lag(x_surr, y_surr, int(tau))
+                for tau in lags
+            ])
+            t_surr, _, _ = fisher_weighted_max_stat(corrs_surr, n_lags_surr)
             if not np.isfinite(t_surr):
                 continue
         else:
