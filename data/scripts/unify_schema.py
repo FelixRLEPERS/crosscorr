@@ -80,7 +80,7 @@ def load_intermagnet(path: Path) -> pd.DataFrame:
         "detector_type": "magnetometer",
         "value": df["X"].astype(float),
     })
-    out["meta"] = "{}"
+    out["meta"] = json.dumps({})
     return out
 
 
@@ -95,7 +95,7 @@ def load_horizons(path: Path) -> pd.DataFrame:
         "detector_type": "ephemeris",
         "value": pd.to_numeric(df.get("r"), errors="coerce"),  # расстояние от Солнца, а.е.
     }).dropna(subset=["timestamp_utc"])
-    out["meta"] = "{}"
+    out["meta"] = json.dumps({})
     return out
 
 

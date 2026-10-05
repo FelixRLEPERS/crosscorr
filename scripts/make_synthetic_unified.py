@@ -10,6 +10,16 @@
         K(i, j) = exp(-d(i, j) / L), где L = 500 км.
     Плюс AR(1) структура по времени для автокорреляции.
 
+Формат unified.parquet:
+    Скрипт пишет полный набор колонок схемы
+    data/schema/unified_schema.json:
+        timestamp_utc, detector_id, detector_type, value, residual,
+        residual_method, unit, quality_flag, meta
+    Базовая модель для синтетики не оценивается, поэтому
+    residual == value, residual_method == "none", unit == "arbitrary",
+    quality_flag == 0, meta == "{}". Детекторы, время и значения
+    не меняются относительно прежней версии.
+
 Запуск:
     python scripts/make_synthetic_unified.py
 """
@@ -103,7 +113,12 @@ def main():
             "timestamp_utc": timestamps,
             "detector_id": det_id,
             "detector_type": types[k],
+            "value": signal[k],
             "residual": signal[k],
+            "residual_method": "none",
+            "unit": "arbitrary",
+            "quality_flag": 0,
+            "meta": "{}",
         })
         rows.append(df_det)
 

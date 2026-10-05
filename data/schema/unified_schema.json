@@ -32,7 +32,10 @@
       "maximum": 1,
       "description": "0 = observation present and model fitted, 1 = observation missing (value is NaN) or the base model failed to fit (residual is NaN)."
     },
-    "meta": { "type": "object" }
+    "meta": {
+      "type": "string",
+      "description": "Source-specific metadata as a JSON-encoded object, e.g. {\"tx\": \"...\", \"band\": \"...\"}. Stored as a string, not a nested object, so the pandas/parquet round-trip preserves it unchanged."
+    }
   },
   "required": ["timestamp_utc", "detector_id", "detector_type", "residual"]
 }
