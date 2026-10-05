@@ -24,14 +24,14 @@ import argparse
 import time
 from pathlib import Path
 
+import matplotlib
 import numpy as np
 import pandas as pd
-import matplotlib
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 from crosscorr_lib.pairs import cross_correlation_pairs_with_max_stat
-
 
 DETECTOR_TYPES = ["wspr", "magnetometer", "gnss", "ionosonde", "ephemeris"]
 TRUE_LAGS = [3, 6, 12, 18, 24]
@@ -68,7 +68,6 @@ def _generate_detectors(rng, n, T):
 def _inject_hidden_pairs(rng, X, n_hidden, coupling):
     """Inject n_hidden correlations into X. Returns list of (i, j, tau)."""
     N = X.shape[1]
-    T = X.shape[0]
 
     all_pairs = [(i, j) for i in range(N) for j in range(i + 1, N)]
     chosen = rng.choice(len(all_pairs), size=n_hidden, replace=False)
@@ -102,11 +101,11 @@ def _compute_metrics(result, hidden, names):
 
     hidden_pairs = set()
     hidden_info = {}
-    for i, j, tau in hidden:
+    for i, j, _tau in hidden:
         a, b = names[i], names[j]
         key = tuple(sorted([a, b]))
         hidden_pairs.add(key)
-        hidden_info[key] = tau
+        hidden_info[key] = _tau
 
     TP = len(sig_pairs & hidden_pairs)
     FP = len(sig_pairs - hidden_pairs)
@@ -195,7 +194,7 @@ def _plot_network_map(out_dir, names, lats, lons, types, metrics):
         ax.scatter(lons[mask], lats[mask], s=40, label=t, alpha=0.7)
 
     name_to_idx = {n: i for i, n in enumerate(names)}
-    for key, tau in metrics["hidden_info"].items():
+    for key, _tau in metrics["hidden_info"].items():
         ia, ib = name_to_idx[key[0]], name_to_idx[key[1]]
         found = key in metrics["sig_pairs"]
         color = "red" if found else "orange"
