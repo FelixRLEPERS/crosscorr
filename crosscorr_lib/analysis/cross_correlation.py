@@ -335,7 +335,14 @@ def main() -> None:
     parser.add_argument(
         "--use-ess",
         action="store_true",
-        help="Скорректировать p-values на автокорреляцию (ESS).",
+        help=(
+            "DEPRECATED: скорректировать p-values на автокорреляцию "
+            "(ESS). Считается корреляция на НУЛЕВОМ лаге по отдельным "
+            "рядам; кросс-корреляция x/y не учитывается, поэтому для "
+            "лаговой гипотезы результат некорректен (P1-11). Требует "
+            "--use-naive. Для лагового анализа используйте суррогатный "
+            "max-statistic null (по умолчанию)."
+        ),
     )
     parser.add_argument(
         "--remove-confounders",
@@ -380,10 +387,12 @@ def main() -> None:
         )
         if args.use_ess:
             warnings.warn(
-                "WARNING: ESS correction applies to single-lag "
-                "correlation, not to the max-statistic null. Result "
-                "will not match publication-quality methodology.",
-                UserWarning,
+                "DEPRECATED: --use-ess computes a zero-lag correlation "
+                "and does not account for the cross-correlation between "
+                "x and y. It is not valid for the lagged hypothesis and "
+                "will not match publication-quality methodology. Use the "
+                "surrogate max-statistic null instead.",
+                DeprecationWarning,
                 stacklevel=2,
             )
 

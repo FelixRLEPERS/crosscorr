@@ -17,6 +17,38 @@ from crosscorr_lib.analysis.effective_sample import (
 
 # ============ ESS ============
 
+def test_ess_is_zero_lag_only_deprecated():
+    """ESS — zero-lag only и помечен deprecated для лагового анализа.
+
+    Проверяем, что функция считает корреляцию на нулевом лаге: для
+    y = shift(x, lag) при lag != 0 r падает, а не остаётся единицей.
+    Это фиксирует ограничение P1-11, а не поведение, которым следует
+    пользоваться для лаговой гипотезы.
+    """
+    import numpy as np
+
+    from crosscorr_lib.analysis.effective_sample import (
+        correlation_pvalue_with_ess,
+    )
+
+    rng = np.random.default_rng(0)
+    n = 1000
+    x = rng.normal(size=n)
+    lag = 20
+
+    # нулевой лаг: y связано с x
+    r0, _, _ = correlation_pvalue_with_ess(x, x, method="pearson")
+
+    # лаг 20: связь на нулевом лаге отсутствует
+    y_shift = np.concatenate([np.zeros(lag), x[:-lag]])
+    r_shift, _, _ = correlation_pvalue_with_ess(x, y_shift, method="pearson")
+
+    assert abs(r0 - 1.0) < 1e-6 or r0 > 0.9
+    assert abs(r_shift) < 0.1, (
+        f"ESS увидел ненулевую корреляцию на сдвинутом ряде: r={r_shift}"
+    )
+
+
 def test_iat_white_noise():
     """Для белого шума τ_int ≈ 1."""
     rng = np.random.default_rng(42)
