@@ -14,11 +14,14 @@ python data/scripts/unify_schema.py
 # 3. Проверить стационарность
 python -m crosscorr_lib.analysis.stationarity
 
-# 4. Кросс-корреляция (наивная, быстро)
+# 4. Кросс-корреляция (max-statistic, по умолчанию)
+#    max-statistic is now default; naive path opt-in via --use-naive
 python -m crosscorr_lib.analysis.cross_correlation
 
 # 5. Кросс-корреляция с ESS (научно)
-python -m crosscorr_lib.analysis.cross_correlation --use-ess
+#    ESS применяется только к single-lag корреляциям, поэтому
+#    требует наивного пути: --use-ess без --use-naive завершается ошибкой.
+python -m crosscorr_lib.analysis.cross_correlation --use-naive --use-ess
 
 # 6. Surrogate-тесты и FDR
 python -m crosscorr_lib.analysis.surrogate --n 1000 --alpha 0.05

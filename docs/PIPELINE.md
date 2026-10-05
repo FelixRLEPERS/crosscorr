@@ -166,7 +166,11 @@ $$
 
 **Реализация:** `crosscorr_lib/analysis/effective_sample.py:correlation_pvalue_with_ess`.
 
-**Флаг CLI:** `--use-ess` в `cross_correlation.py`.
+**Флаг CLI:** `--use-ess` в `cross_correlation.py`. Требует `--use-naive`.
+
+max-statistic is now default; naive path opt-in via --use-naive
+
+ESS считается для корреляции на нулевом лаге и не учитывает поиск по лагам, поэтому `--use-ess` без `--use-naive` завершается ошибкой argparse (код возврата 2).
 
 ---
 
@@ -265,7 +269,9 @@ python data/scripts/unify_schema.py
 python -m crosscorr_lib.analysis.stationarity
 
 # 3. Кросс-корреляция с max-stat + ESS
-python -m crosscorr_lib.analysis.cross_correlation --use-max-stat --use-ess
+#    max-statistic is now default; naive path opt-in via --use-naive
+#    ESS требует наивного пути, поэтому здесь --use-naive обязателен
+python -m crosscorr_lib.analysis.cross_correlation --use-naive --use-ess
 
 # 4. Удаление конфаундеров (опционально)
 python -m crosscorr_lib.analysis.cross_correlation --remove-confounders data/confounders.csv

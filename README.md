@@ -143,6 +143,10 @@ $$
 
 Поиск по лагам **внутри** нулевого распределения. Это **честная** поправка на множественный поиск — без завышения и без занижения.
 
+max-statistic is now default; naive path opt-in via --use-naive
+
+CLI: `python -m crosscorr_lib.analysis.cross_correlation` считает max-statistic по умолчанию. Наивный single-lag путь включается флагом `--use-naive` и печатает предупреждение о корректировке на множественный поиск по лагам. Флаг `--use-ess` работает только вместе с `--use-naive`; без него argparse завершает работу с кодом 2.
+
 Подробнее — в [`docs/PIPELINE.md`](docs/PIPELINE.md), раздел 4.
 
 ---
