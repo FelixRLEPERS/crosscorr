@@ -350,6 +350,7 @@ def test_fix13_distance_model_constant_x():
 def test_fix14_phase_surrogate_preserves_length():
     """phase_surrogate не меняет длину при NaN."""
     import numpy as np
+
     from crosscorr_lib.analysis.surrogate import phase_surrogate
 
     x = np.random.default_rng(0).normal(size=100)
@@ -368,6 +369,7 @@ def test_fix14_phase_surrogate_preserves_length():
 def test_fix15_iaaft_surrogate_degenerate_input():
     """iaaft_surrogate при вырожденном входе даёт NaN, не оригинал."""
     import numpy as np
+
     from crosscorr_lib.analysis.surrogate import iaaft_surrogate
 
     x = np.array([np.nan, np.nan, 1.0, np.nan, np.nan])
