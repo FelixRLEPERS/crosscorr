@@ -62,6 +62,29 @@ def test_fit_distance_model_negative_slope():
     assert model["r_squared"] > 0.95, "R² должен быть близким к 1"
 
 
+def test_fit_distance_model_uses_true_correlation():
+    """fit_distance_model использует rho_at_best_lag, не Fisher."""
+    distances = np.array([100, 200, 300, 400, 500])
+    rho = np.array([0.9, 0.7, 0.5, 0.3, 0.1])
+    fisher = np.array([3.0, 2.5, 2.0, 1.5, 1.0])
+    df = pd.DataFrame({
+        "distance_km": distances,
+        "correlation": fisher,          # deprecated alias = Fisher (старый CSV)
+        "max_stat_score": fisher,       # Fisher-score
+        "rho_at_best_lag": rho,         # настоящий Spearman
+    })
+
+    model = fit_distance_model(df)
+
+    # Наклон должен соответствовать rho ~ distance (≈ -0.002),
+    # а не Fisher-score ~ distance (≈ -0.005).
+    expected = np.polyfit(distances, rho, 1)[0]
+    assert abs(model["slope"] - expected) < 1e-9, (
+        f"slope={model['slope']} рассчитан не по rho_at_best_lag"
+    )
+    assert model["r_squared"] > 0.95
+
+
 def test_end_to_end_synthetic():
     """
     Полный пайплайн на синтетике с известной зависимостью:

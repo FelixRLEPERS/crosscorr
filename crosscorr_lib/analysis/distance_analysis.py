@@ -89,17 +89,33 @@ def add_distances(
     return df
 
 
+def _rho_column(df: pd.DataFrame) -> str:
+    """Выбрать колонку с коэффициентом корреляции в tidy-таблице пар.
+
+    Предпочитается ``rho_at_best_lag`` (Spearman r в [-1, 1]). Если её
+    нет, используется ``correlation`` — deprecated alias, который в
+    max-stat пайплайне теперь тоже содержит Spearman r. Колонку
+    ``max_stat_score`` (Fisher-score) использовать нельзя: она не
+    ограничена единицей.
+    """
+    if "rho_at_best_lag" in df.columns:
+        return "rho_at_best_lag"
+    return "correlation"
+
+
 def fit_distance_model(df: pd.DataFrame) -> dict:
     """
-    Простая линейная регрессия: correlation ~ distance_km.
+    Простая линейная регрессия: rho ~ distance_km.
     Возвращает коэффициенты и R².
 
-    При вырожденном входе (все distance_km равны, или n < 3)
-    возвращает NaN вместо slope = ±inf: бесконечный наклон не имеет
-    статистического смысла и ломает агрегированную статистику.
+    Использует ``rho_at_best_lag`` (Spearman r), а не ``max_stat_score``
+    (Fisher-score). При вырожденном входе (все distance_km равны, или
+    n < 3) возвращает NaN вместо slope = ±inf: бесконечный наклон не
+    имеет статистического смысла и ломает агрегированную статистику.
     """
+    rho_col = _rho_column(df)
     x = df["distance_km"].values
-    y = df["correlation"].values
+    y = df[rho_col].values
 
     mask = ~(np.isnan(x) | np.isnan(y))
     x, y = x[mask], y[mask]
@@ -230,13 +246,14 @@ def main() -> None:
 
     # 5. Сводка по бинам расстояний
     if len(df) > 5:
+        rho_col = _rho_column(df)
         df["distance_bin"] = pd.qcut(df["distance_km"], q=4, duplicates="drop")
         summary = (
             df.groupby("distance_bin", observed=True)
             .agg(
-                n_pairs=("correlation", "size"),
+                n_pairs=(rho_col, "size"),
                 mean_distance_km=("distance_km", "mean"),
-                mean_correlation=("correlation", "mean"),
+                mean_correlation=(rho_col, "mean"),
             )
             .round(4)
         )

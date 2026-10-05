@@ -184,8 +184,14 @@ def cross_correlation_pairs_with_max_stat(
 
     Returns:
         Tidy DataFrame с колонками:
-        detector_1, detector_2, lag, correlation, p_value,
-        q_value, n_obs, significant, n_surrogates.
+        detector_1, detector_2, lag, correlation (deprecated alias of
+        rho_at_best_lag), max_stat_score (Fisher-weighted score),
+        rho_at_best_lag (Spearman r в [-1, 1] на лучшем лаге),
+        p_value, q_value, n_obs, significant, n_surrogates.
+
+        Колонка ``correlation`` сохранена для обратной совместимости и
+        теперь равна ``rho_at_best_lag`` (Spearman r), а не Fisher-score.
+        Fisher-weighted score доступен в ``max_stat_score``.
     """
     # Ленивый импорт: избегаем циклической зависимости
     from crosscorr_lib.analysis.surrogate import (
@@ -239,11 +245,25 @@ def cross_correlation_pairs_with_max_stat(
             mask = ~(np.isnan(x) | np.isnan(y))
             n_obs = int(mask.sum())
 
+            # rho_at_best_lag — Spearman r в [-1, 1] на лучшем лаге.
+            # t_obs — Fisher-weighted score (|arctanh(r)|*sqrt(n-3)), его
+            # нельзя интерпретировать как корреляцию.
+            lags_obs, corrs_obs, _ = lagged_cross_correlation(x, y, max_lag)
+            idx_obs = int(best_lag) + max_lag
+            if 0 <= idx_obs < len(corrs_obs):
+                rho_best = float(corrs_obs[idx_obs])
+            else:
+                rho_best = np.nan
+
             rows.append({
                 "detector_1": d1,
                 "detector_2": d2,
                 "lag": int(best_lag),
-                "correlation": float(t_obs),
+                # deprecated alias: раньше здесь лежал Fisher-score,
+                # теперь — Spearman r (== rho_at_best_lag).
+                "correlation": rho_best,
+                "max_stat_score": float(t_obs),
+                "rho_at_best_lag": rho_best,
                 "p_value": float(p),
                 "n_obs": n_obs,
                 "n_surrogates": int(n_surrogates),
@@ -256,7 +276,8 @@ def cross_correlation_pairs_with_max_stat(
     if not rows:
         return pd.DataFrame(columns=[
             "detector_1", "detector_2", "lag", "correlation",
-            "p_value", "q_value", "n_obs", "significant", "n_surrogates",
+            "max_stat_score", "rho_at_best_lag", "p_value", "q_value",
+            "n_obs", "significant", "n_surrogates",
         ])
 
     result = pd.DataFrame(rows)
@@ -267,6 +288,12 @@ def cross_correlation_pairs_with_max_stat(
     )
     result["q_value"] = q_vals
     result["significant"] = sig_mask
+
+    result = result[[
+        "detector_1", "detector_2", "lag", "correlation",
+        "max_stat_score", "rho_at_best_lag", "p_value", "q_value",
+        "n_obs", "significant", "n_surrogates",
+    ]]
 
     return result
 

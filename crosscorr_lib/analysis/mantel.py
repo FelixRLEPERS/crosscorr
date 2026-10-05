@@ -18,6 +18,20 @@ import numpy as np
 import pandas as pd
 
 
+def _rho_column(df: pd.DataFrame) -> str:
+    """Выбрать колонку с коэффициентом корреляции в tidy-таблице пар.
+
+    Предпочитается ``rho_at_best_lag`` (Spearman r в [-1, 1]). Если её
+    нет, используется ``correlation`` — deprecated alias, который в
+    max-stat пайплайне теперь тоже содержит Spearman r. Колонку
+    ``max_stat_score`` (Fisher-score) использовать нельзя: она не
+    ограничена единицей.
+    """
+    if "rho_at_best_lag" in df.columns:
+        return "rho_at_best_lag"
+    return "correlation"
+
+
 def mantel_test(
     dist_matrix: np.ndarray,
     corr_matrix: np.ndarray,
@@ -114,7 +128,10 @@ def build_corr_matrix(
     Собрать (N, N) матрицу корреляций из tidy-таблицы пар.
 
     Args:
-        corr_pairs: DataFrame с колонками detector_1, detector_2, correlation.
+        corr_pairs: DataFrame с колонками detector_1, detector_2 и
+            корреляцией. Предпочтительна колонка ``rho_at_best_lag``
+            (Spearman r в [-1, 1]); при её отсутствии используется
+            ``correlation`` (deprecated alias).
         detector_ids: список ID в нужном порядке (индекс матрицы).
 
     Returns:
@@ -122,6 +139,7 @@ def build_corr_matrix(
     """
     import pandas as pd  # noqa: F401
 
+    rho_col = _rho_column(corr_pairs)
     n = len(detector_ids)
     idx = {d: i for i, d in enumerate(detector_ids)}
     mat = np.full((n, n), np.nan)
@@ -132,9 +150,9 @@ def build_corr_matrix(
         j = idx.get(row["detector_2"])
         if i is None or j is None:
             continue
-        if np.isfinite(row["correlation"]):
-            mat[i, j] = float(row["correlation"])
-            mat[j, i] = float(row["correlation"])
+        if np.isfinite(row[rho_col]):
+            mat[i, j] = float(row[rho_col])
+            mat[j, i] = float(row[rho_col])
 
     return mat
 

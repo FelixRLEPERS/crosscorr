@@ -55,6 +55,20 @@ def _ensure_dir(path: Path) -> Path:
     return path
 
 
+def _rho_column(df: pd.DataFrame) -> str:
+    """Выбрать колонку с коэффициентом корреляции в tidy-таблице пар.
+
+    Предпочитается ``rho_at_best_lag`` (Spearman r в [-1, 1]). Если её
+    нет, используется ``correlation`` — deprecated alias, который в
+    max-stat пайплайне теперь тоже содержит Spearman r. Колонку
+    ``max_stat_score`` (Fisher-score) использовать нельзя: она не
+    ограничена единицей.
+    """
+    if "rho_at_best_lag" in df.columns:
+        return "rho_at_best_lag"
+    return "correlation"
+
+
 def plot_detectors_map(
     detectors: pd.DataFrame,
     corr_pairs: pd.DataFrame,
@@ -154,7 +168,7 @@ def plot_distance_correlation(
     fig, ax = plt.subplots(figsize=(7, 5))
 
     x = distance_df["distance_km"].values
-    y = distance_df["correlation"].values
+    y = distance_df[_rho_column(distance_df)].values
 
     ax.scatter(x, y, s=50, c="steelblue", edgecolor="black",
                linewidth=0.8, alpha=0.8, zorder=3)
@@ -216,6 +230,7 @@ def plot_correlation_heatmap(
     n = len(ids)
     idx = {d: i for i, d in enumerate(ids)}
 
+    rho_col = _rho_column(corr_pairs)
     mat = np.full((n, n), np.nan)
     np.fill_diagonal(mat, 1.0)
 
@@ -224,8 +239,8 @@ def plot_correlation_heatmap(
         j = idx.get(row["detector_2"])
         if i is None or j is None:
             continue
-        mat[i, j] = row["correlation"]
-        mat[j, i] = row["correlation"]
+        mat[i, j] = row[rho_col]
+        mat[j, i] = row[rho_col]
 
     fig, ax = plt.subplots(figsize=(7, 6))
 
@@ -301,7 +316,9 @@ def main() -> None:
 
         distance_df = pd.read_csv(args.distance)
         # Оставляем только валидные пары
-        distance_df = distance_df.dropna(subset=["distance_km", "correlation"])
+        distance_df = distance_df.dropna(
+            subset=["distance_km", _rho_column(distance_df)]
+        )
         model = fit_distance_model(distance_df)
         plot_distance_correlation(distance_df, model, args.out)
     else:
