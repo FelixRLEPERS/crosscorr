@@ -50,3 +50,8 @@ CI должен быть зелёным до merge в `main`.
 
 После merge — короткая запись в `docs/journal/YYYY-MM-DD.md`:
 что сделал и чему научился.
+
+## Git-гигиена для семьи
+
+Подробный чек-лист по работе с git (формат коммитов, распределение ролей,
+ритуалы) — в [docs/academy/git_checklist.md](docs/academy/git_checklist.md).

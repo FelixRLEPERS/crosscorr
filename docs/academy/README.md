@@ -77,3 +77,10 @@ python -m ruff check crosscorr_lib/ tests/ scripts/ data/
    `pairs.py` без папы — там сложная статистика.
 3. Если что-то непонятно — это нормально. Спросить лучше, чем гадать.
 4. После merge — запись в `docs/journal/` (что сделал, чему научился).
+
+---
+
+## Материалы
+
+- [Git-чек-лист](git_checklist.md) — правила работы с коммитами, ветками, PR
+- [CONTRIBUTING.md](../../CONTRIBUTING.md) — процесс PR и ревью

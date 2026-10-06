@@ -503,6 +503,7 @@ python scripts/simulate_network.py --n-detectors 10 --n-hidden 3 \
 
 Учебные задания для сыновей: [docs/academy/README.md](docs/academy/README.md).
 Процесс работы и ревью: [CONTRIBUTING.md](CONTRIBUTING.md).
+Git-гигиена для семьи: [docs/academy/git_checklist.md](docs/academy/git_checklist.md).
 
 **CrossCorr Fund (план, отдельное направление):** состав команды и роли —
 в [docs/fund.md](docs/fund.md).
