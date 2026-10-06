@@ -24,7 +24,41 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
-from crosscorr_lib.analysis.mutual_info import conditional_mutual_information
+from crosscorr_lib.analysis.mutual_info import (
+    _as_1d,
+    conditional_mutual_information,
+)
+
+
+def _validate_inputs(
+    x: np.ndarray,
+    y: np.ndarray,
+    k: int,
+    lag: int,
+    k_nn: int,
+) -> tuple[np.ndarray, np.ndarray]:
+    """Validate TE parameters and return finite, equal-length float arrays."""
+    for name, value in (("k", k), ("lag", lag), ("k_nn", k_nn)):
+        if isinstance(value, bool) or not isinstance(value, (int, np.integer)):
+            raise ValueError(f"{name} must be a positive integer, got {value!r}")
+        if value < 1:
+            raise ValueError(f"{name} must be >= 1, got {value}")
+
+    xa_raw = np.asarray(x).ravel()
+    ya_raw = np.asarray(y).ravel()
+    if xa_raw.size == 0 or ya_raw.size == 0:
+        raise ValueError("x and y must be non-empty")
+    if xa_raw.size != ya_raw.size:
+        raise ValueError(
+            f"x and y must have equal lengths, got {xa_raw.size} and {ya_raw.size}"
+        )
+
+    # Reuse the MI module's NaN interpolation policy, then reject all-NaN/inf.
+    xa = _as_1d(xa_raw)
+    ya = _as_1d(ya_raw)
+    if not np.isfinite(xa).all() or not np.isfinite(ya).all():
+        raise ValueError("x and y must contain at least one finite value each")
+    return xa, ya
 
 
 def _embed_history(x: np.ndarray, k: int, lag: int) -> np.ndarray:
@@ -56,7 +90,8 @@ def transfer_entropy(
     x, y : array-like
         Одномерные ряды равной длины.
     k : int, default 1
-        Длина истории (размерность вложения).
+        Длина истории. Сейчас реализовано только ``k=1``; для k>1
+        совместный joint-history estimator пока не реализован.
     lag : int, default 1
         Шаг истории.
     k_nn : int, default 5
@@ -71,13 +106,16 @@ def transfer_entropy(
     ----------
     Schreiber (2000), Phys. Rev. Lett. 85, 461.
     """
-    xa = np.asarray(x, dtype=np.float64).ravel()
-    ya = np.asarray(y, dtype=np.float64).ravel()
-    n = min(xa.size, ya.size)
-    xa, ya = xa[:n], ya[:n]
+    xa, ya = _validate_inputs(x, y, k, lag, k_nn)
+    if k > 1:
+        raise NotImplementedError(
+            "joint-history transfer entropy for k>1 is not implemented; "
+            "use k=1"
+        )
+    n = xa.size
 
     span = k * lag
-    if n - span - 1 <= k_nn + 2:
+    if n - span < k_nn + 2:
         raise ValueError("ряд слишком короткий для TE-оценки")
 
     hist_x = _embed_history(xa, k, lag)     # x_t (история)
@@ -90,21 +128,10 @@ def transfer_entropy(
     hist_y = hist_y[:m]
     y_next = y_next[:m]
 
-    # T = I(y_next : hist_x | hist_y). Для k=1 истории одномерны.
-    if k == 1:
-        return conditional_mutual_information(
-            y_next, hist_x[:, 0], hist_y[:, 0], k=k_nn
-        )
-    # Многомерные истории: объединяем в признаки через строковое хеширование
-    # запрещено (нужна геометрия), поэтому для k>1 используем покомпонентное
-    # усреднение по истории x при общей истории y — консервативная оценка.
-    vals = [
-        conditional_mutual_information(
-            y_next, hist_x[:, j], hist_y[:, 0], k=k_nn
-        )
-        for j in range(hist_x.shape[1])
-    ]
-    return float(np.mean(vals))
+    # For k=1 this is the Schreiber definition T(X->Y)=I(Y[t+lag]:X[t]|Y[t]).
+    return conditional_mutual_information(
+        y_next, hist_x[:, 0], hist_y[:, 0], k=k_nn
+    )
 
 
 def transfer_entropy_matrix(

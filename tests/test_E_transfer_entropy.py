@@ -8,6 +8,7 @@
 
 import numpy as np
 import pandas as pd
+import pytest
 
 from crosscorr_lib.analysis.transfer_entropy import (
     transfer_entropy,
@@ -58,3 +59,56 @@ def test_te_self_does_not_crash(rng):
     x = rng.normal(size=2000)
     val = transfer_entropy(x, x)
     assert np.isfinite(val)
+
+
+def test_te_k_greater_than_one_is_not_implemented(rng):
+    """Joint-history TE для k>1 явно отключён до корректной реализации."""
+    x = rng.normal(size=500)
+    y = rng.normal(size=500)
+    with pytest.raises(NotImplementedError, match="joint-history.*k>1"):
+        transfer_entropy(x, y, k=2)
+
+
+def test_te_lag_greater_than_one_is_finite():
+    """Лаг 2 корректно выравнивает y[t+2] с прошлым x[t]."""
+    x, y = _driven_series(n=3000, a=0.7, seed=12)
+    value = transfer_entropy(x, y, lag=2)
+    assert np.isfinite(value)
+
+
+def test_te_all_nan_raises_value_error():
+    """All-NaN вход после общей MI-подготовки отклоняется явно."""
+    x = np.full(100, np.nan)
+    y = np.arange(100, dtype=float)
+    with pytest.raises(ValueError, match="finite value"):
+        transfer_entropy(x, y)
+
+
+def test_te_unequal_lengths_raise_value_error(rng):
+    """Разные длины не обрезаются молча."""
+    x = rng.normal(size=100)
+    y = rng.normal(size=99)
+    with pytest.raises(ValueError, match="equal lengths"):
+        transfer_entropy(x, y)
+
+
+def test_te_empty_input_raises_value_error():
+    """Пустой ряд отклоняется до построения истории/KDTree."""
+    with pytest.raises(ValueError, match="non-empty"):
+        transfer_entropy(np.array([]), np.array([]))
+
+
+@pytest.mark.parametrize(
+    ("kwargs", "message"),
+    [
+        ({"k": 0}, "k must be >= 1"),
+        ({"lag": 0}, "lag must be >= 1"),
+        ({"k_nn": 0}, "k_nn must be >= 1"),
+    ],
+)
+def test_te_nonpositive_parameters_raise_value_error(rng, kwargs, message):
+    """Параметры embedding/neighbours должны быть положительными."""
+    x = rng.normal(size=100)
+    y = rng.normal(size=100)
+    with pytest.raises(ValueError, match=message):
+        transfer_entropy(x, y, **kwargs)
