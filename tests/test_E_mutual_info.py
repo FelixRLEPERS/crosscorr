@@ -8,6 +8,7 @@
 
 import numpy as np
 import pandas as pd
+import pytest
 
 from crosscorr_lib.analysis.mutual_info import (
     conditional_mutual_information,
@@ -77,3 +78,33 @@ def test_cmi_reduces_to_mi_when_z_independent(rng):
     cmi = conditional_mutual_information(x, y, z, k=5)
     mi = mutual_information(x, y, k=5)
     np.testing.assert_allclose(cmi, mi, atol=0.15)
+
+
+def test_mi_quantized_series_warns():
+    """Точные дубликаты совместных samples предупреждают о KSG ties."""
+    x = np.tile(np.arange(10, dtype=float), 20)
+    y = np.tile(np.arange(10, dtype=float), 20)
+    with pytest.warns(UserWarning, match="continuous distributions"):
+        mutual_information(x, y)
+
+
+def test_mi_zero_k_raises_value_error(rng):
+    """Число соседей KSG должно быть положительным."""
+    x = rng.normal(size=100)
+    with pytest.raises(ValueError, match="k must be a positive integer"):
+        mutual_information(x, x, k=0)
+
+
+def test_mi_base_one_raises_value_error(rng):
+    """Основание логарифма не может быть равно 1."""
+    x = rng.normal(size=100)
+    with pytest.raises(ValueError, match="base must be finite"):
+        mutual_information(x, x + rng.normal(size=100), base=1.0)
+
+
+def test_mi_unequal_lengths_raise_value_error(rng):
+    """MI не обрезает неравные ряды молча."""
+    x = rng.normal(size=100)
+    y = rng.normal(size=99)
+    with pytest.raises(ValueError, match="equal lengths"):
+        mutual_information(x, y)

@@ -8,6 +8,7 @@
 
 import numpy as np
 import pandas as pd
+import pytest
 
 from crosscorr_lib.analysis.mse import (
     multiscale_entropy,
@@ -60,3 +61,26 @@ def test_mse_matrix_shape(rng):
     assert mat.shape == (3, 4)
     assert list(mat.columns) == list(scales)
     assert list(mat.index) == ["d0", "d1", "d2"]
+
+
+def test_sampen_constant_series_is_zero():
+    """Для константы все шаблоны совпадают: SampEn=−log(A/B)=0."""
+    assert sample_entropy(np.ones(100)) == 0.0
+
+
+def test_sampen_all_nan_raises_value_error():
+    """All-NaN ряд отклоняется до построения KDTree."""
+    with pytest.raises(ValueError, match="finite value"):
+        sample_entropy(np.full(100, np.nan))
+
+
+def test_sampen_m_zero_raises_value_error():
+    """Размерность шаблона должна быть положительной."""
+    with pytest.raises(ValueError, match="m must be a positive integer"):
+        sample_entropy(np.arange(100, dtype=float), m=0)
+
+
+def test_sampen_infinite_r_raises_value_error():
+    """Порог r должен быть конечным."""
+    with pytest.raises(ValueError, match="r must be finite"):
+        sample_entropy(np.arange(100, dtype=float), r=float("inf"))

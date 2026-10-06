@@ -44,7 +44,8 @@ def sample_entropy(
 
     SampEn = -log(A / B), где B — число пар шаблонов длины m с
     расстоянием (Chebyshev) < r, A — то же для длины m+1. Самосравнения
-    исключаются.
+    исключаются. Константный ряд имеет SampEn=0 по конвенции A=B. Если
+    совпадений длины m+1 нет при B>0, возвращается ``inf``.
 
     Parameters
     ----------
@@ -58,7 +59,7 @@ def sample_entropy(
     Returns
     -------
     float
-        SampEn. ``inf`` если совпадений длины m+1 нет.
+        SampEn. ``0.0`` для константного ряда; ``inf``, если B>0 и A=0.
 
     References
     ----------
@@ -66,10 +67,20 @@ def sample_entropy(
     """
     xa = _as_1d(x)
     n = xa.size
+    if n == 0:
+        raise ValueError("x must be non-empty")
+    if not np.isfinite(xa).all():
+        raise ValueError("x must contain at least one finite value")
+    if isinstance(m, bool) or not isinstance(m, (int, np.integer)) or m < 1:
+        raise ValueError(f"m must be a positive integer, got {m!r}")
     if n < m + 2:
         raise ValueError("ряд слишком короткий для SampEn")
     if r is None:
         r = 0.2 * float(np.std(xa))
+    elif not np.isfinite(r):
+        raise ValueError("r must be finite when provided")
+    if float(np.std(xa)) == 0.0:
+        return 0.0
     if r <= 0.0:
         return float("inf")
 
