@@ -3,22 +3,30 @@
 ## Мета
 
 - Дата реестра: 2026-10-05
-- HEAD: `cee803d` "fix: P1-11 — deprecate ESS path for lagged analysis"
-- Рабочее дерево: чистое (`git status --short` пуст)
+- Дата обновления: 2026-10-06
+- HEAD: `386c5c7` "fix(stationarity): silence statsmodels adfuller deprecation"
+- Рабочее дерево на момент реестра: чистое (`git status --short` пуст); после обновления 2026-10-06 изменены `audit/BACKLOG.md` и добавлен `audit/PROJECT_STATE.md`
 - Источники: `AUDIT_2026-10-05.md` (v1), `AUDIT_2026-10-05_v2.md` (v2), `AUDIT_2026-10-05_v3_partial.md` (v3), `AUDIT_2026-10-05_v3_verified.md` (v3v)
 - Находок в v1: 60 (по мете v2)
 - Находок в v2: 94 (V2-01..V2-94)
 - Находок в v3: 39
 - Всего исходных упоминаний: 193
 - Дедуплицировано до: 158 уникальных записей
-- CLOSED: 51
+- CLOSED: 105
+- STOP (требует решения/вне границ): 34
+- UNVERIFIED: 4 (B19, C8, C9, C10; C8/C9/C10 одновременно STOP)
+- PARTIAL: 3
+- FALSE (находка не подтверждена): 6
 - OBSOLETE: 2
-- UNVERIFIED: 5
-- OPEN: 100
+- OPEN (отложено): 4
+
+Проверка: CLOSED 105 + STOP 34 + UNVERIFIED 4 + PARTIAL 3 + FALSE 6 +
+OBSOLETE 2 + OPEN 4 = 158.
 
 Коммиты-фиксы после v1: `4a1fcd3`, `f26f92d`, `bbe978b`, `0fafbaa`, `3093dd5`, `2280fc2` (v2), далее `ed9f9e1`, `dfa9999`, `d711569`, `2ee09c4`, `ce8b40e`, `4b1ee15`, `8c5edc9`, `4802988`, `6813e22`, `8888dcd`, `cee803d` (v3).
+Коммиты серии групп A–G: `6049c2a` (A), `25f0e90` (B), `0e75aab` (C), `4232b49` (G), `15c38ed` (D), `49417c9`+`5194f36`+`3c12ebc` (F), `1a4e5c3` (F post-CI), `786c471` (E), `386c5c7` (stationarity).
 
-Статусы: OPEN, CLOSED `<hash>`, OBSOLETE, UNVERIFIED.
+Статусы: OPEN, CLOSED `<hash>`, PARTIAL `<hash>`, FALSE, OBSOLETE, UNVERIFIED, STOP (причина).
 Верификация (v3v): CONFIRMED, FALSE, UNVERIFIED, NEEDS_RUN.
 
 ---
@@ -30,37 +38,37 @@
 | A1 | P0 | `data/scripts/download_intermagnet.py:30-38` | Парсер IAGA-2002 структурно неверен (дата из позиций 0-1, значения из 3-5 вместо 7-9) | CLOSED `d711569` | v2 (V2-13) |
 | A2 | P0 | `data/scripts/unify_schema.py:28` | SNR используется как `residual` | CLOSED `2ee09c4` | v2 (V2-14) |
 | A3 | P1 | `unify_schema.py:30,42,56` vs `data/schema/unified_schema.json:13` | `meta` пишется строкой, схема требует object | CLOSED `ce8b40e` (схема приведена к string) | v2 (V2-15) |
-| A4 | P1 | `scripts/make_synthetic_unified.py:44-50` vs `unified_schema.json:10` | `detector_type` intermagnet/ngl отсутствуют в enum схемы | OPEN | v2 (V2-16) |
-| A5 | P1 | `unify_schema.py:26` | `detector_id = rx_call`, агрегации по `tx_call` нет → неуникальный ключ | OPEN | v2 (V2-17) |
-| A6 | P1 | `make_sample.py:14` | `.head(500)` после глобальной сортировки даёт срез одного детектора | OPEN | v2 (V2-24) |
-| A7 | P1 | `download_intermagnet.py:48` | Относительный путь вместо абсолютного `RAW_DIR` | OPEN | v2 (V2-25) |
-| A8 | P1 | `download_wspr.py:85`, `download_horizons.py:44` | Нет кэша и checksums, воспроизвести прогон невозможно | OPEN | v2 (V2-35) |
-| A9 | P1 | `data/raw/` | Каталог пуст, реальных данных нет | OPEN | v2 (V2-37), v1 |
-| A10 | P1 | `data/processed/unified.parquet` | Создан `make_synthetic_unified.py`, а не документированным `unify_schema.py` | OPEN | v2 (V2-38) |
-| A11 | P1 | весь датасет | Единственный датасет полностью синтетический; real-data прогонов нет (не баг, задача real-data валидации) | OPEN | v2 (V2-39) |
-| A12 | P2 | `data/samples/` | Каталог пуст, примеры данных отсутствуют; README обещает примеры | OPEN | v2 (V2-40), v3 (#12) |
-| A13 | P2 | `make_synthetic_unified.py:27` | `PROCESSED_DIR.mkdir` на уровне модуля | OPEN | v2 (V2-41) |
-| A14 | P2 | `unify_schema.py:54-55` | `dropna` по timestamp, `residual` остаётся с NaN | OPEN | v2 (V2-18) |
-| A15 | P2 | `unify_schema.py:49` | Слепой fallback на первую колонку | OPEN | v2 (V2-19) |
-| A16 | P2 | `unify_schema.py:30` | `df.apply(..., axis=1)` построчно на всём файле | OPEN | v2 (V2-20) |
-| A17 | P2 | `unify_schema.py:77-78` | `except Exception: print` молча уменьшает N | OPEN | v2 (V2-21) |
-| A18 | P2 | `unify_schema.py:17` | `PROCESSED.mkdir` на импорте модуля | OPEN | v2 (V2-22) |
-| A19 | P2 | `make_sample.py:11-16` | Код уровня модуля без `__main__` | OPEN | v2 (V2-23) |
-| A20 | P2 | `download_intermagnet.py:52` | `out_path.touch()` создаёт пустой файл и возвращает успех | OPEN | v2 (V2-26) |
-| A21 | P2 | `download_intermagnet.py:59` | `--station default="UNKNOWN"` | OPEN | v2 (V2-27) |
-| A22 | P2 | `registry.py:77` | `download_ngl.py` отсутствует | OPEN | v2 (V2-28) |
-| A23 | P2 | `registry.py:52,66,80` | `base_url` с placeholder `https://TODO...` | OPEN | v2 (V2-29) |
-| A24 | P2 | `registry.py:48,62,76` | `expected_fields` использует `timestamp`, схема — `timestamp_utc` | OPEN | v2 (V2-30) |
-| A25 | P3 | `registry.py:87` + `data/scripts/__init__.py:3` | `_initialize_registry()` печатает при каждом импорте | OPEN | v2 (V2-31) |
-| A26 | P2 | `download_wspr.py:29,77` | `limit=5000` молча усекает конец дня | OPEN | v2 (V2-32) |
-| A27 | P3 | `download_wspr.py:3` vs `:84` | Docstring обещает не тот путь файла | OPEN | v2 (V2-33) |
-| A28 | P2 | `download_horizons.py:26-29` | Эфемериды не версионируются | OPEN | v2 (V2-36) |
-| A29 | P3 | `make_synthetic_unified.py:47` | `D_Krasnoyarsk` в смешанном регистре | OPEN | v2 (V2-43) |
-| A30 | P2 | `make_synthetic_unified.py:32-50` | Смешивает WSPR/магнитометр/GNSS в одном пуле | OPEN | v2 (V2-44) |
-| A31 | P3 | `make_synthetic_unified.py:87-93` | Пространственная корреляция мгновенная, лаг всегда 0 | OPEN | v2 (V2-45) |
+| A4 | P1 | `scripts/make_synthetic_unified.py:44-50` vs `unified_schema.json:10` | `detector_type` intermagnet/ngl отсутствуют в enum схемы | CLOSED `6049c2a` | v2 (V2-16) |
+| A5 | P1 | `unify_schema.py:26` | `detector_id = rx_call`, агрегации по `tx_call` нет → неуникальный ключ | CLOSED `6049c2a` | v2 (V2-17) |
+| A6 | P1 | `make_sample.py:14` | `.head(500)` после глобальной сортировки даёт срез одного детектора | CLOSED `6049c2a` | v2 (V2-24) |
+| A7 | P1 | `download_intermagnet.py:48` | Относительный путь вместо абсолютного `RAW_DIR` | CLOSED `6049c2a` | v2 (V2-25) |
+| A8 | P1 | `download_wspr.py:85`, `download_horizons.py:44` | Нет кэша и checksums, воспроизвести прогон невозможно | CLOSED `6049c2a` | v2 (V2-35) |
+| A9 | P1 | `data/raw/` | Каталог пуст, реальных данных нет | STOP (нужен сетевой источник) | v2 (V2-37), v1 |
+| A10 | P1 | `data/processed/unified.parquet` | Создан `make_synthetic_unified.py`, а не документированным `unify_schema.py` | STOP (нужен прогон на реальных данных) | v2 (V2-38) |
+| A11 | P1 | весь датасет | Единственный датасет полностью синтетический; real-data прогонов нет (не баг, задача real-data валидации) | STOP (real-data валидация) | v2 (V2-39) |
+| A12 | P2 | `data/samples/` | Каталог пуст, примеры данных отсутствуют; README обещает примеры | CLOSED `6049c2a` | v2 (V2-40), v3 (#12) |
+| A13 | P2 | `make_synthetic_unified.py:27` | `PROCESSED_DIR.mkdir` на уровне модуля | CLOSED `6049c2a` | v2 (V2-41) |
+| A14 | P2 | `unify_schema.py:54-55` | `dropna` по timestamp, `residual` остаётся с NaN | CLOSED `6049c2a` | v2 (V2-18) |
+| A15 | P2 | `unify_schema.py:49` | Слепой fallback на первую колонку | CLOSED `6049c2a` | v2 (V2-19) |
+| A16 | P2 | `unify_schema.py:30` | `df.apply(..., axis=1)` построчно на всём файле | CLOSED `6049c2a` | v2 (V2-20) |
+| A17 | P2 | `unify_schema.py:77-78` | `except Exception: print` молча уменьшает N | CLOSED `6049c2a` | v2 (V2-21) |
+| A18 | P2 | `unify_schema.py:17` | `PROCESSED.mkdir` на импорте модуля | CLOSED `6049c2a` | v2 (V2-22) |
+| A19 | P2 | `make_sample.py:11-16` | Код уровня модуля без `__main__` | CLOSED `6049c2a` | v2 (V2-23) |
+| A20 | P2 | `download_intermagnet.py:52` | `out_path.touch()` создаёт пустой файл и возвращает успех | CLOSED `6049c2a` | v2 (V2-26) |
+| A21 | P2 | `download_intermagnet.py:59` | `--station default="UNKNOWN"` | CLOSED `6049c2a` | v2 (V2-27) |
+| A22 | P2 | `registry.py:77` | `download_ngl.py` отсутствует | CLOSED `6049c2a` | v2 (V2-28) |
+| A23 | P2 | `registry.py:52,66,80` | `base_url` с placeholder `https://TODO...` | CLOSED `6049c2a` | v2 (V2-29) |
+| A24 | P2 | `registry.py:48,62,76` | `expected_fields` использует `timestamp`, схема — `timestamp_utc` | CLOSED `6049c2a` | v2 (V2-30) |
+| A25 | P3 | `registry.py:87` + `data/scripts/__init__.py:3` | `_initialize_registry()` печатает при каждом импорте | CLOSED `6049c2a` | v2 (V2-31) |
+| A26 | P2 | `download_wspr.py:29,77` | `limit=5000` молча усекает конец дня | CLOSED `6049c2a` | v2 (V2-32) |
+| A27 | P3 | `download_wspr.py:3` vs `:84` | Docstring обещает не тот путь файла | CLOSED `6049c2a` | v2 (V2-33) |
+| A28 | P2 | `download_horizons.py:26-29` | Эфемериды не версионируются | CLOSED `6049c2a` | v2 (V2-36) |
+| A29 | P3 | `make_synthetic_unified.py:47` | `D_Krasnoyarsk` в смешанном регистре | CLOSED `6049c2a` | v2 (V2-43) |
+| A30 | P2 | `make_synthetic_unified.py:32-50` | Смешивает WSPR/магнитометр/GNSS в одном пуле | PARTIAL `6049c2a` (ограничение задокументировано; рефакторинг физики вне границ) | v2 (V2-44) |
+| A31 | P3 | `make_synthetic_unified.py:87-93` | Пространственная корреляция мгновенная, лаг всегда 0 | CLOSED `6049c2a` | v2 (V2-45) |
 | A32 | P3 | `make_synthetic_unified.py` | Колонка `meta` отсутствовала у второго производителя | CLOSED `ce8b40e` | v2 (V2-42) |
-| A33 | P2 | `data/scripts/api_client.py` | Класс без методов, импортируется 0 раз (requests уже импортирован) | OPEN | v2 (V2-70) |
-| A34 | P3 | `download_intermagnet.py:41-54` | `download_and_save_intermagnet` не вызывается | OPEN | v2 (V2-72) |
+| A33 | P2 | `data/scripts/api_client.py` | Класс без методов, импортируется 0 раз (requests уже импортирован) | CLOSED `6049c2a` | v2 (V2-70) |
+| A34 | P3 | `download_intermagnet.py:41-54` | `download_and_save_intermagnet` не вызывается | CLOSED `6049c2a` | v2 (V2-72) |
 
 ---
 
@@ -85,28 +93,28 @@
 | B15 | P1 | `surrogate.py:80,84` | `surrogate_test`: NaN в наблюдении, mean-imputed в нуле | CLOSED `4802988` | v3 (#8), v3v CONFIRMED |
 | B16 | P1 | `effective_sample.py:175` | `1-cdf` округлялось до p=0.0 при большом t | CLOSED `4b1ee15` | v3 (#9), v3v CONFIRMED |
 | B17 | P1 | `surrogate.py:421-431` | `max_lag > n` давал ValueError вместо понятной ошибки | CLOSED `4802988` | v3 (#5), v3v CONFIRMED |
-| B18 | P1 | `pairs.py:301-310` | Собственная реализация BH (жёстко BH для зависимых пар, нужен BY / общий `fdr_bh_q`) | OPEN | v3 (#2), v3 (#36) |
+| B18 | P1 | `pairs.py:301-310` | Собственная реализация BH (жёстко BH для зависимых пар, нужен BY / общий `fdr_bh_q`) | STOP (файл вне границ группы B; перенести в сессию C) | v3 (#2), v3 (#36) |
 | B19 | P1 | `pairs.py:240-241,366-367` | Пары с общим детектором используют одни суррогаты → зависимые p-value | UNVERIFIED (v3v: механизм опровергнут, rho≈-0.003) | v3 (#3) |
-| B20 | P1 | `pairs.py` | Нет detrend/standardize, расхождение с max-stat пайплайном | OPEN | v3 (#4) |
-| B21 | P2 | `surrogate.py:66-74` | Python-цикл + DataFrame + `pandas.corr` на каждый суррогат | OPEN | v1 (P2-2) |
-| B22 | P2 | `mantel.py:71-89` | Permutation-тест — чистый Python-цикл (9999 итераций) | OPEN | v1 (P2-4) |
-| B23 | P2 | `preprocessing.py` | `robust=True` — median/MAD, не Theil-Sen; detrend остаётся OLS | OPEN | v3 (#19), v1 (§3.4) |
-| B24 | P2 | `cross_correlation.py:137,236` | `n_obs` считается после интерполяции NaN | OPEN | v3 (#17) |
-| B25 | P2 | `cross_correlation.py:231-232` | Пары с NaN t_obs молча выбрасываются до FDR | OPEN | v3 (#18) |
-| B26 | P2 | `pairs.py:71-76` | Метод `shuffle` разрушает автокорреляцию (нуль слишком узкий) | OPEN | v3 (#14) |
-| B27 | P2 | `pairs.py:91-101` | AR(1) суррогат через `lfilter` без burn-in | OPEN | v3 (#15) |
-| B28 | P2 | `effective_sample.py:111-118` | Общий mask занижает IAT обоих рядов | OPEN | v2 (V2-63) |
-| B29 | P2 | `preprocessing.py:38-47` | NaN-интерполяция без ограничения длины пропуска | OPEN | v2 (V2-64) |
-| B30 | P2 | `preprocessing.py:50` | Ряд длины 2 после детренда → нули | OPEN | v2 (V2-65) |
+| B20 | P1 | `pairs.py` | Нет detrend/standardize, расхождение с max-stat пайплайном | STOP (файл вне границ группы B; перенести в сессию C) | v3 (#4) |
+| B21 | P2 | `surrogate.py:66-74` | Python-цикл + DataFrame + `pandas.corr` на каждый суррогат | OPEN (перф-рефакторинг отложен) | v1 (P2-2) |
+| B22 | P2 | `mantel.py:71-89` | Permutation-тест — чистый Python-цикл (9999 итераций) | OPEN (перф-рефакторинг отложен) | v1 (P2-4) |
+| B23 | P2 | `preprocessing.py` | `robust=True` — median/MAD, не Theil-Sen; detrend остаётся OLS | STOP (preprocessing.py вне границ) | v3 (#19), v1 (§3.4) |
+| B24 | P2 | `cross_correlation.py:137,236` | `n_obs` считается после интерполяции NaN | CLOSED `25f0e90` | v3 (#17) |
+| B25 | P2 | `cross_correlation.py:231-232` | Пары с NaN t_obs молча выбрасываются до FDR | STOP (меняет число гипотез M; решение пользователя) | v3 (#18) |
+| B26 | P2 | `pairs.py:71-76` | Метод `shuffle` разрушает автокорреляцию (нуль слишком узкий) | STOP (файл вне границ группы B; перенести в сессию C) | v3 (#14) |
+| B27 | P2 | `pairs.py:91-101` | AR(1) суррогат через `lfilter` без burn-in | STOP (файл вне границ группы B; перенести в сессию C) | v3 (#15) |
+| B28 | P2 | `effective_sample.py:111-118` | Общий mask занижает IAT обоих рядов | FALSE (verify_B28: знак зависит от данных, занижение не воспроизвелось) | v2 (V2-63) |
+| B29 | P2 | `preprocessing.py:38-47` | NaN-интерполяция без ограничения длины пропуска | STOP (preprocessing.py вне границ) | v2 (V2-64) |
+| B30 | P2 | `preprocessing.py:50` | Ряд длины 2 после детренда → нули | STOP (preprocessing.py вне границ) | v2 (V2-65) |
 | B31 | P2 | `surrogate.py` | `DEFAULT_OUT.mkdir` при импорте пакета | CLOSED `8888dcd` | v1 (P3), v3 (#20) |
 | B32 | P3 | `effective_sample.py` | Лаги ниже порога между значимыми не суммируются; не окно Sokal (правило и docstring) | CLOSED `ed9f9e1`/`8888dcd` | v3 (#33), v1 (P1-7) |
-| B33 | P3 | `surrogate.py`, `pairs.py`, `effective_sample.py`, `preprocessing.py` | Шесть копий NaN-интерполяции с разными порогами (в т.ч. `pairs.py:65`) | OPEN | v3 (#35) |
+| B33 | P3 | `surrogate.py`, `pairs.py`, `effective_sample.py`, `preprocessing.py` | Шесть копий NaN-интерполяции с разными порогами (в т.ч. `pairs.py:65`) | OPEN (дедупликация отложена: часть файлов вне границ) | v3 (#35) |
 | B34 | P3 | `cross_correlation.py` | `print()` внутри библиотечной функции | CLOSED `8888dcd` (logging) | v3 (#38) |
-| B35 | P3 | `pairs.py:60-67` | Ветка интерполяции NaN недостижима | OPEN | v3 (#37) |
-| B36 | P3 | `effective_sample.py:82-83` | `max_lag` не принимается из вызывающего кода | OPEN | v3v (дополнение к #9) |
+| B35 | P3 | `pairs.py:60-67` | Ветка интерполяции NaN недостижима | STOP (файл вне границ группы B; перенести в сессию C) | v3 (#37) |
+| B36 | P3 | `effective_sample.py:82-83` | `max_lag` не принимается из вызывающего кода | FALSE (verify_B36: `integrated_autocorrelation_time` уже имеет `max_lag`) | v3v (дополнение к #9) |
 | B37 | P1 | `surrogate.py:83` | `surrogate_test` не применял правило Davison-Hinkley | CLOSED `f26f92d` | v1 (P1-4) |
-| B38 | P3 | `surrogate.py:245,183` | `np.argsort` без `kind="stable"` при ties | OPEN | v2 (V2-59) |
-| B39 | P3 | `surrogate.py` | Критерий сходимости IAAFT не стандартен | OPEN | v2 (V2-54) |
+| B38 | P3 | `surrogate.py:245,183` | `np.argsort` без `kind="stable"` при ties | CLOSED `25f0e90` | v2 (V2-59) |
+| B39 | P3 | `surrogate.py` | Критерий сходимости IAAFT не стандартен | STOP (смена критерия меняет числовой результат; нужно решение) | v2 (V2-54) |
 | B40 | P1 | `block_bootstrap.py:9-10` | Docstring описывал перемешивание блоков, код — случайные старты | CLOSED `8888dcd` | v2 (V2-62), v3 (#32) |
 
 ---
@@ -117,14 +125,14 @@
 |----|-----|-----------|---------|--------|---------|
 | C1 | P0 | `pairs.py:199,345,348` | NaN обращался в максимальную значимость | CLOSED `4a1fcd3` | v1 (P0-1) |
 | C2 | P1 | `pairs.py:220-229` | Утечка shared memory при ошибке создания второго блока | CLOSED `f26f92d` (ExitStack) | v1 (P1-1) |
-| C3 | P2 | `pairs.py:213,220-222` | Двойное выделение памяти под суррогаты | OPEN | v1 (P2-1) |
+| C3 | P2 | `pairs.py:213,220-222` | Двойное выделение памяти под суррогаты | CLOSED `0e75aab` | v1 (P2-1) |
 | C4 | P1 | `cross_correlation.py:222,248` | `pair_idx` не инкрементился после `continue` | CLOSED `4b1ee15` | v3 (#6), v3v CONFIRMED |
 | C5 | P2 | `pairs.py:183,236-237,246` | Не было валидации `B < 1` и `seed < 0` | CLOSED `4b1ee15` | v3 (#16), v3v CONFIRMED |
-| C6 | P2 | `pairs.py:129,155` | Дефект `-(T-1)` при `T=1` даёт 3 столбца вместо 1 | OPEN (v1 выведен чтением) | v1 (§4.4) |
-| C7 | P2 | `pairs.py` (T=1, n=0/1) | Нет тестов граничных размеров `_batch_max_stat_corr` | OPEN | v1 (§4.4) |
-| C8 | P2 | `pairs.py` | float32 для суррогатов против float64 для `C_obs` — влияние не проверено | UNVERIFIED (v3v) | v3 (Not verified) |
-| C9 | P2 | `pairs.py:359-360` | Двойной unlink через resource_tracker на Python < 3.13 | UNVERIFIED (v3v) | v3 (Not verified) |
-| C10 | P2 | `pairs.py:247,255,390-391` | `shm.close()` при живых views может бросить BufferError | UNVERIFIED (v3v) | v3 (Not verified) |
+| C6 | P2 | `pairs.py:129,155` | Дефект `-(T-1)` при `T=1` даёт 3 столбца вместо 1 | CLOSED `0e75aab` | v1 (§4.4) |
+| C7 | P2 | `pairs.py` (T=1, n=0/1) | Нет тестов граничных размеров `_batch_max_stat_corr` | CLOSED `0e75aab` (T=1/T=2/one-row wide; n=0/T=0 остаются) | v1 (§4.4) |
+| C8 | P2 | `pairs.py` | float32 для суррогатов против float64 для `C_obs` — влияние не проверено | UNVERIFIED / STOP (нужно численное решение о dtype) | v3 (Not verified) |
+| C9 | P2 | `pairs.py:359-360` | Двойной unlink через resource_tracker на Python < 3.13 | UNVERIFIED / STOP (нужен прогон на 3.10-3.12) | v3 (Not verified) |
+| C10 | P2 | `pairs.py:247,255,390-391` | `shm.close()` при живых views может бросить BufferError | UNVERIFIED / STOP (требует переработки жизненного цикла views) | v3 (Not verified) |
 
 ---
 
@@ -132,20 +140,20 @@
 
 | ID | Sev | File:Line | Problem | Status | Sources |
 |----|-----|-----------|---------|--------|---------|
-| D1 | P1 | `cross_correlation.py:157`, `pairs.py:178` | Две разные функции с именем `cross_correlation_pairs_with_max_stat` | OPEN | v1 (§1.3), v3 (#21) |
+| D1 | P1 | `cross_correlation.py:157`, `pairs.py:178` | Две разные функции с именем `cross_correlation_pairs_with_max_stat` | CLOSED `15c38ed` (задокументировано, API сохранён) | v1 (§1.3), v3 (#21) |
 | D2 | P2 | `cross_correlation.py:28` | Alias `fdr_bh_q as _benjamini_hochberg` вводил в заблуждение | CLOSED `8888dcd` (`_fdr_correct`) | v2 (V2-04), v1 (P3) |
-| D3 | P2 | `__init__.py:58-59` | `fdr_bh` рядом с `fdr_bh_q`, расхождение не документировано | OPEN | v2 (V2-66) |
-| D4 | P2 | `analysis/__init__.py:1` | Реэкспортировано 2 из 14 модулей, нет `__all__` | OPEN | v2 (V2-67), v1 (§1.3) |
-| D5 | P3 | `__init__.py:13` | `__version__` — единственное объявление, git-тегов нет | OPEN | v2 (V2-69) |
-| D6 | P3 | `ai_narrator.py`, `narrator.py`, `quest.py` | Не в `__all__`, не импортируются | OPEN | v2 (V2-71) |
-| D7 | P3 | `game/` (4 файла) | Мёртвый код, не упомянут в README/pyproject | OPEN | v2 (V2-74) |
-| D8 | P2 | `pyproject.toml` | mypy не настроен, типы не проверяются | OPEN | v2 (V2-75) |
-| D9 | P3 | `download_horizons.py:26` | Аннотация возврата `-> "object"` бессмысленна | OPEN | v2 (V2-76) |
-| D10 | P3 | `surrogate.py:419` | `_lagged_cc` без аннотаций | OPEN | v2 (V2-77) |
-| D11 | P3 | `safe_exec.py:45` | `True/False/None` в `SAFE_BUILTINS` недостижимы (ключевые слова) | OPEN | v1 (P3) |
-| D12 | P3 | `mantel.py:115` | Избыточный `import pandas as pd # noqa: F401` | OPEN | v1 (P3) |
-| D13 | P2 | `analysis/` циклические импорты | `surrogate`↔`cross_correlation`, `mantel`↔`distance_analysis` | OPEN | v1 (§1.2) |
-| D14 | P2 | `surrogate.py:47` | `build_wide` — дубликат `build_wide_by_detector` | OPEN | v1 (§1.4) |
+| D3 | P2 | `__init__.py:58-59` | `fdr_bh` рядом с `fdr_bh_q`, расхождение не документировано | CLOSED `15c38ed` | v2 (V2-66) |
+| D4 | P2 | `analysis/__init__.py:1` | Реэкспортировано 2 из 14 модулей, нет `__all__` | CLOSED `15c38ed` | v2 (V2-67), v1 (§1.3) |
+| D5 | P3 | `__init__.py:13` | `__version__` — единственное объявление, git-тегов нет | STOP (git-теги — git write, решение пользователя) | v2 (V2-69) |
+| D6 | P3 | `ai_narrator.py`, `narrator.py`, `quest.py` | Не в `__all__`, не импортируются | STOP (игровой код вне границ) | v2 (V2-71) |
+| D7 | P3 | `game/` (4 файла) | Мёртвый код, не упомянут в README/pyproject | STOP (вне границ) | v2 (V2-74) |
+| D8 | P2 | `pyproject.toml` | mypy не настроен, типы не проверяются | STOP (pyproject.toml вне границ) | v2 (V2-75) |
+| D9 | P3 | `download_horizons.py:26` | Аннотация возврата `-> "object"` бессмысленна | STOP (data/scripts вне границ) | v2 (V2-76) |
+| D10 | P3 | `surrogate.py:419` | `_lagged_cc` без аннотаций | STOP (analysis/*.py вне границ) | v2 (V2-77) |
+| D11 | P3 | `safe_exec.py:45` | `True/False/None` в `SAFE_BUILTINS` недостижимы (ключевые слова) | CLOSED `15c38ed` (комментарий; записи сохранены) | v1 (P3) |
+| D12 | P3 | `mantel.py:115` | Избыточный `import pandas as pd # noqa: F401` | STOP (вне границ) | v1 (P3) |
+| D13 | P2 | `analysis/` циклические импорты | `surrogate`↔`cross_correlation`, `mantel`↔`distance_analysis` | STOP (вне границ) | v1 (§1.2) |
+| D14 | P2 | `surrogate.py:47` | `build_wide` — дубликат `build_wide_by_detector` | STOP (вне границ) | v1 (§1.4) |
 
 ---
 
@@ -155,13 +163,13 @@
 |----|-----|-----------|---------|--------|---------|
 | E1 | P2 | `test_core_regression.py:23-75` | Тесты проверяли подстроки исходника, не поведение | CLOSED `6813e22` | v1 (§4.2), v3 (#22) |
 | E2 | P1 | `test_fdr.py` | Нет численного эталона `fdr_bh_q`/`benjamini_yekutieli` | CLOSED `6813e22` (`test_statistical_reference.py`) | v2 (V2-50), v1 (§4.1) |
-| E3 | P1 | `test_ess_and_bootstrap.py:28` | Нет эталона `tau` для AR(1) против `(1+φ)/(1-φ)` | OPEN | v2 (V2-51) |
+| E3 | P1 | `test_ess_and_bootstrap.py:28` | Нет эталона `tau` для AR(1) против `(1+φ)/(1-φ)` | CLOSED `786c471` | v2 (V2-51) |
 | E4 | P3 | `test_cross_correlation_synthetic.py` | Нет точного численного эталона ρ | CLOSED `6813e22` (lagged_cc_recovers_known_lag) | v2 (V2-52) |
-| E5 | P2 | `tests/` | Нет теста сходимости/распределения IAAFT | OPEN | v2 (V2-55) |
-| E6 | P3 | `tests/` | Нет Windows-специфичного теста shm | OPEN | v2 (V2-58) |
-| E7 | P2 | `tests/` | Нет тестов `adf_test`, `check_stationarity_wide`, `fisher_weighted_max_stat`, `mfdfa`, `load_unified`, `power_curve` | OPEN | v3 (#23), v1 (§4.1) |
-| E8 | P2 | `tests/` | Нет сценариев пустой wide, constant series, ряды разной длины | OPEN (B=0, seed=-1, max_lag закрыты `4b1ee15`/`4802988`) | v3 (#24), v1 (§4.4) |
-| E9 | P3 | `tests/`, корень | Нет `conftest.py`, фикстуры дублируются | OPEN | v1 (§4.3) |
+| E5 | P2 | `tests/` | Нет теста сходимости/распределения IAAFT | CLOSED `786c471` | v2 (V2-55) |
+| E6 | P3 | `tests/` | Нет Windows-специфичного теста shm | STOP (нужен Windows runner; связано с F4) | v2 (V2-58) |
+| E7 | P2 | `tests/` | Нет тестов `adf_test`, `check_stationarity_wide`, `fisher_weighted_max_stat`, `mfdfa`, `load_unified`, `power_curve` | CLOSED `786c471` | v3 (#23), v1 (§4.1) |
+| E8 | P2 | `tests/` | Нет сценариев пустой wide, constant series, ряды разной длины | CLOSED `786c471` (B=0, seed=-1, max_lag закрыты `4b1ee15`/`4802988`) | v3 (#24), v1 (§4.4) |
+| E9 | P3 | `tests/`, корень | Нет `conftest.py`, фикстуры дублируются | CLOSED `786c471` | v1 (§4.3) |
 | E10 | P2 | `.pytest_cache/v/cache/lastfailed` | Устаревшая запись `test_pipeline.py`, файла нет | OBSOLETE (stale cache) | v3 (#27) |
 | E11 | P2 | `test_negative_control.py` | Тест допускает `<=1`, README заявлял 0 | CLOSED `8888dcd` | v3 (#28), v1 |
 
@@ -171,26 +179,26 @@
 
 | ID | Sev | File:Line | Problem | Status | Sources |
 |----|-----|-----------|---------|--------|---------|
-| F1 | P1 | `requirements.lock` | Lock устарел: нет `joblib`, собран на Python 3.13 | OPEN | v1 (§5), v2 (V2-82,83), v3 (#10) |
+| F1 | P1 | `requirements.lock` | Lock устарел: нет `joblib`, собран на Python 3.13 | STOP (перегенерация pip-compile требует сети) | v1 (§5), v2 (V2-82,83), v3 (#10) |
 | F2 | P1 | `pyproject.toml` | `pyarrow` отсутствовал в `[project] dependencies` | CLOSED `205daf9` | v2 (V2-87) |
-| F3 | P2 | `.github/workflows/ci.yml:16,50` | CI только Python 3.12 при `requires-python>=3.10` | OPEN | v1 (§4.5), v2, v3 (#26) |
-| F4 | P2 | `ci.yml` | Нет Windows job при использовании `SharedMemory` | OPEN | v1 (§4.5), v2 |
-| F5 | P1 | `ci.yml` | Coverage не собирается (`pytest-cov` в dev не используется) | OPEN | v1 (P2-5), v2 (§6.1), v3 (#26) |
-| F6 | P2 | `ci.yml:38` | ruff не покрывает `data/scripts/` и `game/` | OPEN | v1 (§4.5), v2 (V2-80) |
-| F7 | P2 | `ci.yml:43` | Slow-тесты только на push в main | OPEN | v3 (#25) |
-| F8 | P3 | `ci.yml` | Нет `compileall`/проверки импорта `registry.py` | OPEN | v2 (V2-81) |
-| F9 | P3 | `ci.yml` | `cache: pip` без `cache-dependency-path` | OPEN | v2 |
+| F3 | P2 | `.github/workflows/ci.yml:16,50` | CI только Python 3.12 при `requires-python>=3.10` | CLOSED `5194f36` (matrix 3.11/3.12) | v1 (§4.5), v2, v3 (#26) |
+| F4 | P2 | `ci.yml` | Нет Windows job при использовании `SharedMemory` | CLOSED `49417c9` (job добавлен; `1a4e5c3` — informational) | v1 (§4.5), v2 |
+| F5 | P1 | `ci.yml` | Coverage не собирается (`pytest-cov` в dev не используется) | CLOSED `49417c9` (затем `3c12ebc` порог 45) | v1 (P2-5), v2 (§6.1), v3 (#26) |
+| F6 | P2 | `ci.yml:38` | ruff не покрывает `data/scripts/` и `game/` | CLOSED `49417c9` (`data/` добавлен) | v1 (§4.5), v2 (V2-80) |
+| F7 | P2 | `ci.yml:43` | Slow-тесты только на push в main | CLOSED `5194f36` (paths-filter на PR) | v3 (#25) |
+| F8 | P3 | `ci.yml` | Нет `compileall`/проверки импорта `registry.py` | CLOSED `49417c9` | v2 (V2-81) |
+| F9 | P3 | `ci.yml` | `cache: pip` без `cache-dependency-path` | CLOSED `49417c9` | v2 |
 | F10 | P2 | `.gitignore` | Дубли записей `__pycache__/`, `*.egg-info/`, `.venv/`, `venv/` (в т.ч. как отмечено в README) | CLOSED `8888dcd` | v1 (P3), v2 (V2-89), v3 (#39) |
-| F11 | P2 | `.gitignore:46` | `audit/` в ignore, но файлы отслеживаются | OPEN | v2 (V2-90) |
-| F12 | P3 | `.gitignore` | Нет игнора `.coverage`, `htmlcov/` | OPEN | v2 (V2-91) |
+| F11 | P2 | `.gitignore:46` | `audit/` в ignore, но файлы отслеживаются | FALSE (`.gitignore:42` — `#audit/` закомментирован) | v2 (V2-90) |
+| F12 | P3 | `.gitignore` | Нет игнора `.coverage`, `htmlcov/` | CLOSED `49417c9` | v2 (V2-91) |
 | F13 | P2 | `Makefile` | Не было целей `test`/`lint` | CLOSED `8888dcd` | v2 (V2-79), v3 (#39) |
-| F14 | P2 | `requirements.in` vs `pyproject.toml` | Две конфликтующие модели зависимостей | OPEN | v1 (§5.1), v2 (V2-84) |
-| F15 | P2 | `pyproject.toml` | `joblib` в `dependencies`, но не в `dev` | OPEN | v2 (V2-85) |
-| F16 | P3 | `pyproject.toml:57` | `MFDFA` объявлен трижды | OPEN | v2 (V2-86) |
-| F17 | P3 | `pyproject.toml` | `pytest-cov`/`pip-tools` не используются | OPEN | v2 (V2-88) |
-| F18 | P3 | `bench.log`, `check_sprint4.py` | Файлы в git, не документированы | OPEN | v1 (§5.4), v3 (#39) |
+| F14 | P2 | `requirements.in` vs `pyproject.toml` | Две конфликтующие модели зависимостей | STOP (архитектурное решение; нельзя удалять зависимости) | v1 (§5.1), v2 (V2-84) |
+| F15 | P2 | `pyproject.toml` | `joblib` в `dependencies`, но не в `dev` | FALSE (joblib — runtime-зависимость, дублировать в dev не нужно) | v2 (V2-85) |
+| F16 | P3 | `pyproject.toml:57` | `MFDFA` объявлен трижды | FALSE (разные optional-группы mfdfa/dev/all) | v2 (V2-86) |
+| F17 | P3 | `pyproject.toml` | `pytest-cov`/`pip-tools` не используются | PARTIAL `49417c9` (pytest-cov задействован; pip-tools — см. F1) | v2 (V2-88) |
+| F18 | P3 | `bench.log`, `check_sprint4.py` | Файлы в git, не документированы | STOP (удаление из git — решение владельца) | v1 (§5.4), v3 (#39) |
 | F19 | P1 | `results/` (git) | `results/` не игнорировался, противоречие README | CLOSED `2280fc2` | v1 (§5.3), v2 (V2-09) |
-| F20 | P3 | `pyproject.toml:34` | numpy>=1.24 против `Generator.spawn` (нужен 1.25) | UNVERIFIED (v3v) | v3 (Not verified) |
+| F20 | P3 | `pyproject.toml:34` | numpy>=1.24 против `Generator.spawn` (нужен 1.25) | PARTIAL `49417c9` (numpy>=1.25; точная версия появления spawn не проверена прогоном) | v3 (Not verified) |
 | F21 | P2 | `data/processed/unified.parquet` | Файл пересоздан локально, в git не входит | OBSOLETE | v3v (PHASE B) |
 
 ---
@@ -200,19 +208,19 @@
 | ID | Sev | File:Line | Problem | Status | Sources |
 |----|-----|-----------|---------|--------|---------|
 | G1 | P0 | `docs/PIPELINE.md:153` | Описание IAT противоречило коду после фикса P1-7 | CLOSED `ed9f9e1` | v2 (V2-01) |
-| G2 | P1 | `docs/PIPELINE.md:117-133` | Документирован только BH, код по умолчанию BY | OPEN | v2 (V2-03), v1 |
-| G3 | P1 | `docs/PIPELINE.md:256-278` | §11 описывает OLS, основной метод — Mantel | OPEN | v2 (V2-08) |
-| G4 | P1 | `docs/methodology.md` | 9 строк: не описаны max-stat, BY, bootstrap, Mantel, IAAFT, MFDFA (ESS добавлен `cee803d`) | OPEN (partial) | v2 (V2-10), v1 |
+| G2 | P1 | `docs/PIPELINE.md:117-133` | Документирован только BH, код по умолчанию BY | CLOSED `4232b49` | v2 (V2-03), v1 |
+| G3 | P1 | `docs/PIPELINE.md:256-278` | §11 описывает OLS, основной метод — Mantel | CLOSED `4232b49` | v2 (V2-08) |
+| G4 | P1 | `docs/methodology.md` | 9 строк: не описаны max-stat, BY, bootstrap, Mantel, IAAFT, MFDFA (ESS добавлен `cee803d`) | CLOSED `4232b49` | v2 (V2-10), v1 |
 | G5 | P3 | `README.md` | Битые ссылки `paper/work.tex`, `paper/references.bib`, `docs/quest.md`, `docs/fund.md` | CLOSED `8888dcd` | v2 (V2-11, V2-94), v1 (§5.4), v3 (#31) |
-| G6 | P2 | `README.md` (Скриншоты) | Ссылки на `results/cross_correlation.png`, `results/mfdfa.png` | OPEN | v2 (V2-12) |
-| G7 | P2 | `docs/PIPELINE.md:96-113` | §5 описывает только phase; IAAFT/time_shift недостижимы из CLI | OPEN | v2 (V2-05) |
-| G8 | P2 | `docs/PIPELINE.md:69-77` | Формула max-stat без Fisher-весов | OPEN | v2 (V2-06) |
-| G9 | P2 | `docs/PIPELINE.md:89-90` | Три разных значения B (функция/CLI/документ) | OPEN | v2 (V2-07) |
-| G10 | P2 | `docs/PIPELINE.md:283` | «Результаты: results/*.csv» без пометки об устаревании | OPEN | v2 (V2-09) |
-| G11 | P2 | `README_ARCHITECTURE_UPDATE.md:20-21` | Ложное утверждение о `api_client`/`SourceRegistry` | OPEN | v2 (V2-46) |
-| G12 | P2 | `README_ARCHITECTURE_UPDATE.md:29` | Заявление «Надежность: Высокая» | OPEN | v2 (V2-47) |
-| G13 | P1 | `README_ARCHITECTURE_UPDATE.md:32-34` | Ссылка на несуществующий `test_source_registry.py` | OPEN | v2 (V2-48) |
-| G14 | P3 | `README_ARCHITECTURE_UPDATE.md:1,3,8,23,31` | Эмодзи | OPEN | v2 (V2-49) |
+| G6 | P2 | `README.md` (Скриншоты) | Ссылки на `results/cross_correlation.png`, `results/mfdfa.png` | FALSE (внутри HTML-комментария, не рендерятся) | v2 (V2-12) |
+| G7 | P2 | `docs/PIPELINE.md:96-113` | §5 описывает только phase; IAAFT/time_shift недостижимы из CLI | CLOSED `4232b49` | v2 (V2-05) |
+| G8 | P2 | `docs/PIPELINE.md:69-77` | Формула max-stat без Fisher-весов | CLOSED `4232b49` | v2 (V2-06) |
+| G9 | P2 | `docs/PIPELINE.md:89-90` | Три разных значения B (функция/CLI/документ) | CLOSED `4232b49` | v2 (V2-07) |
+| G10 | P2 | `docs/PIPELINE.md:283` | «Результаты: results/*.csv» без пометки об устаревании | CLOSED `4232b49` | v2 (V2-09) |
+| G11 | P2 | `README_ARCHITECTURE_UPDATE.md:20-21` | Ложное утверждение о `api_client`/`SourceRegistry` | STOP (файл вне границ) | v2 (V2-46) |
+| G12 | P2 | `README_ARCHITECTURE_UPDATE.md:29` | Заявление «Надежность: Высокая» | STOP (файл вне границ) | v2 (V2-47) |
+| G13 | P1 | `README_ARCHITECTURE_UPDATE.md:32-34` | Ссылка на несуществующий `test_source_registry.py` | STOP (файл вне границ) | v2 (V2-48) |
+| G14 | P3 | `README_ARCHITECTURE_UPDATE.md:1,3,8,23,31` | Эмодзи | STOP (файл вне границ) | v2 (V2-49) |
 | G15 | P2 | `README.md:15` | Бейдж вёл на `ci.yaml`, файл `ci.yml` | CLOSED `8888dcd` | v3 (#29) |
 | G16 | P2 | `README.md:194,216` | `requirements.txt` удалён, но указан в установке | CLOSED `8888dcd` | v3 (#29) |
 | G17 | P3 | `README.md:498` | «11 тестов в 5 файлах» | CLOSED `8888dcd` | v3 (#29) |
@@ -220,10 +228,10 @@
 | G19 | P3 | `cross_correlation.py:174-175` | Docstring «5-10 минут для 45 пар» | CLOSED `8888dcd` | v3 (#34) |
 | G20 | P3 | `docs/methodology.md:19` | «1000+ фазовых суррогатов» против дефолта 200 | CLOSED `8888dcd` | v2 (V2-10) |
 | G21 | P3 | `README.md` | `results/ # gitignored` противоречит состоянию | CLOSED `2280fc2` (results удалён из git) | v1 (§5.3) |
-| G22 | P3 | `surrogate.py:55,86,95,127` | Константы без имени/обоснования | OPEN | v1 (P3) |
-| G23 | P3 | `cross_correlation.py:88` | Магическое `n < 10` без параметра | CLOSED `8888dcd` (MIN_SAMPLES в effective_sample; в cross_correlation.py — OPEN) | v1 (P3) |
-| G24 | P3 | `surrogate.py:127,257,292,436,485` | E302: одна пустая строка перед `def` | OPEN | v1 (P3) |
-| G25 | P3 | `surrogate.py:114-124` | Ветка 2D `fdr_bh` без проверки симметричности | OPEN | v1 (P3) |
+| G22 | P3 | `surrogate.py:55,86,95,127` | Константы без имени/обоснования | STOP (код — группа B) | v1 (P3) |
+| G23 | P3 | `cross_correlation.py:88` | Магическое `n < 10` без параметра | STOP (код — группа B) | v1 (P3) |
+| G24 | P3 | `surrogate.py:127,257,292,436,485` | E302: одна пустая строка перед `def` | STOP (код — группа B) | v1 (P3) |
+| G25 | P3 | `surrogate.py:114-124` | Ветка 2D `fdr_bh` без проверки симметричности | STOP (код — группа B) | v1 (P3) |
 
 ---
 
@@ -233,26 +241,30 @@
 |----|-----|-----------|---------|--------|---------|
 | H1 | P0 | `safe_exec.py:15-32` | `ctypes` и др. не в `FORBIDDEN_NAMES` — выход из песочницы | CLOSED `4a1fcd3` | v1 (P0-5) |
 | H2 | P0 | `opencode.json` @ `bc58a3b` | API-ключ в истории git; untracking не удаляет секрет | CLOSED (ключ ротирован 2026-10-05) | v2 (V2-93), v3 (#13) |
-| H3 | P2 | `opencode.json` в `.gitignore` | Ignore добавлен, но объект в истории остаётся | OPEN (тот же корень, что H2) | v1 (§5.3) |
+| H3 | P2 | `opencode.json` в `.gitignore` | Ignore добавлен, но объект в истории остаётся | OPEN (тот же корень, что H2; история не переписывалась) | v1 (§5.3) |
 
 ---
 
 ## Итог по приоритетам
 
-| Severity | Open | Closed | Obsolete | Unverified | Total |
-|----------|------|--------|----------|------------|-------|
-| P0 | 0 | 9 | 0 | 0 | 9 |
-| P1 | 18 | 22 | 0 | 1 | 41 |
-| P2 | 53 | 9 | 2 | 3 | 67 |
-| P3 | 29 | 11 | 0 | 1 | 41 |
-| Итого | 100 | 51 | 2 | 5 | 158 |
+| Severity | CLOSED | OPEN | STOP | PARTIAL | FALSE | OBSOLETE | UNVERIFIED | Total |
+|----------|--------|------|------|---------|-------|----------|------------|-------|
+| P0 | 9 | 0 | 0 | 0 | 0 | 0 | 0 | 9 |
+| P1 | 33 | 0 | 7 | 0 | 0 | 0 | 1 | 41 |
+| P2 | 42 | 3 | 12 | 1 | 4 | 2 | 3 | 67 |
+| P3 | 21 | 1 | 15 | 2 | 2 | 0 | 0 | 41 |
+| Итого | 105 | 4 | 34 | 3 | 6 | 2 | 4 | 158 |
 
 Разбивка по группам: A 34, B 40, C 10, D 14, E 11, F 21, G 25, H 3 (сумма 158).
 
-Проверка сумм: Open + Closed + Obsolete + Unverified = 100 + 51 + 2 + 5 = 158 = Total.
+Проверка сумм: CLOSED + OPEN + STOP + PARTIAL + FALSE + OBSOLETE + UNVERIFIED = 105 + 4 + 34 + 3 + 6 + 2 + 4 = 158 = Total.
 Проверка по severity: 9 + 41 + 67 + 41 = 158 = Total.
 
-Примечание: часть записей имеет класс `stat`/`infra`/`docs`, отнесённый к ближайшей группе по файлу. UNVERIFIED-записи (B19, C8, C9, C10, F20) посчитаны в своей группе и одновременно отражены в колонке Unverified.
+Примечание: STOP — находки, требующие решения пользователя или находящиеся
+вне границ сессии (код/внешние данные/архитектура); OPEN — отложенные
+перф-рефакторинги (B21, B22, B33) и H3. B19 и C8/C9/C10 посчитаны в колонке
+STOP (в UNVERIFIED-подмножестве) и одновременно отражены в колонке Unverified;
+C8/C9/C10 несут двойной статус UNVERIFIED/STOP.
 
 ---
 
@@ -264,10 +276,10 @@
 - **v2 V2-73** (`_lagged_cc` вызывается ли) — UNVERIFIED, требует `git grep`.
 - **v1 §1.4** `check_sprint4.py` — в v2 (§7) признан отсутствующим в `git ls-files`; v3 подтверждает наличие `check_sprint4.py` в git. Расхождение источников, оставлено в F18 по факту `git ls-files`.
 - **Без данных нельзя проверить:** A9, A10, A11 (реальные прогоны), A4 (валидация схемы), F20 (numpy.spawn), C8-C10 (shm/BufferError/float32).
-- **Противоречие docs-vs-code** по FDR (G2): `docs/PIPELINE.md` §6 описывает BH, код по умолчанию BY — см. также B18 (pairs жёстко BH).
+- **Противоречие docs-vs-code** по FDR (G2) закрыто в `4232b49`.
 - **v3 (#4)** (pairs без preprocess, B20) пересекается с D1 (две разные функции) — общий корень: расхождение двух пайплайнов.
-- **v3 (#26)** CI: Python 3.12 only — пересекается с F3; coverage — с F5.
-- **A12, F19, F21** связаны с одной темой: происхождение и доступность данных (`data/raw` пуст, `data/samples` пуст, `results` удалён).
+- **v3 (#26)** CI: Python 3.12 only — закрыто F3; coverage — закрыто F5.
+- **A12, F19, F21** связаны с одной темой: происхождение и доступность данных (`data/raw` пуст, `data/samples` пополнен `6049c2a`, `results` удалён).
 
 ### Объединённые дубликаты (эта ревизия)
 
@@ -283,14 +295,14 @@
 
 ## Рекомендуемый порядок работ
 
-1. **Группа A (ETL и данные)** — 33 open, ~6-8 ч. Без воспроизводимого датасета ни один статистический результат не публикуем.
-2. **Группа B (ядро анализа)** — 20 open, ~8-10 ч. Здесь B18/B19/B20/B28/B29/B30 — статистические риски; B33 — дедупликация.
-3. **Группа C (pairs.py)** — 6 open, ~3-4 ч. C6 (дефект `T=1`) и C3 (память) — сначала, C8-C10 требуют запуска.
-4. **Группа E (тесты)** — 4 open, ~4-6 ч. Наполнение эталонов (E3, E5, E7, E8) фиксирует корректность после правок B/A.
-5. **Группа F (CI и инфра)** — 16 open, ~4-5 ч. F1/F3/F4/F5 — воспроизводимость CI; механические.
-6. **Группа G (документация)** — 14 open, ~5-6 ч. G2/G3/G4/G11/G13 — научная честность; остальное косметика.
-7. **Группа D (API)** — 10 open, ~4-5 ч. D1 — публичный контракт; остальное типизация/dead code.
-8. **Группа H (безопасность)** — 1 open (H3), косметика. Ключ ротирован (`H2` CLOSED 2026-10-05), `H1` закрыт ранее; открыт только `H3` (`.gitignore`/история, тот же корень, что H2). Группа сессии не требует.
+1. **STOP-решения пользователя** — B18/B20/B25/B26/B27/B35 (pairs.py, нужна сессия группы C), B23/B29/B30 (preprocessing.py), B39 (критерий IAAFT), C8/C9/C10 (dtype/shm), D5 (релиз-теги), F1/F14/F18 (lock/deps/git-мусор). ~6-8 ч.
+2. **Группа A (реальные данные)** — A9/A10/A11, ~2-3 ч после появления сетевого источника. Без воспроизводимого датасета ни один статистический результат не публикуем.
+3. **Группа G (документация)** — G11-G14 (`README_ARCHITECTURE_UPDATE.md`), ~1-2 ч; G22-G25 — это код (перенести в B).
+4. **Группа B (остаток)** — B21/B22/B33 (перф/дедупликация), ~4-5 ч. Требуют аккуратности с числовыми результатами.
+5. **Группа D (API/типы)** — D6/D7/D8/D9/D10/D12/D13/D14, ~3-4 ч. Низший риск для результата.
+6. **Группа E** — E6 (Windows shm), один тест после получения traceback Windows job.
+7. **Группа F** — F1/F14/F18 STOP; после решения — механические правки.
+8. **Группа H** — H3 (косметика `.gitignore`/история), отдельная сессия не нужна.
 
 Обоснование по группам:
 - H: ключ ротирован, остаётся только запись про `.gitignore`; отдельная сессия не нужна.
@@ -301,3 +313,33 @@
 - F: CI-воспроизводимость, влияет на доверие к прогонам.
 - G: документация приводится в соответствие уже исправленному коду.
 - D: API/типизация — низший риск для результата.
+
+---
+
+## Обновление от 2026-10-06
+
+За последние сутки закрыто: 55
+- Группа A: 26 closed (+1 PARTIAL — A30)
+- Группа B: 2 closed (B24, B38; 2 FALSE — B28, B36)
+- Группа C: 3 closed (C3, C6, C7)
+- Группа D: 4 closed (D1, D3, D4, D11)
+- Группа E: 5 closed (E3, E5, E7, E8, E9)
+- Группа F: 8 closed (F3, F4, F5, F6, F7, F8, F9, F12) (+2 PARTIAL — F17, F20)
+- Группа G: 7 closed (G2, G3, G4, G7, G8, G9, G10)
+- Группа H: 0 closed
+
+Осталось OPEN (отложено, не STOP): 4 (B21, B22, B33, H3)
+Осталось STOP: 33
+Осталось PARTIAL: 3 (A30, F17, F20)
+Осталось UNVERIFIED: 4 (B19, C8, C9, C10)
+Помечено FALSE: 6 (B28, B36, F11, F15, F16, G6)
+
+Все P0 закрыты (9 из 9). Тесты: 215 -> 237 collected.
+
+Примечание к арифметике: фактических строк CLOSED в реестре — 105
+(проверено grep). Сессионные отчёты A–G фиксируют 55 закрытий
+(A26 + B2 + C3 + D4 + E5 + F8 + G7). Значит, до сессии CLOSED было 50,
+а не 51, как указывала старая мета (одна запись была переклассифицирована
+при ревизии). Часть записей переведена в PARTIAL (A30, F17, F20),
+FALSE (B28, B36, F11, F15, F16, G6) и STOP/UNVERIFIED (B19, C8–C10).
+Итоговая сумма статусов сходится к 158.
