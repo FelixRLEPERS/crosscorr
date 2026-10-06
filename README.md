@@ -472,7 +472,7 @@ python scripts/simulate_network.py --n-detectors 10 --n-hidden 3 \
 - ✅ Голосовой наставник (`crosscorr_lib/narrator.py`)
 - ✅ AI-наставник (`crosscorr_lib/ai_narrator.py`)
 - ✅ Безопасное выполнение кода (`crosscorr_lib/safe_exec.py`)
-- ✅ Тесты (`pytest`, более 150 тестов)
+- ✅ Тесты (`pytest`, более 270 тестов)
 - ✅ Distance-based analysis (Mantel test для матриц корреляции и расстояния (default);
   OLS-регрессия доступна опционально)
 - ✅ Max-statistic null для лагов
@@ -486,6 +486,10 @@ python scripts/simulate_network.py --n-detectors 10 --n-hidden 3 \
 - ✅ IAAFT surrogate
 - ✅ CI (GitHub Actions) — fast + slow jobs
 - ✅ MixedLM для остатков (`crosscorr_lib/analysis/residuals.py`)
+- 🧪 experimental/standalone: Mutual Information (`crosscorr_lib/analysis/mutual_info.py`)
+- 🧪 experimental/standalone: Transfer Entropy (`crosscorr_lib/analysis/transfer_entropy.py`)
+- 🧪 experimental/standalone: MSE (`crosscorr_lib/analysis/mse.py`)
+- 🧪 experimental/standalone: Cross-MFDFA (`crosscorr_lib/analysis/cross_mfdfa.py`)
 - 🚧 PyMC пространственная модель
 
 Актуальный план: [docs/roadmap.md](docs/roadmap.md)

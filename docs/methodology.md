@@ -79,7 +79,7 @@ X-компонента в нТ, эфемериды — гелиоцентрич�
 - **s** — характерный масштаб (в roadmap: MFDFA, wavelet).
 - **g** — режим/условие: Kp, Dst, F10.7 (частично:
   `confounders.py`).
-- **w** — временное окно (реализовано: многоснапшотный анализ).
+- **w** — временное окно — внешний эксперимент (scripts/simulate_snapshots.py).
 
 **Статистика** — что считается:
 
@@ -141,7 +141,11 @@ X-компонента в нТ, эфемериды — гелиоцентрич�
 | f — частота | roadmap | wavelet coherence (не начато) |
 | s — масштаб | roadmap | MFDFA-модуль есть, в pipeline не подключён |
 | g — условие | частично | `analysis/confounders.py` |
-| w — окно | реализовано | многоснапшотный анализ |
+| w — окно | внешний эксперимент | `scripts/simulate_snapshots.py` (не в core) |
+| MI | реализовано как standalone utility, не интегрировано в основной pipeline | `analysis/mutual_info.py` |
+| TE | реализовано как standalone utility, не интегрировано в основной pipeline | `analysis/transfer_entropy.py` |
+| MSE | реализовано как standalone utility, не интегрировано в основной pipeline | `analysis/mse.py` |
+| Cross-MFDFA | реализовано как standalone utility, не интегрировано в основной pipeline | `analysis/cross_mfdfa.py` |
 | Null Model | реализовано | phase / IAAFT / block / time-shift |
 | p-value | реализовано | Davison-Hinkley, +1 в числителе и знаменателе |
 | q-value | реализовано | BH / BY, NaN-safe |
@@ -180,10 +184,10 @@ CrossCorr работает с классическими временными р
 | Квантовое понятие | Классический аналог | Статус в CrossCorr |
 |---|---|---|
 | Entanglement entropy S(A) | Shannon entropy H(X) | не реализовано |
-| Quantum mutual info I(A:B) | Shannon mutual info I(X:Y) | запланировано |
-| Directed quantum info flow | Transfer entropy T(X→Y) | запланировано |
-| MERA scale axis | Multiscale entropy MSE(s) | запланировано |
-| Entanglement log-scaling S ∼ log L | Cross-MFDFA h_xy(q) | запланировано |
+| Quantum mutual info I(A:B) | Shannon mutual info I(X:Y) | experimental standalone |
+| Directed quantum info flow | Transfer entropy T(X→Y) | experimental standalone |
+| MERA scale axis | Multiscale entropy MSE(s) | experimental standalone |
+| Entanglement log-scaling S ∼ log L | Cross-MFDFA h_xy(q) | experimental standalone |
 | Ryu–Takayanagi S = Area/4G | нет классического аналога | неприменимо |
 
 ### Почему эти методы полезны
