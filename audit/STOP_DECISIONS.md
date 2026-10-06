@@ -1,24 +1,23 @@
 # CrossCorr — решения по STOP-находкам
 
-Дата: 2026-10-06
-HEAD: `386c5c7b2f1facd7fcef753825ff0b56ffa243e8`
+Дата: 2026-10-06 (v5, sync до HEAD `65dbdbd`)
+HEAD: `65dbdbdac26aa9b161625294642053dea118ca81`
 Ветка: main
-Источник: `audit/BACKLOG.md` (158 находок, 34 STOP)
-Проверка кода: `crosscorr_lib/**`, `data/scripts/**`, `.gitignore`, `pyproject.toml`,
-`README_ARCHITECTURE_UPDATE.md`
+Источник: `audit/BACKLOG.md` (170 находок, 15 STOP, 6 DEFERRED)
+Проверка кода: `crosscorr_lib/**`, `data/scripts/**`, `.gitignore`,
+`pyproject.toml` (файл `README_ARCHITECTURE_UPDATE.md` удалён в `a7c8a0c`)
 
-Всего STOP: 34
+Всего STOP: 15 (было 34; 18 находок закрыты в v5, D8 — DEFERRED)
 Из них:
-  BREAKING_API: 3  (B20, B25, D14)
-  ARCHITECTURE: 12 (B18, B23, B26, B27, B29, B30, B39, D5, D8, D13, F14, G25)
-  EXTERNAL: 4      (A9, A10, A11, F1)
-  DOCS: 6          (D9, D10, G11, G12, G13, G14)
-  DEFERRED: 9      (B35, D6, D7, D12, E6, F18, G22, G23, G24)
-  FALSE: 0
+  BREAKING_API: 2  (B20, B25)
+  ARCHITECTURE: 8  (B18, B23, B26, B27, B29, B30, B39, F14)
+  EXTERNAL: 5      (A9, A10, A11, F1, E6)
+  DOCS: 0
+  DEFERRED: 6      (D8, MI-3, TE-3, XM-1, XM-2, XM-5)
 
-Сопряжённые (вне счёта 34): UNVERIFIED/STOP — C8, C9, C10 (см. приложение);
-B19 — UNVERIFIED (механизм опровергнут v3v). Часть статусов в BACKLOG несёт
-двойную метку (UNVERIFIED + STOP), поэтому 34 STOP не включают C8–C10.
+Сопряжённые: B19 — UNVERIFIED (механизм опровергнут v3v, rho≈-0.003, фактически
+FALSE). C8/C9/C10 — двойная метка UNVERIFIED/STOP (см. приложение и примечание
+к итогам в BACKLOG).
 
 Нумерация строк: в нескольких записях номер из BACKLOG устарел относительно
 текущего HEAD (код менялся после аудита). Проверенные дрейфы отмечены
@@ -29,51 +28,69 @@ B19 — UNVERIFIED (механизм опровергнут v3v). Часть с�
 
 ## Сводка
 
-| ID | Sev | Category | File:line | Кратко | Очередь |
-|----|-----|----------|-----------|--------|---------|
-| A9 | P1 | EXTERNAL | `data/raw/` | Каталог пуст, реальных данных нет | 3 |
-| A10 | P1 | EXTERNAL | `data/processed/unified.parquet` | Parquet создан синтетическим скриптом | 3 |
-| A11 | P1 | EXTERNAL | весь датасет | Нет real-data валидации | 3 |
-| B18 | P2 | ARCHITECTURE | `pairs.py:328-337` (BACKLOG: 301-310) | Собственная BH вместо общего `fdr_bh_q`/BY | 3 |
-| B20 | P1 | BREAKING_API | `pairs.py` | Нет detrend/standardize (расхождение с analysis) | 3 |
-| B23 | P2 | ARCHITECTURE | `preprocessing.py` | `robust=True` = median/MAD, не Theil-Sen | 3 |
-| B25 | P2 | BREAKING_API | `cross_correlation.py:231-232` | Пары с NaN t_obs выброшены до FDR | 3 |
-| B26 | P2 | ARCHITECTURE | `pairs.py:71-76` | `shuffle` разрушает автокорреляцию | 3 |
-| B27 | P2 | ARCHITECTURE | `pairs.py:91-101` | AR(1) `lfilter` без burn-in | 3 |
-| B29 | P2 | ARCHITECTURE | `preprocessing.py:38-47` | Интерполяция без лимита длины пропуска | 3 |
-| B30 | P2 | ARCHITECTURE | `preprocessing.py:50` | Ряд длины 2 после детренда → нули | 3 |
-| B35 | P3 | DEFERRED | `pairs.py:60-67` | Недостижимая ветка интерполяции NaN | 2 |
-| B39 | P3 | ARCHITECTURE | `surrogate.py` | Критерий сходимости IAAFT нестандартен | 3 |
-| D5 | P3 | ARCHITECTURE | `__init__.py:13` | `__version__` без git-тегов | 2 |
-| D6 | P3 | DEFERRED | `narrator.py`, `ai_narrator.py`, `quest.py` | Игровой код вне `__all__` | 2 |
-| D7 | P3 | DEFERRED | `game/` (4 файла) | Мёртвый код | 2 |
-| D8 | P2 | ARCHITECTURE | `pyproject.toml` | mypy не настроен | 2 |
-| D9 | P3 | DOCS | `download_horizons.py:27` (BACKLOG: 26) | Аннотация `-> object` бессмысленна | 1 |
-| D10 | P3 | DOCS | `surrogate.py:468` (BACKLOG: 419) | `_lagged_cc` без аннотаций | 1 |
-| D12 | P3 | DEFERRED | `mantel.py:140` | Избыточный локальный `import pandas` | 1 |
-| D13 | P2 | ARCHITECTURE | `analysis/` | Циклические импорты | 2 |
-| D14 | P2 | BREAKING_API | `surrogate.py:63` | `build_wide` дубликат `build_wide_by_detector` | 2 |
-| E6 | P3 | DEFERRED | `tests/` | Нет Windows-теста shm | 3 |
-| F1 | P1 | EXTERNAL | `requirements.lock` | Lock устарел (нет joblib) | 3 |
-| F14 | P2 | ARCHITECTURE | `requirements.in` vs `pyproject.toml` | Две модели зависимостей | 4 |
-| F18 | P3 | DEFERRED | `bench.log`, `check_sprint4.py` | Мусор в git | 1 |
-| G11 | P2 | DOCS | `README_ARCHITECTURE_UPDATE.md:20-21` | Ложь про `api_client`/реестр | 1 |
-| G12 | P2 | DOCS | `README_ARCHITECTURE_UPDATE.md:29` | «Надежность: Высокая» без оснований | 1 |
-| G13 | P1 | DOCS | `README_ARCHITECTURE_UPDATE.md:32-34` | Ссылка на несуществующий тест | 1 |
-| G14 | P3 | DOCS | `README_ARCHITECTURE_UPDATE.md:1,3,8,23,31` | Эмодзи | 1 |
-| G22 | P3 | DEFERRED | `surrogate.py:55,86,95,127` | Константы без имени/обоснования | 2 |
-| G23 | P3 | DEFERRED | `cross_correlation.py:88` | Магическое `n < 10` | 2 |
-| G24 | P3 | DEFERRED | `surrogate.py:127,257,292,436,485` | E302: пустые строки перед `def` | 2 |
-| G25 | P3 | ARCHITECTURE | `surrogate.py:114-124` | 2D `fdr_bh` без проверки симметричности | 2 |
+Статус — на HEAD `65dbdbd` (v5). 15 STOP, 25 CLOSED, 6 DEFERRED.
+
+| ID | Sev | Category | File:line | Кратко | Статус | Очередь |
+|----|-----|----------|-----------|--------|--------|---------|
+| A9 | P1 | EXTERNAL | `data/raw/` | Каталог пуст, реальных данных нет | STOP | 3 |
+| A10 | P1 | EXTERNAL | `data/processed/unified.parquet` | Parquet создан синтетическим скриптом | STOP | 3 |
+| A11 | P1 | EXTERNAL | весь датасет | Нет real-data валидации | STOP | 3 |
+| B18 | P2 | ARCHITECTURE | `pairs.py:328-337` (BACKLOG: 301-310) | Собственная BH вместо общего `fdr_bh_q`/BY | STOP | 3 |
+| B20 | P1 | BREAKING_API | `pairs.py` | Нет detrend/standardize (расхождение с analysis) | STOP | 3 |
+| B23 | P2 | ARCHITECTURE | `preprocessing.py` | `robust=True` = median/MAD, не Theil-Sen | STOP | 3 |
+| B25 | P2 | BREAKING_API | `cross_correlation.py:231-232` | Пары с NaN t_obs выброшены до FDR | STOP | 3 |
+| B26 | P2 | ARCHITECTURE | `pairs.py:71-76` | `shuffle` разрушает автокорреляцию | STOP | 3 |
+| B27 | P2 | ARCHITECTURE | `pairs.py:91-101` | AR(1) `lfilter` без burn-in | STOP | 3 |
+| B29 | P2 | ARCHITECTURE | `preprocessing.py:38-47` | Интерполяция без лимита длины пропуска | STOP | 3 |
+| B30 | P2 | ARCHITECTURE | `preprocessing.py:50` | Ряд длины 2 после детренда → нули | STOP | 3 |
+| B35 | P3 | DEFERRED | `pairs.py:60-67` | Недостижимая ветка интерполяции NaN | CLOSED `f730ddd` | 2 |
+| B39 | P3 | ARCHITECTURE | `surrogate.py` | Критерий сходимости IAAFT нестандартен | STOP | 3 |
+| D5 | P3 | ARCHITECTURE | `__init__.py:13` | `__version__` без git-тегов | CLOSED `f730ddd` (тег `v0.1.0`) | 2 |
+| D6 | P3 | DEFERRED | `narrator.py`, `ai_narrator.py`, `quest.py` | Игровой код вне `__all__` | CLOSED `f730ddd` | 2 |
+| D7 | P3 | DEFERRED | `game/` (4 файла) | Мёртвый код | CLOSED `f730ddd` | 2 |
+| D8 | P2 | ARCHITECTURE | `pyproject.toml` | mypy не настроен | DEFERRED `f730ddd` (вариант C) | 2 |
+| D9 | P3 | DOCS | `download_horizons.py:27` (BACKLOG: 26) | Аннотация `-> object` бессмысленна | CLOSED `a7c8a0c` | 1 |
+| D10 | P3 | DOCS | `surrogate.py:468` (BACKLOG: 419) | `_lagged_cc` без аннотаций | CLOSED `a7c8a0c` | 1 |
+| D12 | P3 | DEFERRED | `mantel.py:140` | Избыточный локальный `import pandas` | CLOSED `a7c8a0c` | 1 |
+| D13 | P2 | ARCHITECTURE | `analysis/` | Циклические импорты | CLOSED `f730ddd` | 2 |
+| D14 | P2 | BREAKING_API | `surrogate.py:63` | `build_wide` дубликат `build_wide_by_detector` | CLOSED `f730ddd` | 2 |
+| E6 | P3 | DEFERRED | `tests/` | Нет Windows-теста shm | STOP (нужен Windows runner) | 3 |
+| F1 | P1 | EXTERNAL | `requirements.lock` | Lock устарел (нет joblib) | STOP | 3 |
+| F14 | P2 | ARCHITECTURE | `requirements.in` vs `pyproject.toml` | Две модели зависимостей | STOP | 4 |
+| F18 | P3 | DEFERRED | `bench.log`, `check_sprint4.py` | Мусор в git | CLOSED `a7c8a0c` | 1 |
+| G11 | P2 | DOCS | `README_ARCHITECTURE_UPDATE.md:20-21` | Ложь про `api_client`/реестр | CLOSED `a7c8a0c` (файл удалён) | 1 |
+| G12 | P2 | DOCS | `README_ARCHITECTURE_UPDATE.md:29` | «Надежность: Высокая» без оснований | CLOSED `a7c8a0c` (файл удалён) | 1 |
+| G13 | P1 | DOCS | `README_ARCHITECTURE_UPDATE.md:32-34` | Ссылка на несуществующий тест | CLOSED `a7c8a0c` (файл удалён) | 1 |
+| G14 | P3 | DOCS | `README_ARCHITECTURE_UPDATE.md:1,3,8,23,31` | Эмодзи | CLOSED `a7c8a0c` (файл удалён) | 1 |
+| G22 | P3 | DEFERRED | `surrogate.py:55,86,95,127` | Константы без имени/обоснования | CLOSED `f730ddd` | 2 |
+| G23 | P3 | DEFERRED | `cross_correlation.py:88` | Магическое `n < 10` | CLOSED `f730ddd` | 2 |
+| G24 | P3 | DEFERRED | `surrogate.py:127,257,292,436,485` | E302: пустые строки перед `def` | CLOSED `f730ddd` | 2 |
+| G25 | P3 | ARCHITECTURE | `surrogate.py:114-124` | 2D `fdr_bh` без проверки симметричности | CLOSED `f730ddd` | 2 |
+| MI-1 | P1 | V5 | `mutual_info.py:83-103` | KSG: policy для ties/dубликатов | CLOSED `3c627d6` + `c84ffa4` | v5 |
+| MI-3 | P2 | V5 | `mutual_info.py:94-185` | `query_ball_point` по точке, матрицы на пару | DEFERRED `037e0e1` (→ `docs/roadmap.md`) | v5 |
+| TE-1 | P1 | V5 | `transfer_entropy.py:83-107` | k>1: не совместный TE историй | CLOSED `54ac8af` (API gated k=1) | v5 |
+| TE-2 | P1 | V5 | `transfer_entropy.py:30-91` | Нет NaN-policy и валидации входов | CLOSED `54ac8af` | v5 |
+| TE-3 | P2 | V5 | `transfer_entropy.py:110-137` | N*(N-1) направленных оценок, KDTree на каждую | DEFERRED `037e0e1` (→ `docs/roadmap.md`) | v5 |
+| MSE-1 | P1 | V5 | `mse.py:67-93` | Постоянный ряд → `inf` | CLOSED `3c627d6` (контракт зафиксирован) | v5 |
+| XM-1 | P1 | V5 | `cross_mfdfa.py:43-129` | `abs` на знаковых флуктуациях | DEFERRED (reference §1.4, TODO) | v5 |
+| XM-2 | P1 | V5 | `cross_mfdfa.py:121-139` | Предел q→0, sign-конвенция не верифицированы | DEFERRED (reference §1.4, TODO) | v5 |
+| XM-3 | P2 | V5 | `cross_mfdfa.py:131-174` | Нет goodness-of-fit / scale-diagnostic | CLOSED `dd6eb92` (`r_squared`, `n_scales`) | v5 |
+| XM-4 | P2 | V5 | `cross_mfdfa.py:97-139` | Нет валидации входов | CLOSED `dd6eb92` | v5 |
+| XM-5 | P2 | V5 | `cross_mfdfa.py:58-129` | Вложенные `np.polyfit`, runtime не измерялся | DEFERRED `037e0e1` (0.68 c, → `docs/roadmap.md`) | v5 |
+| XM-6 | P2 | V5 | `tests/test_E_cross_mfdfa.py:34-76` | Тесты только x=y | CLOSED `dd6eb92` (5 новых тестов) | v5 |
 
 Примечание к категориям: формулировки задания приводили D5–D10/D12–D14 как
 BREAKING_API и G22–G25 как DOCS. Фактически D9/D10 — правки аннотаций (DOCS),
-G22–G24 — код (DEFERRED), G25 — валидация ввода (ARCHITECTURE). Классификация
-ниже сделана по фактическому влиянию, отклонения отмечены.
+G22–G24 — код, G25 — валидация ввода (ARCHITECTURE). Классификация сделана по
+фактическому влиянию. В v5 добавлена группа V5 (12 новых находок MI/TE/MSE/XM,
+категория V5).
 
 ---
 
 ## Раздел A — BREAKING_API
+
+Статус на v5: B20, B25 — STOP (без изменений); D14 — CLOSED `f730ddd`
+(deprecated alias).
 
 ### B20 — pairs.py: нет detrend/standardize
 ТЕКУЩЕЕ: `crosscorr_lib/pairs.py` принимает wide-таблицу и считает FFT-batch
@@ -187,6 +204,11 @@ build_wide_by_detector` — почти идентичные функции. Эк
 ---
 
 ## Раздел B — ARCHITECTURE
+
+Статус на v5: B18, B23, B26, B27, B29, B30, B39 — STOP (без изменений);
+D5 — CLOSED `f730ddd` (git tag `v0.1.0`); D8 — DEFERRED (вариант C, см.
+`audit/QUEUE2_DONE.md`); D13, D14 — CLOSED `f730ddd`; F14 — STOP; G25 —
+CLOSED `f730ddd` (ValueError при несимметрии).
 
 ### B18 — pairs.py: собственная реализация BH
 ТЕКУЩЕЕ: `pairs.py:328-337` реализует BH-коррекцию вручную (жёстко BH, для
@@ -571,6 +593,8 @@ Detrend всегда OLS (`:70-77`).
 
 ## Раздел C — EXTERNAL
 
+Статус на v5: A9, A10, A11, F1 — STOP (без изменений).
+
 ### A9 — data/raw пуст
 ТЕКУЩЕЕ: `data/raw/` в `.gitignore`; реальных загрузок нет. Все результаты —
 на синтетике. Требует сетевого доступа к WSPR/INTERMAGNET/Horizons.
@@ -696,6 +720,9 @@ Detrend всегда OLS (`:70-77`).
 ---
 
 ## Раздел D — DOCS
+
+Статус на v5: D9/D10 CLOSED `a7c8a0c` (конкретный тип, аннотации); G11–G14
+CLOSED `a7c8a0c` (файл `README_ARCHITECTURE_UPDATE.md` удалён).
 
 ### D9 — аннотация -> "object"
 ТЕКУЩЕЕ: `download_horizons.py:27` `fetch_ephemeris(...) -> object`;
@@ -831,6 +858,10 @@ Detrend всегда OLS (`:70-77`).
 ---
 
 ## Раздел E — DEFERRED
+
+Статус на v5: B35 — CLOSED `f730ddd` (мёртвая ветка удалена); D6/D7 —
+CLOSED `f730ddd`; D12 — CLOSED `a7c8a0c` (убран); F18 — CLOSED `a7c8a0c`
+(`git rm`); G22/G23/G24 — CLOSED `f730ddd`; E6 — STOP (нужен Windows runner).
 
 ### B35 — недостижимая ветка интерполяции NaN
 ТЕКУЩЕЕ: `pairs.py:60-67` содержит ветку интерполяции NaN, но публичный вход
@@ -1032,10 +1063,39 @@ Detrend всегда OLS (`:70-77`).
 
 ---
 
+## Раздел V5 — Новые модули (MI/TE/MSE/XM)
+
+Находки из AUDIT_v4.md (HEAD `65dbdbd`), 7 CLOSED / 5 DEFERRED:
+
+- MI-1 (P1, `mutual_info.py`) — CLOSED `3c627d6` + `c84ffa4`: валидация k/base,
+  `UserWarning` на точных дубликатах; docstring — непрерывные распределения.
+- MI-3 (P2) — DEFERRED: bench `037e0e1` (N=4000 > 60 с); оптимизация →
+  `docs/roadmap.md`.
+- TE-1 (P1, `transfer_entropy.py`) — CLOSED `54ac8af`: API ограничено k=1,
+  `k>1` → ValueError.
+- TE-2 (P1) — CLOSED `54ac8af`: finite-policy через `_as_1d`, валидация,
+  unequal length → ValueError.
+- TE-3 (P2) — DEFERRED: bench N=4000 > 60 с; документация стоимости →
+  `docs/roadmap.md`.
+- MSE-1 (P1, `mse.py`) — CLOSED `3c627d6`: контракт — константный ряд → 0.0,
+  B>0 и A=0 → inf, валидация входа.
+- XM-1 (P1, `cross_mfdfa.py`) — DEFERRED: reference-валидация §1.4; `TODO`
+  в docstring, формула не трогалась.
+- XM-2 (P1) — DEFERRED: reference-валидация §1.4; `TODO` в docstring.
+- XM-3 (P2) — CLOSED `dd6eb92`: `r_squared` на q и `n_scales`.
+- XM-4 (P2) — CLOSED `dd6eb92`: равные длины, конечные значения, n>=100,
+  валидация q/scales.
+- XM-5 (P2) — DEFERRED: bench `037e0e1` (0.68 с при N=4000); оптимизация →
+  `docs/roadmap.md`.
+- XM-6 (P2, `tests/test_E_cross_mfdfa.py`) — CLOSED `dd6eb92`: 5 новых тестов
+  (unequal lengths, scales>n, empty q, NaN, diagnostics).
+
+---
+
 ## Раздел F — FALSE
 
-Среди 34 STOP нет находок, ставших FALSE (код по ссылкам актуален).
-Ближайшие сопряжённые статусы (вне счёта 34):
+Среди STOP нет находок, ставших FALSE (код по ссылкам актуален).
+Ближайшие сопряжённые статусы:
 - B19 (UNVERIFIED): механизм «общие суррогаты → зависимые нули» опровергнут
   v3v (rho≈-0.003). Фактически FALSE; правка не требуется.
 - H3 в BACKLOG имеет статус OPEN (не STOP): `opencode.json` игнорируется
@@ -1052,7 +1112,10 @@ Detrend всегда OLS (`:70-77`).
 внешних сервисов, поскольку без датасета такие правки нельзя валидировать
 содержательно.
 
-### Очередь 1 — сегодня (≤ 30 мин)
+### Очередь 1 — сегодня (≤ 30 мин) — ЗАКРЫТА в v5
+Все 8 пунктов CLOSED: D9/D10/D12 (`a7c8a0c`); G11–G14 (`a7c8a0c`, файл
+`README_ARCHITECTURE_UPDATE.md` удалён); F18 (`a7c8a0c`, `git rm`).
+
 1. D9 — конкретизировать аннотацию `fetch_ephemeris`.
 2. D10 — аннотировать `_lagged_cc`.
 3. D12 — удалить избыточный локальный `import pandas`.
@@ -1062,7 +1125,11 @@ Detrend всегда OLS (`:70-77`).
 7. G14 — удалить эмодзи.
 8. F18 — `git rm bench.log check_sprint4.py`.
 
-### Очередь 2 — за день (≤ 4 часа)
+### Очередь 2 — за день (≤ 4 часа) — ЗАКРЫТА в v5 (кроме D8)
+D5 — CLOSED `f730ddd` (git tag `v0.1.0`); D6/D7 — CLOSED `f730ddd`;
+D13/D14 — CLOSED `f730ddd`; G22–G25 — CLOSED `f730ddd`; B35 — CLOSED
+`f730ddd`. D8 — DEFERRED (вариант C, `f730ddd`; см. `audit/QUEUE2_DONE.md`).
+
 1. D5 — ввести git-тег `v0.1.0` (git write, решение пользователя).
 2. D6 — решить судьбу игрового кода (оставить/вынести).
 3. D7 — решить судьбу `game/`.
@@ -1075,7 +1142,7 @@ Detrend всегда OLS (`:70-77`).
 10. G25 — проверка симметричности 2D `fdr_bh`.
 11. B35 — удалить мёртвую ветку интерполяции.
 
-### Очередь 3 — ждёт данных / решения
+### Очередь 3 — ждёт данных / решений — осталось 14 STOP
 1. A9 — реальные загрузки WSPR/INTERMAGNET/Horizons.
 2. A10 — перегенерация `unified.parquet` через `unify_schema.py`.
 3. A11 — real-data валидация.
@@ -1091,31 +1158,33 @@ Detrend всегда OLS (`:70-77`).
 13. E6 — Windows-тест shm (после traceback).
 14. F1 — перегенерация/удаление lock.
 
-### Очередь 4 — отложено
+### Очередь 4 — отложено — осталось 1 STOP (F14)
 1. F14 — сведение моделей зависимостей (архитектурное, не срочно).
 
 ---
 
 ## Рекомендация
 
-Если пользователь хочет закрыть STOP сегодня, начать с очереди 1: восемь
-правок документации, аннотаций и git-гигиены не меняют ни численных
-результатов, ни публичного контракта, и их можно выполнить и проверить за
-один прогон `pytest -m "not slow"` плюс `ruff`. После этого перейти к
-очереди 2 (изолированные архитектурные правки одного модуля), кроме D13,
-который лучше делать вместе с будущим рефакторингом `analysis`. Очередь 3
-(статистика и реальные данные) не следует начинать без датасета: по B20,
-B25, B26, B27 нельзя подтвердить корректность на синтетике. Решение по всем
-пунктам — за пользователем; документ носит рекомендательный характер.
+Очередь 1 закрыта коммитом `a7c8a0c` (D9/D10/D12, G11–G14, F18); очередь 2
+закрыта коммитом `f730ddd` (D5 — тег `v0.1.0`, D6/D7, D13/D14, G22–G25, B35),
+кроме D8 — DEFERRED (вариант C, `f730ddd`; см. `audit/QUEUE2_DONE.md`).
+Осталось: 15 STOP (очередь 3 + F14) и 6 DEFERRED (v5). Первый шаг — re-run
+CI (traceback `test-windows`, E6): инфраструктурный, независим от данных и не
+меняет численного контракта. Затем, для статистических вопросов, — получение
+реальных данных (A9/A10/A11): по B20/B25/B26/B27 корректность нельзя
+подтвердить на синтетике. F14 — архитектурное решение (две модели зависимостей),
+не срочное. Решение по всем пунктам — за пользователем; документ носит
+рекомендательный характер.
 
 ---
 
 ## Что НЕ входит в этот документ
 
-- 124 не-STOP находки BACKLOG (CLOSED/OPEN/PARTIAL/FALSE/OBSOLETE).
+- 155 не-STOP находки BACKLOG (CLOSED 130, OPEN 4, PARTIAL 3, FALSE 6,
+  OBSOLETE 2, UNVERIFIED 4, DEFERRED 6 (v5)).
 - Сопряжённые UNVERIFIED: B19, C8, C9, C10. C8/C9/C10 требуют численного
-  решения/прогона на Python 3.10–3.12 и не входят в счёт 34 STOP; см.
-  приложение ниже.
+  решения/прогона на Python 3.10–3.12 и не входят в счёт 15 STOP
+  (+ 6 DEFERRED, v5); см. приложение ниже.
 - Закрытая F7 (в BACKLOG — slow-тесты, закрыта `5194f36`). В
   `PROJECT_STATE.md` раздел 7 упоминает «F7 / Codecov» — это не ID бэклога;
   Codecov как внешний сервис в BACKLOG отдельной строкой отсутствует.
@@ -1132,3 +1201,4 @@ B25, B26, B27 нельзя подтвердить корректность на 
   Требует переработки жизненного цикла views; риск для стабильности.
   Категория: ARCHITECTURE. Очередь 3.
 - B19 (P1, `pairs.py`): механизм опровергнут v3v. Категория: FALSE.
+

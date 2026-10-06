@@ -4,7 +4,7 @@
 
 - Дата реестра: 2026-10-05
 - Дата обновления: 2026-10-06
-- HEAD: `386c5c7` "fix(stationarity): silence statsmodels adfuller deprecation"
+- HEAD: `65dbdbd` "docs: sync methodology, roadmap, README, git checklist [DOC-1..5]"
 - Рабочее дерево на момент реестра: чистое (`git status --short` пуст); после обновления 2026-10-06 изменены `audit/BACKLOG.md` и добавлен `audit/PROJECT_STATE.md`
 - Источники: `AUDIT_2026-10-05.md` (v1), `AUDIT_2026-10-05_v2.md` (v2), `AUDIT_2026-10-05_v3_partial.md` (v3), `AUDIT_2026-10-05_v3_verified.md` (v3v)
 - Находок в v1: 60 (по мете v2)
@@ -12,21 +12,24 @@
 - Находок в v3: 39
 - Всего исходных упоминаний: 193
 - Дедуплицировано до: 158 уникальных записей
-- CLOSED: 105
-- STOP (требует решения/вне границ): 34
+- CLOSED: 130
+- STOP (требует решения/вне границ): 15
 - UNVERIFIED: 4 (B19, C8, C9, C10; C8/C9/C10 одновременно STOP)
 - PARTIAL: 3
 - FALSE (находка не подтверждена): 6
 - OBSOLETE: 2
 - OPEN (отложено): 4
+- DEFERRED (отложено v5): 6 (D8, XM-1, XM-2, MI-3, TE-3, XM-5)
 
-Проверка: CLOSED 105 + STOP 34 + UNVERIFIED 4 + PARTIAL 3 + FALSE 6 +
-OBSOLETE 2 + OPEN 4 = 158.
+Проверка: CLOSED 130 + STOP 15 + UNVERIFIED 4 + PARTIAL 3 + FALSE 6 +
+OBSOLETE 2 + OPEN 4 + DEFERRED 6 = 170.
 
 Коммиты-фиксы после v1: `4a1fcd3`, `f26f92d`, `bbe978b`, `0fafbaa`, `3093dd5`, `2280fc2` (v2), далее `ed9f9e1`, `dfa9999`, `d711569`, `2ee09c4`, `ce8b40e`, `4b1ee15`, `8c5edc9`, `4802988`, `6813e22`, `8888dcd`, `cee803d` (v3).
 Коммиты серии групп A–G: `6049c2a` (A), `25f0e90` (B), `0e75aab` (C), `4232b49` (G), `15c38ed` (D), `49417c9`+`5194f36`+`3c12ebc` (F), `1a4e5c3` (F post-CI), `786c471` (E), `386c5c7` (stationarity).
+Коммиты v5: `72e13a2` (модули MI/TE/MSE/cross-MFDFA), `54ac8af` (TE-1, TE-2), `3c627d6` (MI-1, MSE-1), `c84ffa4` (MI-1 docstring), `dd6eb92` (XM-3, XM-4, XM-6), `037e0e1` (benchmark MI/TE/XM-5), `a7c8a0c` (Queue 1), `f730ddd` (Queue 2), `65dbdbd` (docs).
 
-Статусы: OPEN, CLOSED `<hash>`, PARTIAL `<hash>`, FALSE, OBSOLETE, UNVERIFIED, STOP (причина).
+Статусы: OPEN, CLOSED `<hash>`, PARTIAL `<hash>`, FALSE, OBSOLETE, UNVERIFIED,
+STOP (причина), DEFERRED (причина).
 Верификация (v3v): CONFIRMED, FALSE, UNVERIFIED, NEEDS_RUN.
 
 ---
@@ -110,7 +113,7 @@ OBSOLETE 2 + OPEN 4 = 158.
 | B32 | P3 | `effective_sample.py` | Лаги ниже порога между значимыми не суммируются; не окно Sokal (правило и docstring) | CLOSED `ed9f9e1`/`8888dcd` | v3 (#33), v1 (P1-7) |
 | B33 | P3 | `surrogate.py`, `pairs.py`, `effective_sample.py`, `preprocessing.py` | Шесть копий NaN-интерполяции с разными порогами (в т.ч. `pairs.py:65`) | OPEN (дедупликация отложена: часть файлов вне границ) | v3 (#35) |
 | B34 | P3 | `cross_correlation.py` | `print()` внутри библиотечной функции | CLOSED `8888dcd` (logging) | v3 (#38) |
-| B35 | P3 | `pairs.py:60-67` | Ветка интерполяции NaN недостижима | STOP (файл вне границ группы B; перенести в сессию C) | v3 (#37) |
+| B35 | P3 | `pairs.py:60-67` | Ветка интерполяции NaN недостижима | CLOSED `f730ddd` (мёртвая ветка удалена) | v3 (#37) |
 | B36 | P3 | `effective_sample.py:82-83` | `max_lag` не принимается из вызывающего кода | FALSE (verify_B36: `integrated_autocorrelation_time` уже имеет `max_lag`) | v3v (дополнение к #9) |
 | B37 | P1 | `surrogate.py:83` | `surrogate_test` не применял правило Davison-Hinkley | CLOSED `f26f92d` | v1 (P1-4) |
 | B38 | P3 | `surrogate.py:245,183` | `np.argsort` без `kind="stable"` при ties | CLOSED `25f0e90` | v2 (V2-59) |
@@ -144,16 +147,16 @@ OBSOLETE 2 + OPEN 4 = 158.
 | D2 | P2 | `cross_correlation.py:28` | Alias `fdr_bh_q as _benjamini_hochberg` вводил в заблуждение | CLOSED `8888dcd` (`_fdr_correct`) | v2 (V2-04), v1 (P3) |
 | D3 | P2 | `__init__.py:58-59` | `fdr_bh` рядом с `fdr_bh_q`, расхождение не документировано | CLOSED `15c38ed` | v2 (V2-66) |
 | D4 | P2 | `analysis/__init__.py:1` | Реэкспортировано 2 из 14 модулей, нет `__all__` | CLOSED `15c38ed` | v2 (V2-67), v1 (§1.3) |
-| D5 | P3 | `__init__.py:13` | `__version__` — единственное объявление, git-тегов нет | STOP (git-теги — git write, решение пользователя) | v2 (V2-69) |
-| D6 | P3 | `ai_narrator.py`, `narrator.py`, `quest.py` | Не в `__all__`, не импортируются | STOP (игровой код вне границ) | v2 (V2-71) |
-| D7 | P3 | `game/` (4 файла) | Мёртвый код, не упомянут в README/pyproject | STOP (вне границ) | v2 (V2-74) |
-| D8 | P2 | `pyproject.toml` | mypy не настроен, типы не проверяются | STOP (pyproject.toml вне границ) | v2 (V2-75) |
-| D9 | P3 | `download_horizons.py:26` | Аннотация возврата `-> "object"` бессмысленна | STOP (data/scripts вне границ) | v2 (V2-76) |
-| D10 | P3 | `surrogate.py:419` | `_lagged_cc` без аннотаций | STOP (analysis/*.py вне границ) | v2 (V2-77) |
+| D5 | P3 | `__init__.py:13` | `__version__` — единственное объявление, git-тегов нет | CLOSED `f730ddd` (git tag `v0.1.0` установлен, `git tag --list` — подтверждено) | v2 (V2-69) |
+| D6 | P3 | `ai_narrator.py`, `narrator.py`, `quest.py` | Не в `__all__`, не импортируются | CLOSED `f730ddd` (NOTE-комментарии о статусе) | v2 (V2-71) |
+| D7 | P3 | `game/` (4 файла) | Мёртвый код, не упомянут в README/pyproject | CLOSED `f730ddd` (`game/README.md` — experimental) | v2 (V2-74) |
+| D8 | P2 | `pyproject.toml` | mypy не настроен, типы не проверяются | DEFERRED (вариант C: отложено, `f730ddd`; audit/QUEUE2_DONE.md) | v2 (V2-75) |
+| D9 | P3 | `download_horizons.py:26` | Аннотация возврата `-> "object"` бессмысленна | CLOSED `a7c8a0c` (конкретный тип, TYPE_CHECKING) | v2 (V2-76) |
+| D10 | P3 | `surrogate.py:419` | `_lagged_cc` без аннотаций | CLOSED `a7c8a0c` (аннотации добавлены) | v2 (V2-77) |
 | D11 | P3 | `safe_exec.py:45` | `True/False/None` в `SAFE_BUILTINS` недостижимы (ключевые слова) | CLOSED `15c38ed` (комментарий; записи сохранены) | v1 (P3) |
-| D12 | P3 | `mantel.py:115` | Избыточный `import pandas as pd # noqa: F401` | STOP (вне границ) | v1 (P3) |
-| D13 | P2 | `analysis/` циклические импорты | `surrogate`↔`cross_correlation`, `mantel`↔`distance_analysis` | STOP (вне границ) | v1 (§1.2) |
-| D14 | P2 | `surrogate.py:47` | `build_wide` — дубликат `build_wide_by_detector` | STOP (вне границ) | v1 (§1.4) |
+| D12 | P3 | `mantel.py:115` | Избыточный `import pandas as pd # noqa: F401` | CLOSED `a7c8a0c` (убран) | v1 (P3) |
+| D13 | P2 | `analysis/` циклические импорты | `surrogate`↔`cross_correlation`, `mantel`↔`distance_analysis` | CLOSED `f730ddd` (ленивые импорты задокументированы) | v1 (§1.2) |
+| D14 | P2 | `surrogate.py:47` | `build_wide` — дубликат `build_wide_by_detector` | CLOSED `f730ddd` (deprecated alias) | v1 (§1.4) |
 
 ---
 
@@ -196,7 +199,7 @@ OBSOLETE 2 + OPEN 4 = 158.
 | F15 | P2 | `pyproject.toml` | `joblib` в `dependencies`, но не в `dev` | FALSE (joblib — runtime-зависимость, дублировать в dev не нужно) | v2 (V2-85) |
 | F16 | P3 | `pyproject.toml:57` | `MFDFA` объявлен трижды | FALSE (разные optional-группы mfdfa/dev/all) | v2 (V2-86) |
 | F17 | P3 | `pyproject.toml` | `pytest-cov`/`pip-tools` не используются | PARTIAL `49417c9` (pytest-cov задействован; pip-tools — см. F1) | v2 (V2-88) |
-| F18 | P3 | `bench.log`, `check_sprint4.py` | Файлы в git, не документированы | STOP (удаление из git — решение владельца) | v1 (§5.4), v3 (#39) |
+| F18 | P3 | `bench.log`, `check_sprint4.py` | Файлы в git, не документированы | CLOSED `a7c8a0c` (`git rm` обоих файлов) | v1 (§5.4), v3 (#39) |
 | F19 | P1 | `results/` (git) | `results/` не игнорировался, противоречие README | CLOSED `2280fc2` | v1 (§5.3), v2 (V2-09) |
 | F20 | P3 | `pyproject.toml:34` | numpy>=1.24 против `Generator.spawn` (нужен 1.25) | PARTIAL `49417c9` (numpy>=1.25; точная версия появления spawn не проверена прогоном) | v3 (Not verified) |
 | F21 | P2 | `data/processed/unified.parquet` | Файл пересоздан локально, в git не входит | OBSOLETE | v3v (PHASE B) |
@@ -217,10 +220,10 @@ OBSOLETE 2 + OPEN 4 = 158.
 | G8 | P2 | `docs/PIPELINE.md:69-77` | Формула max-stat без Fisher-весов | CLOSED `4232b49` | v2 (V2-06) |
 | G9 | P2 | `docs/PIPELINE.md:89-90` | Три разных значения B (функция/CLI/документ) | CLOSED `4232b49` | v2 (V2-07) |
 | G10 | P2 | `docs/PIPELINE.md:283` | «Результаты: results/*.csv» без пометки об устаревании | CLOSED `4232b49` | v2 (V2-09) |
-| G11 | P2 | `README_ARCHITECTURE_UPDATE.md:20-21` | Ложное утверждение о `api_client`/`SourceRegistry` | STOP (файл вне границ) | v2 (V2-46) |
-| G12 | P2 | `README_ARCHITECTURE_UPDATE.md:29` | Заявление «Надежность: Высокая» | STOP (файл вне границ) | v2 (V2-47) |
-| G13 | P1 | `README_ARCHITECTURE_UPDATE.md:32-34` | Ссылка на несуществующий `test_source_registry.py` | STOP (файл вне границ) | v2 (V2-48) |
-| G14 | P3 | `README_ARCHITECTURE_UPDATE.md:1,3,8,23,31` | Эмодзи | STOP (файл вне границ) | v2 (V2-49) |
+| G11 | P2 | `README_ARCHITECTURE_UPDATE.md:20-21` | Ложное утверждение о `api_client`/`SourceRegistry` | CLOSED `a7c8a0c` (README_ARCHITECTURE_UPDATE.md удалён) | v2 (V2-46) |
+| G12 | P2 | `README_ARCHITECTURE_UPDATE.md:29` | Заявление «Надежность: Высокая» | CLOSED `a7c8a0c` (README_ARCHITECTURE_UPDATE.md удалён) | v2 (V2-47) |
+| G13 | P1 | `README_ARCHITECTURE_UPDATE.md:32-34` | Ссылка на несуществующий `test_source_registry.py` | CLOSED `a7c8a0c` (README_ARCHITECTURE_UPDATE.md удалён) | v2 (V2-48) |
+| G14 | P3 | `README_ARCHITECTURE_UPDATE.md:1,3,8,23,31` | Эмодзи | CLOSED `a7c8a0c` (README_ARCHITECTURE_UPDATE.md удалён) | v2 (V2-49) |
 | G15 | P2 | `README.md:15` | Бейдж вёл на `ci.yaml`, файл `ci.yml` | CLOSED `8888dcd` | v3 (#29) |
 | G16 | P2 | `README.md:194,216` | `requirements.txt` удалён, но указан в установке | CLOSED `8888dcd` | v3 (#29) |
 | G17 | P3 | `README.md:498` | «11 тестов в 5 файлах» | CLOSED `8888dcd` | v3 (#29) |
@@ -228,10 +231,10 @@ OBSOLETE 2 + OPEN 4 = 158.
 | G19 | P3 | `cross_correlation.py:174-175` | Docstring «5-10 минут для 45 пар» | CLOSED `8888dcd` | v3 (#34) |
 | G20 | P3 | `docs/methodology.md:19` | «1000+ фазовых суррогатов» против дефолта 200 | CLOSED `8888dcd` | v2 (V2-10) |
 | G21 | P3 | `README.md` | `results/ # gitignored` противоречит состоянию | CLOSED `2280fc2` (results удалён из git) | v1 (§5.3) |
-| G22 | P3 | `surrogate.py:55,86,95,127` | Константы без имени/обоснования | STOP (код — группа B) | v1 (P3) |
-| G23 | P3 | `cross_correlation.py:88` | Магическое `n < 10` без параметра | STOP (код — группа B) | v1 (P3) |
-| G24 | P3 | `surrogate.py:127,257,292,436,485` | E302: одна пустая строка перед `def` | STOP (код — группа B) | v1 (P3) |
-| G25 | P3 | `surrogate.py:114-124` | Ветка 2D `fdr_bh` без проверки симметричности | STOP (код — группа B) | v1 (P3) |
+| G22 | P3 | `surrogate.py:55,86,95,127` | Константы без имени/обоснования | CLOSED `f730ddd` (именованные константы, значения без изменений) | v1 (P3) |
+| G23 | P3 | `cross_correlation.py:88` | Магическое `n < 10` без параметра | CLOSED `f730ddd` (заменено на `MIN_SAMPLES`) | v1 (P3) |
+| G24 | P3 | `surrogate.py:127,257,292,436,485` | E302: одна пустая строка перед `def` | CLOSED `f730ddd` (PEP8: две пустые строки) | v1 (P3) |
+| G25 | P3 | `surrogate.py:114-124` | Ветка 2D `fdr_bh` без проверки симметричности | CLOSED `f730ddd` (ValueError при несимметрии) | v1 (P3) |
 
 ---
 
@@ -242,29 +245,51 @@ OBSOLETE 2 + OPEN 4 = 158.
 | H1 | P0 | `safe_exec.py:15-32` | `ctypes` и др. не в `FORBIDDEN_NAMES` — выход из песочницы | CLOSED `4a1fcd3` | v1 (P0-5) |
 | H2 | P0 | `opencode.json` @ `bc58a3b` | API-ключ в истории git; untracking не удаляет секрет | CLOSED (ключ ротирован 2026-10-05) | v2 (V2-93), v3 (#13) |
 | H3 | P2 | `opencode.json` в `.gitignore` | Ignore добавлен, но объект в истории остаётся | OPEN (тот же корень, что H2; история не переписывалась) | v1 (§5.3) |
+---
+
+## Группа V5 — Новые модули (MI/TE/MSE/XM)
+
+| ID | Sev | File:Line | Problem | Status | Sources |
+|----|-----|-----------|---------|--------|---------|
+| MI-1 | P1 | `mutual_info.py:83-103` | KSG: policy для ties/dубликатов не определена (eps=0, дискретные/квантованные повторения) | CLOSED `3c627d6` (валидация k/base, `UserWarning` на точных дубликатах), `c84ffa4` (docstring: непрерывные распределения) | v5 (AUDIT_v4) |
+| MI-3 | P2 | `mutual_info.py:94-97,142-147,176-185` | Python-вызовы `query_ball_point` по точке; матрицы строится повторно на каждую пару | DEFERRED (benchmark `037e0e1`: N=4000 > 60 c, таймаут; оптимизация → `docs/roadmap.md`) | v5 (AUDIT_v4) |
+| TE-1 | P1 | `transfer_entropy.py:83-107` | Для k>1 усреднение отдельных CMI — не совместный TE историй | CLOSED `54ac8af` (API ограничено k=1, `k>1` — ValueError) | v5 (AUDIT_v4) |
+| TE-2 | P1 | `transfer_entropy.py:30-39,74-91` | Нет NaN-policy и валидации k/lag/k_nn; неравные ряды молча обрезаются | CLOSED `54ac8af` (finite-policy через `_as_1d`, валидация, unequal length — ValueError) | v5 (AUDIT_v4) |
+| TE-3 | P2 | `transfer_entropy.py:110-137` | N*(N-1) направленных оценок, каждая строит KDTree; стоимость не измерена | DEFERRED (benchmark `037e0e1`: N=4000 > 60 c, таймаут; документация стоимости → `docs/roadmap.md`) | v5 (AUDIT_v4) |
+| MSE-1 | P1 | `mse.py:67-74,87-93` | Постоянный ряд: `std=0` → `r=0` → возвращается `inf`; SampEn-предел не задокументирован | CLOSED `3c627d6` (контракт: константный ряд → 0.0, B>0 и A=0 → inf, валидация входа) | v5 (AUDIT_v4) |
+| XM-1 | P1 | `cross_mfdfa.py:43-67,111-129` | `abs` на знаковых cross-флуктуациях стирает cancellation; формула не привязана к версии MF-DXA | DEFERRED (reference-валидация §1.4; `TODO` в docstring, формула не трогалась) | v5 (AUDIT_v4) |
+| XM-2 | P1 | `cross_mfdfa.py:121-139` | Предел q→0 и sign-конвенция `F_q` не верифицированы против reference | DEFERRED (reference-валидация §1.4; `TODO` в docstring) | v5 (AUDIT_v4) |
+| XM-3 | P2 | `cross_mfdfa.py:131-174` | `h(q)`/Legendre без goodness-of-fit и scale-diagnostic | CLOSED `dd6eb92` (`r_squared` на q и `n_scales` в результате) | v5 (AUDIT_v4) |
+| XM-4 | P2 | `cross_mfdfa.py:97-106,112-139` | Входы усекаются до min-длины; NaN/Inf, пустые/nonfinite q и scales молча проходят | CLOSED `dd6eb92` (равные длины, конечные значения, n>=100, валидация q/scales) | v5 (AUDIT_v4) |
+| XM-5 | P2 | `cross_mfdfa.py:58-67,113-129` | Вложенные `np.polyfit` на сегмент/масштаб; runtime не измерялся | DEFERRED (benchmark `037e0e1`: 0.68 c при N=4000; оптимизация → `docs/roadmap.md`) | v5 (AUDIT_v4) |
+| XM-6 | P2 | `tests/test_E_cross_mfdfa.py:34-76` | Все содержательные тесты x=y; boundary/контрактные случаи отсутствовали | CLOSED `dd6eb92` (5 новых тестов: unequal lengths, scales>n, empty q, NaN, diagnostics) | v5 (AUDIT_v4) |
 
 ---
 
 ## Итог по приоритетам
 
-| Severity | CLOSED | OPEN | STOP | PARTIAL | FALSE | OBSOLETE | UNVERIFIED | Total |
-|----------|--------|------|------|---------|-------|----------|------------|-------|
-| P0 | 9 | 0 | 0 | 0 | 0 | 0 | 0 | 9 |
-| P1 | 33 | 0 | 7 | 0 | 0 | 0 | 1 | 41 |
-| P2 | 42 | 3 | 12 | 1 | 4 | 2 | 3 | 67 |
-| P3 | 21 | 1 | 15 | 2 | 2 | 0 | 0 | 41 |
-| Итого | 105 | 4 | 34 | 3 | 6 | 2 | 4 | 158 |
+| Severity | CLOSED | OPEN | STOP | PARTIAL | FALSE | OBSOLETE | UNVERIFIED | DEFERRED | Total |
+|----------|--------|------|------|---------|-------|----------|------------|----------|-------|
+| P0 | 9 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 9 |
+| P1 | 38 | 0 | 6 | 0 | 0 | 0 | 1 | 2 | 47 |
+| P2 | 49 | 3 | 7 | 1 | 4 | 2 | 3 | 4 | 73 |
+| P3 | 34 | 1 | 2 | 2 | 2 | 0 | 0 | 0 | 41 |
+| Итого | 130 | 4 | 15 | 3 | 6 | 2 | 4 | 6 | 170 |
 
-Разбивка по группам: A 34, B 40, C 10, D 14, E 11, F 21, G 25, H 3 (сумма 158).
+Разбивка по группам: A 34, B 40, C 10, D 14, E 11, F 21, G 25, H 3, V5 12 (сумма 170).
 
-Проверка сумм: CLOSED + OPEN + STOP + PARTIAL + FALSE + OBSOLETE + UNVERIFIED = 105 + 4 + 34 + 3 + 6 + 2 + 4 = 158 = Total.
-Проверка по severity: 9 + 41 + 67 + 41 = 158 = Total.
+Проверка сумм: CLOSED 130 + OPEN 4 + STOP 15 + PARTIAL 3 + FALSE 6 +
+OBSOLETE 2 + UNVERIFIED 4 + DEFERRED 6 = 170 = Total.
+Проверка по severity: 9 + 47 + 73 + 41 = 170 = Total.
 
 Примечание: STOP — находки, требующие решения пользователя или находящиеся
 вне границ сессии (код/внешние данные/архитектура); OPEN — отложенные
-перф-рефакторинги (B21, B22, B33) и H3. B19 и C8/C9/C10 посчитаны в колонке
-STOP (в UNVERIFIED-подмножестве) и одновременно отражены в колонке Unverified;
-C8/C9/C10 несут двойной статус UNVERIFIED/STOP.
+перф-рефакторинги (B21, B22, B33) и H3. DEFERRED — отложенные в v5:
+D8 (вариант C, mypy) и XM-1, XM-2 (reference-валидация §1.4),
+MI-3, TE-3, XM-5 (бенчмарки проведены, оптимизация в `docs/roadmap.md`).
+B19 и C8/C9/C10 посчитаны в колонке STOP (в UNVERIFIED-подмножестве)
+и одновременно отражены в колонке Unverified; C8/C9/C10 несут двойной
+статус UNVERIFIED/STOP.
 
 ---
 
@@ -343,3 +368,30 @@ C8/C9/C10 несут двойной статус UNVERIFIED/STOP.
 при ревизии). Часть записей переведена в PARTIAL (A30, F17, F20),
 FALSE (B28, B36, F11, F15, F16, G6) и STOP/UNVERIFIED (B19, C8–C10).
 Итоговая сумма статусов сходится к 158.
+
+### v5 (HEAD `65dbdbd`)
+
+Queue 1 `a7c8a0c` (8 закрыто): D9, D10, D12 (аннотации/импорты),
+G11-G14 (`README_ARCHITECTURE_UPDATE.md` удалён), F18
+(`git rm` `bench.log`, `check_sprint4.py`).
+
+Queue 2 `f730ddd` (9 закрыто, 1 отложено): D5 (git tag `v0.1.0`), D6/D7
+(`game/README.md` — experimental), D13 (ленивые импорты задокументированы),
+D14 (deprecated alias `build_wide`), G22-G25 (именованные константы,
+`MIN_SAMPLES`, PEP8, ValueError при несимметрии), B35 (мёртвая ветка
+удалена). D8 — DEFERRED, вариант C (mypy отложен).
+
+Новые модули v5: 12 находок (7 closed, 5 deferred).
+Closed: MI-1 + MSE-1 (`3c627d6` — контракты для ties/NaN/constant;
+`c84ffa4` — docstring), TE-1/TE-2 (`54ac8af` — валидация, gate k>1),
+XM-3/4/6 (`dd6eb92` — валидация входов, fit diagnostics, 5 boundary-тестов).
+Deferred (benchmark `037e0e1`): MI-3, TE-3, XM-5 → `docs/roadmap.md`
+(N=4000: MI/TE > 60 c, таймаут; MSE 0.03 c; XM 0.68 c);
+XM-1/XM-2 — reference-валидация §1.4.
+
+Итог: CLOSED 130 / STOP 15 / DEFERRED 6 / OPEN 4 / PARTIAL 3 / FALSE 6 /
+UNVERIFIED 4 / OBSOLETE 2 = 170 (158 + 12 v5). Все P0 закрыты (9 из 9).
+Тесты: 237 collected (сборка 2026-10-06 08:51); v5 добавляет ~150 строк
+тестов в 4 модулях (`test_E_transfer_entropy.py`, `test_E_mutual_info.py`,
+`test_E_mse.py`, `test_E_cross_mfdfa.py`) — точный collected-count
+переизмерить в рамках этой сборки (правило: без запуска pytest).
