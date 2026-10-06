@@ -26,6 +26,7 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 
+from crosscorr_lib.analysis.effective_sample import MIN_SAMPLES
 from crosscorr_lib.analysis.surrogate import fdr_bh_q as _fdr_correct
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -89,7 +90,7 @@ def lagged_cross_correlation(x: np.ndarray, y: np.ndarray, max_lag: int = 72):
         mask = ~(np.isnan(xs) | np.isnan(ys))
         n = mask.sum()
 
-        if n < 10:
+        if n < MIN_SAMPLES:
             continue
 
         r, p = stats.spearmanr(xs[mask], ys[mask])

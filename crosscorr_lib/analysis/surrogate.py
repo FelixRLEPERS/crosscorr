@@ -17,6 +17,17 @@ ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_INPUT = ROOT / "data" / "processed" / "unified.parquet"
 DEFAULT_OUT = ROOT / "results"
 
+# Default number of surrogate replicates for ``surrogate_test``.
+DEFAULT_N_SURROGATES = 1000
+# Default number of surrogate replicates for ``max_lag_surrogate_pvalue``.
+DEFAULT_N_SURROGATES_MAXLAG = 500
+# Default maximum lag (samples) for lagged cross-correlation.
+DEFAULT_MAX_LAG = 72
+# Default RNG seed for reproducibility.
+DEFAULT_SEED = 42
+# Default FDR level for Benjamini-Yekutieli / Benjamini-Hochberg.
+DEFAULT_ALPHA = 0.05
+
 
 def phase_surrogate(x: np.ndarray, rng: np.random.Generator) -> np.ndarray:
     """Возвращает фазовый суррогат для одномерного ряда.
@@ -61,19 +72,34 @@ def phase_surrogate(x: np.ndarray, rng: np.random.Generator) -> np.ndarray:
 
 
 def build_wide(df: pd.DataFrame, freq: str = "1h") -> pd.DataFrame:
+    """Deprecated: use ``cross_correlation.build_wide_by_detector`` instead.
+
+    Оставлено для обратной совместимости (D14). Делегирует группировку
+    канонической реализации; дополнительно приводит ``timestamp_utc`` к
+    datetime, как делала исходная версия.
+    """
+    import warnings
+
+    from crosscorr_lib.analysis.cross_correlation import (
+        build_wide_by_detector,
+    )
+
+    warnings.warn(
+        "surrogate.build_wide is deprecated; use "
+        "cross_correlation.build_wide_by_detector",
+        DeprecationWarning,
+        stacklevel=2,
+    )
     df = df.copy()
     df["timestamp_utc"] = pd.to_datetime(df["timestamp_utc"], utc=True)
-    df["bucket"] = df["timestamp_utc"].dt.floor(freq)
-    wide = (
-        df.groupby(["detector_id", "bucket"])["residual"]
-        .mean()
-        .unstack("detector_id")
-        .sort_index()
-    )
-    return wide
+    return build_wide_by_detector(df, freq=freq)
 
 
-def surrogate_test(wide: pd.DataFrame, n_surrogates: int = 1000, seed: int = 42) -> pd.DataFrame:
+def surrogate_test(
+    wide: pd.DataFrame,
+    n_surrogates: int = DEFAULT_N_SURROGATES,
+    seed: int = DEFAULT_SEED,
+) -> pd.DataFrame:
     """Surrogate-тест значимости корреляций.
 
     Наблюдение (``real``) и каждое нулевое распределение считаются на
@@ -127,7 +153,7 @@ def surrogate_test(wide: pd.DataFrame, n_surrogates: int = 1000, seed: int = 42)
 
 def fdr_bh(
     pvals: np.ndarray,
-    alpha: float = 0.05,
+    alpha: float = DEFAULT_ALPHA,
     method: str = "by",
 ) -> np.ndarray:
     """
@@ -151,6 +177,11 @@ def fdr_bh(
         return reject
 
     if pvals.ndim == 2:
+        if not np.allclose(pvals, pvals.T, equal_nan=True):
+            raise ValueError(
+                "fdr_bh: 2D input must be symmetric "
+                "(p-values for pairs (i, j) and (j, i))"
+            )
         n_total = pvals.shape[0]
         iu = np.triu_indices(n_total, k=1)
         flat = pvals[iu]
@@ -164,9 +195,10 @@ def fdr_bh(
 
     raise ValueError(f"fdr_bh ожидает 1D или 2D массив, получил {pvals.ndim}D")
 
+
 def benjamini_yekutieli(
     pvals: np.ndarray,
-    alpha: float = 0.05,
+    alpha: float = DEFAULT_ALPHA,
 ) -> tuple[np.ndarray, np.ndarray]:
     """
     Benjamini-Yekutieli FDR для произвольно зависимых тестов.
@@ -233,7 +265,7 @@ def benjamini_yekutieli(
 
 def fdr_bh_q(
     pvals: np.ndarray,
-    alpha: float = 0.05,
+    alpha: float = DEFAULT_ALPHA,
     method: str = "by",
 ) -> tuple[np.ndarray, np.ndarray]:
     """
@@ -294,19 +326,25 @@ def fdr_bh_q(
 
     raise ValueError(f"Неизвестный метод FDR: {method}. Используйте 'by' или 'bh'.")
 
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--input", type=Path, default=DEFAULT_INPUT)
-    parser.add_argument("--n", type=int, default=1000)
-    parser.add_argument("--alpha", type=float, default=0.05)
+    parser.add_argument("--n", type=int, default=DEFAULT_N_SURROGATES)
+    parser.add_argument("--alpha", type=float, default=DEFAULT_ALPHA)
     parser.add_argument("--freq", default="1h")
-    parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--seed", type=int, default=DEFAULT_SEED)
     args = parser.parse_args()
 
     DEFAULT_OUT.mkdir(parents=True, exist_ok=True)
 
     df = pd.read_parquet(args.input)
-    wide = build_wide(df, freq=args.freq)
+    df["timestamp_utc"] = pd.to_datetime(df["timestamp_utc"], utc=True)
+    from crosscorr_lib.analysis.cross_correlation import (
+        build_wide_by_detector,
+    )
+
+    wide = build_wide_by_detector(df, freq=args.freq)
 
     pvals = surrogate_test(wide, n_surrogates=args.n, seed=args.seed)
     significant = fdr_bh(pvals.values, alpha=args.alpha)
@@ -331,12 +369,13 @@ def main() -> None:
     print(f"[OK] p-values -> {DEFAULT_OUT / 'surrogate_pvalues.csv'}")
     print(f"[OK] significant pairs: {len(pairs)}")
 
+
 def max_lag_surrogate_pvalue(
     x: np.ndarray,
     y: np.ndarray,
-    max_lag: int = 72,
-    n_surrogates: int = 500,
-    seed: int = 42,
+    max_lag: int = DEFAULT_MAX_LAG,
+    n_surrogates: int = DEFAULT_N_SURROGATES_MAXLAG,
+    seed: int = DEFAULT_SEED,
     fisher: bool = True,
     surrogate_method: str = "phase",
     randomize_both: bool = True,
@@ -470,7 +509,13 @@ def _lagged_cc(
     y: np.ndarray,
     max_lag: int,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """Внутренняя обёртка: избегаем циклического импорта."""
+    """Внутренняя обёртка: избегаем циклического импорта.
+
+    D13: ``surrogate`` <-> ``cross_correlation`` образуют цикл
+    (``cross_correlation`` импортирует ``fdr_bh_q`` из этого модуля).
+    Импорт ``lagged_cross_correlation`` отложен внутрь функции, поэтому
+    топ-уровневые импорты остаются ацикличными.
+    """
     from crosscorr_lib.analysis.cross_correlation import (
         lagged_cross_correlation,
     )
@@ -512,6 +557,7 @@ def _phase_surrogate_keep_length(x, rng):
         phases[-1] = 0.0
     fft_surr = magnitudes * np.exp(1j * phases)
     return np.fft.irfft(fft_surr, n=n)
+
 
 def fisher_weighted_max_stat(
     rho: np.ndarray,

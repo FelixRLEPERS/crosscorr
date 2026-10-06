@@ -169,6 +169,9 @@ def build_dist_matrix(
     Returns:
         (N, N) симметричная матрица с нулями на диагонали.
     """
+    # D13: ``mantel`` <-> ``distance_analysis`` образуют цикл (модуль
+    # distance_analysis импортирует символы из mantel). Импорт haversine_km
+    # отложен внутрь функции, поэтому топ-уровневые импорты ацикличны.
     from crosscorr_lib.analysis.distance_analysis import haversine_km
 
     n = len(detector_ids)

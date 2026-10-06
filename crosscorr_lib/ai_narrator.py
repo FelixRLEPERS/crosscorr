@@ -1,3 +1,6 @@
+# NOTE: This module is not part of the library API.
+# It is a standalone game component. See audit/STOP_DECISIONS.md (D6).
+
 import pandas as pd
 
 from crosscorr_lib.narrator import speak

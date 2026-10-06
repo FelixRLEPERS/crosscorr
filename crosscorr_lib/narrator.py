@@ -4,6 +4,9 @@ narrator.py
 Озвучка через edge-tts (Microsoft Neural Voices). Бесплатно, без API-ключей.
 """
 
+# NOTE: This module is not part of the library API.
+# It is a standalone game component. See audit/STOP_DECISIONS.md (D6).
+
 import asyncio
 import concurrent.futures
 import io

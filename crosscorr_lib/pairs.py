@@ -57,14 +57,10 @@ def _make_surrogates(x: np.ndarray, method: str, B: int, seed: int) -> np.ndarra
     """
     rng = np.random.default_rng(seed)
 
-    # NaN-safe: интерполировать пропуски (аналог surrogate.py)
+    # B35: ветка интерполяции NaN удалена как мёртвая — публичный вход
+    # cross_correlation_pairs_with_max_stat отклоняет NaN (raise ValueError)
+    # до вызова _make_surrogates.
     x = np.asarray(x, dtype=float)
-    if np.isnan(x).any():
-        idx = np.arange(len(x))
-        good = np.isfinite(x)
-        if good.sum() < 2:
-            raise ValueError("too few finite samples in surrogate input")
-        x = np.interp(idx, idx[good], x[good])
 
     T = len(x)
 

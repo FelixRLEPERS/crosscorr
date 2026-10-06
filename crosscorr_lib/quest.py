@@ -4,6 +4,9 @@
 Запуск: python -m streamlit run quest.py
 """
 
+# NOTE: This module is not part of the library API.
+# It is a standalone game component. See audit/STOP_DECISIONS.md (D6).
+
 import base64
 import glob
 import os

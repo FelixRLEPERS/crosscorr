@@ -28,6 +28,7 @@ CrossCorr: кросс-корреляционный анализ гетероге
 Переименование одной из них было бы breaking change и не выполнялось.
 """
 
+# Sync with git tag vX.Y.Z (см. audit/STOP_DECISIONS.md, D5)
 __version__ = "0.1.0"
 
 # Основной пайплайн.
