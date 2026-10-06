@@ -76,9 +76,9 @@ def mutual_information(
 ) -> float:
     """Оценка взаимной информации I(X:Y) методом KSG (KNN).
 
-    Estimation assumes continuous distributions; behavior on ties / quantized
-    data is undefined. Точные дубликаты совместных наблюдений вызывают
-    ``UserWarning``.
+    Оценка предполагает непрерывные распределения; поведение на ties/
+    квантованных данных не определено. Точные дубликаты совместных
+    наблюдений вызывают ``UserWarning``.
 
     Parameters
     ----------
@@ -148,9 +148,9 @@ def conditional_mutual_information(
 ) -> float:
     """Оценка условной взаимной информации I(X:Y|Z) методом KSG.
 
-    Estimation assumes continuous distributions; behavior on ties / quantized
-    data is undefined. Точные дубликаты совместных наблюдений вызывают
-    ``UserWarning``.
+    Оценка предполагает непрерывные распределения; поведение на ties/
+    квантованных данных не определено. Точные дубликаты совместных
+    наблюдений вызывают ``UserWarning``.
 
     Формула (Vejmelka & Palus, 2008):
 
