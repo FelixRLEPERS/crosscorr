@@ -117,3 +117,79 @@ def test_cross_mfdfa_result_has_diagnostics(rng):
     assert "n_scales" in res
     assert res["r_squared"].shape == res["q"].shape
     assert res["n_scales"] > 0
+
+
+def test_cross_mfdfa_q2_matches_dcca():
+    """x = y, q=2: abs и split дают одинаковый h (все F²_v ≥ 0)."""
+    rng = np.random.default_rng(42)
+    x = np.cumsum(rng.standard_normal(1000))
+    y = x.copy()
+
+    result_abs = cross_mfdfa(
+        x, y, q_values=[2], scales=[16, 32, 64], signed="abs"
+    )
+    result_split = cross_mfdfa(
+        x, y, q_values=[2], scales=[16, 32, 64], signed="split"
+    )
+
+    np.testing.assert_allclose(
+        result_abs["h_q"], result_split["h_plus_q"], atol=1e-10
+    )
+    assert result_split["n_minus"] == 0
+
+
+def test_cross_mfdfa_anticorrelated_segments():
+    """Половина сегментов +cov, половина −cov: abs даёт спектр, split — два."""
+    rng = np.random.default_rng(42)
+    n = 2000
+    x = rng.standard_normal(n)
+
+    y = np.empty(n)
+    y[: n // 2] = x[: n // 2] + 0.1 * rng.standard_normal(n // 2)
+    y[n // 2 :] = -x[n // 2 :] + 0.1 * rng.standard_normal(n - n // 2)
+
+    q_values = [2, 3]
+    scales = [16, 32, 64]
+    result = cross_mfdfa(x, y, q_values=q_values, scales=scales, signed="split")
+
+    assert result["n_plus"] > 0, "No positive segments found"
+    assert result["n_minus"] > 0, "No negative segments found"
+    assert result["n_plus"] + result["n_minus"] > 0
+
+    assert result["h_minus_q"].shape == (len(q_values),)
+    assert not np.allclose(
+        result["h_plus_q"], result["h_minus_q"], atol=0.01
+    ), "h_plus and h_minus are too close — test data may not be split"
+
+    result_abs = cross_mfdfa(
+        x, y, q_values=q_values, scales=scales, signed="abs"
+    )
+    assert np.all(np.isfinite(result_abs["h_q"]))
+
+
+def test_cross_mfdfa_all_positive_matches_standard():
+    """y = a*x + b (a > 0): все F²_v ≥ 0, split вырождается в abs.
+
+    НЕ ПУТАТЬ с двумя независимыми AR(1): там на малых масштабах
+    появляются отрицательные ковариации, и abs ≠ plus.
+    """
+    rng = np.random.default_rng(42)
+    n = 2000
+    x = np.cumsum(rng.standard_normal(n))
+    y = 2.0 * x + 0.5
+
+    q_values = [2, 3]
+    scales = [16, 32, 64]
+    result_abs = cross_mfdfa(
+        x, y, q_values=q_values, scales=scales, signed="abs"
+    )
+    result_split = cross_mfdfa(
+        x, y, q_values=q_values, scales=scales, signed="split"
+    )
+
+    assert result_split["n_minus"] == 0
+    assert result_split["n_plus"] > 0
+    np.testing.assert_allclose(
+        result_abs["h_q"], result_split["h_plus_q"], atol=1e-10
+    )
+    assert np.all(np.isnan(result_split["h_minus_q"]))
