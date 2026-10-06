@@ -1,7 +1,7 @@
 # CrossCorr — состояние проекта
 
-Дата сборки: 2026-10-06 (v5, sync до HEAD 65dbdbd)
-HEAD: `65dbdbdac26aa9b161625294642053dea118ca81` "docs: sync methodology, roadmap, README, git checklist [DOC-1..5]"
+Дата сборки: 2026-10-06 (v6, sync до HEAD ebb7d66)
+HEAD: `ebb7d66` "perf(XM): optimize cross_mfdfa [XM-5]"
 Ветка: main
 Рабочее дерево до v5-синхронизации: чистое (`git status --short` пуст);
 после sync изменены `audit/BACKLOG.md`, `audit/PROJECT_STATE.md`,
@@ -27,8 +27,12 @@ D8 — DEFERRED, вариант C), добавлено 13 находок по н
 MI/TE/MSE/XM и производительности (12 closed, 1 deferred), установлен git-тег
 `v0.1.0`. Закрыты XM-1/XM-2 (convention abs-default + split-option; XM-2 было
 в статусе DEFERRED).
-Итог: 171 находка, 135 closed, 15 STOP, 2 deferred. Следующий крупный
-шаг — научная валидация на реальных WSPR + INTERMAGNET.
+В v6 закрыты MI-1 (вторичный — reference-валидация KSG, `2df4804`) и XM-5
+(оптимизация Cross-MFDFA 58×, `ebb7d66`); тестов 288 → 291. Пропущена фаза
+D8 (mypy) — остаётся DEFERRED.
+Итог: 171 уникальная находка, 137 closed (двойной счёт MI-1), 15 STOP,
+1 deferred (D8). Следующий крупный шаг — научная валидация на реальных
+WSPR + INTERMAGNET.
 
 ---
 
@@ -36,19 +40,23 @@ MI/TE/MSE/XM и производительности (12 closed, 1 deferred), у
 
 | Метрика | Значение |
 |---|---|
-| Тесты | 237 collected (235 fast + 2 slow, сборка 08:51); v5: +~150 строк тестов в 4 модулях — точный collected-count переизмерить |
+| Тесты | 291 collected (v6; было 288 в v5) |
 | Ruff | clean (`crosscorr_lib/ tests/ scripts/ data/`); порог CI 45% |
-| CI | matrix 3.11 + 3.12 (fast), 3.12 (slow), 3.12 (windows, informational) |
+| CI | matrix 3.11 + 3.12 (fast, Linux), 3.12 (slow), Windows 3.10/3.11/3.12 (shared memory, informational) |
 | P0 open | 0 |
 | P1 open | 0 |
 | P2/P3 open | 4 (B21, B22, B33, H3) |
-| CLOSED | 135 |
+| CLOSED | 137 (v6; было 135) |
 | STOP-находок | 15 |
-| DEFERRED (v5) | 2 (D8, XM-5) |
-| PARTIAL | 3 (A30, F17, F20) |
+| DEFERRED | 1 (D8; в v5 было 2 — XM-5 закрыт в v6) |
+| PARTIAL | 5 (A30, F17, F20, C9, C10) |
 | FALSE (не подтверждены) | 6 (B28, B36, F11, F15, F16, G6) |
 | UNVERIFIED | 4 (B19, C8, C9, C10) |
 | Групп бэклога закрыто | 7 из 7 (A, B, C, D, E, F, G) |
+
+Примечание: CLOSED=137 учитывает двойной счёт MI-1 (закрыт в v5 `3c627d6`+
+`c84ffa4`, перезакрыт в v6 `2df4804`) — уникальных находок 171, сумма
+статусов 172.
 
 ---
 
@@ -112,6 +120,17 @@ MI/TE/MSE/XM и производительности (12 closed, 1 deferred), у
 ### Пост-сессионно
 - `386c5c7`: `adfuller(..., result_object=False)` — снят FutureWarning statsmodels.
 
+### v6 — хвосты новых модулей (`ebb7d66`)
+- **MI-1 (вторичный, `2df4804`)**: reference-валидация KSG. На непрерывных
+  гауссовых данных (N=10000, rho=0.5) сходится к `-0.5 ln(1-rho²) ≈ 0.1438`;
+  при ≲30 уровнях квантования возвращает `inf`; при s=100 bias +0.17.
+  3 новых теста, docstring дополнен цифрами.
+- **XM-5 (`ebb7d66`)**: `_detrended_cov` переписан на закрытую OLS-формулу +
+  батчинг сегментов. Ускорение 58× (0.184 → 0.0032 с при N=4000); совпадение
+  с прежним результатом ≤ 1.8e-15.
+- Фаза D8 (mypy) пропущена — D8 остаётся DEFERRED.
+- Отчёты: `audit/AUDIT_v6.md`.
+
 ---
 
 ## 4. Текущий CI
@@ -159,7 +178,7 @@ MI/TE/MSE/XM и производительности (12 closed, 1 deferred), у
 
 ## 6. Тестовое покрытие
 
-- Всего тестов: 237 collected (235 fast + 2 `slow`).
+- Всего тестов: 291 collected (v6; было 237 на момент v5-билда, 288 к началу v6).
 - Численные эталоны: 12 (`test_statistical_reference.py`: BH, BY, max-stat,
   lagged CC, fisher_weighted_max_stat).
 - Consensus/контрактные: `test_core_regression.py` (25), `test_D_api.py` (10),
@@ -172,10 +191,10 @@ MI/TE/MSE/XM и производительности (12 closed, 1 deferred), у
 
 ## 7. STOP-находки (требуют решений пользователя)
 
-15 STOP открыто + 2 DEFERRED (v5: D8, XM-5).
+15 STOP открыто + 1 DEFERRED (v6: D8; XM-5 закрыт в v6).
 Закрыто в v5: D5, D6, D7, D9, D10, D12, D13, D14, B35, F18, G11–G14, G22–G25
 (`a7c8a0c`, `f730ddd`), MI-3, TE-3 и BENCH-1 (benchmark достаточен для целевого
-масштаба K≤20, N≤10000). C8/C9/C10 — UNVERIFIED (не в счёт 15), B19 — фактически
+масштаба K≤20, N≤10000). В v6 закрыт XM-5 (`ebb7d66`). C8/C9/C10 — UNVERIFIED (не в счёт 15), B19 — фактически
 FALSE; см. приложение `audit/STOP_DECISIONS.md`.
 
 ### Пары / предобработка (нужна сессия группы C)
@@ -208,6 +227,12 @@ FALSE; см. приложение `audit/STOP_DECISIONS.md`.
   Обоснование — Qwen 3.8 Max Prime consultation,
   `audit/external_reviews/QWEN_v5_consultation.md`. Открытая проблема
   (знак F²_v) задокументирована в docstring; XM-1/XM-2 закрыты.
+  XM-5 закрыт в v6 (`ebb7d66`): 58× ускорение без изменения чисел.
+- **MI-1 (KSG ties):** reference-валидация выполнена в v6 (`2df4804`).
+  KSG сходится к аналитике на непрерывных данных. Ограничение: на грубо
+  квантованных рядах (≲30 уровней) eps обнуляется и KSG даёт `inf`; при
+  тонком квантовании оценка завышена. Применимость к реальным квантованным
+  WSPR/INTERMAGNET данным требует отдельного решения (дискретный оценщик).
 
 ---
 
@@ -222,7 +247,9 @@ FALSE; см. приложение `audit/STOP_DECISIONS.md`.
 
 ### Научные (требуют данных)
 1. Прогон на реальных WSPR + INTERMAGNET (A9/A10/A11), затем перегенерация
-   `unified.parquet` документированным `unify_schema.py`.
+   `unified.parquet` документированным `unify_schema.py`. При появлении
+   данных с ties — решение по KSG (MI-1: дискретный оценщик или явное
+   ограничение).
 2. Препринт (требует реальных данных + финального B/CI).
 
 ### Долгосрочные
@@ -241,7 +268,7 @@ FALSE; см. приложение `audit/STOP_DECISIONS.md`.
   F20 (numpy>=1.25 без прогонного подтверждения).
 - Оптимизация #1: `rho` из `max_lag_surrogate_pvalue` (избежать повторного
   `lagged_cross_correlation` в `cross_correlation_pairs_with_max_stat`).
-- 15 STOP-находок + 2 DEFERRED (v5) ждут решений (см. секцию 7).
+- 15 STOP-находок + 1 DEFERRED (D8) ждут решений (см. секцию 7).
 
 ---
 

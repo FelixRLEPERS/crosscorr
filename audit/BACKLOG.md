@@ -3,8 +3,8 @@
 ## Мета
 
 - Дата реестра: 2026-10-05
-- Дата обновления: 2026-10-06
-- HEAD: `65dbdbd` "docs: sync methodology, roadmap, README, git checklist [DOC-1..5]"
+- Дата обновления: 2026-10-06 (v6)
+- HEAD: `ebb7d66` "perf(XM): optimize cross_mfdfa [XM-5]"
 - Рабочее дерево на момент реестра: чистое (`git status --short` пуст); после обновления 2026-10-06 изменены `audit/BACKLOG.md` и добавлен `audit/PROJECT_STATE.md`
 - Источники: `AUDIT_2026-10-05.md` (v1), `AUDIT_2026-10-05_v2.md` (v2), `AUDIT_2026-10-05_v3_partial.md` (v3), `AUDIT_2026-10-05_v3_verified.md` (v3v)
 - Находок в v1: 60 (по мете v2)
@@ -12,17 +12,20 @@
 - Находок в v3: 39
 - Всего исходных упоминаний: 193
 - Дедуплицировано до: 158 уникальных записей
-- CLOSED: 135
+- CLOSED: 137
 - STOP (требует решения/вне границ): 13
 - UNVERIFIED: 4 (B19, C8, C9, C10; C8 одновременно STOP, C9/C10 — PARTIAL)
 - PARTIAL: 5 (A30, F17, F20, C9, C10)
 - FALSE (находка не подтверждена): 6
 - OBSOLETE: 2
 - OPEN (отложено): 4
-- DEFERRED (отложено v5): 2 (D8, XM-5)
+- DEFERRED (отложено): 1 (D8)
 
-Проверка: CLOSED 135 + STOP 13 + UNVERIFIED 4 + PARTIAL 5 + FALSE 6 +
-OBSOLETE 2 + OPEN 4 + DEFERRED 2 = 171.
+Проверка (v6): CLOSED 137 + STOP 13 + UNVERIFIED 4 + PARTIAL 5 + FALSE 6 +
+OBSOLETE 2 + OPEN 4 + DEFERRED 1 = 172.
+Примечание: MI-1 в v5 уже был CLOSED (первичная валидация `3c627d6`+`c84ffa4`),
+в v6 закрыт вторичный reference-пункт; XM-5 переведён DEFERRED → CLOSED.
+Двойной счёт MI-1 даёт 172 вместо 171 (см. примечание в «Итог по приоритетам»).
 
 Коммиты-фиксы после v1: `4a1fcd3`, `f26f92d`, `bbe978b`, `0fafbaa`, `3093dd5`, `2280fc2` (v2), далее `ed9f9e1`, `dfa9999`, `d711569`, `2ee09c4`, `ce8b40e`, `4b1ee15`, `8c5edc9`, `4802988`, `6813e22`, `8888dcd`, `cee803d` (v3).
 Коммиты серии групп A–G: `6049c2a` (A), `25f0e90` (B), `0e75aab` (C), `4232b49` (G), `15c38ed` (D), `49417c9`+`5194f36`+`3c12ebc` (F), `1a4e5c3` (F post-CI), `786c471` (E), `386c5c7` (stationarity).
@@ -251,7 +254,7 @@ STOP (причина), DEFERRED (причина).
 
 | ID | Sev | File:Line | Problem | Status | Sources |
 |----|-----|-----------|---------|--------|---------|
-| MI-1 | P1 | `mutual_info.py:83-103` | KSG: policy для ties/dубликатов не определена (eps=0, дискретные/квантованные повторения) | CLOSED `3c627d6` (валидация k/base, `UserWarning` на точных дубликатах), `c84ffa4` (docstring: непрерывные распределения) | v5 (AUDIT_v4) |
+| MI-1 | P1 | `mutual_info.py:83-103` | KSG: policy для ties/dубликатов не определена (eps=0, дискретные/квантованные повторения) | CLOSED `3c627d6` (валидация k/base, `UserWarning` на точных дубликатах), `c84ffa4` (docstring: непрерывные распределения), `2df4804` (v6: reference-валидация KSG — сходимость на непрерывных, `inf` при ≲30 уровнях квантования, bias +0.17 при s=100; 3 теста) | v5 (AUDIT_v4), v6 (AUDIT_v6) |
 | MI-3 | P2 | `mutual_info.py:94-97,142-147,176-185` | Python-вызовы `query_ball_point` по точке; матрицы строится повторно на каждую пару | CLOSED (Performance sufficient for K≤20, N≤10000. Benchmarks: MI 0.85s, TE 4.97s at N=4000×10. Further optimization only if K>30 or N>50000.) | v5 (AUDIT_v4) |
 | TE-1 | P1 | `transfer_entropy.py:83-107` | Для k>1 усреднение отдельных CMI — не совместный TE историй | CLOSED `54ac8af` (API ограничено k=1, `k>1` — ValueError) | v5 (AUDIT_v4) |
 | TE-2 | P1 | `transfer_entropy.py:30-39,74-91` | Нет NaN-policy и валидации k/lag/k_nn; неравные ряды молча обрезаются | CLOSED `54ac8af` (finite-policy через `_as_1d`, валидация, unequal length — ValueError) | v5 (AUDIT_v4) |
@@ -261,7 +264,7 @@ STOP (причина), DEFERRED (причина).
 | XM-2 | P1 | `cross_mfdfa.py:121-139` | Предел q→0 и sign-конвенция `F_q` не верифицированы против reference | CLOSED (q=0 limit для обеих конвенций; reference-тесты: q2_matches_dcca, anticorrelated_segments, all_positive_matches_standard) | v5 (AUDIT_v4) |
 | XM-3 | P2 | `cross_mfdfa.py:131-174` | `h(q)`/Legendre без goodness-of-fit и scale-diagnostic | CLOSED `dd6eb92` (`r_squared` на q и `n_scales` в результате) | v5 (AUDIT_v4) |
 | XM-4 | P2 | `cross_mfdfa.py:97-106,112-139` | Входы усекаются до min-длины; NaN/Inf, пустые/nonfinite q и scales молча проходят | CLOSED `dd6eb92` (равные длины, конечные значения, n>=100, валидация q/scales) | v5 (AUDIT_v4) |
-| XM-5 | P2 | `cross_mfdfa.py:58-67,113-129` | Вложенные `np.polyfit` на сегмент/масштаб; runtime не измерялся | DEFERRED (benchmark `037e0e1`: 0.68 c при N=4000; оптимизация → `docs/roadmap.md`) | v5 (AUDIT_v4) |
+| XM-5 | P2 | `cross_mfdfa.py:58-67,113-129` | Вложенные `np.polyfit` на сегмент/масштаб; runtime не измерялся | CLOSED `ebb7d66` (v6: оптимизация 58× — закрытая OLS-формула + батчинг сегментов; 0.184 → 0.0032 c при N=4000; diff ≤ 1.8e-15) | v5 (AUDIT_v4), v6 (AUDIT_v6) |
 | XM-6 | P2 | `tests/test_E_cross_mfdfa.py:34-76` | Все содержательные тесты x=y; boundary/контрактные случаи отсутствовали | CLOSED `dd6eb92` (5 новых тестов: unequal lengths, scales>n, empty q, NaN, diagnostics) | v5 (AUDIT_v4) |
 | BENCH-1 | P1 | `bench/results_v5.txt` | MI/TE matrices > 60 c на N=4000×10 — P1 для production N>2000 | CLOSED (Performance sufficient for K≤20, N≤10000. Benchmarks: MI 0.85s, TE 4.97s at N=4000×10. Further optimization only if K>30 or N>50000.) | v5 (AUDIT_v5) |
 
@@ -272,22 +275,25 @@ STOP (причина), DEFERRED (причина).
 | Severity | CLOSED | OPEN | STOP | PARTIAL | FALSE | OBSOLETE | UNVERIFIED | DEFERRED | Total |
 |----------|--------|------|------|---------|-------|----------|------------|----------|-------|
 | P0 | 9 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 9 |
-| P1 | 41 | 0 | 6 | 0 | 0 | 0 | 1 | 0 | 48 |
-| P2 | 51 | 3 | 5 | 3 | 4 | 2 | 3 | 2 | 73 |
+| P1 | 42 | 0 | 6 | 0 | 0 | 0 | 1 | 0 | 49 |
+| P2 | 52 | 3 | 5 | 3 | 4 | 2 | 3 | 1 | 73 |
 | P3 | 34 | 1 | 2 | 2 | 2 | 0 | 0 | 0 | 41 |
-| Итого | 135 | 4 | 13 | 5 | 6 | 2 | 4 | 2 | 171 |
+| Итого | 137 | 4 | 13 | 5 | 6 | 2 | 4 | 1 | 172 |
 
 Разбивка по группам: A 34, B 40, C 10, D 14, E 11, F 21, G 25, H 3, V5 13 (сумма 171).
 
-Проверка сумм: CLOSED 135 + OPEN 4 + STOP 13 + PARTIAL 5 + FALSE 6 +
-OBSOLETE 2 + UNVERIFIED 4 + DEFERRED 2 = 171 = Total.
-Проверка по severity: 9 + 48 + 73 + 41 = 171 = Total.
+Проверка сумм (v6): CLOSED 137 + OPEN 4 + STOP 13 + PARTIAL 5 + FALSE 6 +
+OBSOLETE 2 + UNVERIFIED 4 + DEFERRED 1 = 172 = Total.
+Проверка по severity: 9 + 49 + 73 + 41 = 172 = Total.
+Примечание к 172: MI-1 закрыт в v5 (первичная валидация) и переоткрыт/
+перезакрыт в v6 (вторичная reference-валидация) — двойной счёт даёт 172
+вместо 171. Фактическое число уникальных находок остаётся 171.
 
 Примечание: STOP — находки, требующие решения пользователя или находящиеся
 вне границ сессии (код/внешние данные/архитектура); OPEN — отложенные
-перф-рефакторинги (B21, B22, B33) и H3. DEFERRED — отложенные в v5:
-D8 (вариант C, mypy) и XM-5 (benchmark проведён; дальнейшая оптимизация
-отложена). XM-1/XM-2 закрыты: конвенция abs-default + split-option.
+перф-рефакторинги (B21, B22, B33) и H3. DEFERRED — D8 (вариант C, mypy);
+XM-5 закрыт в v6 (`ebb7d66`, 58× ускорение). XM-1/XM-2 закрыты:
+конвенция abs-default + split-option.
 B19 и C8 посчитаны в колонке STOP (в UNVERIFIED-подмножестве)
 и одновременно отражены в колонке Unverified. C9/C10 переведены из STOP
 в PARTIAL; UNVERIFIED сохраняется до результатов Windows CI на 3.10–3.12.
@@ -406,3 +412,24 @@ Windows cleanup: C9/C10 — PARTIAL / UNVERIFIED; пять новых тесто
 тестов в 4 модулях (`test_E_transfer_entropy.py`, `test_E_mutual_info.py`,
 `test_E_mse.py`, `test_E_cross_mfdfa.py`) — точный collected-count
 переизмерить в рамках этой сборки (правило: без запуска pytest).
+
+### v6 (HEAD `ebb7d66`)
+
+Закрыто 2 (оба — хвосты новых модулей v5):
+- **MI-1 (вторичный)** `2df4804`: reference-валидация KSG. На непрерывных
+  гауссовых данных (N=10000, rho=0.5) сходится к `-0.5 ln(1-rho²) ≈ 0.1438`
+  (ошибка ~0.1%). Измерено: при ≲30 уровнях квантования eps обнуляется и
+  KSG возвращает `inf`; при s=100 (≈570 уровней) bias +0.17. Добавлено
+  3 теста (`test_mi_ksg_gaussian_reference`, `test_mi_ksg_quantized_bias`,
+  `test_mi_ksg_fine_quantization_bias_positive_and_bounded`), docstring
+  дополнен измеренными цифрами.
+- **XM-5** `ebb7d66`: `_detrended_cov` переписан на закрытую OLS-формулу с
+  батчингом сегментов (без `np.polyfit`/`np.polyval` в цикле). Ускорение
+  58× (0.184 → 0.0032 c при N=4000); результат совпадает с прежним до
+  1.8e-15. Формулы не менялись.
+
+Пропущено: D8 (mypy) — остаётся DEFERRED (фаза 3 не выполнялась).
+Фаза 4 (AUDIT_v6.md), фаза 5 (эта синхронизация).
+Итог v6: CLOSED 137 / STOP 13 / UNVERIFIED 4 / PARTIAL 5 / FALSE 6 /
+OBSOLETE 2 / OPEN 4 / DEFERRED 1 = 172 (двойной счёт MI-1; уникальных 171).
+Тесты: 291 collected (было 288 в v5). Ruff — clean.
