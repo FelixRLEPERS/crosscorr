@@ -43,6 +43,17 @@ except ImportError:
 from scipy.signal import lfilter
 
 
+def _close_and_unlink(shm: shm_module.SharedMemory) -> None:
+    """Release an owner handle and unlink even when close fails."""
+    try:
+        shm.close()
+    finally:
+        try:
+            shm.unlink()
+        except FileNotFoundError:
+            pass
+
+
 def _make_surrogates(x: np.ndarray, method: str, B: int, seed: int) -> np.ndarray:
     """Generate B surrogates for a single detector.
 
@@ -264,22 +275,26 @@ def cross_correlation_pairs_with_max_stat(
         shm_surr = shm_module.SharedMemory(
             create=True, size=N * B * T * np.dtype(dtype).itemsize
         )
-        stack.callback(shm_surr.close)
-        stack.callback(shm_surr.unlink)
+        stack.callback(_close_and_unlink, shm_surr)
 
         view_surr = np.ndarray(surr_shape, dtype=dtype, buffer=shm_surr.buf)
-        for i in range(N):
-            view_surr[i] = _make_surrogates(
-                X[:, i], method, B, int(sub_seeds[i])
-            )
+        try:
+            for i in range(N):
+                view_surr[i] = _make_surrogates(
+                    X[:, i], method, B, int(sub_seeds[i])
+                )
+        finally:
+            del view_surr
 
         # Wrap X in shared memory.
         shm_X = shm_module.SharedMemory(create=True, size=X.nbytes)
-        stack.callback(shm_X.close)
-        stack.callback(shm_X.unlink)
+        stack.callback(_close_and_unlink, shm_X)
 
         view_X = np.ndarray(X.shape, dtype=np.float64, buffer=shm_X.buf)
-        view_X[:] = X
+        try:
+            view_X[:] = X
+        finally:
+            del view_X
 
         # --- Step 2 & 3: Parallel computation over pairs using shared memory ---
         if _HAS_JOBLIB and n_jobs != 1:
@@ -380,9 +395,11 @@ def _worker(
         dict with keys "detector_a", "detector_b", "C_obs", "p_value".
     """
     shm_s = shm_module.SharedMemory(name=shm_surr_name, create=False)
-    shm_x = shm_module.SharedMemory(name=shm_X_name, create=False)
+    shm_x = None
+    surr = X = si = sj = None
 
     try:
+        shm_x = shm_module.SharedMemory(name=shm_X_name, create=False)
         surr = np.ndarray(surr_shape, dtype=dtype, buffer=shm_s.buf)
         X = np.ndarray(X_shape, dtype=np.float64, buffer=shm_x.buf)
 
@@ -410,8 +427,13 @@ def _worker(
         }
 
     finally:
-        shm_s.close()
-        shm_x.close()
+        # Drop every ndarray view before closing the underlying mappings.
+        si = sj = surr = X = None
+        try:
+            shm_s.close()
+        finally:
+            if shm_x is not None:
+                shm_x.close()
 
 
 if __name__ == "__main__":
