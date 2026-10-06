@@ -8,8 +8,12 @@ import argparse
 import hashlib
 import json
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from astroquery.jplhorizons import Horizons
+
+if TYPE_CHECKING:
+    from astropy.table import Table
 
 RAW_DIR = Path(__file__).resolve().parents[1] / "raw" / "horizons"
 
@@ -24,7 +28,9 @@ PLANETS = {
 }
 
 
-def fetch_ephemeris(planet: str, start: str, stop: str, step: str = "1h") -> object:
+def fetch_ephemeris(
+    planet: str, start: str, stop: str, step: str = "1h"
+) -> Table:
     code = PLANETS[planet.lower()]
     obj = Horizons(id=code, location="@sun", epochs={"start": start, "stop": stop, "step": step})
     return obj.ephemerides()

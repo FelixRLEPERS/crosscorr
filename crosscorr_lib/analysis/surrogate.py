@@ -465,7 +465,11 @@ def _count_valid_at_lag(x: np.ndarray, y: np.ndarray, tau: int) -> int:
     return int(mask.sum())
 
 
-def _lagged_cc(x, y, max_lag):
+def _lagged_cc(
+    x: np.ndarray,
+    y: np.ndarray,
+    max_lag: int,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Внутренняя обёртка: избегаем циклического импорта."""
     from crosscorr_lib.analysis.cross_correlation import (
         lagged_cross_correlation,

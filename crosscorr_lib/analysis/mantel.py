@@ -137,8 +137,6 @@ def build_corr_matrix(
     Returns:
         (N, N) симметричная матрица с единицами на диагонали.
     """
-    import pandas as pd  # noqa: F401
-
     rho_col = _rho_column(corr_pairs)
     n = len(detector_ids)
     idx = {d: i for i, d in enumerate(detector_ids)}
