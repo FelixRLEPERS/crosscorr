@@ -173,15 +173,25 @@ def _write_snapshots_js(path: Path, snapshots: list, detectors: list,
     lines.append("var DETECTORS = [")
     det_rows = []
     for d in detectors:
-        det_rows.append('  {id:"%s",type:"%s",lat:%s,lon:%s}' % (
-            d["id"], d["type"], round(d["lat"], 4), round(d["lon"], 4)))
+        det_id = d["id"]
+        det_type = d["type"]
+        det_lat = round(d["lat"], 4)
+        det_lon = round(d["lon"], 4)
+        det_rows.append(
+            f'  {{id:"{det_id}",type:"{det_type}",'
+            f'lat:{det_lat},lon:{det_lon}}}'
+        )
     lines.append(",\n".join(det_rows))
     lines.append("];")
     lines.append("var HIDDEN_PAIRS = [")
     hid_rows = []
     for h in hidden_pairs:
-        hid_rows.append('  {a:"%s",b:"%s",true_lag:%d}' % (
-            h["detector_a"], h["detector_b"], h["true_lag"]))
+        h_a = h["detector_a"]
+        h_b = h["detector_b"]
+        h_lag = h["true_lag"]
+        hid_rows.append(
+            f'  {{a:"{h_a}",b:"{h_b}",true_lag:{h_lag}}}'
+        )
     lines.append(",\n".join(hid_rows))
     lines.append("];")
     lines.append("var SNAPSHOTS = [")
@@ -189,16 +199,33 @@ def _write_snapshots_js(path: Path, snapshots: list, detectors: list,
     for s in snapshots:
         pr_rows = []
         for p in s["pairs"]:
-            pr_rows.append('{a:"%s",b:"%s",C:%s,lag:%d,p:%s,q:%s,verdict:"%s"}' % (
-                p["detector_a"], p["detector_b"], p["C"], p["lag"],
-                p["p_value"], p["q_value"], p["verdict"]))
+            p_a = p["detector_a"]
+            p_b = p["detector_b"]
+            p_C = p["C"]
+            p_lag = p["lag"]
+            p_pv = p["p_value"]
+            p_qv = p["q_value"]
+            p_v = p["verdict"]
+            pr_rows.append(
+                f'{{a:"{p_a}",b:"{p_b}",C:{p_C},lag:{p_lag},'
+                f'p:{p_pv},q:{p_qv},verdict:"{p_v}"}}'
+            )
         m = s["metrics"]
+        s_id = s["id"]
+        s_ts = s["t_start"]
+        s_te = s["t_end"]
+        s_dur = s["duration_seconds"]
+        pairs_joined = ",\n    ".join(pr_rows)
+        m_p = m["precision"]
+        m_r = m["recall"]
+        m_f = m["f1"]
+        m_n = m["n_significant"]
         snap_blocks.append(
-            '  {id:%d,t_start:%d,t_end:%d,duration_seconds:%s,pairs:[\n    %s\n  ],'
-            'metrics:{precision:%s,recall:%s,f1:%s,n_significant:%d}}' % (
-                s["id"], s["t_start"], s["t_end"], s["duration_seconds"],
-                ",\n    ".join(pr_rows),
-                m["precision"], m["recall"], m["f1"], m["n_significant"]))
+            f'  {{id:{s_id},t_start:{s_ts},t_end:{s_te},'
+            f'duration_seconds:{s_dur},pairs:[\n    {pairs_joined}\n  ],'
+            f'metrics:{{precision:{m_p},recall:{m_r},f1:{m_f},'
+            f'n_significant:{m_n}}}}}'
+        )
     lines.append(",\n".join(snap_blocks))
     lines.append("];")
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
