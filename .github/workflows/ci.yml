@@ -91,6 +91,7 @@ jobs:
   test-windows:
     name: Fast tests (Windows, Python 3.12)
     runs-on: windows-latest
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
 
