@@ -74,3 +74,46 @@ def test_cross_mfdfa_short_input_raises():
     """Ряд короче 100 → ValueError."""
     with pytest.raises(ValueError):
         cross_mfdfa(np.arange(50.0), np.arange(50.0))
+
+
+def test_cross_mfdfa_unequal_lengths_raises(rng):
+    """Разные длины x и y → ValueError (без молчаливого truncation)."""
+    x = rng.normal(size=4000)
+    y = rng.normal(size=4001)
+    with pytest.raises(ValueError):
+        cross_mfdfa(x, y)
+
+
+def test_cross_mfdfa_scales_bigger_than_n_raises(rng):
+    """scales > n → ValueError."""
+    x = rng.normal(size=400)
+    y = rng.normal(size=400)
+    with pytest.raises(ValueError):
+        cross_mfdfa(x, y, q_values=_Q, scales=(16, 1024))
+
+
+def test_cross_mfdfa_empty_q_values_raises(rng):
+    """Пустой q_values → ValueError."""
+    x = rng.normal(size=4000)
+    y = rng.normal(size=4000)
+    with pytest.raises(ValueError):
+        cross_mfdfa(x, y, q_values=[])
+
+
+def test_cross_mfdfa_nan_input_raises(rng):
+    """NaN во входе → ValueError."""
+    x = rng.normal(size=4000)
+    y = rng.normal(size=4000)
+    x[5] = np.nan
+    with pytest.raises(ValueError):
+        cross_mfdfa(x, y)
+
+
+def test_cross_mfdfa_result_has_diagnostics(rng):
+    """Результат содержит r_squared и n_scales."""
+    x = rng.normal(size=4000)
+    res = cross_mfdfa(x, x, q_values=_Q, scales=_SCALES)
+    assert "r_squared" in res
+    assert "n_scales" in res
+    assert res["r_squared"].shape == res["q"].shape
+    assert res["n_scales"] > 0

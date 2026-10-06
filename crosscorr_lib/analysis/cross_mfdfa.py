@@ -22,6 +22,7 @@ Zhou (2008), Phys. Rev. E 77, 066211.
 
 from __future__ import annotations
 
+import warnings
 from collections.abc import Sequence
 
 import numpy as np
@@ -79,6 +80,9 @@ def cross_mfdfa(
 ) -> dict:
     """Cross-MFDFA: generalized cross-Hurst exponent h_xy(q).
 
+    # TODO(XM-1, XM-2): знак cross-fluctuation требует
+     reference-валидации. См. audit/AUDIT_v4.md, секция 1.4.
+
     Parameters
     ----------
     x, y : array-like
@@ -92,7 +96,9 @@ def cross_mfdfa(
     -------
     dict
         Ключи: ``scales``, ``q``, ``F_q`` (форма (len(q), len(scales))),
-        ``h_q``, ``tau_q`` = q*h_q - 1.
+        ``h_q``, ``tau_q`` = q*h_q - 1, ``r_squared`` (R² линейного фита
+        log F vs log scale для каждого q, NaN если fit невозможен),
+        ``n_scales`` (сколько масштабов реально использовано).
 
     References
     ----------
@@ -100,14 +106,40 @@ def cross_mfdfa(
     """
     xa = np.asarray(x, dtype=np.float64).ravel()
     ya = np.asarray(y, dtype=np.float64).ravel()
-    n = min(xa.size, ya.size)
-    xa, ya = xa[:n], ya[:n]
+    if xa.size != ya.size:
+        raise ValueError(
+            f"разные длины x и y: {xa.size} и {ya.size} (должны быть равны)"
+        )
+    if not np.all(np.isfinite(xa)) or not np.all(np.isfinite(ya)):
+        raise ValueError(
+            "x и y должны содержать только конечные значения (NaN/Inf "
+            "недопустимы)"
+        )
+    n = xa.size
     if n < 100:
         raise ValueError("ряды слишком короткие для cross-MFDFA")
 
     q = np.asarray(q_values, dtype=np.float64)
-    s_arr = (np.asarray(sorted(scales), dtype=int)
-             if scales is not None else _default_scales(n))
+    if q.size == 0 or not np.all(np.isfinite(q)):
+        raise ValueError(
+            "q_values: пустая последовательность или nonfinite-значения "
+            "недопустимы"
+        )
+
+    if scales is not None:
+        s_raw = np.asarray(scales, dtype=np.float64).ravel()
+        if s_raw.size == 0 or not np.all(np.isfinite(s_raw)):
+            raise ValueError(
+                "scales: пустая последовательность или nonfinite-значения "
+                "недопустимы"
+            )
+        s_arr = np.sort(s_raw.astype(int))
+    else:
+        s_arr = _default_scales(n)
+    if np.any(s_arr <= 0) or np.any(s_arr > n):
+        raise ValueError(
+            f"scales: все значения должны быть > 0 и <= n={n}"
+        )
 
     px = _profile(xa)
     py = _profile(ya)
@@ -132,14 +164,34 @@ def cross_mfdfa(
         # Для положительно определённой F_xy(q) используем модуль:
         fq[:, si] = np.abs(fq[:, si])
 
-    # h_q из наклона log F_q vs log s
+    # h_q из наклона log F_q vs log s с fit-диагностикой
     h_q = np.full(q.size, np.nan, dtype=np.float64)
+    r_squared = np.full(q.size, np.nan, dtype=np.float64)
     log_s = np.log(s_arr)
     for qi in range(q.size):
         yv = np.log(fq[qi])
         good = np.isfinite(yv)
         if good.sum() >= 3:
-            h_q[qi] = float(np.polyfit(log_s[good], yv[good], 1)[0])
+            slope, intercept = np.polyfit(log_s[good], yv[good], 1)
+            h_q[qi] = float(slope)
+            ss_res = float(
+                np.sum((yv[good] - (slope * log_s[good] + intercept)) ** 2)
+            )
+            ss_tot = float(np.sum((yv[good] - yv[good].mean()) ** 2))
+            if ss_tot > 0.0:
+                r_squared[qi] = float(1.0 - ss_res / ss_tot)
+
+    n_scales = int(np.any(np.isfinite(fq), axis=0).sum())
+
+    bad = np.isfinite(r_squared) & (r_squared < 0.95)
+    if bad.any():
+        warnings.warn(
+            f"Cross-MFDFA: R² < 0.95 для q={q[bad].tolist()}; линейная "
+            "зависимость log F vs log scale ненадёжна",
+            UserWarning,
+            stacklevel=2,
+        )
+
     tau_q = q * h_q - 1.0
 
     return {
@@ -148,6 +200,8 @@ def cross_mfdfa(
         "F_q": fq,
         "h_q": h_q,
         "tau_q": tau_q,
+        "r_squared": r_squared,
+        "n_scales": n_scales,
     }
 
 
