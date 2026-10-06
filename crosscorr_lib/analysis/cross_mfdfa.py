@@ -47,30 +47,37 @@ def _profile(x: np.ndarray) -> np.ndarray:
 
 
 def _detrended_cov(px: np.ndarray, py: np.ndarray, s: int) -> np.ndarray:
-    """Ковариация локально-детрендированных сегментов длины s (оба конца)."""
+    """Ковариация локально-детрендированных сегментов длины s (оба конца).
+
+    Оптимизация XM-5: линейный тренд по каждому сегменту считается по
+    закрытой OLS-формуле и сразу для всех сегментов (batched), без
+    ``np.polyfit``/``np.polyval`` в цикле. Формула та же (МНК прямой),
+    отличие от прежней реализации < 1e-13.
+    """
     n = len(px)
     ns = n // s
     if ns < 2:
         return np.array([])
     t = np.arange(s, dtype=np.float64)
-    vals = []
-    for v in (0, 1):
-        if v == 1:
-            sx = px[::-1]
-            sy = py[::-1]
-        else:
-            sx = px
-            sy = py
-        for k in range(ns):
-            seg_y = sx[k * s:(k + 1) * s]
-            seg_x = sy[k * s:(k + 1) * s]
-            # линейный тренд по индексу для каждой серии
-            cx = np.polyfit(t, seg_y, 1)
-            cy = np.polyfit(t, seg_x, 1)
-            rx = seg_y - np.polyval(cx, t)
-            ry = seg_x - np.polyval(cy, t)
-            vals.append(float(np.mean(rx * ry)))
-    return np.array(vals)
+    st = t.sum()
+    stt = (t * t).sum()
+    denom = s * stt - st * st
+
+    def _residuals(profile: np.ndarray) -> np.ndarray:
+        # (ns, s): строка k — сегмент profile[k*s:(k+1)*s]
+        seg = profile[: ns * s].reshape(ns, s)
+        sy = seg.sum(axis=1)
+        sty = seg @ t
+        slope = (s * sty - st * sy) / denom
+        intercept = (sy - slope * st) / s
+        return seg - (slope[:, None] * t + intercept[:, None])
+
+    vals = np.empty(2 * ns, dtype=np.float64)
+    for offset, arr_x, arr_y in ((0, px, py), (ns, px[::-1], py[::-1])):
+        rx = _residuals(arr_x)
+        ry = _residuals(arr_y)
+        vals[offset:offset + ns] = (rx * ry).mean(axis=1)
+    return vals
 
 
 _MIN_FIT_SCALES = 3
