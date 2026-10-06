@@ -12,17 +12,17 @@
 - Находок в v3: 39
 - Всего исходных упоминаний: 193
 - Дедуплицировано до: 158 уникальных записей
-- CLOSED: 133
+- CLOSED: 135
 - STOP (требует решения/вне границ): 13
 - UNVERIFIED: 4 (B19, C8, C9, C10; C8 одновременно STOP, C9/C10 — PARTIAL)
 - PARTIAL: 5 (A30, F17, F20, C9, C10)
 - FALSE (находка не подтверждена): 6
 - OBSOLETE: 2
 - OPEN (отложено): 4
-- DEFERRED (отложено v5): 4 (D8, XM-1, XM-2, XM-5)
+- DEFERRED (отложено v5): 2 (D8, XM-5)
 
-Проверка: CLOSED 133 + STOP 13 + UNVERIFIED 4 + PARTIAL 5 + FALSE 6 +
-OBSOLETE 2 + OPEN 4 + DEFERRED 4 = 171.
+Проверка: CLOSED 135 + STOP 13 + UNVERIFIED 4 + PARTIAL 5 + FALSE 6 +
+OBSOLETE 2 + OPEN 4 + DEFERRED 2 = 171.
 
 Коммиты-фиксы после v1: `4a1fcd3`, `f26f92d`, `bbe978b`, `0fafbaa`, `3093dd5`, `2280fc2` (v2), далее `ed9f9e1`, `dfa9999`, `d711569`, `2ee09c4`, `ce8b40e`, `4b1ee15`, `8c5edc9`, `4802988`, `6813e22`, `8888dcd`, `cee803d` (v3).
 Коммиты серии групп A–G: `6049c2a` (A), `25f0e90` (B), `0e75aab` (C), `4232b49` (G), `15c38ed` (D), `49417c9`+`5194f36`+`3c12ebc` (F), `1a4e5c3` (F post-CI), `786c471` (E), `386c5c7` (stationarity).
@@ -257,8 +257,8 @@ STOP (причина), DEFERRED (причина).
 | TE-2 | P1 | `transfer_entropy.py:30-39,74-91` | Нет NaN-policy и валидации k/lag/k_nn; неравные ряды молча обрезаются | CLOSED `54ac8af` (finite-policy через `_as_1d`, валидация, unequal length — ValueError) | v5 (AUDIT_v4) |
 | TE-3 | P2 | `transfer_entropy.py:110-137` | N*(N-1) направленных оценок, каждая строит KDTree; стоимость не измерена | CLOSED (Performance sufficient for K≤20, N≤10000. Benchmarks: MI 0.85s, TE 4.97s at N=4000×10. Further optimization only if K>30 or N>50000.) | v5 (AUDIT_v4) |
 | MSE-1 | P1 | `mse.py:67-74,87-93` | Постоянный ряд: `std=0` → `r=0` → возвращается `inf`; SampEn-предел не задокументирован | CLOSED `3c627d6` (контракт: константный ряд → 0.0, B>0 и A=0 → inf, валидация входа) | v5 (AUDIT_v4) |
-| XM-1 | P1 | `cross_mfdfa.py:43-67,111-129` | `abs` на знаковых cross-флуктуациях стирает cancellation; формула не привязана к версии MF-DXA | DEFERRED (reference-валидация §1.4; `TODO` в docstring, формула не трогалась) | v5 (AUDIT_v4) |
-| XM-2 | P1 | `cross_mfdfa.py:121-139` | Предел q→0 и sign-конвенция `F_q` не верифицированы против reference | DEFERRED (reference-валидация §1.4; `TODO` в docstring) | v5 (AUDIT_v4) |
+| XM-1 | P1 | `cross_mfdfa.py:43-67,111-129` | `abs` на знаковых cross-флуктуациях стирает cancellation; формула не привязана к версии MF-DXA | CLOSED (convention resolved: abs-default + split-option; open problem documented in docstring, Qwen consultation) | v5 (AUDIT_v4) |
+| XM-2 | P1 | `cross_mfdfa.py:121-139` | Предел q→0 и sign-конвенция `F_q` не верифицированы против reference | CLOSED (q=0 limit для обеих конвенций; reference-тесты: q2_matches_dcca, anticorrelated_segments, all_positive_matches_standard) | v5 (AUDIT_v4) |
 | XM-3 | P2 | `cross_mfdfa.py:131-174` | `h(q)`/Legendre без goodness-of-fit и scale-diagnostic | CLOSED `dd6eb92` (`r_squared` на q и `n_scales` в результате) | v5 (AUDIT_v4) |
 | XM-4 | P2 | `cross_mfdfa.py:97-106,112-139` | Входы усекаются до min-длины; NaN/Inf, пустые/nonfinite q и scales молча проходят | CLOSED `dd6eb92` (равные длины, конечные значения, n>=100, валидация q/scales) | v5 (AUDIT_v4) |
 | XM-5 | P2 | `cross_mfdfa.py:58-67,113-129` | Вложенные `np.polyfit` на сегмент/масштаб; runtime не измерялся | DEFERRED (benchmark `037e0e1`: 0.68 c при N=4000; оптимизация → `docs/roadmap.md`) | v5 (AUDIT_v4) |
@@ -272,22 +272,22 @@ STOP (причина), DEFERRED (причина).
 | Severity | CLOSED | OPEN | STOP | PARTIAL | FALSE | OBSOLETE | UNVERIFIED | DEFERRED | Total |
 |----------|--------|------|------|---------|-------|----------|------------|----------|-------|
 | P0 | 9 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 9 |
-| P1 | 39 | 0 | 6 | 0 | 0 | 0 | 1 | 2 | 48 |
+| P1 | 41 | 0 | 6 | 0 | 0 | 0 | 1 | 0 | 48 |
 | P2 | 51 | 3 | 5 | 3 | 4 | 2 | 3 | 2 | 73 |
 | P3 | 34 | 1 | 2 | 2 | 2 | 0 | 0 | 0 | 41 |
-| Итого | 133 | 4 | 13 | 5 | 6 | 2 | 4 | 4 | 171 |
+| Итого | 135 | 4 | 13 | 5 | 6 | 2 | 4 | 2 | 171 |
 
 Разбивка по группам: A 34, B 40, C 10, D 14, E 11, F 21, G 25, H 3, V5 13 (сумма 171).
 
-Проверка сумм: CLOSED 133 + OPEN 4 + STOP 13 + PARTIAL 5 + FALSE 6 +
-OBSOLETE 2 + UNVERIFIED 4 + DEFERRED 4 = 171 = Total.
+Проверка сумм: CLOSED 135 + OPEN 4 + STOP 13 + PARTIAL 5 + FALSE 6 +
+OBSOLETE 2 + UNVERIFIED 4 + DEFERRED 2 = 171 = Total.
 Проверка по severity: 9 + 48 + 73 + 41 = 171 = Total.
 
 Примечание: STOP — находки, требующие решения пользователя или находящиеся
 вне границ сессии (код/внешние данные/архитектура); OPEN — отложенные
 перф-рефакторинги (B21, B22, B33) и H3. DEFERRED — отложенные в v5:
-D8 (вариант C, mypy) и XM-1, XM-2 (reference-валидация §1.4),
-XM-5 (benchmark проведён; дальнейшая оптимизация отложена).
+D8 (вариант C, mypy) и XM-5 (benchmark проведён; дальнейшая оптимизация
+отложена). XM-1/XM-2 закрыты: конвенция abs-default + split-option.
 B19 и C8 посчитаны в колонке STOP (в UNVERIFIED-подмножестве)
 и одновременно отражены в колонке Unverified. C9/C10 переведены из STOP
 в PARTIAL; UNVERIFIED сохраняется до результатов Windows CI на 3.10–3.12.
@@ -388,9 +388,10 @@ Closed: MI-1 + MSE-1 (`3c627d6` — контракты для ties/NaN/constant;
 XM-3/4/6 (`dd6eb92` — валидация входов, fit diagnostics, 5 boundary-тестов).
 Deferred (benchmark `037e0e1`): MI-3, TE-3, XM-5 → `docs/roadmap.md`
 (N=4000: MI/TE > 60 c, таймаут; MSE 0.03 c; XM 0.68 c);
-XM-1/XM-2 — reference-валидация §1.4.
+XM-1/XM-2 закрыты: convention abs-default + split-option,
+reference-тесты добавлены.
 
-Итог после консультации v5: CLOSED 133 / STOP 13 / DEFERRED 4 / OPEN 4 /
+Итог после консультации v5: CLOSED 135 / STOP 13 / DEFERRED 2 / OPEN 4 /
 PARTIAL 5 / FALSE 6 / UNVERIFIED 4 / OBSOLETE 2 = 171 (158 + 13 v5).
 MI-3, TE-3 и BENCH-1 закрыты: производительность достаточна для K≤20,
 N≤10000 (MI 0.85s, TE 4.97s при N=4000×10); дальнейшая оптимизация нужна

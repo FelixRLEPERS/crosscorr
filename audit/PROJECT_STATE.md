@@ -24,8 +24,10 @@ slow-тесты по paths-filter на PR. Численные эталоны с�
 данные: `data/raw/` пуст, все результаты получены на синтетике (A9–A11).
 Осталось 15 STOP-находок (было 34): в v5 закрыты очереди 1/2 (18 находок;
 D8 — DEFERRED, вариант C), добавлено 13 находок по новым модулям
-MI/TE/MSE/XM и производительности (10 closed, 3 deferred), установлен git-тег `v0.1.0`.
-Итог: 171 находка, 133 closed, 15 STOP, 4 deferred. Следующий крупный
+MI/TE/MSE/XM и производительности (12 closed, 1 deferred), установлен git-тег
+`v0.1.0`. Закрыты XM-1/XM-2 (convention abs-default + split-option; XM-2 было
+в статусе DEFERRED).
+Итог: 171 находка, 135 closed, 15 STOP, 2 deferred. Следующий крупный
 шаг — научная валидация на реальных WSPR + INTERMAGNET.
 
 ---
@@ -40,8 +42,9 @@ MI/TE/MSE/XM и производительности (10 closed, 3 deferred), у
 | P0 open | 0 |
 | P1 open | 0 |
 | P2/P3 open | 4 (B21, B22, B33, H3) |
+| CLOSED | 135 |
 | STOP-находок | 15 |
-| DEFERRED (v5) | 4 (D8, XM-1, XM-2, XM-5) |
+| DEFERRED (v5) | 2 (D8, XM-5) |
 | PARTIAL | 3 (A30, F17, F20) |
 | FALSE (не подтверждены) | 6 (B28, B36, F11, F15, F16, G6) |
 | UNVERIFIED | 4 (B19, C8, C9, C10) |
@@ -169,7 +172,7 @@ MI/TE/MSE/XM и производительности (10 closed, 3 deferred), у
 
 ## 7. STOP-находки (требуют решений пользователя)
 
-15 STOP открыто + 4 DEFERRED (v5: D8, XM-1, XM-2, XM-5).
+15 STOP открыто + 2 DEFERRED (v5: D8, XM-5).
 Закрыто в v5: D5, D6, D7, D9, D10, D12, D13, D14, B35, F18, G11–G14, G22–G25
 (`a7c8a0c`, `f730ddd`), MI-3, TE-3 и BENCH-1 (benchmark достаточен для целевого
 масштаба K≤20, N≤10000). C8/C9/C10 — UNVERIFIED (не в счёт 15), B19 — фактически
@@ -199,7 +202,16 @@ FALSE; см. приложение `audit/STOP_DECISIONS.md`.
 
 ---
 
-## 8. Стратегические цели (что дальше)
+## 8. Научные решения
+
+- **Cross-MFDFA convention:** принят abs-default + split-option.
+  Обоснование — Qwen 3.8 Max Prime consultation,
+  `audit/external_reviews/QWEN_v5_consultation.md`. Открытая проблема
+  (знак F²_v) задокументирована в docstring; XM-1/XM-2 закрыты.
+
+---
+
+## 9. Стратегические цели (что дальше)
 
 ### Немедленные (можно сделать в ближайшие дни)
 1. Re-run упавших CI-job (3.11, slow) после восстановления GitHub runners;
@@ -220,7 +232,7 @@ FALSE; см. приложение `audit/STOP_DECISIONS.md`.
 
 ---
 
-## 9. Технический долг
+## 10. Технический долг
 
 - Windows traceback (`test-windows` падает, informational) — нужен лог.
 - Re-run старых красных CI после восстановления GitHub-hosted runners.
@@ -229,11 +241,11 @@ FALSE; см. приложение `audit/STOP_DECISIONS.md`.
   F20 (numpy>=1.25 без прогонного подтверждения).
 - Оптимизация #1: `rho` из `max_lag_surrogate_pvalue` (избежать повторного
   `lagged_cross_correlation` в `cross_correlation_pairs_with_max_stat`).
-- 15 STOP-находок + 4 DEFERRED (v5) ждут решений (см. секцию 7).
+- 15 STOP-находок + 2 DEFERRED (v5) ждут решений (см. секцию 7).
 
 ---
 
-## 10. Рекомендуемый следующий шаг
+## 11. Рекомендуемый следующий шаг
 
 Начать с разблокировки CI: дождаться восстановления GitHub-hosted runners,
 сделать Re-run упавших job-ов и снять traceback `test-windows` — это снимет
