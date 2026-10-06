@@ -92,6 +92,9 @@ jobs:
     name: Shared memory cleanup (Windows, Python ${{ matrix.python-version }})
     runs-on: windows-latest
     continue-on-error: true
+    env:
+      PYTHONIOENCODING: utf-8
+      PYTHONUTF8: "1"
     strategy:
       fail-fast: false
       matrix:
