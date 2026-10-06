@@ -30,7 +30,7 @@
 
 - [ ] Reference-валидация Cross-MFDFA (XM-1, XM-2)
 - [ ] Reference-валидация KSG/CMI для ties (MI-1)
-- [ ] Оптимизация MI/TE matrices для N>4000 (MI-3, TE-3)
+- Примечание: Benchmarks passed. Further optimization deferred.
 - [ ] Покрытие ядра: 53% → 70%, порог CI 45% → 60%
 - [ ] Первый прогон на реальных данных WSPR + INTERMAGNET
 - [ ] Zenodo-релиз с DOI (требует git-тега, STOP D5)

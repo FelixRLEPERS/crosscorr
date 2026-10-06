@@ -51,3 +51,23 @@ python -m crosscorr_lib.analysis.distance_analysis
 | `power_curve.py` | Оценка мощности теста |
 | `benchmark_utils.py` | Утилиты бенчмарка |
 | `visualization.py` | Графики (scatter, heatmap) |
+
+## Experimental modules (NOT part of main pipeline)
+
+These modules are standalone utilities, NOT called by
+cross_correlation_pairs_with_max_stat or surrogate_test.
+
+| Module | Status | Blockers |
+|---|---|---|
+| mutual_info.py | experimental | MI-1 (ties) |
+| transfer_entropy.py | experimental | MI-1 (depends on MI) |
+| mse.py | experimental | validation pending |
+| cross_mfdfa.py | experimental | XM-1, XM-2 (sign convention) |
+
+Integration criteria (all must be met):
+1. Mathematical validation (analytic reference)
+2. Test coverage >= 90% for module
+3. Performance < 30s on N=10000, K=20
+4. Edge cases handled (NaN, constant, short series, ties)
+5. Docstring with formula + reference + example
+6. No OPEN/PARTIAL findings for module
