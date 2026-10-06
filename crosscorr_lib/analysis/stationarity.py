@@ -47,7 +47,7 @@ def adf_test(x: np.ndarray, alpha: float = 0.05) -> dict:
         }
 
     try:
-        result = adfuller(x, autolag="AIC")
+        result = adfuller(x, autolag="AIC", result_object=False)
         statistic, p_value, n_lags, n_obs, critical_values, _ = result
         return {
             "statistic": float(statistic),
