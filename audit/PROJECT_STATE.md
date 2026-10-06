@@ -23,9 +23,9 @@ slow-тесты по paths-filter на PR. Численные эталоны с�
 Единственный статистический гейт, который пока не пройден, — реальные
 данные: `data/raw/` пуст, все результаты получены на синтетике (A9–A11).
 Осталось 15 STOP-находок (было 34): в v5 закрыты очереди 1/2 (18 находок;
-D8 — DEFERRED, вариант C), добавлено 12 находок по новым модулям
-MI/TE/MSE/XM (7 closed, 5 deferred), установлен git-тег `v0.1.0`.
-Итог: 170 находок, 130 closed, 15 STOP, 6 deferred. Следующий крупный
+D8 — DEFERRED, вариант C), добавлено 13 находок по новым модулям
+MI/TE/MSE/XM и производительности (10 closed, 3 deferred), установлен git-тег `v0.1.0`.
+Итог: 171 находка, 133 closed, 15 STOP, 4 deferred. Следующий крупный
 шаг — научная валидация на реальных WSPR + INTERMAGNET.
 
 ---
@@ -41,7 +41,7 @@ MI/TE/MSE/XM (7 closed, 5 deferred), установлен git-тег `v0.1.0`.
 | P1 open | 0 |
 | P2/P3 open | 4 (B21, B22, B33, H3) |
 | STOP-находок | 15 |
-| DEFERRED (v5) | 6 (D8, XM-1, XM-2, MI-3, TE-3, XM-5) |
+| DEFERRED (v5) | 4 (D8, XM-1, XM-2, XM-5) |
 | PARTIAL | 3 (A30, F17, F20) |
 | FALSE (не подтверждены) | 6 (B28, B36, F11, F15, F16, G6) |
 | UNVERIFIED | 4 (B19, C8, C9, C10) |
@@ -169,9 +169,10 @@ MI/TE/MSE/XM (7 closed, 5 deferred), установлен git-тег `v0.1.0`.
 
 ## 7. STOP-находки (требуют решений пользователя)
 
-15 STOP открыто + 6 DEFERRED (v5: D8, MI-3, TE-3, XM-1, XM-2, XM-5).
+15 STOP открыто + 4 DEFERRED (v5: D8, XM-1, XM-2, XM-5).
 Закрыто в v5: D5, D6, D7, D9, D10, D12, D13, D14, B35, F18, G11–G14, G22–G25
-(`a7c8a0c`, `f730ddd`). C8/C9/C10 — UNVERIFIED (не в счёт 15), B19 — фактически
+(`a7c8a0c`, `f730ddd`), MI-3, TE-3 и BENCH-1 (benchmark достаточен для целевого
+масштаба K≤20, N≤10000). C8/C9/C10 — UNVERIFIED (не в счёт 15), B19 — фактически
 FALSE; см. приложение `audit/STOP_DECISIONS.md`.
 
 ### Пары / предобработка (нужна сессия группы C)
@@ -228,7 +229,7 @@ FALSE; см. приложение `audit/STOP_DECISIONS.md`.
   F20 (numpy>=1.25 без прогонного подтверждения).
 - Оптимизация #1: `rho` из `max_lag_surrogate_pvalue` (избежать повторного
   `lagged_cross_correlation` в `cross_correlation_pairs_with_max_stat`).
-- 15 STOP-находок + 6 DEFERRED (v5) ждут решений (см. секцию 7).
+- 15 STOP-находок + 4 DEFERRED (v5) ждут решений (см. секцию 7).
 
 ---
 
