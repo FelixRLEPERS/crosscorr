@@ -27,7 +27,7 @@ D8 — DEFERRED, вариант C), добавлено 13 находок по н
 MI/TE/MSE/XM и производительности (12 closed, 1 deferred), установлен git-тег
 `v0.1.0`. Закрыты XM-1/XM-2 (convention abs-default + split-option; XM-2 было
 в статусе DEFERRED).
-Итог: 171 находка, 135 closed, 15 STOP, 2 deferred. Следующий крупный
+Итог: 171 находка, 136 closed, 15 STOP, 1 deferred. Следующий крупный
 шаг — научная валидация на реальных WSPR + INTERMAGNET.
 
 ---
@@ -42,9 +42,9 @@ MI/TE/MSE/XM и производительности (12 closed, 1 deferred), у
 | P0 open | 0 |
 | P1 open | 0 |
 | P2/P3 open | 4 (B21, B22, B33, H3) |
-| CLOSED | 135 |
+| CLOSED | 136 |
 | STOP-находок | 15 |
-| DEFERRED (v5) | 2 (D8, XM-5) |
+| DEFERRED (v5) | 1 (XM-5) |
 | PARTIAL | 3 (A30, F17, F20) |
 | FALSE (не подтверждены) | 6 (B28, B36, F11, F15, F16, G6) |
 | UNVERIFIED | 4 (B19, C8, C9, C10) |
@@ -172,7 +172,7 @@ MI/TE/MSE/XM и производительности (12 closed, 1 deferred), у
 
 ## 7. STOP-находки (требуют решений пользователя)
 
-15 STOP открыто + 2 DEFERRED (v5: D8, XM-5).
+15 STOP открыто + 1 DEFERRED (v5: XM-5).
 Закрыто в v5: D5, D6, D7, D9, D10, D12, D13, D14, B35, F18, G11–G14, G22–G25
 (`a7c8a0c`, `f730ddd`), MI-3, TE-3 и BENCH-1 (benchmark достаточен для целевого
 масштаба K≤20, N≤10000). C8/C9/C10 — UNVERIFIED (не в счёт 15), B19 — фактически
@@ -228,7 +228,7 @@ FALSE; см. приложение `audit/STOP_DECISIONS.md`.
 ### Долгосрочные
 1. Дедупликация NaN-интерполяции (B33) и перф-оптимизация surrogate/mantel
    (B21, B22).
-2. Полный mypy-гейт (D8 — DEFERRED, вариант C, `f730ddd`).
+2. Полный mypy-гейт: D8 CLOSED `af47ec3`; следующий шаг — переключить CI job на blocking после одного чистого цикла.
 
 ---
 
@@ -241,7 +241,7 @@ FALSE; см. приложение `audit/STOP_DECISIONS.md`.
   F20 (numpy>=1.25 без прогонного подтверждения).
 - Оптимизация #1: `rho` из `max_lag_surrogate_pvalue` (избежать повторного
   `lagged_cross_correlation` в `cross_correlation_pairs_with_max_stat`).
-- 15 STOP-находок + 2 DEFERRED (v5) ждут решений (см. секцию 7).
+- 15 STOP-находок + 1 DEFERRED (v5: XM-5) ждут решений (см. секцию 7).
 
 ---
 

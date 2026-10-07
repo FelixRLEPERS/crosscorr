@@ -12,17 +12,17 @@
 - Находок в v3: 39
 - Всего исходных упоминаний: 193
 - Дедуплицировано до: 158 уникальных записей
-- CLOSED: 135
+- CLOSED: 136
 - STOP (требует решения/вне границ): 13
 - UNVERIFIED: 4 (B19, C8, C9, C10; C8 одновременно STOP, C9/C10 — PARTIAL)
 - PARTIAL: 5 (A30, F17, F20, C9, C10)
 - FALSE (находка не подтверждена): 6
 - OBSOLETE: 2
 - OPEN (отложено): 4
-- DEFERRED (отложено v5): 2 (D8, XM-5)
+- DEFERRED (отложено v5): 1 (XM-5)
 
-Проверка: CLOSED 135 + STOP 13 + UNVERIFIED 4 + PARTIAL 5 + FALSE 6 +
-OBSOLETE 2 + OPEN 4 + DEFERRED 2 = 171.
+Проверка: CLOSED 136 + STOP 13 + UNVERIFIED 4 + PARTIAL 5 + FALSE 6 +
+OBSOLETE 2 + OPEN 4 + DEFERRED 1 = 171.
 
 Коммиты-фиксы после v1: `4a1fcd3`, `f26f92d`, `bbe978b`, `0fafbaa`, `3093dd5`, `2280fc2` (v2), далее `ed9f9e1`, `dfa9999`, `d711569`, `2ee09c4`, `ce8b40e`, `4b1ee15`, `8c5edc9`, `4802988`, `6813e22`, `8888dcd`, `cee803d` (v3).
 Коммиты серии групп A–G: `6049c2a` (A), `25f0e90` (B), `0e75aab` (C), `4232b49` (G), `15c38ed` (D), `49417c9`+`5194f36`+`3c12ebc` (F), `1a4e5c3` (F post-CI), `786c471` (E), `386c5c7` (stationarity).
@@ -150,7 +150,7 @@ STOP (причина), DEFERRED (причина).
 | D5 | P3 | `__init__.py:13` | `__version__` — единственное объявление, git-тегов нет | CLOSED `f730ddd` (git tag `v0.1.0` установлен, `git tag --list` — подтверждено) | v2 (V2-69) |
 | D6 | P3 | `ai_narrator.py`, `narrator.py`, `quest.py` | Не в `__all__`, не импортируются | CLOSED `f730ddd` (NOTE-комментарии о статусе) | v2 (V2-71) |
 | D7 | P3 | `game/` (4 файла) | Мёртвый код, не упомянут в README/pyproject | CLOSED `f730ddd` (`game/README.md` — experimental) | v2 (V2-74) |
-| D8 | P2 | `pyproject.toml` | mypy не настроен, типы не проверяются | DEFERRED (вариант C: отложено, `f730ddd`; audit/QUEUE2_DONE.md) | v2 (V2-75) |
+| D8 | P2 | `pyproject.toml` | mypy не настроен, типы не проверяются | CLOSED `af47ec3` (mypy configured: 2 errors fixed, config added; CI job informational, continue-on-error, will become gate after one cycle) | v2 (V2-75) |
 | D9 | P3 | `download_horizons.py:26` | Аннотация возврата `-> "object"` бессмысленна | CLOSED `a7c8a0c` (конкретный тип, TYPE_CHECKING) | v2 (V2-76) |
 | D10 | P3 | `surrogate.py:419` | `_lagged_cc` без аннотаций | CLOSED `a7c8a0c` (аннотации добавлены) | v2 (V2-77) |
 | D11 | P3 | `safe_exec.py:45` | `True/False/None` в `SAFE_BUILTINS` недостижимы (ключевые слова) | CLOSED `15c38ed` (комментарий; записи сохранены) | v1 (P3) |
@@ -273,20 +273,19 @@ STOP (причина), DEFERRED (причина).
 |----------|--------|------|------|---------|-------|----------|------------|----------|-------|
 | P0 | 9 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 9 |
 | P1 | 41 | 0 | 6 | 0 | 0 | 0 | 1 | 0 | 48 |
-| P2 | 51 | 3 | 5 | 3 | 4 | 2 | 3 | 2 | 73 |
+| P2 | 52 | 3 | 5 | 3 | 4 | 2 | 3 | 1 | 73 |
 | P3 | 34 | 1 | 2 | 2 | 2 | 0 | 0 | 0 | 41 |
-| Итого | 135 | 4 | 13 | 5 | 6 | 2 | 4 | 2 | 171 |
+| Итого | 136 | 4 | 13 | 5 | 6 | 2 | 4 | 1 | 171 |
 
 Разбивка по группам: A 34, B 40, C 10, D 14, E 11, F 21, G 25, H 3, V5 13 (сумма 171).
 
-Проверка сумм: CLOSED 135 + OPEN 4 + STOP 13 + PARTIAL 5 + FALSE 6 +
-OBSOLETE 2 + UNVERIFIED 4 + DEFERRED 2 = 171 = Total.
+Проверка сумм: CLOSED 136 + OPEN 4 + STOP 13 + PARTIAL 5 + FALSE 6 +
+OBSOLETE 2 + UNVERIFIED 4 + DEFERRED 1 = 171 = Total.
 Проверка по severity: 9 + 48 + 73 + 41 = 171 = Total.
 
 Примечание: STOP — находки, требующие решения пользователя или находящиеся
 вне границ сессии (код/внешние данные/архитектура); OPEN — отложенные
-перф-рефакторинги (B21, B22, B33) и H3. DEFERRED — отложенные в v5:
-D8 (вариант C, mypy) и XM-5 (benchmark проведён; дальнейшая оптимизация
+перф-рефакторинги (B21, B22, B33) и H3. DEFERRED — отложенные в v5: XM-5 (benchmark проведён; дальнейшая оптимизация
 отложена). XM-1/XM-2 закрыты: конвенция abs-default + split-option.
 B19 и C8 посчитаны в колонке STOP (в UNVERIFIED-подмножестве)
 и одновременно отражены в колонке Unverified. C9/C10 переведены из STOP
