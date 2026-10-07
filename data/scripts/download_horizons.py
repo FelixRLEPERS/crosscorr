@@ -19,9 +19,11 @@ RAW_DIR = Path(__file__).resolve().parents[1] / "raw" / "horizons"
 
 # Коды планет в Horizons
 PLANETS = {
+    "sun": "10",
     "mercury": "199",
     "venus": "299",
     "earth": "399",
+    "moon": "301",
     "mars": "499",
     "jupiter": "599",
     "saturn": "699",
@@ -32,7 +34,12 @@ def fetch_ephemeris(
     planet: str, start: str, stop: str, step: str = "1h"
 ) -> Table:
     code = PLANETS[planet.lower()]
-    obj = Horizons(id=code, location="@sun", epochs={"start": start, "stop": stop, "step": step})
+    if planet.lower() == "sun":
+        location = "500"  # геоцентр: Солнце нельзя наблюдать с Солнца
+    else:
+        location = "@sun"
+    obj = Horizons(id=code, location=location,
+                   epochs={"start": start, "stop": stop, "step": step})
     return obj.ephemerides()
 
 
@@ -62,7 +69,7 @@ def main() -> None:
             "start": args.start,
             "stop": args.stop,
             "step": args.step,
-            "location": "@sun",
+            "location": "500" if args.planet.lower() == "sun" else "@sun",
             "rows": int(len(df)),
         }, indent=2, ensure_ascii=False),
         encoding="utf-8",

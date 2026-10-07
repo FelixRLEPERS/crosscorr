@@ -1,0 +1,20 @@
+# Настройки сбора данных CrossCorr
+# Меняй даты и станции здесь — не в коде!
+
+defaults:
+  start: "2026-09-01"
+  end:   "2026-09-15"
+
+wspr:
+  band: "20m"
+  max_spots_per_day: 5000
+
+horizons:
+  objects: ["sun", "moon"]
+  step: "1h"
+
+intermagnet:
+  stations: ["MOS", "ESK", "OTT"]
+
+space_weather:
+  indices: ["kp", "dst", "f107"]

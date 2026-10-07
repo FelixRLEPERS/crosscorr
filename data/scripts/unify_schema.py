@@ -161,11 +161,66 @@ def load_horizons(path: Path) -> pd.DataFrame:
     return out[["timestamp_utc", "detector_id", "detector_type", "value", "meta"]]
 
 
+def load_kp(path: Path) -> pd.DataFrame:
+    """Прочитать Kp CSV в unified-формат (сырое наблюдение = Kp)."""
+    df = pd.read_csv(path)
+    out = pd.DataFrame({
+        "timestamp_utc": pd.to_datetime(df["timestamp"], utc=True),
+        "detector_id": "kp_index",
+        "detector_type": "kp",
+        "value": df["kp"].astype(float),
+    })
+    out["meta"] = json.dumps({"granularity": "3h"})
+    return out[["timestamp_utc", "detector_id", "detector_type", "value", "meta"]]
+
+
+def load_dst(path: Path) -> pd.DataFrame:
+    """Прочитать Dst CSV в unified-формат (сырое наблюдение = Dst, нТ)."""
+    df = pd.read_csv(path)
+    out = pd.DataFrame({
+        "timestamp_utc": pd.to_datetime(df["timestamp"], utc=True),
+        "detector_id": "dst_index",
+        "detector_type": "dst",
+        "value": df["dst_nt"].astype(float),
+    })
+    out["meta"] = json.dumps({"granularity": "1h"})
+    return out[["timestamp_utc", "detector_id", "detector_type", "value", "meta"]]
+
+
+def load_f107(path: Path) -> pd.DataFrame:
+    """Прочитать F10.7 CSV в unified-формат (сырое наблюдение = F10.7)."""
+    df = pd.read_csv(path)
+    out = pd.DataFrame({
+        "timestamp_utc": pd.to_datetime(df["date"], utc=True),
+        "detector_id": "f107_index",
+        "detector_type": "f107",
+        "value": df["f107"].astype(float),
+    })
+    out["meta"] = json.dumps({"granularity": "monthly"})
+    return out[["timestamp_utc", "detector_id", "detector_type", "value", "meta"]]
+
+
 LOADERS = {
     "wspr": load_wspr,
     "intermagnet": load_intermagnet,
     "horizons": load_horizons,
+    "space_weather": lambda p: _route_sw(p),
 }
+
+
+def _route_sw(path: Path) -> pd.DataFrame:
+    """Направить файл space_weather в правильный загрузчик по имени."""
+    name = path.stem.lower()
+    if name.startswith("kp"):
+        return load_kp(path)
+    if name.startswith("dst"):
+        return load_dst(path)
+    if name.startswith("f107"):
+        return load_f107(path)
+    raise ValueError(
+        f"Неизвестный префикс файла space_weather: {path.name}. "
+        f"Ожидается kp_*, dst_* или f107_*."
+    )
 
 
 def load_confounders_if_present(path: Path) -> pd.DataFrame | None:
