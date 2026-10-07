@@ -10,6 +10,8 @@
 import base64
 import glob
 import os
+from collections.abc import Callable
+from typing import Any, TypedDict
 
 import streamlit as st
 import streamlit.components.v1 as components
@@ -801,7 +803,16 @@ hr {
 # 8 БАЗОВЫХ УРОВНЕЙ
 # ============================================================
 
-LEVELS = {
+class LevelData(TypedDict):
+    title: str
+    story: str
+    task: str
+    hint: str
+    check: Callable[[Any, Any], Any]
+    success: str
+
+
+LEVELS: dict[int, LevelData] = {
     1: {"title": "Уровень 1 — Радиостанция",
         "story": "Ты — оператор обсерватории CrossCorr. Все станции замолчали. Нужно включить радиостанцию и отправить позывной.",
         "task": "1. Создай переменную operator с твоим именем.\n2. Создай frequency = 14.074.\n3. Напечатай: \"Оператор: <имя> на частоте <частота>\"",
@@ -856,7 +867,7 @@ LEVELS = {
 # ВЕТКИ
 # ============================================================
 
-BRANCHES = {
+BRANCHES: dict[str, dict[str, str]] = {
     "bio":      {"name": "Био-детектив",       "description": "ДНК, мутации, микробиом. Ищем призрака в живом."},
     "planet":   {"name": "Планета-детектив",   "description": "Сейсмика, геодезия, магнетизм. Ищем призрака в Земле."},
     "quantum":  {"name": "Квантовый детектив", "description": "Атомные часы, гравиволны, нейтрино."},
@@ -867,7 +878,7 @@ BRANCHES = {
     "creator":  {"name": "Создай свою игру",   "description": "Ты — автор. Создай свой уровень."},
 }
 
-BRANCH_LEVELS = {
+BRANCH_LEVELS: dict[str, dict[int, LevelData]] = {
     "bio": {
         1: {"title": "Био-1 — ДНК: инструкция жизни",
             "story": "Ты в лаборатории. ДНК — это инструкция для тела.",
@@ -1349,6 +1360,7 @@ def show_branch_level():
             st.rerun()
         return
 
+    branch_info = BRANCHES[branch_key]
     levels = BRANCH_LEVELS[branch_key]
     total = len(levels)
     level = st.session_state.branch_level
