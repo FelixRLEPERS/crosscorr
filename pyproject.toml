@@ -50,6 +50,7 @@ dev = [
     "pytest-cov>=4.1",
     "pytest-xdist>=3.5",
     "ruff>=0.6",
+    "mypy>=1.8",
     "pip-tools>=7.4",
     # mfdfa.py импортирует MFDFA на верхнем уровне, а
     # test_smoke_import_all_analysis_modules импортирует все модули
@@ -114,4 +115,16 @@ ignore = [
 "tests/*" = ["B011"]                              # assert False in tests
 "crosscorr_lib/quest.py" = ["E402"]               # imports after st.set_page_config
 "crosscorr_lib/__init__.py" = ["F401"]            # re-exports for public API
-"crosscorr_lib/analysis/__init__.py" = ["F401"]   # re-exports for public API
+    "crosscorr_lib/analysis/__init__.py" = ["F401"]   # re-exports for public API
+
+[tool.mypy]
+# python_version=3.12: numpy 2.x stubs use PEP 695 syntax.
+# Project supports 3.10+, but mypy checking at 3.12 is stricter.
+python_version = "3.12"
+ignore_missing_imports = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+no_implicit_optional = true
+check_untyped_defs = true
+disallow_untyped_defs = false
+disallow_incomplete_defs = false

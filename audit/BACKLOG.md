@@ -12,17 +12,17 @@
 - Находок в v3: 39
 - Всего исходных упоминаний: 193
 - Дедуплицировано до: 158 уникальных записей
-- CLOSED: 137
+- CLOSED: 138
 - STOP (требует решения/вне границ): 13
 - UNVERIFIED: 4 (B19, C8, C9, C10; C8 одновременно STOP, C9/C10 — PARTIAL)
 - PARTIAL: 5 (A30, F17, F20, C9, C10)
 - FALSE (находка не подтверждена): 6
 - OBSOLETE: 2
 - OPEN (отложено): 4
-- DEFERRED (отложено): 1 (D8)
+- DEFERRED (отложено): 0 (D8 — CLOSED 12274ac (mypy); XM-5 — CLOSED ebb7d66 (58×))
 
-Проверка (v6): CLOSED 137 + STOP 13 + UNVERIFIED 4 + PARTIAL 5 + FALSE 6 +
-OBSOLETE 2 + OPEN 4 + DEFERRED 1 = 172.
+Проверка (v6 + D8): CLOSED 138 + STOP 13 + UNVERIFIED 4 + PARTIAL 5 + FALSE 6 +
+OBSOLETE 2 + OPEN 4 + DEFERRED 0 = 172.
 Примечание: MI-1 в v5 уже был CLOSED (первичная валидация `3c627d6`+`c84ffa4`),
 в v6 закрыт вторичный reference-пункт; XM-5 переведён DEFERRED → CLOSED.
 Двойной счёт MI-1 даёт 172 вместо 171 (см. примечание в «Итог по приоритетам»).
@@ -153,7 +153,7 @@ STOP (причина), DEFERRED (причина).
 | D5 | P3 | `__init__.py:13` | `__version__` — единственное объявление, git-тегов нет | CLOSED `f730ddd` (git tag `v0.1.0` установлен, `git tag --list` — подтверждено) | v2 (V2-69) |
 | D6 | P3 | `ai_narrator.py`, `narrator.py`, `quest.py` | Не в `__all__`, не импортируются | CLOSED `f730ddd` (NOTE-комментарии о статусе) | v2 (V2-71) |
 | D7 | P3 | `game/` (4 файла) | Мёртвый код, не упомянут в README/pyproject | CLOSED `f730ddd` (`game/README.md` — experimental) | v2 (V2-74) |
-| D8 | P2 | `pyproject.toml` | mypy не настроен, типы не проверяются | DEFERRED (вариант C: отложено, `f730ddd`; audit/QUEUE2_DONE.md) | v2 (V2-75) |
+| D8 | P2 | `pyproject.toml` | mypy не настроен, типы не проверяются | CLOSED `12274ac` (mypy configured: 2 errors fixed, config added; CI job informational, continue-on-error, will become gate after one cycle) | v2 (V2-75) |
 | D9 | P3 | `download_horizons.py:26` | Аннотация возврата `-> "object"` бессмысленна | CLOSED `a7c8a0c` (конкретный тип, TYPE_CHECKING) | v2 (V2-76) |
 | D10 | P3 | `surrogate.py:419` | `_lagged_cc` без аннотаций | CLOSED `a7c8a0c` (аннотации добавлены) | v2 (V2-77) |
 | D11 | P3 | `safe_exec.py:45` | `True/False/None` в `SAFE_BUILTINS` недостижимы (ключевые слова) | CLOSED `15c38ed` (комментарий; записи сохранены) | v1 (P3) |
@@ -276,14 +276,14 @@ STOP (причина), DEFERRED (причина).
 |----------|--------|------|------|---------|-------|----------|------------|----------|-------|
 | P0 | 9 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 9 |
 | P1 | 42 | 0 | 6 | 0 | 0 | 0 | 1 | 0 | 49 |
-| P2 | 52 | 3 | 5 | 3 | 4 | 2 | 3 | 1 | 73 |
+| P2 | 53 | 3 | 5 | 3 | 4 | 2 | 3 | 0 | 73 |
 | P3 | 34 | 1 | 2 | 2 | 2 | 0 | 0 | 0 | 41 |
-| Итого | 137 | 4 | 13 | 5 | 6 | 2 | 4 | 1 | 172 |
+| Итого | 138 | 4 | 13 | 5 | 6 | 2 | 4 | 0 | 172 |
 
 Разбивка по группам: A 34, B 40, C 10, D 14, E 11, F 21, G 25, H 3, V5 13 (сумма 171).
 
-Проверка сумм (v6): CLOSED 137 + OPEN 4 + STOP 13 + PARTIAL 5 + FALSE 6 +
-OBSOLETE 2 + UNVERIFIED 4 + DEFERRED 1 = 172 = Total.
+Проверка сумм (v6 + D8): CLOSED 138 + OPEN 4 + STOP 13 + PARTIAL 5 + FALSE 6 +
+OBSOLETE 2 + UNVERIFIED 4 + DEFERRED 0 = 172 = Total.
 Проверка по severity: 9 + 49 + 73 + 41 = 172 = Total.
 Примечание к 172: MI-1 закрыт в v5 (первичная валидация) и переоткрыт/
 перезакрыт в v6 (вторичная reference-валидация) — двойной счёт даёт 172
@@ -291,8 +291,8 @@ OBSOLETE 2 + UNVERIFIED 4 + DEFERRED 1 = 172 = Total.
 
 Примечание: STOP — находки, требующие решения пользователя или находящиеся
 вне границ сессии (код/внешние данные/архитектура); OPEN — отложенные
-перф-рефакторинги (B21, B22, B33) и H3. DEFERRED — D8 (вариант C, mypy);
-XM-5 закрыт в v6 (`ebb7d66`, 58× ускорение). XM-1/XM-2 закрыты:
+перф-рефакторинги (B21, B22, B33) и H3. DEFERRED — none (D8 — CLOSED 12274ac
+(mypy); XM-5 — CLOSED ebb7d66 (58×)). XM-1/XM-2 закрыты:
 конвенция abs-default + split-option.
 B19 и C8 посчитаны в колонке STOP (в UNVERIFIED-подмножестве)
 и одновременно отражены в колонке Unverified. C9/C10 переведены из STOP
@@ -386,7 +386,7 @@ Queue 2 `f730ddd` (9 закрыто, 1 отложено): D5 (git tag `v0.1.0`),
 (`game/README.md` — experimental), D13 (ленивые импорты задокументированы),
 D14 (deprecated alias `build_wide`), G22-G25 (именованные константы,
 `MIN_SAMPLES`, PEP8, ValueError при несимметрии), B35 (мёртвая ветка
-удалена). D8 — DEFERRED, вариант C (mypy отложен).
+удалена). D8 — DEFERRED, вариант C (mypy отложен); закрыт в v6: CLOSED 12274ac (mypy configured).
 
 Новые модули v5: 12 находок (7 closed, 5 deferred).
 Closed: MI-1 + MSE-1 (`3c627d6` — контракты для ties/NaN/constant;
@@ -428,8 +428,9 @@ Windows cleanup: C9/C10 — PARTIAL / UNVERIFIED; пять новых тесто
   58× (0.184 → 0.0032 c при N=4000); результат совпадает с прежним до
   1.8e-15. Формулы не менялись.
 
-Пропущено: D8 (mypy) — остаётся DEFERRED (фаза 3 не выполнялась).
+D8 (mypy): CLOSED 12274ac (mypy configured: 2 errors fixed, config added;
+CI job informational, continue-on-error, will become gate after one cycle).
 Фаза 4 (AUDIT_v6.md), фаза 5 (эта синхронизация).
-Итог v6: CLOSED 137 / STOP 13 / UNVERIFIED 4 / PARTIAL 5 / FALSE 6 /
-OBSOLETE 2 / OPEN 4 / DEFERRED 1 = 172 (двойной счёт MI-1; уникальных 171).
+Итог (v6 + D8): CLOSED 138 / STOP 13 / UNVERIFIED 4 / PARTIAL 5 / FALSE 6 /
+OBSOLETE 2 / OPEN 4 / DEFERRED 0 = 172 (двойной счёт MI-1; уникальных 171).
 Тесты: 291 collected (было 288 в v5). Ruff — clean.

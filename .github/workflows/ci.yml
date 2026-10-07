@@ -51,6 +51,11 @@ jobs:
         run: |
           ruff check crosscorr_lib/ tests/ scripts/ data/ --output-format=github
 
+      - name: mypy type check
+        run: |
+          python -m mypy crosscorr_lib/
+        continue-on-error: true
+
       - name: Compile all sources
         run: |
           python -m compileall -q crosscorr_lib data scripts tests
