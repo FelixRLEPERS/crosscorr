@@ -201,7 +201,7 @@ def cross_correlation_pairs_with_max_stat(
     B: int = 200,
     n_jobs: int = -1,
     pair_filter: Callable[[str, str], bool] | None = None,
-    dtype: np.dtype = np.float32,
+    dtype: np.dtype = np.dtype(np.float32),
 ) -> pd.DataFrame:
     """Compute max-statistic cross-correlations between all detector pairs.
 

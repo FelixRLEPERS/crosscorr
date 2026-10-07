@@ -35,7 +35,7 @@ VOLUME = "+0%"
 # КЭШ АУДИО
 # ============================================================
 
-_AUDIO_CACHE = {}
+_AUDIO_CACHE: dict[str, bytes] = {}
 _CACHE_LOCK = threading.Lock()
 
 
