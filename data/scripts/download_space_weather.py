@@ -23,7 +23,7 @@ import requests
 
 RAW_DIR = Path(__file__).resolve().parents[1] / "raw" / "space_weather"
 KP_API = "https://kp.gfz-potsdam.de/app/json/"
-DST_BASE = "http://wdc.kugi.kyoto-u.ac.jp/dst_realtime"
+DST_BASE = "http://wdc.kugi.kyoto-u.ac.jp/dst_provisional"
 F107_API = (
     "https://services.swpc.noaa.gov/json/solar-cycle/"
     "observed-solar-cycle-indices.json"

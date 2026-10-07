@@ -208,16 +208,24 @@ def _route_wspr(path: Path) -> pd.DataFrame:
 
 
 def load_wspr_hourly(path: Path) -> pd.DataFrame:
-    """Прочитать почасовую агрегацию WSPR в unified-формат (value = spots_count)."""
+    """Прочитать почасовую агрегацию WSPR в unified-формат (value = spots_count).
+
+    Извлекает band из имени файла: wspr_hourly_YYYY-MM-DD_20m.csv -> 20m.
+    """
     df = pd.read_csv(path)
+    band = path.stem.split("_")[-1]
+    band_index = int(df["band"].iloc[0]) if "band" in df.columns else None
     out = pd.DataFrame({
         "timestamp_utc": pd.to_datetime(df["timestamp"], utc=True),
-        "detector_id": f"_wspr_hourly_20m",
+        "detector_id": f"wspr_hourly_{band}",
         "detector_type": "wspr_hourly",
         "value": df["spots_count"].astype(float),
     })
     out["meta"] = json.dumps({
+        "band": band,
+        "band_index": band_index,
         "mean_snr": float(df["mean_snr"].iloc[0]) if "mean_snr" in df.columns else None,
+        "max_distance": float(df["max_distance"].iloc[0]) if "max_distance" in df.columns else None,
     })
     return out[["timestamp_utc", "detector_id", "detector_type", "value", "meta"]]
 

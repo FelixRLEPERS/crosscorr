@@ -97,6 +97,7 @@ RESIDUAL_METHODS: tuple[str, ...] = (METHOD_MIXEDLM, METHOD_OLS, METHOD_NONE)
 #: Единица измерения ``value`` по типу детектора.
 DETECTOR_UNITS: dict[str, str] = {
     "wspr": "dB",
+    "wspr_hourly": "count",
     "magnetometer": "nT",
     "ephemeris": "AU",
     "ballistic": "s",
