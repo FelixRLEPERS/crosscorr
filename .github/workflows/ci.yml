@@ -54,7 +54,6 @@ jobs:
       - name: mypy type check
         run: |
           python -m mypy crosscorr_lib/
-        continue-on-error: true
 
       - name: Compile all sources
         run: |
