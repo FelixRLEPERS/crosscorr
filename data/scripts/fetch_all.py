@@ -39,7 +39,7 @@ def load_config(path: Path) -> dict:
     if not path.exists():
         default = {
             "defaults": {"start": "2026-09-01", "end": "2026-09-15"},
-            "wspr": {"band": "20m", "max_spots_per_day": 5000},
+            "wspr": {"band": "20m"},
             "horizons": {"objects": ["sun", "moon"], "step": "1h"},
             "intermagnet": {"stations": ["MOS", "ESK", "OTT"]},
             "space_weather": {"indices": ["kp", "dst", "f107"]},
@@ -111,13 +111,12 @@ def _fetch_wspr_range(start: dt.date, end: dt.date, config: dict) -> int:
     from data.scripts.download_wspr import fetch_wspr, normalize, RAW_DIR
 
     band = config.get("wspr", {}).get("band", "20m")
-    limit = config.get("wspr", {}).get("max_spots_per_day", 5000)
     RAW_DIR.mkdir(parents=True, exist_ok=True)
 
     ok = 0
     for date in iter_dates(start, end):
         try:
-            df = fetch_wspr(date, band=band, limit=limit)
+            df = fetch_wspr(date, band=band)
             if df.empty:
                 print(f"[SKIP] WSPR {date.isoformat()}: пустой ответ")
                 continue

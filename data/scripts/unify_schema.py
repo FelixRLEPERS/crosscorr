@@ -200,8 +200,30 @@ def load_f107(path: Path) -> pd.DataFrame:
     return out[["timestamp_utc", "detector_id", "detector_type", "value", "meta"]]
 
 
+def _route_wspr(path: Path) -> pd.DataFrame:
+    """Направить WSPR-файл в raw или hourly loader по префиксу имени."""
+    if path.stem.startswith("wspr_hourly"):
+        return load_wspr_hourly(path)
+    return load_wspr(path)
+
+
+def load_wspr_hourly(path: Path) -> pd.DataFrame:
+    """Прочитать почасовую агрегацию WSPR в unified-формат (value = spots_count)."""
+    df = pd.read_csv(path)
+    out = pd.DataFrame({
+        "timestamp_utc": pd.to_datetime(df["timestamp"], utc=True),
+        "detector_id": f"_wspr_hourly_20m",
+        "detector_type": "wspr_hourly",
+        "value": df["spots_count"].astype(float),
+    })
+    out["meta"] = json.dumps({
+        "mean_snr": float(df["mean_snr"].iloc[0]) if "mean_snr" in df.columns else None,
+    })
+    return out[["timestamp_utc", "detector_id", "detector_type", "value", "meta"]]
+
+
 LOADERS = {
-    "wspr": load_wspr,
+    "wspr": _route_wspr,
     "intermagnet": load_intermagnet,
     "horizons": load_horizons,
     "space_weather": lambda p: _route_sw(p),
