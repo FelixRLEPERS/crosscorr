@@ -23,13 +23,13 @@ slow-тесты по paths-filter на PR. Численные эталоны с�
 Единственный статистический гейт, который пока не пройден, — реальные
 данные: `data/raw/` пуст, все результаты получены на синтетике (A9–A11).
 Осталось 15 STOP-находок (было 34): в v5 закрыты очереди 1/2 (18 находок;
-D8 — DEFERRED, вариант C), добавлено 13 находок по новым модулям
+D8 — DEFERRED, вариант C; закрыт в v6: CLOSED 12274ac (mypy configured)), добавлено 13 находок по новым модулям
 MI/TE/MSE/XM и производительности (12 closed, 1 deferred), установлен git-тег
 `v0.1.0`. Закрыты XM-1/XM-2 (convention abs-default + split-option; XM-2 было
 в статусе DEFERRED).
 В v6 закрыты MI-1 (вторичный — reference-валидация KSG, `2df4804`) и XM-5
 (оптимизация Cross-MFDFA 58×, `ebb7d66`); тестов 288 → 291. В данной ветке
-закрыта фаза D8 (mypy, `af47ec3`).
+закрыта фаза D8 (mypy, `12274ac`).
 Итог: 171 уникальная находка, 138 closed (двойной счёт MI-1), 15 STOP,
 0 deferred. Следующий крупный шаг — научная валидация на реальных
 WSPR + INTERMAGNET.
@@ -48,7 +48,7 @@ WSPR + INTERMAGNET.
 | P2/P3 open | 4 (B21, B22, B33, H3) |
 | CLOSED | 138 (v6 + D8; было 135) |
 | STOP-находок | 15 |
-| DEFERRED | 0 (D8 — CLOSED af47ec3 (mypy); XM-5 — CLOSED ebb7d66 (58×)) |
+| DEFERRED | 0 (D8 — CLOSED 12274ac (mypy); XM-5 — CLOSED ebb7d66 (58×)) |
 | PARTIAL | 5 (A30, F17, F20, C9, C10) |
 | FALSE (не подтверждены) | 6 (B28, B36, F11, F15, F16, G6) |
 | UNVERIFIED | 4 (B19, C8, C9, C10) |
@@ -56,7 +56,7 @@ WSPR + INTERMAGNET.
 
 Примечание: CLOSED=138 учитывает двойной счёт MI-1 (закрыт в v5 `3c627d6`+
 `c84ffa4`, перезакрыт в v6 `2df4804`) — уникальных находок 171, сумма
-статусов 172 (D8 CLOSED af47ec3 добавлен в ветке).
+статусов 172 (D8 CLOSED 12274ac добавлен в ветке).
 
 ---
 
@@ -128,7 +128,7 @@ WSPR + INTERMAGNET.
 - **XM-5 (`ebb7d66`)**: `_detrended_cov` переписан на закрытую OLS-формулу +
   батчинг сегментов. Ускорение 58× (0.184 → 0.0032 с при N=4000); совпадение
   с прежним результатом ≤ 1.8e-15.
-- Фаза D8 (mypy): CLOSED af47ec3 (mypy configured; CI job informational, will become gate after one cycle).
+- Фаза D8 (mypy): CLOSED 12274ac (mypy configured; CI job informational, will become gate after one cycle).
 - Отчёты: `audit/AUDIT_v6.md`.
 
 ---
@@ -191,7 +191,7 @@ WSPR + INTERMAGNET.
 
 ## 7. STOP-находки (требуют решений пользователя)
 
-15 STOP открыто + 0 DEFERRED (D8 — CLOSED af47ec3 (mypy); XM-5 — CLOSED ebb7d66 (58×)).
+15 STOP открыто + 0 DEFERRED (D8 — CLOSED 12274ac (mypy); XM-5 — CLOSED ebb7d66 (58×)).
 Закрыто в v5: D5, D6, D7, D9, D10, D12, D13, D14, B35, F18, G11–G14, G22–G25
 (`a7c8a0c`, `f730ddd`), MI-3, TE-3 и BENCH-1 (benchmark достаточен для целевого
 масштаба K≤20, N≤10000). В v6 закрыт XM-5 (`ebb7d66`). C8/C9/C10 — UNVERIFIED (не в счёт 15), B19 — фактически
@@ -255,7 +255,7 @@ FALSE; см. приложение `audit/STOP_DECISIONS.md`.
 ### Долгосрочные
 1. Дедупликация NaN-интерполяции (B33) и перф-оптимизация surrogate/mantel
    (B21, B22).
-2. Полный mypy-гейт: D8 CLOSED `af47ec3`; следующий шаг — переключить CI job на blocking после одного чистого цикла.
+2. Полный mypy-гейт: D8 CLOSED `12274ac`; следующий шаг — переключить CI job на blocking после одного чистого цикла.
 
 ---
 
@@ -268,7 +268,7 @@ FALSE; см. приложение `audit/STOP_DECISIONS.md`.
   F20 (numpy>=1.25 без прогонного подтверждения).
 - Оптимизация #1: `rho` из `max_lag_surrogate_pvalue` (избежать повторного
   `lagged_cross_correlation` в `cross_correlation_pairs_with_max_stat`).
-- 15 STOP-находок ждут решений (см. секцию 7); 0 DEFERRED (D8 — CLOSED af47ec3
+- 15 STOP-находок ждут решений (см. секцию 7); 0 DEFERRED (D8 — CLOSED 12274ac
 (mypy), XM-5 — CLOSED ebb7d66 (58×)).
 
 ---

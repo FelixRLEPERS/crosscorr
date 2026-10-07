@@ -8,13 +8,13 @@ HEAD: `ebb7d66` "perf(XM): optimize cross_mfdfa [XM-5]"
 Проверка кода: `crosscorr_lib/**`, `data/scripts/**`, `.gitignore`,
 `pyproject.toml` (файл `README_ARCHITECTURE_UPDATE.md` удалён в `a7c8a0c`)
 
-Всего STOP: 15 (было 34; 18 находок закрыты в v5, D8 — DEFERRED)
+Всего STOP: 15 (было 34; 18 находок закрыты в v5, D8 — CLOSED 12274ac)
 Из них:
   BREAKING_API: 2  (B20, B25)
   ARCHITECTURE: 8  (B18, B23, B26, B27, B29, B30, B39, F14)
   EXTERNAL: 5      (A9, A10, A11, F1, E6)
   DOCS: 0
-  DEFERRED: 1      (D8; в v5 было 6 — MI-3, TE-3, XM-1, XM-2 закрыты в v5,
+  DEFERRED: 0      (D8 — CLOSED 12274ac; в v5 было 6 — MI-3, TE-3, XM-1, XM-2 закрыты в v5,
                     XM-5 закрыт в v6 `ebb7d66`)
 
 Сопряжённые: B19 — UNVERIFIED (механизм опровергнут v3v, rho≈-0.003, фактически
@@ -30,7 +30,7 @@ FALSE). C8/C9/C10 — двойная метка UNVERIFIED/STOP (см. прил�
 
 ## Сводка
 
-Статус — на HEAD `ebb7d66` (v6). 15 STOP, 1 DEFERRED (D8); XM-5 закрыт в v6.
+Статус — на HEAD `ebb7d66` (v6). 15 STOP, 0 DEFERRED (D8 — CLOSED 12274ac); XM-5 закрыт в v6.
 (Сводная таблица ниже сохраняет исторические статусы v5, строка XM-5
 обновлена на CLOSED.)
 
@@ -52,7 +52,7 @@ FALSE). C8/C9/C10 — двойная метка UNVERIFIED/STOP (см. прил�
 | D5 | P3 | ARCHITECTURE | `__init__.py:13` | `__version__` без git-тегов | CLOSED `f730ddd` (тег `v0.1.0`) | 2 |
 | D6 | P3 | DEFERRED | `narrator.py`, `ai_narrator.py`, `quest.py` | Игровой код вне `__all__` | CLOSED `f730ddd` | 2 |
 | D7 | P3 | DEFERRED | `game/` (4 файла) | Мёртвый код | CLOSED `f730ddd` | 2 |
-| D8 | P2 | ARCHITECTURE | `pyproject.toml` | mypy не настроен | DEFERRED `f730ddd` (вариант C) | 2 |
+| D8 | P2 | ARCHITECTURE | `pyproject.toml` | mypy не настроен | CLOSED `12274ac` (mypy configured, CI informational) | 2 |
 | D9 | P3 | DOCS | `download_horizons.py:27` (BACKLOG: 26) | Аннотация `-> object` бессмысленна | CLOSED `a7c8a0c` | 1 |
 | D10 | P3 | DOCS | `surrogate.py:468` (BACKLOG: 419) | `_lagged_cc` без аннотаций | CLOSED `a7c8a0c` | 1 |
 | D12 | P3 | DEFERRED | `mantel.py:140` | Избыточный локальный `import pandas` | CLOSED `a7c8a0c` | 1 |
@@ -211,7 +211,7 @@ build_wide_by_detector` — почти идентичные функции. Эк
 
 Статус на v5: B18, B23, B26, B27, B29, B30, B39 — STOP (без изменений);
 D5 — CLOSED `f730ddd` (git tag `v0.1.0`); D8 — DEFERRED (вариант C, см.
-`audit/QUEUE2_DONE.md`); D13, D14 — CLOSED `f730ddd`; F14 — STOP; G25 —
+`audit/QUEUE2_DONE.md`); закрыт в v6: CLOSED 12274ac (mypy configured); D13, D14 — CLOSED `f730ddd`; F14 — STOP; G25 —
 CLOSED `f730ddd` (ValueError при несимметрии).
 
 ### B18 — pairs.py: собственная реализация BH
@@ -1135,7 +1135,7 @@ v5: 7 CLOSED / 5 DEFERRED → v6: ещё MI-1 (вторичный) и XM-5 CLOSE
 ### Очередь 2 — за день (≤ 4 часа) — ЗАКРЫТА в v5 (кроме D8)
 D5 — CLOSED `f730ddd` (git tag `v0.1.0`); D6/D7 — CLOSED `f730ddd`;
 D13/D14 — CLOSED `f730ddd`; G22–G25 — CLOSED `f730ddd`; B35 — CLOSED
-`f730ddd`. D8 — DEFERRED (вариант C, `f730ddd`; см. `audit/QUEUE2_DONE.md`).
+`f730ddd`. D8 — DEFERRED (вариант C, `f730ddd`; см. `audit/QUEUE2_DONE.md`); закрыт в v6: CLOSED 12274ac (mypy configured).
 
 1. D5 — ввести git-тег `v0.1.0` (git write, решение пользователя).
 2. D6 — решить судьбу игрового кода (оставить/вынести).
@@ -1174,8 +1174,8 @@ D13/D14 — CLOSED `f730ddd`; G22–G25 — CLOSED `f730ddd`; B35 — CLOSED
 
 Очередь 1 закрыта коммитом `a7c8a0c` (D9/D10/D12, G11–G14, F18); очередь 2
 закрыта коммитом `f730ddd` (D5 — тег `v0.1.0`, D6/D7, D13/D14, G22–G25, B35),
-кроме D8 — DEFERRED (вариант C, `f730ddd`; см. `audit/QUEUE2_DONE.md`).
-Осталось: 15 STOP (очередь 3 + F14) и 1 DEFERRED (D8; в v5 было 6, XM-5
+кроме D8 — DEFERRED (вариант C, `f730ddd`; см. `audit/QUEUE2_DONE.md`); закрыт в v6: CLOSED 12274ac (mypy configured).
+Осталось: 15 STOP (очередь 3 + F14) и 0 DEFERRED (D8 — CLOSED 12274ac (mypy configured); в v5 было 6, XM-5
 закрыт в v6 `ebb7d66`, MI-3/TE-3/XM-1/XM-2 — в v5). Первый шаг — re-run
 CI (traceback `test-windows`, E6): инфраструктурный, независим от данных и не
 меняет численного контракта. Затем, для статистических вопросов, — получение

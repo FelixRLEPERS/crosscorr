@@ -19,7 +19,7 @@
 - FALSE (находка не подтверждена): 6
 - OBSOLETE: 2
 - OPEN (отложено): 4
-- DEFERRED (отложено): 0 (D8 — CLOSED af47ec3 (mypy); XM-5 — CLOSED ebb7d66 (58×))
+- DEFERRED (отложено): 0 (D8 — CLOSED 12274ac (mypy); XM-5 — CLOSED ebb7d66 (58×))
 
 Проверка (v6 + D8): CLOSED 138 + STOP 13 + UNVERIFIED 4 + PARTIAL 5 + FALSE 6 +
 OBSOLETE 2 + OPEN 4 + DEFERRED 0 = 172.
@@ -153,7 +153,7 @@ STOP (причина), DEFERRED (причина).
 | D5 | P3 | `__init__.py:13` | `__version__` — единственное объявление, git-тегов нет | CLOSED `f730ddd` (git tag `v0.1.0` установлен, `git tag --list` — подтверждено) | v2 (V2-69) |
 | D6 | P3 | `ai_narrator.py`, `narrator.py`, `quest.py` | Не в `__all__`, не импортируются | CLOSED `f730ddd` (NOTE-комментарии о статусе) | v2 (V2-71) |
 | D7 | P3 | `game/` (4 файла) | Мёртвый код, не упомянут в README/pyproject | CLOSED `f730ddd` (`game/README.md` — experimental) | v2 (V2-74) |
-| D8 | P2 | `pyproject.toml` | mypy не настроен, типы не проверяются | CLOSED `af47ec3` (mypy configured: 2 errors fixed, config added; CI job informational, continue-on-error, will become gate after one cycle) | v2 (V2-75) |
+| D8 | P2 | `pyproject.toml` | mypy не настроен, типы не проверяются | CLOSED `12274ac` (mypy configured: 2 errors fixed, config added; CI job informational, continue-on-error, will become gate after one cycle) | v2 (V2-75) |
 | D9 | P3 | `download_horizons.py:26` | Аннотация возврата `-> "object"` бессмысленна | CLOSED `a7c8a0c` (конкретный тип, TYPE_CHECKING) | v2 (V2-76) |
 | D10 | P3 | `surrogate.py:419` | `_lagged_cc` без аннотаций | CLOSED `a7c8a0c` (аннотации добавлены) | v2 (V2-77) |
 | D11 | P3 | `safe_exec.py:45` | `True/False/None` в `SAFE_BUILTINS` недостижимы (ключевые слова) | CLOSED `15c38ed` (комментарий; записи сохранены) | v1 (P3) |
@@ -291,7 +291,7 @@ OBSOLETE 2 + UNVERIFIED 4 + DEFERRED 0 = 172 = Total.
 
 Примечание: STOP — находки, требующие решения пользователя или находящиеся
 вне границ сессии (код/внешние данные/архитектура); OPEN — отложенные
-перф-рефакторинги (B21, B22, B33) и H3. DEFERRED — none (D8 — CLOSED af47ec3
+перф-рефакторинги (B21, B22, B33) и H3. DEFERRED — none (D8 — CLOSED 12274ac
 (mypy); XM-5 — CLOSED ebb7d66 (58×)). XM-1/XM-2 закрыты:
 конвенция abs-default + split-option.
 B19 и C8 посчитаны в колонке STOP (в UNVERIFIED-подмножестве)
@@ -386,7 +386,7 @@ Queue 2 `f730ddd` (9 закрыто, 1 отложено): D5 (git tag `v0.1.0`),
 (`game/README.md` — experimental), D13 (ленивые импорты задокументированы),
 D14 (deprecated alias `build_wide`), G22-G25 (именованные константы,
 `MIN_SAMPLES`, PEP8, ValueError при несимметрии), B35 (мёртвая ветка
-удалена). D8 — DEFERRED, вариант C (mypy отложен).
+удалена). D8 — DEFERRED, вариант C (mypy отложен); закрыт в v6: CLOSED 12274ac (mypy configured).
 
 Новые модули v5: 12 находок (7 closed, 5 deferred).
 Closed: MI-1 + MSE-1 (`3c627d6` — контракты для ties/NaN/constant;
@@ -428,7 +428,7 @@ Windows cleanup: C9/C10 — PARTIAL / UNVERIFIED; пять новых тесто
   58× (0.184 → 0.0032 c при N=4000); результат совпадает с прежним до
   1.8e-15. Формулы не менялись.
 
-D8 (mypy): CLOSED af47ec3 (mypy configured: 2 errors fixed, config added;
+D8 (mypy): CLOSED 12274ac (mypy configured: 2 errors fixed, config added;
 CI job informational, continue-on-error, will become gate after one cycle).
 Фаза 4 (AUDIT_v6.md), фаза 5 (эта синхронизация).
 Итог (v6 + D8): CLOSED 138 / STOP 13 / UNVERIFIED 4 / PARTIAL 5 / FALSE 6 /
