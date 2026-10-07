@@ -1,9 +1,10 @@
 # CrossCorr — решения по STOP-находкам
 
-Дата: 2026-10-06 (v5, sync до HEAD `65dbdbd`)
-HEAD: `65dbdbdac26aa9b161625294642053dea118ca81`
+Дата: 2026-10-06 (v6, sync до HEAD `ebb7d66`)
+HEAD: `ebb7d66` "perf(XM): optimize cross_mfdfa [XM-5]"
 Ветка: main
-Источник: `audit/BACKLOG.md` (170 находок, 15 STOP, 6 DEFERRED)
+Источник: `audit/BACKLOG.md` (171 уникальная находка; v6: 137 CLOSED,
+13 STOP, 4 UNVERIFIED, 5 PARTIAL, 6 FALSE, 2 OBSOLETE, 4 OPEN, 1 DEFERRED)
 Проверка кода: `crosscorr_lib/**`, `data/scripts/**`, `.gitignore`,
 `pyproject.toml` (файл `README_ARCHITECTURE_UPDATE.md` удалён в `a7c8a0c`)
 
@@ -13,7 +14,8 @@ HEAD: `65dbdbdac26aa9b161625294642053dea118ca81`
   ARCHITECTURE: 8  (B18, B23, B26, B27, B29, B30, B39, F14)
   EXTERNAL: 5      (A9, A10, A11, F1, E6)
   DOCS: 0
-  DEFERRED: 6      (D8, MI-3, TE-3, XM-1, XM-2, XM-5)
+  DEFERRED: 1      (D8; в v5 было 6 — MI-3, TE-3, XM-1, XM-2 закрыты в v5,
+                    XM-5 закрыт в v6 `ebb7d66`)
 
 Сопряжённые: B19 — UNVERIFIED (механизм опровергнут v3v, rho≈-0.003, фактически
 FALSE). C8/C9/C10 — двойная метка UNVERIFIED/STOP (см. приложение и примечание
@@ -28,7 +30,9 @@ FALSE). C8/C9/C10 — двойная метка UNVERIFIED/STOP (см. прил�
 
 ## Сводка
 
-Статус — на HEAD `65dbdbd` (v5). 15 STOP, 25 CLOSED, 6 DEFERRED.
+Статус — на HEAD `ebb7d66` (v6). 15 STOP, 1 DEFERRED (D8); XM-5 закрыт в v6.
+(Сводная таблица ниже сохраняет исторические статусы v5, строка XM-5
+обновлена на CLOSED.)
 
 | ID | Sev | Category | File:line | Кратко | Статус | Очередь |
 |----|-----|----------|-----------|--------|--------|---------|
@@ -76,7 +80,7 @@ FALSE). C8/C9/C10 — двойная метка UNVERIFIED/STOP (см. прил�
 | XM-2 | P1 | V5 | `cross_mfdfa.py:121-139` | Предел q→0, sign-конвенция не верифицированы | DEFERRED (reference §1.4, TODO) | v5 |
 | XM-3 | P2 | V5 | `cross_mfdfa.py:131-174` | Нет goodness-of-fit / scale-diagnostic | CLOSED `dd6eb92` (`r_squared`, `n_scales`) | v5 |
 | XM-4 | P2 | V5 | `cross_mfdfa.py:97-139` | Нет валидации входов | CLOSED `dd6eb92` | v5 |
-| XM-5 | P2 | V5 | `cross_mfdfa.py:58-129` | Вложенные `np.polyfit`, runtime не измерялся | DEFERRED `037e0e1` (0.68 c, → `docs/roadmap.md`) | v5 |
+| XM-5 | P2 | V5 | `cross_mfdfa.py:58-129` | Вложенные `np.polyfit`, runtime не измерялся | CLOSED `ebb7d66` (58× ускорение, closed-form OLS + batching; 0.184→0.0032 c) | v6 |
 | XM-6 | P2 | V5 | `tests/test_E_cross_mfdfa.py:34-76` | Тесты только x=y | CLOSED `dd6eb92` (5 новых тестов) | v5 |
 
 Примечание к категориям: формулировки задания приводили D5–D10/D12–D14 как
@@ -1065,10 +1069,13 @@ CLOSED `f730ddd`; D12 — CLOSED `a7c8a0c` (убран); F18 — CLOSED `a7c8a0c
 
 ## Раздел V5 — Новые модули (MI/TE/MSE/XM)
 
-Находки из AUDIT_v4.md (HEAD `65dbdbd`), 7 CLOSED / 5 DEFERRED:
+Находки из AUDIT_v4.md (HEAD `65dbdbd`); v6 — из AUDIT_v6.md (`ebb7d66`).
+v5: 7 CLOSED / 5 DEFERRED → v6: ещё MI-1 (вторичный) и XM-5 CLOSED.
 
 - MI-1 (P1, `mutual_info.py`) — CLOSED `3c627d6` + `c84ffa4`: валидация k/base,
   `UserWarning` на точных дубликатах; docstring — непрерывные распределения.
+  v6 `2df4804`: reference-валидация KSG (непрерывные: сходимость; квантование:
+  `inf` при ≲30 уровнях, bias +0.17 при s=100), 3 теста.
 - MI-3 (P2) — DEFERRED: bench `037e0e1` (N=4000 > 60 с); оптимизация →
   `docs/roadmap.md`.
 - TE-1 (P1, `transfer_entropy.py`) — CLOSED `54ac8af`: API ограничено k=1,
@@ -1085,8 +1092,8 @@ CLOSED `f730ddd`; D12 — CLOSED `a7c8a0c` (убран); F18 — CLOSED `a7c8a0c
 - XM-3 (P2) — CLOSED `dd6eb92`: `r_squared` на q и `n_scales`.
 - XM-4 (P2) — CLOSED `dd6eb92`: равные длины, конечные значения, n>=100,
   валидация q/scales.
-- XM-5 (P2) — DEFERRED: bench `037e0e1` (0.68 с при N=4000); оптимизация →
-  `docs/roadmap.md`.
+- XM-5 (P2) — CLOSED `ebb7d66`: v5 bench `037e0e1` (0.68 с при N=4000);
+  v6 оптимизация 58× (closed-form OLS + batching, 0.184→0.0032 с, diff ≤ 1.8e-15).
 - XM-6 (P2, `tests/test_E_cross_mfdfa.py`) — CLOSED `dd6eb92`: 5 новых тестов
   (unequal lengths, scales>n, empty q, NaN, diagnostics).
 
@@ -1168,7 +1175,8 @@ D13/D14 — CLOSED `f730ddd`; G22–G25 — CLOSED `f730ddd`; B35 — CLOSED
 Очередь 1 закрыта коммитом `a7c8a0c` (D9/D10/D12, G11–G14, F18); очередь 2
 закрыта коммитом `f730ddd` (D5 — тег `v0.1.0`, D6/D7, D13/D14, G22–G25, B35),
 кроме D8 — DEFERRED (вариант C, `f730ddd`; см. `audit/QUEUE2_DONE.md`).
-Осталось: 15 STOP (очередь 3 + F14) и 6 DEFERRED (v5). Первый шаг — re-run
+Осталось: 15 STOP (очередь 3 + F14) и 1 DEFERRED (D8; в v5 было 6, XM-5
+закрыт в v6 `ebb7d66`, MI-3/TE-3/XM-1/XM-2 — в v5). Первый шаг — re-run
 CI (traceback `test-windows`, E6): инфраструктурный, независим от данных и не
 меняет численного контракта. Затем, для статистических вопросов, — получение
 реальных данных (A9/A10/A11): по B20/B25/B26/B27 корректность нельзя
@@ -1180,8 +1188,8 @@ CI (traceback `test-windows`, E6): инфраструктурный, незав�
 
 ## Что НЕ входит в этот документ
 
-- 155 не-STOP находки BACKLOG (CLOSED 130, OPEN 4, PARTIAL 3, FALSE 6,
-  OBSOLETE 2, UNVERIFIED 4, DEFERRED 6 (v5)).
+- 156 не-STOP находки BACKLOG (v6: CLOSED 137, OPEN 4, PARTIAL 5, FALSE 6,
+  OBSOLETE 2, UNVERIFIED 4, DEFERRED 1).
 - Сопряжённые UNVERIFIED: B19, C8, C9, C10. C8/C9/C10 требуют численного
   решения/прогона на Python 3.10–3.12 и не входят в счёт 15 STOP
   (+ 6 DEFERRED, v5); см. приложение ниже.

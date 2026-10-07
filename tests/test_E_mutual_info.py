@@ -58,6 +58,65 @@ def test_mi_gaussian_analytic_reference(rng):
     np.testing.assert_allclose(mi, expected, atol=0.05)
 
 
+def test_mi_ksg_gaussian_reference():
+    """Reference-валидация KSG: N=10000, rho=0.5, I = -0.5 ln(1-rho^2).
+
+    Непрерывные данные — родной режим KSG. Оценка должна лежать в 10%
+    от аналитического значения (MI-1 reference-валидация).
+    """
+    rho = 0.5
+    n = 10000
+    rng = np.random.default_rng(1234)
+    z1 = rng.normal(size=n)
+    z2 = rho * z1 + np.sqrt(1.0 - rho**2) * rng.normal(size=n)
+    analytic = -0.5 * np.log(1.0 - rho**2.0)   # ≈ 0.1438 nats
+    mi = mutual_information(z1, z2, k=5)
+    np.testing.assert_allclose(mi, analytic, atol=0.015)
+
+
+def test_mi_ksg_quantized_bias():
+    """Квантование 10 уровней: eps→0, KSG возвращает inf (bias ≠ малый).
+
+    Исходный план v6 ожидал смещение < 0.05, но измерение показало, что
+    при 10 уровнях доля нулевых k-х совместных расстояний ≈72%, log-члены
+    дают digamma(0) → -inf и оценка расходится. Тест фиксирует реальный
+    контракт (MI-1).
+    """
+    rho = 0.5
+    n = 10000
+    rng = np.random.default_rng(1234)
+    z1 = rng.normal(size=n)
+    z2 = rho * z1 + np.sqrt(1.0 - rho**2) * rng.normal(size=n)
+    xq = np.round(z1 * 10.0) / 10.0
+    yq = np.round(z2 * 10.0) / 10.0
+    with pytest.warns(UserWarning, match="continuous distributions"):
+        mi = mutual_information(xq, yq, k=5)
+    assert not np.isfinite(mi)
+    assert np.isinf(mi)
+
+
+def test_mi_ksg_fine_quantization_bias_positive_and_bounded():
+    """Тонкое квантование (s=100) даёт конечную, но завышенную оценку.
+
+    Эталон I ≈ 0.1438; измеренное смещение ≈ +0.17 (MI ≈ 0.31). Тест
+    фиксирует направление (вверх) и верхнюю границу смещения, а не
+    подгоняет число под аналитику.
+    """
+    rho = 0.5
+    n = 10000
+    rng = np.random.default_rng(1234)
+    z1 = rng.normal(size=n)
+    z2 = rho * z1 + np.sqrt(1.0 - rho**2) * rng.normal(size=n)
+    xq = np.round(z1 * 100.0) / 100.0
+    yq = np.round(z2 * 100.0) / 100.0
+    analytic = -0.5 * np.log(1.0 - rho**2.0)
+    with pytest.warns(UserWarning, match="continuous distributions"):
+        mi = mutual_information(xq, yq, k=5)
+    assert np.isfinite(mi)
+    assert mi > analytic                 # квантование смещает вверх
+    assert (mi - analytic) < 0.25        # но смещение ограничено сверху
+
+
 def test_mi_matrix_shape_and_symmetry(rng):
     """Матрица MI: 5x5, симметричная, диагональ нулевая."""
     wide = pd.DataFrame(
