@@ -7,7 +7,7 @@ import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
 RNG = np.random.default_rng(42)
-N_ITER = 5000
+N_ITER = 10000
 BLOCK = 24
 
 df = pd.read_parquet(ROOT / 'data' / 'processed' / 'unified.parquet')
