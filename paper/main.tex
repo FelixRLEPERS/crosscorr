@@ -1,4 +1,4 @@
-\documentclass[draft]{agujournal2019}
+\documentclass{agujournal2019}
 
 \usepackage{amsmath,amssymb}
 \usepackage{graphicx}
@@ -102,7 +102,9 @@ propagation paths beyond the reach of professional sounder networks
 Previous studies have demonstrated the utility of WSPR data for ionospheric
 remote sensing. \citet{frissell2016} showed qualitative coupling between WSPR
 spot patterns and geomagnetic disturbance, and proposed WSPR as a distributed
-ionospheric sensor within the HamSCI framework. \citet{labelle2023} analysed
+ionospheric sensor within the HamSCI framework, an effort now supported by
+a growing body of citizen-science ionospheric studies
+\citep{hamsci2023,cerwin2026,potter2026}. \citet{labelle2023} analysed
 WSPR network statistics and coverage, confirming sufficient traffic for HF
 propagation climatology. \citet{themens2021} modelled ionospheric storm response
 (including $f_oF_2$ and MUF) using first-principles models. Independently,
@@ -281,6 +283,12 @@ autocorrelation, we use a block permutation procedure
           $p = \frac{1}{N_{\text{perm}}} \sum_{i=1}^{N_{\text{perm}}}
           \mathbf{1}\{ |\Delta_{\text{perm}, i}| \ge |\Delta_{\text{observed}}| \}$.
 \end{enumerate}
+
+While a 24-hour block size may occasionally split multi-day storm events,
+this approach is conservative. It strictly preserves the diurnal baseline
+structure (the dominant source of variance in WSPR spot counts) under
+permutation, ensuring that the null distribution accurately reflects the
+natural daily cycle of the network.
 
 The same procedure is applied independently to $Dst$ ($Dst < -50$\,nT versus
 $Dst > -20$\,nT) and to pairwise comparisons between adjacent $Kp$ bins for the
