@@ -99,6 +99,38 @@ MUF reduction + D-layer absorption.
 15. `docs/NIGHT_LOG_18mo.md` (this file)
 16. `results/eda/` (all PNGs and JSONs)
 
+## Обнаружение и фикс дубликатов (2026-10-08)
+
+**Проблема:** независимый аудит (Qwen 3.8 27B через Bionic)
+выявил арифметическое расхождение в NIGHT_LOG.md.
+
+**Диагностика:**
+- unify_schema.py сохранял дубликаты при повторном скачивании
+  kp/dst (первая сессия 6mo + вторая 12mo → перекрытие)
+- kp: 5186 строк → 4471 unique (715 дубликатов)
+- dst: 12895 строк → 12870 unique (25 дубликатов)
+- Все дубликаты ИДЕНТИЧНЫ по значению — результат не искажён
+- After dedup: unified.parquet 79476 → 78736 (−740)
+
+**Фикс:**
+- Добавлен df.drop_duplicates(subset=['timestamp_utc',
+  'detector_id', 'detector_type'], keep='first') в unify_schema.py
+- Пересобрали unified.parquet
+- Проверили: permutation test даёт ТЕ ЖЕ числа:
+  * 20m: −27.7%, p<0.0001
+  * 40m: −27.2%, p<0.0001
+  * 15m: −38.7%, p<0.0001
+
+**Полный состав detector_type (6 штук):**
+- wspr_hourly: 39456 (13152 × 3 bands)
+- wspr: 21846 (raw data из первой сессии, не используется)
+- dst: 12870
+- kp: 4471
+- ephemeris: 75
+- f107: 18
+
+**Вывод:** аудит подтвердил целостность результата.
+
 ## Next steps
 
 1. Write preprint (manuscript.md)

@@ -366,6 +366,11 @@ def main() -> None:
 
     unified = unified[UNIFIED_COLUMNS].sort_values("timestamp_utc").reset_index(drop=True)
 
+    unified = unified.drop_duplicates(
+        subset=["timestamp_utc", "detector_id", "detector_type"],
+        keep="first",
+    ).reset_index(drop=True)
+
     out = PROCESSED / "unified.parquet"
     unified.to_parquet(out, index=False)
     logger.info(
