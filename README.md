@@ -4,572 +4,322 @@
 
 <h1 align="center">CrossCorr</h1>
 
-<p align="center"><i>Cross-correlation analysis of anomalies in heterogeneous time series</i></p>
-
-<p align="center"><i>Русская версия. English version coming soon.</i></p>
-
 <p align="center">
   <a href="https://www.python.org/"><img src="https://img.shields.io/badge/python-3.10%2B-blue" alt="Python"></a>
-  <a href="https://streamlit.io/"><img src="https://img.shields.io/badge/Streamlit-1.30%2B-FF4B4B?logo=streamlit&logoColor=white" alt="Streamlit"></a>
   <a href="https://github.com/FelixRLEPERS/crosscorr/actions">
     <img src="https://github.com/FelixRLEPERS/crosscorr/actions/workflows/ci.yml/badge.svg" alt="CI">
-</a>
+  </a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
-  <img src="https://img.shields.io/badge/status-active-brightgreen" alt="Status">
-  <a href="https://github.com/FelixRLEPERS/crosscorr/commits/main"><img src="https://img.shields.io/github/last-commit/FelixRLEPERS/crosscorr" alt="Last commit">
-</a>
+  <img src="https://img.shields.io/badge/mypy-checked-blue" alt="mypy: strict">
+  <img src="https://img.shields.io/badge/tests-291-green" alt="Tests">
 </p>
 
----
-
-## 📖 Оглавление
-
-- [О проекте](#о-проекте)
-- [Методология](#методология)
-- [Научная строгость](#научная-строгость)
-- [Структура репозитория](#структура-репозитория)
-- [Быстрый старт](#быстрый-старт)
-- [Данные](#данные)
-- [Пайплайн анализа](#пайплайн-анализа)
-- [Two pipelines](#two-pipelines)
-- [Demonstration](#demonstration)
-- [Игра и голосовой наставник](#игра-и-голосовой-наставник)
-- [Отдельные направления](#отдельные-направления)
-- [Результаты](#результаты)
-- [Статус проекта](#статус-проекта)
-- [Команда](#команда)
-- [Документация](#документация)
-- [Вклад ИИ](#вклад-ии)
-- [Скриншоты](#скриншоты)
-- [Лицензия](#лицензия)
-- [Контакты](#контакты)
+<p align="center"><i>A family science project studying ionospheric response to geomagnetic storms using WSPR amateur radio data.</i></p>
 
 ---
 
-## 🎯 О проекте
+## Main result
 
-**CrossCorr** — это открытый исследовательский проект, который объединяет разнородные временные ряды и проверяет гипотезы о наличии кросс-корреляций между ними. Мы не ищем «магическую связь», а строим воспроизводимый пайплайн: от загрузки и унификации данных до статистических тестов с контролем ложных обнаружений.
+> **WSPR radio propagation drops by 27–39% during geomagnetic storms (Kp ≥ 5), with a frequency-dependent signature revealing two competing physical mechanisms.**
 
-Проект задуман как семейный: папа отвечает за стратегию и код, мама — за коммуникации и тексты, Макар — за исследования, Егор — за данные и визуализацию. Мы хотим показать, что настоящая наука может быть совместным семейным делом.
+| Band | Frequency | Drop during Kp≥5 | p-value |
+|------|-----------|------------------|---------|
+| 20m  | 14 MHz    | −27.7%           | <0.0001 |
+| 40m  | 7 MHz     | −27.2%           | <0.0001 |
+| 15m  | 21 MHz    | −38.7%           | <0.0001 |
 
-**Ключевые принципы:**
+Based on 18 months (Apr 2024 – Sep 2025) of hourly WSPR data
+from [wspr.live](https://wspr.live), N = 198 hours with Kp ≥ 5.
+Confirmed independently by **both** Kp and Dst indices, across all
+4 seasons.
 
-- Открытые данные и открытый код.
-- Воспроизводимость каждого шага.
-- Статистическая строгость: surrogate-тесты, FDR-коррекция, байесовские модели.
-- Игровые форматы для вовлечения детей.
-- Прозрачность: явно указываем, где помогал ИИ.
+**Physical interpretation:** two competing mechanisms:
+- **MUF drop** (high frequencies, e.g., 15m) — ionospheric heating
+  lowers the maximum usable frequency
+- **D-layer absorption** (low/mid frequencies, e.g., 20m/40m) —
+  increased electron density in the D-layer absorbs HF signals
 
----
+![Frequency-dependent WSPR response to Kp](docs/figures/main_result.png)
 
-## 🔬 Методология
-
-1. **Унификация данных.**
-   Все источники приводятся к единому формату:
-
-   ```text
-   timestamp_utc, detector_id, detector_type, value,
-   residual, residual_method, unit, quality_flag, meta
-   ```
-
-   `value` — сырое наблюдение (SNR в дБ, X-компонента в нТ, расстояние
-   в а.е. — в зависимости от типа детектора). `residual` — остаток
-   после базовой модели; именно `residual` используется в анализе.
-
-2. **Базовая модель.**
-   Оценка остатков `residual = value - model(value)` в
-   [`crosscorr_lib/analysis/residuals.py`](crosscorr_lib/analysis/residuals.py):
-   для `detector_type == "ballistic"` — смешанная линейная модель,
-   для остальных типов — МНК по физическим конфаундерам.
-
-   ```text
-   ballistic:  value ~ charge_temp + mass + (1|range_id)
-   прочие:     value ~ kp + dst + f107
-   ```
-
-   Без конфаундеров модель не оценивается: `residual_method = "none"`,
-   `residual = value`. При ошибке фита: `residual = NaN`,
-   `quality_flag = 1`.
-
-   Реализация: `statsmodels` MixedLM (ballistic) и МНК (остальные).
-
-3. **Пространственная модель.**
-   Байесовская модель с экспоненциальным ядром ковариации для учёта пространственной структуры.
-   Реализация: `PyMC`.
-
-4. **Кросс-корреляционный анализ.**
-   Построение матрицы корреляций между детекторами и временными рядами.
-   Реализация: [`crosscorr_lib/analysis/cross_correlation.py`](crosscorr_lib/analysis/cross_correlation.py).
-
-5. **Мультифрактальный анализ.**
-   MFDFA для оценки фрактальных свойств рядов.
-   Реализация: [`MFDFA`](https://pypi.org/project/MFDFA/), [`crosscorr_lib/analysis/mfdfa.py`](crosscorr_lib/analysis/mfdfa.py).
-
-6. **Surrogate-тесты.**
-   Генерация фазовых суррогатов для проверки значимости наблюдаемых корреляций
-   (по умолчанию 200, 1000+ для публикационных прогонов).
-   Реализация: [`crosscorr_lib/analysis/surrogate.py`](crosscorr_lib/analysis/surrogate.py).
-
-7. **FDR-коррекция.**
-   Контроль доли ложных обнаружений при множественных сравнениях.
-   По умолчанию используется Benjamini–Yekutieli (устойчив к зависимым тестам),
-   Benjamini–Hochberg доступен опционально.
-
-Подробнее: [docs/methodology.md](docs/methodology.md)
+📄 Full report: [`docs/first_result.md`](docs/first_result.md)
+🛰 Data pipeline: [`docs/DATA_PIPELINE.md`](docs/DATA_PIPELINE.md)
 
 ---
 
-## Научная строгость
+## Status
 
-- **Max-statistic null** — p-value учитывает поиск по всем лагам, а не только по лучшему.
-  Без этого значимость завышалась бы (145 тестов на пару).
-- **Negative controls** — на чистом шуме 45 пар: **≤1 ложное срабатывание** (alpha=0.05).
-- **FDR** — единая реализация FDR в `crosscorr_lib/analysis/surrogate.py`
-  (по умолчанию Benjamini–Yekutieli, опционально Benjamini–Hochberg),
-  поддержка 1D и 2D входов.
-- **Distance-based analysis** — Mantel test для матриц корреляции и расстояния (default);
-  OLS-регрессия доступна опционально.
-  Подтверждена гипотеза: близкие детекторы коррелируют сильнее.
-- **Block bootstrap** — реализован (`crosscorr_lib/analysis/block_bootstrap.py`).
-- **Effective sample size** — реализован (`crosscorr_lib/analysis/effective_sample.py`).
-- **Physical confounders** (Kp, Dst, F10.7) — реализованы (`crosscorr_lib/analysis/confounders.py`).
-- **ADF stationarity test** — реализован (`crosscorr_lib/analysis/stationarity.py`).
+| Component | Status |
+|-----------|--------|
+| Data pipeline | ✅ Operational (fetch → unify → analysis) |
+| Real-data analysis | ✅ 18 months × 3 bands, p<0.0001 |
+| Statistical core | ✅ Reference-validated (max-stat, FDR, IAAFT) |
+| CI | ✅ Blocking (ruff, mypy, pytest) |
+| Tests | ✅ 291 passed |
+| Independent audit | ✅ Qwen 3.8 27B confirmed integrity on first result |
+| Preprint | 🚧 In preparation |
+| Journal submission | 🚧 Planned (Space Weather / Ann. Geophys.) |
 
-Проверки запускаются одной командой:
+---
+
+## What this project does
+
+CrossCorr is a Python library + research pipeline for studying
+correlations in heterogeneous sensor time series, with a focus
+on space-weather-driven effects on HF radio propagation.
+
+**Three layers:**
+
+1. **Data pipeline** (`data/scripts/`, `scripts/`) — fetches
+   WSPR, Kp, Dst, F10.7, ephemerides from public APIs, unifies
+   into a single parquet.
+2. **Statistical core** (`crosscorr_lib/analysis/`) — lagged
+   correlation, surrogate tests, max-stat, FDR, block bootstrap,
+   multifractal analysis, transfer entropy, mutual information.
+3. **Scientific analysis** (`scripts/eda_*.py`,
+   `scripts/perm_test_*.py`) — reproducible analysis of the
+   scientific hypothesis.
+
+---
+
+## Origins
+
+This is a father-son research project. Makar (13) built
+the data pipeline and ran the analysis; Alexey designed
+the methodology. The project started as a learning exercise
+in scientific computing and grew into a full research effort
+with a publishable result.
+
+Some early exploration code (an educational game interface
+in `crosscorr_lib/quest.py`) remains in the repository but
+is not part of the scientific pipeline.
+
+---
+
+## Quick start — reproduce the main result
 
 ```bash
-python -m pytest tests/ -v -m "not slow"
+git clone https://github.com/FelixRLEPERS/crosscorr
+cd crosscorr
+pip install -e ".[dev]"
+
+# 1. Download 18 months of WSPR data (3 bands) + Kp/Dst
+python data/scripts/fetch_all.py --start 2024-04-01 --end 2025-09-30
+
+# 2. Unify all sources into a single parquet
+python data/scripts/unify_schema.py
+
+# 3. Run EDA (6 months and 18 months)
+python scripts/eda_6mo_3band.py
+python scripts/eda_18mo_3band.py
+
+# 4. Statistical test (block permutation, 5000 iter)
+python scripts/perm_test_18mo_3band.py
 ```
 
----
+Outputs land in `results/eda/` (plots) and `results/*.json` (numbers).
 
-## Почему Max-statistic, а не Bonferroni
-
-Ключевое преимущество нашего подхода — **корректный p-value при поиске по 145 лагам без Bonferroni-коррекции**.
-
-**Наивный путь:** взять p-value на лучшем лаге $\tau^*$. Проблема: при $\alpha = 0.05$ и $145$ лагах вероятность **хотя бы одного** ложного срабатывания:
-$1 - 0.95^{145} \approx 99.8\%$.
-
-**Bonferroni:** $\alpha_{\text{eff}} = 0.05 / 145 \approx 0.00034$. Работает, но **слишком консервативен** — соседние лаги сильно коррелируют, Bonferroni это игнорирует.
-
-**Max-statistic null (наш подход):** тестируем статистику
-$T = \max_\tau |r(\tau)|$ против **того же максимума**, вычисленного на суррогатах:
-
-$$
-p = \frac{1 + \#\{b : T^{(b)} \geq T^{\text{obs}}\}}{1 + B}
-$$
-
-Поиск по лагам **внутри** нулевого распределения. Это **честная** поправка на множественный поиск — без завышения и без занижения.
-
-max-statistic is now default; naive path opt-in via --use-naive
-
-CLI: `python -m crosscorr_lib.analysis.cross_correlation` считает max-statistic по умолчанию. Наивный single-lag путь включается флагом `--use-naive` и печатает предупреждение о корректировке на множественный поиск по лагам. Флаг `--use-ess` работает только вместе с `--use-naive`; без него argparse завершает работу с кодом 2.
-
-Подробнее — в [`docs/PIPELINE.md`](docs/PIPELINE.md), раздел 4.
+⚠️ WSPR download requires access to [wspr.live](http://db1.wspr.live/)
+(public, no API key). From some regions you may need a VPN.
 
 ---
 
-## 📁 Структура репозитория
+## Data sources
+
+| Source | What | Resolution | Access |
+|---|---|---|---|
+| wspr.live | WSPR radio spots (3 bands) | 1 hour | Public ClickHouse API |
+| GFZ Potsdam | Kp index | 3 hours | Public JSON |
+| WDC Kyoto | Dst index (provisional) | 1 hour | Public |
+| NOAA SWPC | F10.7 solar flux | monthly | Public |
+| JPL Horizons | Ephemerides (Moon) | 1 hour | Public API |
+
+More: [`data/README.md`](data/README.md)
+
+---
+
+## Methods
+
+- Lagged cross-correlation with Spearman ρ
+- Max-statistic surrogate test (phase randomized)
+- Block permutation test (block = 24h) to control autocorrelation
+- Effective sample size correction (AR(1))
+- Benjamini–Hochberg / BY FDR control
+- Seasonal residuals (month × hour-of-day baseline removal)
+- Robustness: per-month replication, Kp vs Dst agreement, seasonal analysis
+
+All methods are reference-validated on synthetic data with known
+answers.
+
+Why max-statistic and not Bonferroni? See
+[docs/PIPELINE.md](docs/PIPELINE.md), section 4.
+
+---
+
+## Repository layout
 
 ```text
 crosscorr/
-├── assets/                      # SVG-логотипы и финальные кадры
-├── crosscorr_lib/               # ядро проекта
-│   ├── analysis/                # cross_correlation, surrogate, mfdfa, distance_analysis
-│   ├── safe_exec.py             # безопасное выполнение кода (P0-6)
-│   ├── ai_narrator.py
-│   ├── narrator.py
-│   └── quest.py
+├── crosscorr_lib/         # library (statistical core + pipeline)
+│   └── analysis/          # 19 modules: correlation, surrogate,
+│                          # MFDFA, TE, KSG, MSE, distance, ...
 ├── data/
-│   ├── scripts/                 # download_*, unify_schema, make_sample
-│   ├── detectors.csv            # координаты детекторов (lat, lon)
-│   └── processed/               # unified.parquet (gitignored)
-├── scripts/
-│   └── make_synthetic_unified.py # генератор тестовых данных
-├── tests/                       # pytest-тесты
-│   ├── test_cross_correlation_synthetic.py
-│   ├── test_fdr.py
-│   ├── test_max_statistic.py
-│   ├── test_negative_control.py
-│   └── test_distance_analysis.py
-├── results/                     # выходные CSV (gitignored)
-├── docs/
-├── README.md
-└── pyproject.toml
+│   ├── scripts/           # data pipeline (fetch, unify, schema)
+│   ├── raw/               # downloaded data (gitignored)
+│   ├── interim/           # intermediate (gitignored)
+│   └── processed/         # unified.parquet (gitignored)
+├── scripts/               # analysis scripts (EDA, permutation)
+├── tests/                 # pytest suite (291 tests)
+├── docs/                  # methodology, hypothesis, results, pipeline
+├── audit/                 # versioned audit reports
+└── results/               # outputs (plots, JSON)
 ```
 
 ---
 
-## 🚀 Быстрый старт
+## Two pipelines (analysis)
 
-### Требования
+CrossCorr provides two implementations of pair-level analysis.
+Choose based on network size and reproducibility requirements.
 
-- Python 3.10+
-- Git
-- Streamlit
-- Рекомендуется виртуальное окружение
-
-### Установка
-
-```bash
-git clone https://github.com/FelixRLEPERS/crosscorr.git
-cd crosscorr
-python -m venv .venv
-source .venv/bin/activate      # Linux / macOS
-# .venv\Scripts\activate       # Windows
-pip install -e ".[dev]"
-```
-
-### Запуск игры
-
-```bash
-streamlit run crosscorr_lib/quest.py
-```
-
-### Запуск голосового наставника
-
-```bash
-python crosscorr_lib/narrator.py
-```
-
-### Запуск AI-наставника
-
-```bash
-python crosscorr_lib/ai_narrator.py
-```
-
----
-
-## 🗄️ Данные
-
-Проект использует открытые источники. Сырые данные **не коммитятся** в репозиторий — только скрипты загрузки и небольшие примеры (`data/samples/`).
-
-| Источник | Тип данных | Ссылка |
-|---|---|---|
-| WSPR | Распространение радиосигналов | [wsprnet.org](https://wsprnet.org/) |
-| NGL | GNSS-данные | [ngl.unavco.org](https://ngl.unavco.org/) |
-| INTERMAGNET | Магнитное поле Земли | [intermagnet.org](https://intermagnet.org/) |
-| Oulu | Ионосферные данные | [cosmic.rl.ac.uk](https://cosmic.rl.ac.uk/) |
-| Ammolytics | Баллистические данные | [ammolytics.com](https://ammolytics.com/) |
-| BIPM | Метрологические данные | [bipm.org](https://www.bipm.org/) |
-| 1000 Genomes | Генетические данные | [internationalgenome.org](https://www.internationalgenome.org/) |
-| JPL Horizons | Эфемериды | [ssd.jpl.nasa.gov](https://ssd.jpl.nasa.gov/horizons/) |
-
-Формат унифицированной таблицы и правила добавления данных описаны в [data/README.md](data/README.md).
-JSON-схема: [data/schema/unified_schema.json](data/schema/unified_schema.json).
-
----
-
-## 🔬 Пайплайн анализа
-
-Полное описание: [crosscorr_lib/analysis/README.md](crosscorr_lib/analysis/README.md).
-
-Кратко:
-
-```bash
-# 1. Скачать данные
-python data/scripts/download_wspr.py --date 2025-01-01
-python data/scripts/download_intermagnet.py --file path/to/file.min
-python data/scripts/download_horizons.py --planet mars --start 2025-01-01 --stop 2025-02-01
-
-# 2. Унифицировать
-python data/scripts/unify_schema.py
-
-# 3. Сделать сэмпл для тестов
-python data/scripts/make_sample.py
-
-# 4. Кросс-корреляция
-python -m crosscorr_lib.analysis.cross_correlation --freq 1h
-
-# 5. Surrogate-тесты и FDR
-python crosscorr_lib/analysis/surrogate.py --n 1000 --alpha 0.05
-
-# 6. MFDFA
-python crosscorr_lib/analysis/mfdfa.py
-
-# 7. Distance-based analysis (корреляция vs расстояние)
-python -m crosscorr_lib.analysis.distance_analysis
-
-# 8. Быстрые тесты (skip slow)
-python -m pytest tests/ -v -m "not slow"
-
-# 9. Полный научный прогон (включая slow-тесты, ~3 минуты)
-python -m pytest tests/ -v
-
-```
-
-Артефакты анализа генерируются локально и не хранятся в git. Основной пайплайн:
-
-```bash
-python -m crosscorr_lib.analysis.cross_correlation --freq 1h
-python -m crosscorr_lib.analysis.distance_analysis
-python -m crosscorr_lib.analysis.mfdfa
-```
-
-Результаты записываются в `results/`:
-
-- `results/cross_correlation_pairs.csv` — tidy-формат: `detector_1, detector_2, lag, correlation, p_value, q_value, n_obs, significant`
-- `results/surrogate_significant.csv` — значимые пары после FDR
-- `results/mantel_result.csv` — результат Mantel-теста
-- `results/distance_analysis.csv` — пары + distance_km
-- `results/distance_summary.csv` — сводка по бинам расстояний
-- `results/figures/` — PNG и SVG графики
-
-Состав и значения зависят от версии кода: при изменении методологии файлы следует перегенерировать, а не переиспользовать из предыдущего прогона.
-
-### Безопасность выполнения кода
-
-Код, который пишет ребёнок, выполняется в **изолированном subprocess** с timeout 5 секунд. Опасные имена (`open`, `exec`, `eval`, `__import__`, `import os`, `import sys`) блокируются через **AST-парсер** — не наивный поиск подстроки.
-
-- `while True: pass` — прерывается через timeout.
-- `import os; os.system(...)` — блокируется до выполнения.
-- `pos = 5` (содержит `os`) — **разрешается**, ложных срабатываний нет.
-
-Реализация: [`crosscorr_lib/safe_exec.py`](crosscorr_lib/safe_exec.py).
-> **⚠️ Важно:** `safe_exec.py` — это **фильтр для обучающих сценариев** в детской игре, а не полноценная песочница для недоверенного кода. Он блокирует очевидные опасные вызовы (`open`, `exec`, `import os`) через AST-парсер и изолирует процесс с timeout. Но он **не заменяет** контейнеризацию (Docker, seccomp, cgroups) для production-сценариев с произвольным пользовательским кодом.
-
----
-
-## Two pipelines
-
-CrossCorr provides two implementations of pair-level analysis. Choose
-based on network size and reproducibility requirements.
-
-| | `cross_correlation_pairs_with_max_stat` | `pairs.cross_correlation_pairs_with_max_stat` |
+| | Standard | Shared-memory |
 |---|---|---|
 | Module | `crosscorr_lib.analysis.cross_correlation` | `crosscorr_lib.pairs` |
-| Surrogate generation | per-pair, from scratch | pre-generated once per detector |
+| Surrogates | per-pair, from scratch | pre-generated once per detector |
 | Parallelization | joblib + pickle | `multiprocessing.shared_memory` |
-| FFT batch correlation | no | yes (`_batch_max_stat_corr`) |
-| Complexity (N pairs) | O(N² · B · T log T) | O(N · B · T log T + N² · T log T) |
-| Memory | pickled copies per worker | single shared block |
+| Complexity | O(N² · B · T log T) | O(N · B · T log T + N² · T log T) |
 | Verdicts | — | INVARIANT / CANDIDATE / NOISE |
-| Method choices | `phase`, `iaaft`, `time_shift` | `shuffle`, `phase`, `ar` |
 | FDR | BY or BH | BH with monotonicity |
 
-### Interactive / exploratory
+**N ≤ 20, exploratory** → standard.
+**N > 20, publication-quality** → shared-memory.
 
-Use the older implementation for small networks or interactive work.
-It runs serially by default and does not require shared memory.
-
-```python
-from crosscorr_lib import cross_correlation_pairs_with_max_stat
-
-result = cross_correlation_pairs_with_max_stat(
-    wide,
-    max_lag=72,
-    n_surrogates=200,
-    alpha=0.05,
-    fdr_method="by",
-)
-# columns: detector_1, detector_2, lag, correlation,
-#          p_value, q_value, n_obs, significant, n_surrogates
-```
-
-### Production / large networks
-
-Use the shared-memory pipeline for N > 20, B > 100, or dense sampling.
-It pre-generates surrogates once per detector and shares them across
-workers via `multiprocessing.shared_memory`, avoiding pickle overhead.
-
-```python
-from crosscorr_lib import pairs
-
-result = pairs.cross_correlation_pairs_with_max_stat(
-    wide,
-    seed=42,
-    method="phase",
-    B=200,
-    n_jobs=-1,
-)
-# columns: detector_a, detector_b, C_obs,
-#          p_value, q_value, verdict
-```
-
-### Which to choose
-
-- **N ≤ 20, exploratory analysis** → `cross_correlation_pairs_with_max_stat`
-- **N > 20, publication-quality run** → `pairs.cross_correlation_pairs_with_max_stat`
-- **Memory-limited environment** → `cross_correlation_pairs_with_max_stat`
-- **HPC / many CPUs** → `pairs.cross_correlation_pairs_with_max_stat`
-
-Both pipelines apply FDR correction and produce tidy DataFrames.
+Full details: [`docs/PIPELINE.md`](docs/PIPELINE.md)
 
 ---
 
-## Demonstration
+## Scientific context
 
-Synthetic sensor network validation: CrossCorr detects hidden correlations between detectors without any prior knowledge of which pairs are coupled.
+**Motivation:** WSPR is a global network of low-power HF beacons.
+Ionospheric disturbances caused by geomagnetic storms change its
+propagation. Quantifying this on open data is a citizen-science
+problem.
 
-![Network simulation](images/network_simulation.png)
+**Novel contribution:** Frequency-dependent signature (two regimes)
+across 18 months of data, confirmed by two independent geomagnetic
+indices (Kp and Dst).
 
-**Setup:**
-- 10 detectors at random locations worldwide
-- 45 candidate pairs tested
-- 3 hidden pairs injected with coupling = 0.5 and random lags
-- 1000 phase surrogates per detector
-- Seed: 42
+**Scientific rigor:**
+- Max-statistic null — p-value accounts for lag scanning
+- Negative controls — ≤1 false positive on 45 noise pairs (α=0.05)
+- FDR — Benjamini–Yekutieli by default
+- Distance-based analysis (Mantel test)
+- Block bootstrap, effective sample size, ADF stationarity
 
-**Result:**
-- Detected: **3 / 3** hidden pairs
-- Precision: 1.0000
-- Recall: 1.0000
-- F1: 1.0000
-- Runtime: 15.72 s
+---
 
-On the map: red lines are correctly detected pairs, orange lines are missed pairs. Grey dots are detectors, colored by type (WSPR, magnetometer, GNSS, ionosonde, ephemeris).
+## Reproducibility
 
-Reproduce:
+- All code public: this repository.
+- All data public: wspr.live + GFZ + Kyoto + NOAA + JPL.
+- All scripts deterministic (fixed RNG seeds).
+- Every result in `docs/first_result.md` is reproducible with
+  the 4 commands in Quick Start.
+- CI validates every commit (ruff, mypy, pytest — 291 tests).
+
+---
+
+## 📈 Results
+
+- [x] Synthetic benchmark: max-stat recovers injected lag
+- [x] Negative controls: ≤1 false positive (45 noise pairs)
+- [x] Distance-based analysis: slope < 0 (close detectors correlate more)
+- [x] **Real data: WSPR spots drop 27–39% during geomagnetic storms** (Kp≥5)
+- [x] Confirmed by Kp AND Dst, all 4 seasons, 5 independent storm events
+- [x] MFDFA spectra across all detectors
+- [x] Independent audit passed (Qwen 3.8 27B)
+
+---
+
+## 🎮 Educational component
+
+Interactive quest for children 11–13 years. "Ghost hunt" storyline:
+the child searches for ultra-small correlations in scientific data.
 
 ```bash
-python scripts/simulate_network.py --n-detectors 10 --n-hidden 3 \
-    --coupling 0.5 --B 1000 --seed 42
+streamlit run crosscorr_lib/quest.py          # interactive quest
+python crosscorr_lib/narrator.py              # voice mentor (edge-tts)
+python crosscorr_lib/ai_narrator.py           # AI mentor
 ```
 
----
-
-## 🎮 Игра и голосовой наставник
-
-Игровой модуль для детей 11–13 лет. Сюжет — «Охота на призрака»: ребёнок ищет сверхмалые корреляции в данных.
-
-- [`crosscorr_lib/quest.py`](crosscorr_lib/quest.py) — интерактивный квест (Streamlit, видео-фон, музыка).
-- [`crosscorr_lib/narrator.py`](crosscorr_lib/narrator.py) — голосовой наставник на базе `edge-tts` (бесплатно, без API-ключей).
-- [`crosscorr_lib/ai_narrator.py`](crosscorr_lib/ai_narrator.py) — AI-наставник, объясняющий результаты анализа.
-
-Подробное описание сюжета и уровней — в `crosscorr_lib/quest.py`.
+Code safety: children's code runs in isolated subprocess with timeout
+(5 s). Dangerous names (`open`, `exec`, `import os`) blocked via AST
+parser. See [`crosscorr_lib/safe_exec.py`](crosscorr_lib/safe_exec.py).
 
 ---
 
-## Отдельные направления
+## AI assistance
 
-Проект CrossCorr Core (научное ядро) — этот репозиторий.
-Отдельные эксперименты вынесены в docs/:
-
-- **CrossCorr Fund** — экспериментальная концепция децентрализованного
-  финансирования [docs/fund.md](docs/fund.md)
-
----
-
-## 📈 Результаты
-
-Раздел будет пополняться по мере прогонов пайплайна.
-
-- [x] Синтетический бенчмарк: лаговая CC восстанавливает lag=6
-- [x] Negative controls: ≤1 ложное срабатывание на 45 парах шума
-- [x] Distance-based analysis: slope < 0 (близкие коррелируют сильнее)
-- [x] Max-statistic null: p-value учитывает поиск по всем лагам
-- [ ] Первый прогон на реальных WSPR + Horizons
-- [ ] Кросс-корреляционная матрица за неделю
-- [ ] Surrogate-тесты (n=1000) с FDR
-- [ ] MFDFA-спектры по всем детекторам
-
-Графики появятся в `results/` и будут вставлены в [Скриншоты](#скриншоты).
+This project uses LLMs as programming and analysis assistants
+(DeepSeek V4 Pro via Polza.ai, Bonsai 27B locally, Qwen 3.8 27B
+for independent audit). All scientific decisions, hypotheses, and
+conclusions are made by the human authors.
 
 ---
 
-## 📌 Статус проекта
+## Authors
 
-- ✅ Голосовой наставник (`crosscorr_lib/narrator.py`)
-- ✅ AI-наставник (`crosscorr_lib/ai_narrator.py`)
-- ✅ Безопасное выполнение кода (`crosscorr_lib/safe_exec.py`)
-- ✅ Тесты (`pytest`, более 270 тестов)
-- ✅ Distance-based analysis (Mantel test для матриц корреляции и расстояния (default);
-  OLS-регрессия доступна опционально)
-- ✅ Max-statistic null для лагов
-- ✅ Negative controls (≤1 ложное на шуме)
-- ✅ Единая FDR (1D + 2D)
-- ✅ Physical confounders (Kp, Dst, F10.7)
-- ✅ Effective sample size
-- ✅ Block bootstrap
-- ✅ ADF stationarity test
-- ✅ BY-FDR (Benjamini-Yekutieli)
-- ✅ IAAFT surrogate
-- ✅ CI (GitHub Actions) — fast + slow jobs
-- ✅ MixedLM для остатков (`crosscorr_lib/analysis/residuals.py`)
-- 🧪 experimental/standalone: Mutual Information (`crosscorr_lib/analysis/mutual_info.py`)
-- 🧪 experimental/standalone: Transfer Entropy (`crosscorr_lib/analysis/transfer_entropy.py`)
-- 🧪 experimental/standalone: MSE (`crosscorr_lib/analysis/mse.py`)
-- 🧪 experimental/standalone: Cross-MFDFA (`crosscorr_lib/analysis/cross_mfdfa.py`)
-- 🚧 PyMC пространственная модель
+| Role | Name |
+|------|------|
+| Research design, methodology, code review | Alexey (father) |
+| Data pipeline, statistical analysis, reproducibility | Makar (13 y.o.) |
 
-Актуальный план: [docs/roadmap.md](docs/roadmap.md)
+Father and son are the sole scientific authors of this work.
+
+> GitHub account: [@FelixRLEPERS](https://github.com/FelixRLEPERS)
+> (project repository; scientific authorship uses the family name).
+
+## Acknowledgments
+
+We thank Mama for communications support and outreach.
+
+## Development
+
+Git hygiene, review process, and academy tasks:
+[CONTRIBUTING.md](CONTRIBUTING.md),
+[docs/academy/git_checklist.md](docs/academy/git_checklist.md),
+[docs/academy/README.md](docs/academy/README.md).
 
 ---
 
-## 👨‍👩‍👦 Команда
+## Citation
 
-| Роль | Участник | Возраст | Зона ответственности |
-|---|---|---|---|
-| Архитектор / CI | Алексей (папа) | 51 | Стратегия, архитектура, код, ревью |
-| Коммуникации | Мама | — | Тексты, презентации, связи, `docs/` |
-| Research / визуализация | Макар | 13 | Исследования, эксперименты, `visualization.py`, тесты |
-| Data / QA | Егор | 11 | Данные, `data/samples/`, озвучка, проверка понятности |
+If you use this work, please cite:
 
-Учебные задания для сыновей: [docs/academy/README.md](docs/academy/README.md).
-Процесс работы и ревью: [CONTRIBUTING.md](CONTRIBUTING.md).
-Git-гигиена для семьи: [docs/academy/git_checklist.md](docs/academy/git_checklist.md).
+```bibtex
+@misc{crosscorr2026,
+  author = {Petrov, Alexey and Petrov, Makar},
+  title = {Frequency-dependent WSPR response to geomagnetic
+           storms: two competing mechanisms},
+  year = {2026},
+  publisher = {GitHub},
+  howpublished = {\url{https://github.com/FelixRLEPERS/crosscorr}}
+}
+```
 
-**CrossCorr Fund (план, отдельное направление):** состав команды и роли —
-в [docs/fund.md](docs/fund.md).
-
----
-
-## 📚 Документация
-
-- [Методология](docs/methodology.md)
-- [Математическое описание пайплайна](docs/PIPELINE.md)
-- [План развития](docs/roadmap.md)
-- [Пайплайн анализа](crosscorr_lib/analysis/README.md)
-- [Описание данных](data/README.md)
+A DOI will be added after preprint submission.
 
 ---
 
-## 🤖 Вклад ИИ
+## License
 
-Проект использует ИИ как вспомогательный инструмент. Это указано явно, чтобы избежать вопросов о самостоятельности исследования.
+MIT. See [LICENSE](LICENSE).
 
-**Что делает ИИ:**
+## Contacts
 
-- генерация черновиков кода и текстов,
-- помощь в формулировке гипотез,
-- озвучка (через `edge-tts`),
-- структурирование документации.
-
-**Что делает человек:**
-
-- постановка задачи и гипотез,
-- выбор методов и интерпретация результатов,
-- валидация кода и данных,
-- финальные выводы и публикации.
+- GitHub: [FelixRLEPERS/crosscorr](https://github.com/FelixRLEPERS/crosscorr)
+- Issues: [github.com/FelixRLEPERS/crosscorr/issues](https://github.com/FelixRLEPERS/crosscorr/issues)
 
 ---
 
-## 🖼️ Скриншоты
-
-![Скриншот игры](images/quest_screenshot.png)
-
-<!-- Раскомментировать после первого прогона пайплайна:
-
-![Кросс-корреляционная матрица](results/cross_correlation.png)
-
-![MFDFA-анализ](results/mfdfa.png)
-
--->
-
----
-
-## 📄 Лицензия
-
-Проект распространяется под лицензией **MIT**. Подробнее: [LICENSE](LICENSE).
-
----
-
-## 📬 Контакты
-
-- GitHub Issues: [github.com/FelixRLEPERS/crosscorr/issues](https://github.com/FelixRLEPERS/crosscorr/issues)
-- Email: [felixrlepers@gmail.com](mailto:felixrlepers@gmail.com)
-- Сайт проекта: [felixrlepers.github.io/crosscorr](https://felixrlepers.github.io/crosscorr/)
-
----
-
-> Если вы нашли ошибку или хотите предложить идею — создайте Issue или Pull Request. Мы открыты к сотрудничеству.
+> If you found a bug or have an idea — open an Issue or Pull Request.
+> We are open to collaboration.
