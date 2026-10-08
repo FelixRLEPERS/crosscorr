@@ -105,7 +105,7 @@ def pairwise_perm_test(merged, kp_low, kp_high, band, block_size=BLOCK, n_iter=N
     """
     Compare drop for two Kp bins.
     H0: drop(Kp_low) == drop(Kp_high)
-    
+
     Only includes hours where Kp falls into [kp_low, kp_high) or [kp_high, kp_high+1).
     Permutes block-level labels to test if mean residual differs between bins.
     """
@@ -116,27 +116,27 @@ def pairwise_perm_test(merged, kp_low, kp_high, band, block_size=BLOCK, n_iter=N
     else:
         merged['resid'] = merged['value'] - merged.groupby(
             ['month', 'hour_of_day'])['value'].transform('mean')
-    
+
     # Select only the two bins
     mask_low = (merged['kp'] >= kp_low[0]) & (merged['kp'] < kp_low[1])
     mask_high = (merged['kp'] >= kp_high[0]) & (merged['kp'] < kp_high[1])
-    
+
     n_low = mask_low.sum()
     n_high = mask_high.sum()
-    
+
     if n_low < 3 or n_high < 3:
         return None, None, None, n_low, n_high
-    
+
     # Observed difference: mean(resid | high) - mean(resid | low)
     obs_diff = merged.loc[mask_high, 'resid'].mean() - merged.loc[mask_low, 'resid'].mean()
-    
+
     resid = merged['resid'].values
     kpv = merged['kp'].values
     n = len(resid)
     nb = n // block_size
     rblocks = resid[:nb * block_size].reshape(nb, block_size)
     kpv_trim = kpv[:nb * block_size]
-    
+
     stats = []
     for _ in range(n_iter):
         order = RNG.permutation(nb)
@@ -146,7 +146,7 @@ def pairwise_perm_test(merged, kp_low, kp_high, band, block_size=BLOCK, n_iter=N
         if s_low.sum() == 0 or s_high.sum() == 0:
             continue
         stats.append(rp[s_high].mean() - rp[s_low].mean())
-    
+
     stats = np.array(stats)
     p = (np.abs(stats) >= np.abs(obs_diff)).mean()
     return float(obs_diff), float(p), len(stats), n_low, n_high
@@ -164,7 +164,7 @@ for band in ['20m', '40m', '15m']:
     sub = wspr[wspr['band'] == band].copy()
     merged = pd.merge(sub, kp_h, on='hour', how='inner').sort_values('hour').reset_index(drop=True)
     merged['day_of_week'] = merged['hour'].dt.dayofweek
-    
+
     for (k_lo_0, k_lo_1), (k_hi_0, k_hi_1), label in bins:
         diff, p, n_valid, n_low, n_high = pairwise_perm_test(
             merged, (k_lo_0, k_lo_1), (k_hi_0, k_hi_1), band)
@@ -174,7 +174,7 @@ for band in ['20m', '40m', '15m']:
         sig = '***' if p < 0.001 else ('**' if p < 0.01 else ('*' if p < 0.05 else 'ns'))
         print(f"  [{band}] {label}: delta={diff:.0f}, p={p:.4f} {sig} "
               f"(N_low={n_low}, N_high={n_high})")
-        
+
         pairwise_results.setdefault(band, {})[label] = {
             'delta': round(float(diff)),
             'p_value': round(float(p), 4),
