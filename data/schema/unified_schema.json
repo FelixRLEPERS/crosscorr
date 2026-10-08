@@ -7,7 +7,7 @@
     "detector_id": { "type": "string", "minLength": 1 },
     "detector_type": {
       "type": "string",
-      "enum": ["wspr", "magnetometer", "gnss", "ionosonde", "ballistic", "metrology", "genome", "ephemeris"]
+      "enum": ["wspr", "magnetometer", "gnss", "ionosonde", "ballistic", "metrology", "genome", "ephemeris", "wspr_hourly"]
     },
     "value": {
       "type": "number",
