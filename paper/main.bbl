@@ -1,0 +1,80 @@
+\begin{thebibliography}{13}
+\providecommand{\natexlab}[1]{#1}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi:\discretionary{}{}{}#1}\else
+  \providecommand{\doi}{doi:\discretionary{}{}{}\begingroup
+  \urlstyle{rm}\Url}\fi
+
+\bibitem[{\textit{Benjamini and Hochberg}(1995)}]{benjamini1995}
+Benjamini, Y., and Y.~Hochberg (1995), Controlling the false discovery rate: A
+  practical and powerful approach to multiple testing, \textit{Journal of the
+  Royal Statistical Society: Series B (Methodological)}, \textit{57}(1),
+  289--300, \doi{10.1111/j.2517-6161.1995.tb02031.x}.
+
+\bibitem[{\textit{Davies}(1990)}]{davies1990}
+Davies, K. (1990), \textit{Ionospheric Radio}, no.~31 in IEE Electromagnetic
+  Waves Series, Peter Peregrinus Ltd. / IEE, London.
+
+\bibitem[{\textit{Davison and Hinkley}(1997)}]{davison1997}
+Davison, A.~C., and D.~V. Hinkley (1997), \textit{Bootstrap Methods and their
+  Application}, Cambridge University Press, Cambridge.
+
+\bibitem[{\textit{Frissell et~al.}(2016)\textit{Frissell, Miller, Kaeppler,
+  Ceglia, Pascoe, Sinanis, Smith, Williams, and Shovkoplyas}}]{frissell2016}
+Frissell, N.~A., E.~S. Miller, S.~R. Kaeppler, F.~Ceglia, D.~Pascoe,
+  N.~Sinanis, P.~Smith, R.~Williams, and A.~Shovkoplyas (2016), Ionospheric
+  sounding using real-time amateur radio reporting networks, \textit{Radio
+  Science}, \textit{51}(9), 1453--1464, \doi{10.1002/2016RS006081}.
+
+\bibitem[{\textit{Hargreaves}(1969)}]{hargreaves1969}
+Hargreaves, J.~K. (1969), Auroral absorption of hf radio waves in the
+  ionosphere: A review of results from the first decade of riometry,
+  \textit{Proceedings of the IEEE}, \textit{57}(8), 1348--1373,
+  \doi{10.1109/PROC.1969.7276}.
+
+\bibitem[{\textit{Kavanagh et~al.}(2004)\textit{Kavanagh, Kosch, Honary,
+  Senior, Marple, Woodfield, and Rijnbeek}}]{kavanagh2004}
+Kavanagh, A.~J., M.~J. Kosch, F.~Honary, A.~Senior, S.~R. Marple, E.~E.
+  Woodfield, and R.~A.~D. Rijnbeek (2004), The statistical dependence of
+  auroral absorption on geomagnetic and solar wind parameters, \textit{Annales
+  Geophysicae}, \textit{22}, 877--887, \doi{10.5194/angeo-22-877-2004}.
+
+\bibitem[{\textit{LaBelle et~al.}(2023)}]{labelle2023}
+LaBelle, J.~W., et~al. (2023), Heliophysics and amateur radio: citizen science
+  collaborations for atmospheric, ionospheric, and space physics research and
+  operations, \textit{Frontiers in Astronomy and Space Sciences}, \textit{10},
+  1184,171, \doi{10.3389/fspas.2023.1184171}.
+
+\bibitem[{\textit{Pr{\"o}lss}(1995)}]{proelss1995}
+Pr{\"o}lss, G.~W. (1995), Ionospheric {F} region storms, in \textit{Handbook of
+  Atmospheric Electrodynamics}, vol.~2, edited by H.~Volland, pp. 195--248, CRC
+  Press.
+
+\bibitem[{\textit{Reid}(1974)}]{reid1974}
+Reid, G.~C. (1974), Polar-cap absorption---observations and theory,
+  \textit{Fundamentals of Cosmic Physics}, \textit{1}(3), 167--200.
+
+\bibitem[{\textit{Rodger et~al.}(2010)\textit{Rodger, Clilverd,
+  Sepp{\"a}l{\"a}, Thomson, Gamble, Parrot, Sauvaud, and Ulich}}]{rodger2010}
+Rodger, C.~J., M.~A. Clilverd, A.~Sepp{\"a}l{\"a}, N.~R. Thomson, R.~J. Gamble,
+  M.~Parrot, J.-A. Sauvaud, and T.~Ulich (2010), Radiation belt electron
+  precipitation due to geomagnetic storms: Significance to middle atmosphere
+  ozone chemistry, \textit{Journal of Geophysical Research: Atmospheres},
+  \textit{115}(D11), D11,304, \doi{10.1029/2009JD013260}.
+
+\bibitem[{\textit{R{\o}yrvik and Davis}(1977)}]{royrvik1977}
+R{\o}yrvik, O., and T.~N. Davis (1977), Pulsating aurora: Local and global
+  morphology, \textit{Journal of Geophysical Research}, \textit{82}(29),
+  4720--4740.
+
+\bibitem[{\textit{Taylor}(2010)}]{taylor2010}
+Taylor, J. (2010), Wspr 2.0 user's guide, available at
+  \url{http://physics.princeton.edu/pulsar/K1JT/WSPR_2.0_User.pdf}.
+
+\bibitem[{\textit{Themens et~al.}(2021)\textit{Themens, Jayachandran, and
+  Langley}}]{themens2021}
+Themens, D.~R., P.~T. Jayachandran, and R.~B. Langley (2021), An updated model
+  of the auroral {D}-region, \textit{Journal of Geophysical Research: Space
+  Physics}, \textit{126}(6), e2020JA028,978, \doi{10.1029/2020JA028978}.
+
+\end{thebibliography}
