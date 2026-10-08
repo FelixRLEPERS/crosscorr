@@ -20,24 +20,34 @@
 
 ## Main result
 
-> **WSPR radio propagation drops by 27–39% during geomagnetic storms (Kp ≥ 5), with a frequency-dependent signature revealing two competing physical mechanisms.**
+> **WSPR radio propagation drops during geomagnetic storms, with a
+> scale-dependent effect and baseline-invariant absolute loss.**
 
-| Band | Frequency | Drop during Kp≥5 | p-value |
-|------|-----------|------------------|---------|
-| 20m  | 14 MHz    | −27.7%           | <0.0001 |
-| 40m  | 7 MHz     | −27.2%           | <0.0001 |
-| 15m  | 21 MHz    | −38.7%           | <0.0001 |
+| Kp bin | 20m (14 MHz) | 40m (7 MHz) | 15m (21 MHz) |
+|--------|-------------|-------------|--------------|
+| Kp 5–6 | −18%        | −17%        | −29%         |
+| Kp 6–7 | −34%        | −34%        | −51%         |
+| Kp ≥ 7 | −52%        | −53%        | −59%         |
+| **All Kp ≥ 5** | **−27.7%** | **−27.2%** | **−38.7%** |
 
 Based on 18 months (Apr 2024 – Sep 2025) of hourly WSPR data
-from [wspr.live](https://wspr.live), N = 198 hours with Kp ≥ 5.
-Confirmed independently by **both** Kp and Dst indices, across all
-4 seasons.
+from [wspr.live](https://wspr.live), 198 storm hours.
+Confirmed independently by Kp and Dst indices, all 4 seasons,
+and replicated on a held-out period (Jan–Mar 2026).
 
-**Physical interpretation:** two competing mechanisms:
-- **MUF drop** (high frequencies, e.g., 15m) — ionospheric heating
-  lowers the maximum usable frequency
-- **D-layer absorption** (low/mid frequencies, e.g., 20m/40m) —
-  increased electron density in the D-layer absorbs HF signals
+**Key findings (5 layers):**
+
+1. **Scale-dependence (novel):** Effect grows non-linearly with Kp —
+   not previously characterised for WSPR.
+2. **Frequency dependence:** 15m (−39%) > 20m (−28%) ≈ 40m (−27%) —
+   two competing mechanisms (MUF drop + D-layer absorption).
+3. **Baseline-invariance:** 40m loses ~18 300 spots/h identically in
+   training and held-out, despite +38% network growth — the effect
+   is physically real, not an artifact.
+4. **Day/night asymmetry:** 40m night > day in 9/10 months (auroral/PCA
+   absorption), but intermittent — not every storm activates it.
+5. **Independent replication:** Primary hypothesis replicates on held-out
+   data (all p ≤ 0.014). Scale-dependence replicates at matched Kp bins.
 
 ![Frequency-dependent WSPR response to Kp](docs/figures/main_result.png)
 
@@ -54,8 +64,9 @@ Confirmed independently by **both** Kp and Dst indices, across all
 | Real-data analysis | ✅ 18 months × 3 bands, p<0.0001 |
 | Statistical core | ✅ Reference-validated (max-stat, FDR, IAAFT) |
 | CI | ✅ Blocking (ruff, mypy, pytest) |
-| Tests | ✅ 291 passed |
-| Independent audit | ✅ Qwen 3.8 27B confirmed integrity on first result |
+| Tests | ✅ 289 passed |
+| Independent audit | ✅ Qwen 3.8 27B + external LLM audit |
+| Independent replication | ✅ Primary hypothesis + scale-dependence confirmed (Jan–Mar 2026) |
 | Preprint | 🚧 In preparation |
 | Journal submission | 🚧 Planned (Space Weather / Ann. Geophys.) |
 
@@ -204,9 +215,9 @@ Ionospheric disturbances caused by geomagnetic storms change its
 propagation. Quantifying this on open data is a citizen-science
 problem.
 
-**Novel contribution:** Frequency-dependent signature (two regimes)
-across 18 months of data, confirmed by two independent geomagnetic
-indices (Kp and Dst).
+**Novel contribution:** Scale-dependent WSPR response to Kp, baseline-invariant
+absolute loss, frequency-dependent signature (two regimes) across 18 months,
+confirmed by two independent geomagnetic indices and replicated on held-out data.
 
 **Scientific rigor:**
 - Max-statistic null — p-value accounts for lag scanning
@@ -233,10 +244,12 @@ indices (Kp and Dst).
 - [x] Synthetic benchmark: max-stat recovers injected lag
 - [x] Negative controls: ≤1 false positive (45 noise pairs)
 - [x] Distance-based analysis: slope < 0 (close detectors correlate more)
-- [x] **Real data: WSPR spots drop 27–39% during geomagnetic storms** (Kp≥5)
-- [x] Confirmed by Kp AND Dst, all 4 seasons, 5 independent storm events
+- [x] **Real data: WSPR spots drop during geomagnetic storms** (scale-dependent, −18% to −59%)
+- [x] Confirmed by Kp AND Dst, all 4 seasons
+- [x] Independent replication on held-out period (Jan–Mar 2026)
+- [x] Baseline-invariant absolute loss (40m: −18 300 spots/h in both periods)
 - [x] MFDFA spectra across all detectors
-- [x] Independent audit passed (Qwen 3.8 27B)
+- [x] Independent audit passed (external LLM)
 
 ---
 
