@@ -1,9 +1,9 @@
-# CrossCorr — Export v2 for External Audit
+# CrossCorr — Export v3 for External Audit
 
-**Дата:** 2026-10-08 (обновлено)
+**Дата:** 2026-10-08 (финальный)
 **Версия:** v12 (18mo training + 3mo held-out replication)
-**Предыдущий аудит:** v11 (см. EXPORT_FOR_AUDIT.md)
-**Новые результаты:** scale-dependence, baseline-invariance, independent replication
+**Предыдущие аудиты:** v11 (EXPORT_FOR_AUDIT.md), v12 Qwen 3.8 Max (второй аудит)
+**Обработаны 4 рекомендации второго аудита:** [TODO] литература, 15m MUF-ceiling, pairwise Kp bins, day_of_week baseline
 **Authors:** Alexey Petrov (father), Makar Petrov (13 y.o.)
 **Repository:** https://github.com/FelixRLEPERS/crosscorr
 **Contact:** felixrpetrov@gmail.com
@@ -49,6 +49,17 @@
 | 3 | **Independent replication** | Primary реплицируется на held-out Jan-Mar 2026 (all p ≤ 0.014); scale-dependence реплицируется (Kp 6-7: 0.85-0.95×) | §11 |
 | 4 | **Day/night asymmetry** | 40m night > day в 9/10 training месяцев; не реплицируется в 3-месячном held-out (intermittent mechanism) | §11.3 |
 | 5 | **FDR applied** | Все 6 primary тестов (3 bands × {Kp, Dst}) survive BH correction | §4.2 |
+
+### 0.3 Ответы на рекомендации второго аудита (Qwen 3.8 Max, v12)
+
+Вердикт: ArXiv готово, Space Weather на 90%. 4 доработки:
+
+| # | Рекомендация | Статус | Что сделано |
+|---|-------------|--------|-------------|
+| 1 | Заполнить [TODO] в §8 (литература) | ✅ Done | Rodger (2010, JGR) и Kavanagh (2004, Ann. Geophys.) заполнены. Solar flare/SID и sporadic-E — [TODO: confirm] |
+| 2 | Объяснить 15m baseline-invariance 0.42× | ✅ Done | §7.5: 15m у MUF ceiling → новые станции на shorter/lower-lat paths не блокируются → dilution. 40m — uniform D-layer → 1.00× |
+| 3 | Pairwise permutation test между Kp bins | ✅ Done | §7.3.1: 9 сравнений, 7/9 значимы (p<0.05). 15m Kp 6-7 vs 7+ ns — foF2 saturation |
+| 4 | day_of_week в baseline модель | ✅ Done | Baseline обновлён: (month × hour_of_day × day_of_week). Variance снижена на 12-16%, power повышена |
 
 ---
 
