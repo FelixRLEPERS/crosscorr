@@ -28,8 +28,8 @@ frequency dependence and baseline-invariant absolute loss}
       \SI{-18}{\percent}$, $Kp \ge 6 \rightarrow \SI{-42.8}{\percent}$,
       confirmed by independent replication
 \item The absolute spot loss is invariant to $\SI{+38}{\percent}$ network
-      growth ($\SI{-18300}{spots/h}$ in both periods), revealing fixed
-      vulnerable propagation paths
+      growth ($\SI{-18300}{spots/h}$ in both periods), indicating
+      structurally constrained vulnerable propagation paths
 \end{keypoints}
 
 \begin{abstract}
@@ -59,7 +59,7 @@ A key result is baseline invariance: the absolute spot loss on 40\,m is
 identical between training and held-out periods ($\SI{-18300}{spots/h}$
 in both), despite $\SI{+38}{\percent}$ growth in the WSPR network. This confirms
 that the storm effect is physically real, not a network-size artifact, and
-reveals a fixed population of vulnerable propagation paths.
+indicates a structurally constrained population of vulnerable propagation paths.
 We conclude that WSPR can serve as a distributed ionospheric sensor for
 detecting and characterising the scale-dependent effects of geomagnetic
 storms on HF propagation.
@@ -136,7 +136,7 @@ In this paper, we address these gaps with five contributions:
           scale-dependence;
     \item The discovery of baseline-invariant absolute spot loss: the number of
           lost spots per hour is constant across periods despite
-          $\SI{+38}{\percent}$ network growth, implying a fixed population of
+          $\SI{+38}{\percent}$ network growth, implying a structurally constrained population of
           vulnerable paths;
     \item A day/night asymmetry consistent with intermittent auroral and
           polar cap absorption during storms.
@@ -776,9 +776,9 @@ important implications for operational HF propagation monitoring:
           the denominator (network size) changes over time. Absolute spot loss
           per hour is a physically meaningful alternative that remains stable
           across periods.
-    \item \textbf{Fixed vulnerable paths:} The invariance on 40\,m (ratio = 1.00
+    \item \textbf{Structurally constrained paths:} The invariance on 40\,m (ratio = 1.00
           despite $\SI{+38}{\percent}$ growth) suggests that the population of
-          storm-vulnerable propagation paths is fixed. Adding more stations
+          storm-vulnerable propagation paths is structurally constrained. Adding more stations
           within the already-covered geographic region does not create new
           vulnerable paths; it only increases the quiet-time baseline.
     \item \textbf{Real-time monitoring:} WSPR spot density, normalised by the
@@ -811,15 +811,27 @@ detected and decomposed using WSPR as a distributed sensor.
           11-year solar cycle would provide stronger generalizability. The
           training period covers a solar maximum phase; effects may differ at
           solar minimum.
-    \item \textbf{Replication period:} The held-out sample of 3 months
-          (23 storm hours at $Kp \ge 5$) is too small to independently confirm
-          the frequency dependence and day/night asymmetry. A 6-month
+    \item \textbf{Replication period and statistical power:} The held-out
+          sample of 3 months contains only $N = 23$ storm hours
+          ($Kp \ge 5$), compared to $N = 198$ in the training period.
+          This limits statistical power for secondary effects such as the
+          day/night asymmetry. Specifically, the $+1.4\%$ anomaly for
+          15\,m at $Kp = 5\text{--}6$ in the held-out period is attributed
+          to low statistical power ($N < 5$ hours in this bin), whereas the
+          $Kp = 6\text{--}7$ bin ($N = 7$ hours) robustly replicates the
+          training trend ($\SI{-53.2}{\percent}$ held-out vs.\
+          $\SI{-50.7}{\percent}$ training). The purpose of the held-out
+          period is not to discover new effects but to confirm the direction
+          and order of magnitude of the primary results and the
+          scale-dependence gradient on independent data. A 6-month
           replication is planned but not yet complete due to wspr.live server
           throughput limits.
-    \item \textbf{Spatial resolution:} Hourly aggregation masks the geographic
-          distribution of affected paths. A storm may suppress spots on polar
-          paths but not equatorial ones. Per-path analysis is deferred to
-          future work.
+    \item \textbf{Spatial resolution:} Aggregating global spot counts masks
+          regional ionospheric responses (e.g., polar cap absorption vs.\
+          mid-latitude MUF depression). A storm may suppress spots on polar
+          paths but not equatorial ones. Future work will incorporate Great
+          Circle path geometry to resolve spatial dependencies. Per-path
+          analysis is deferred to future work.
     \item \textbf{Confounders:} F10.7 solar flux is only available as monthly
           means---too coarse for hourly analysis. Solar flare effects (Sudden
           Ionospheric Disturbances, SIDs) are not separately accounted for.
@@ -915,6 +927,21 @@ under the MIT license. The repository includes:
     \item Exploratory data analysis with binned analysis, block permutation
           tests, and all plots.
     \item Reproducible execution via the project \texttt{Makefile}.
+\end{itemize}
+
+
+%=============================================================
+\section*{Author Contributions}
+%=============================================================
+
+Following the Contributor Roles Taxonomy (CRediT):
+\begin{itemize}
+\item \textbf{A. Petrov}: Conceptualization, Methodology,
+      Formal analysis, Writing -- original draft,
+      Supervision, Project administration.
+\item \textbf{M. Petrov}: Data curation, Software,
+      Validation, Investigation, Writing -- review
+      \& editing.
 \end{itemize}
 
 
