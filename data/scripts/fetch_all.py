@@ -108,7 +108,7 @@ def iter_months(start: dt.date, end: dt.date):
 
 def _fetch_wspr_range(start: dt.date, end: dt.date, config: dict) -> int:
     """Скачать WSPR за диапазон дат. Возвращает число успешных дней."""
-    from data.scripts.download_wspr import fetch_wspr, normalize, RAW_DIR
+    from data.scripts.download_wspr import RAW_DIR, fetch_wspr, normalize
 
     band = config.get("wspr", {}).get("band", "20m")
     RAW_DIR.mkdir(parents=True, exist_ok=True)
@@ -134,7 +134,7 @@ def _fetch_wspr_range(start: dt.date, end: dt.date, config: dict) -> int:
 
 def _fetch_horizons_range(start: str, end: str, config: dict) -> int:
     """Скачать эфемериды JPL Horizons. Возвращает число успешных объектов."""
-    from data.scripts.download_horizons import fetch_ephemeris, RAW_DIR, PLANETS
+    from data.scripts.download_horizons import RAW_DIR, fetch_ephemeris
 
     objects = config.get("horizons", {}).get("objects", ["sun", "moon"])
     step = config.get("horizons", {}).get("step", "1h")
@@ -186,9 +186,9 @@ def _fetch_space_weather(start: str, end: str, indices: set[str]) -> int:
     """Скачать индексы космической погоды. Возвращает число успешных."""
     from data.scripts.download_space_weather import (
         RAW_DIR,
-        fetch_kp,
         fetch_dst,
         fetch_f107,
+        fetch_kp,
     )
 
     funcs = {"kp": fetch_kp, "dst": fetch_dst, "f107": fetch_f107}

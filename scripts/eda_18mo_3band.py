@@ -1,8 +1,13 @@
 """Phase 4: EDA 18-month x 3-band with seasonal analysis."""
-import pandas as pd, numpy as np, matplotlib, json
+import json
+
+import matplotlib
+import pandas as pd
+
 matplotlib.use('Agg')
-import matplotlib.pyplot as plt
 from pathlib import Path
+
+import matplotlib.pyplot as plt
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'results' / 'eda'
@@ -60,7 +65,7 @@ for band in ['20m', '40m', '15m']:
     print(f"Absolute drop: {drop:.1f}%")
 
     all_results[band] = {'N': N, 'N_storm': int(storm_N), 'drop_pct': round(drop, 1),
-                         'binned': {str(k): int(v) for k, v in zip(bins_labels, binned['mean_resid'])}}
+                         'binned': {str(k): int(v) for k, v in zip(bins_labels, binned['mean_resid'], strict=False)}}
 
     # Single-band plot
     fig, ax = plt.subplots(figsize=(10, 5))
@@ -112,11 +117,13 @@ for band in ['20m', '40m', '15m']:
                 6: 'summer', 7: 'summer', 8: 'summer',
                 9: 'autumn', 10: 'autumn', 11: 'autumn',
             })).query(f'season == "{season}"')
-        if len(sm) < 10: continue
+        if len(sm) < 10:
+            continue
         sm['resid'] = sm['value'] - sm.groupby('hour_of_day')['value'].transform('mean')
         n5 = (sm['kp'] >= 5).sum()
         n0 = (sm['kp'] < 3).sum()
-        if n5 < 2 or n0 < 5: continue
+        if n5 < 2 or n0 < 5:
+            continue
         delta = sm.loc[sm['kp'] >= 5, 'resid'].mean() - sm.loc[sm['kp'] < 3, 'resid'].mean()
         seasonal[band][season] = {'N': len(sm), 'N_storm': int(n5), 'delta': round(float(delta))}
 

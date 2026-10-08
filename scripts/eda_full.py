@@ -8,12 +8,15 @@ Key features:
 """
 
 import json
+
+import matplotlib
 import numpy as np
 import pandas as pd
-import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
 from pathlib import Path
+
+import matplotlib.pyplot as plt
 
 # ---------------------------------------------------------------------------
 # Setup
@@ -96,7 +99,6 @@ def block_permutation_test(values, condition_mask, n_perm=10_000, block=24):
     obs = v[c].mean() - v[~c].mean()
 
     # Permutation by blocks
-    blocks_v = v.reshape(n_blocks, block)
     blocks_c = c.reshape(n_blocks, block)
     perm_stats = np.empty(n_perm)
 
@@ -181,7 +183,7 @@ print(f"Block permutation p-value (block={BLOCK_HRS}h): {p_kp_block:.4f}")
 print(f"Naive permutation p-value:                    {p_kp_naive:.4f}")
 
 # --- Dst ---
-print(f"\n--- Binned Dst (residuals) ---")
+print("\n--- Binned Dst (residuals) ---")
 print(f"Dst merge: {len(m_dst)} rows")
 
 dst_bins = [(-200, -50, "Dst < -50"), (-50, -20, "Dst -50..-20"),
@@ -254,7 +256,7 @@ k_bins = [("KP<3", m_kp["kp"] < 3, "steelblue"),
 
 ax = axes[0]
 x_labels, x_means, x_ci_low, x_ci_high = [], [], [], []
-for label, mask, color in k_bins:
+for label, mask, _color in k_bins:
     val = m_kp["spots_resid"][mask].values
     n = len(val)
     x_labels.append(f"{label}\nN={n}")
@@ -396,5 +398,5 @@ summary = {
 with open(str(OUT / "summary_2months.json"), "w", encoding="utf-8") as f:
     json.dump(summary, f, indent=2, ensure_ascii=False)
 
-print(f"\n[OK] summary_2months.json")
+print("\n[OK] summary_2months.json")
 print("[DONE] All outputs saved to results/eda/")

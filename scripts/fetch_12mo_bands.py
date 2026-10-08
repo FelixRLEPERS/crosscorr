@@ -1,9 +1,11 @@
 """Phase 1: Download 40m + 15m for 12 new months."""
-import sys, os
+import sys
+
 sys.path.insert(0, r'G:\crosscorr\data\scripts')
-from download_wspr import fetch_wspr_hourly
 import datetime as dt
 from pathlib import Path
+
+from download_wspr import fetch_wspr_hourly
 
 RAW = Path(r'G:\crosscorr\data\raw\wspr')
 RAW.mkdir(parents=True, exist_ok=True)

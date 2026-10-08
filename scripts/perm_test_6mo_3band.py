@@ -1,6 +1,9 @@
 """Phase 5-6: Permutation test + per-month robustness, 6 months x 3 bands."""
-import pandas as pd, numpy as np, json
+import json
 from pathlib import Path
+
+import numpy as np
+import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
 RNG = np.random.default_rng(42)
@@ -114,7 +117,7 @@ for band in ['20m', '40m', '15m']:
 
     monthly = per_month_check(merged)
     monthly_results[band] = monthly
-    print(f"\n  Per-month:")
+    print("\n  Per-month:")
     for row in monthly:
         if 'delta' in row and row['delta'] is not None:
             print(f"    {row['month']}: N={row['N']}, storm={row['N_storm']}, "
@@ -125,10 +128,10 @@ for band in ['20m', '40m', '15m']:
 out = {
     'config': {'n_iter': N_ITER, 'block_size': BLOCK},
     'permutation': perm_results,
-    'per_month': {k: v for k, v in monthly_results.items()},
+    'per_month': dict(monthly_results),
 }
 
 (ROOT / 'results').mkdir(exist_ok=True)
 with open(str(ROOT / 'results' / 'perm_test_6mo_3band.json'), 'w') as f:
     json.dump(out, f, indent=2, ensure_ascii=False)
-print(f"\n[OK] results/perm_test_6mo_3band.json")
+print("\n[OK] results/perm_test_6mo_3band.json")

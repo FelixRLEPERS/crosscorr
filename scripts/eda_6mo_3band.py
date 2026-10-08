@@ -1,8 +1,13 @@
 """Phase 4: EDA 6-month x 3-band analysis."""
-import pandas as pd, numpy as np, matplotlib
+import matplotlib
+import numpy as np
+import pandas as pd
+
 matplotlib.use('Agg')
-import matplotlib.pyplot as plt, json
+import json
 from pathlib import Path
+
+import matplotlib.pyplot as plt
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'results' / 'eda'
@@ -62,7 +67,7 @@ for band in ['20m', '40m', '15m']:
 
     all_results[band] = {
         'N': N, 'N_storm': int(storm_N), 'N_quiet': int(quiet_N),
-        'binned': {str(k): v for k, v in zip(bins_labels, binned['mean_resid'])},
+        'binned': {str(k): v for k, v in zip(bins_labels, binned['mean_resid'], strict=False)},
         'abs_drop_pct': round(drop, 1),
     }
 
@@ -111,7 +116,6 @@ print("\n=== Summary ===")
 for band, r in all_results.items():
     print(f"{band}: N={r['N']}, drop={r['abs_drop_pct']}%")
 
-import json
 with open(str(OUT / 'eda_6mo_summary.json'), 'w') as f:
     json.dump(all_results, f, indent=2, ensure_ascii=False)
 print("[DONE] eda_6mo_summary.json")

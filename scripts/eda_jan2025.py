@@ -4,9 +4,10 @@
 """
 
 import json
-import pandas as pd
-import matplotlib.pyplot as plt
 from pathlib import Path
+
+import matplotlib.pyplot as plt
+import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT_DIR = ROOT / "results" / "eda"
@@ -69,7 +70,7 @@ axes[0].set_title("Raw correlation: spots vs Kp")
 axes[0].text(0.05, 0.95,
              f"Spearman r = {r_spearman:.3f}\nPearson r = {r_pearson:.3f}",
              transform=axes[0].transAxes, fontsize=11, va="top",
-             bbox=dict(boxstyle="round", facecolor="white", alpha=0.8))
+             bbox={"boxstyle": "round", "facecolor": "white", "alpha": 0.8})
 axes[0].grid(alpha=0.3)
 
 merged["kp_bin"] = pd.cut(merged["kp"], bins=[0, 1, 2, 3, 4, 9],

@@ -1,6 +1,9 @@
 """Phase 5: Permutation test 18mo x 3 band."""
-import pandas as pd, numpy as np, json
+import json
 from pathlib import Path
+
+import numpy as np
+import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
 RNG = np.random.default_rng(42)
@@ -42,7 +45,8 @@ def block_perm_test(merged, block_size=BLOCK, n_iter=N_ITER):
     for _ in range(n_iter):
         order = RNG.permutation(nb)
         rp = rblocks[order].ravel()
-        s = kpv >= 5; q = kpv < 3
+        s = kpv >= 5
+        q = kpv < 3
         if s.sum() == 0 or q.sum() == 0:
             continue
         stats.append(rp[s].mean() - rp[q].mean())
@@ -96,4 +100,4 @@ out = {'config': {'n_iter': N_ITER, 'block_size': BLOCK, 'period': '2024-04-01 .
 (ROOT / 'results').mkdir(exist_ok=True)
 with open(str(ROOT / 'results' / 'perm_test_18mo_3band.json'), 'w') as f:
     json.dump(out, f, indent=2, ensure_ascii=False)
-print(f"\n[OK] results/perm_test_18mo_3band.json")
+print("\n[OK] results/perm_test_18mo_3band.json")

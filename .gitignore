@@ -48,3 +48,5 @@ bench.log
 aep/
 *.mp4
 *.mp3
+
+.mypy_cache/
