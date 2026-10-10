@@ -1,7 +1,7 @@
 """Generate ALL paper figures with 95% bootstrap CI error bars.
 
 Fig 2: Scale-dependence (Kp bins × bands) — with error bars
-Fig 4: Day/night asymmetry — with error bars  
+Fig 4: Day/night asymmetry — with error bars
 Fig 5: Baseline-invariant absolute loss — with error bars
 
 Also regenerates Fig 1 (Kp timeseries) and Fig 3 (frequency dependence).
@@ -80,7 +80,7 @@ for i, band in enumerate(BANDS):
     cis_hi = []
     ns = []
 
-    for lo, hi, label in zip(Kp_BINS_EDGES[:-1], Kp_BINS_EDGES[1:], Kp_BINS_LABELS):
+    for lo, hi, _label in zip(Kp_BINS_EDGES[:-1], Kp_BINS_EDGES[1:], Kp_BINS_LABELS, strict=False):
         mask = (merged["kp"] >= lo) & (merged["kp"] < hi) if hi < 10 else (merged["kp"] >= lo)
         vals = merged.loc[mask, "value"]
         if len(vals) < 3:
@@ -114,7 +114,7 @@ for i, band in enumerate(BANDS):
         x, drops, color="#E76F51", edgecolor="black", linewidth=0.5,
         yerr=yerr, capsize=5, error_kw={"elinewidth": 1.5, "capthick": 1.5},
     )
-    for j, (bar, n) in enumerate(zip(bars, ns)):
+    for j, (bar, n) in enumerate(zip(bars, ns, strict=False)):
         h = bar.get_height()
         axes[i].text(bar.get_x() + bar.get_width() / 2, h - 1.5 if h > 3 else h + 1.5,
                      f"{drops[j]:.1f}%\n(N={n})", ha="center", va="top" if h > 3 else "bottom",
@@ -353,14 +353,14 @@ ax.annotate(
     "40m: identical!\n(\u221218 300 spots/h)",
     xy=(0.5, 18304), xytext=(1.0, 21000),
     fontsize=10, fontweight="bold", color="#2A9D8F",
-    arrowprops=dict(arrowstyle="->", color="#2A9D8F", lw=1.5),
+    arrowprops={"arrowstyle": "->", "color": "#2A9D8F", "lw": 1.5},
     ha="center",
 )
 ax.annotate(
     "15m: \u00d70.42 dilution\n(MUF ceiling effect)",
     xy=(1.5, 2181), xytext=(1.6, 6000),
     fontsize=10, fontweight="bold", color="#264653",
-    arrowprops=dict(arrowstyle="->", color="#264653", lw=1.5),
+    arrowprops={"arrowstyle": "->", "color": "#264653", "lw": 1.5},
     ha="center",
 )
 
