@@ -35,6 +35,8 @@ from [wspr.live](https://wspr.live), 198 storm hours.
 Confirmed independently by Kp and Dst indices, all 4 seasons,
 and replicated on a held-out period (Jan–Mar 2026).
 
+Preprint: [DOI: 10.5281/zenodo.23283375](https://doi.org/10.5281/zenodo.23283375)
+
 **Key findings (5 layers):**
 
 1. **Scale-dependence (novel):** Effect grows non-linearly with Kp —
@@ -64,10 +66,10 @@ and replicated on a held-out period (Jan–Mar 2026).
 | Real-data analysis | ✅ 18 months × 3 bands, p<0.0001 |
 | Statistical core | ✅ Reference-validated (max-stat, FDR, IAAFT) |
 | CI | ✅ Blocking (ruff, mypy, pytest) |
-| Tests | ✅ 289 passed |
+| Tests | ✅ 291 passed |
 | Independent audit | ✅ Qwen 3.8 27B + external LLM audit |
 | Independent replication | ✅ Primary hypothesis + scale-dependence confirmed (Jan–Mar 2026) |
-| Preprint | 🚧 In preparation |
+| Preprint | ✅ Published on Zenodo ([DOI: 10.5281/zenodo.23283375](https://doi.org/10.5281/zenodo.23283375)) |
 | Journal submission | 🚧 Planned (Space Weather / Ann. Geophys.) |
 
 ---
@@ -81,7 +83,8 @@ on space-weather-driven effects on HF radio propagation.
 **Three layers:**
 
 1. **Data pipeline** (`data/scripts/`, `scripts/`) — fetches
-   WSPR, Kp, Dst, F10.7, ephemerides from public APIs, unifies
+   WSPR, Kp, Dst, F10.7 (monthly only),
+   ephemerides from public APIs, unifies
    into a single parquet.
 2. **Statistical core** (`crosscorr_lib/analysis/`) — lagged
    correlation, surrogate tests, max-stat, FDR, block bootstrap,
@@ -310,16 +313,16 @@ If you use this work, please cite:
 
 ```bibtex
 @misc{crosscorr2026,
-  author = {Petrov, Alexey and Petrov, Makar},
-  title = {Frequency-dependent WSPR response to geomagnetic
-           storms: two competing mechanisms},
-  year = {2026},
-  publisher = {GitHub},
-  howpublished = {\url{https://github.com/FelixRLEPERS/crosscorr}}
+  author       = {Petrov, Alexey and Petrov, Makar},
+  title        = {Scale-dependent WSPR response to geomagnetic storms:
+                  frequency dependence and baseline-invariant absolute loss},
+  year         = {2026},
+  publisher    = {Zenodo},
+  doi          = {10.5281/zenodo.23283375},
+  url          = {https://doi.org/10.5281/zenodo.23283375},
+  note         = {Preprint, version 1.0.1}
 }
 ```
-
-A DOI will be added after preprint submission.
 
 ---
 

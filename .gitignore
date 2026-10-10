@@ -73,3 +73,5 @@ paper/*.toc
 paper/*.synctex.gz
 
 paper/*.bak*
+
+*.bak
