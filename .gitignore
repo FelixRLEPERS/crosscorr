@@ -62,3 +62,14 @@ paper/*.spl
 paper/*.fls
 paper/*.fdb_latexmk
 paper/latexmk_output.txt
+
+paper/*.pdf
+paper/*.aux
+paper/*.bbl
+paper/*.blg
+paper/*.log
+paper/*.out
+paper/*.toc
+paper/*.synctex.gz
+
+paper/*.bak*
