@@ -42,7 +42,9 @@ htmlcov/
 opencode.json
 
 # Local analysis artifacts
-results/
+results/*
+!results/*.txt
+!results/*.csv
 #audit/
 bench.log
 aep/

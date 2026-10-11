@@ -50,8 +50,8 @@
 	$Kp = 6\text{--}7$, training and held-out drops are within
 	\SIrange{89}{95}{\percent} of each other.
 
-	The frequency dependence supports a dual-mechanism interpretation: MUF reduction
-	dominates on 15\,m (\SI{-38.7}{\percent}), while D-layer absorption affects
+	The frequency dependence supports a dual-mechanism interpretation: the 15\,m drop
+	(\SI{-38.7}{\percent}) is consistent with MUF reduction, while D-layer absorption affects
 	20\,m/40\,m (\SI{-27.7}{\percent}/\SI{-27.2}{\percent}). The day/night asymmetry
 	(40\,m drop stronger at night in 9/10 training months) is consistent with
 	intermittent auroral and polar cap absorption.
@@ -517,14 +517,14 @@ This pattern is consistent with two distinct physical mechanisms operating
 simultaneously:
 
 \begin{enumerate}
-	\item \textbf{MUF reduction (dominates on 15\,m):} At 21\,MHz, WSPR operates
+	\item \textbf{MUF reduction (15\,m band):} At 21\,MHz, WSPR operates
 	      near the typical daytime MUF (\SIrange{14}{28}{MHz} depending on
 	      geographic path and solar conditions). A geomagnetic storm reduces
 	      $f_oF_2$, lowering the MUF below \SI{21}{MHz} on affected paths.
 	      During peak daylight hours (12--18 UTC), the 15\,m drop reaches
 	      \SI{-48.2}{\percent}, confirming MUF as the primary daytime
 	      constraint.
-	\item \textbf{D-layer absorption (dominates on 20\,m/40\,m):} Both bands
+	\item \textbf{D-layer absorption (20\,m / 40\,m bands):} Both bands
 	      operate well below typical MUF, so their primary sensitivity is to
 	      non-deviative absorption in the D-region, which scales as
 	      $\propto 1/f^2$. However, the total drops are nearly equal
@@ -535,6 +535,11 @@ simultaneously:
 
 This apparent paradox is resolved by considering the time-of-day dependence
 of the two mechanisms (see Section~\ref{sec:daynight}).
+
+These attributions are consistent with, but do not uniquely
+establish, the indicated mechanisms; direct separation of MUF
+versus absorption effects requires SNR or phase analysis beyond
+the scope of this study.
 
 \subsection{Day/night asymmetry}
 \label{sec:daynight}
@@ -695,6 +700,10 @@ baseline from network growth. This is the strongest evidence that the storm
 effect is physically real: the ionosphere loses approximately
 \SI{18300}{spots/h} on 40\,m during storms, regardless of how many additional
 stations join the network. The effect is not a network-size artefact.
+The baseline-invariant absolute loss may reflect a structural
+bottleneck: storms disrupt a finite set of vulnerable propagation
+paths determined by ionospheric geometry, independent of network
+size.
 
 The baseline-invariance differs by band in a physically meaningful way:
 
@@ -848,7 +857,13 @@ detected and decomposed using WSPR as a distributed sensor.
 	      phase of high and varying solar activity; available monthly F10.7
 	      ranges from 131 to 246\,sfu (factor of ~1.9) across the period. Monthly
 	      F10.7 is not explicitly included in the baseline model, and we note this
-	      as a limitation of the analysis. Solar flare effects (Sudden
+	      as a limitation of the analysis. Daily-to-monthly F10.7 does not explain
+	      the residual structure: across the 17 matched months of the training
+	      window (October 2024 excluded, monthly F10.7 record missing from our
+	      data source), monthly mean F10.7 shows negligible correlation with
+	      monthly mean residuals (Spearman $r = +0.047$, $p = 0.86$; median-based
+	      check, $r = -0.17$, $p = 0.52$, agrees), confirming that the storm-driven
+	      effects reported here are not solar-cycle artifacts. Solar flare effects (Sudden
 	      Ionospheric Disturbances, SIDs) are not separately accounted for.
 	      Summer 15\,m observations may be partially contaminated by
 	      sporadic-E propagation; however, the storm effect is present in all

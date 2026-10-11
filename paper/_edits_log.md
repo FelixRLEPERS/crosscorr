@@ -37,14 +37,16 @@
   Источник: data/processed/unified.parquet, detector_type='f107'
 - Выброс F10.7 2026-09-15 = 105.41 sfu — вне training period,
   проверить откуда в parquet
-- Пропуск Oct 2024 в F10.7 — проверить, есть ли данные в источнике
+- [x] Oct 2024 f107 missing — checked 2026-10-11;
+  excluded explicitly in §5.5; fix tracked in
+  docs/HANDOFF_2026-10-11.md under "ОТКРЫТЫЙ ТЕХДОЛГ"
 
 ## Что осталось до submission
 1. Заполнить [FILL: commit hash]
 2. Заполнить [FILL: Zenodo DOI]
 3. Сверить F10.7 с NOAA SWPC
 4. Проверить выброс 2026-09-15
-5. Разобраться с пропуском Oct 2024
+5. [done] Разобраться с пропуском Oct 2024 — см. §5.5 + handoff «ОТКРЫТЫЙ ТЕХДОЛГ»
 6. git tag v1.0-paper + git push
 7. Zenodo release → получить DOI → вставить в main.tex
 8. Финальная компиляция

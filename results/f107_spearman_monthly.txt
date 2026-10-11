@@ -1,0 +1,17 @@
+F10.7 monthly gate — Paper I §5.5 (offline, unified.parquet)
+window: 2024-04 .. 2025-09
+n (matched months): 17
+f107 range: 131.4 .. 245.6 sfu
+
+Spearman r (monthly MEAN residual vs f107): +0.0466  p=0.8591
+Spearman r (monthly MEDIAN residual vs f107): -0.1691  p=0.5164
+
+r^2 (mean):  0.0022
+r^2 (median): 0.0286
+
+Decision rule:
+  |r| < 0.3 AND p > 0.05 -> monthly-sufficient
+  abs(r_mean)=0.0466, p_mean=0.8591 -> monthly-sufficient
+
+NOTE: F10.7 here is MONTHLY (18 rows in parquet), not daily.
+Gate based on residual MEAN; median reported for robustness.
