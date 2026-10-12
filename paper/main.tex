@@ -182,7 +182,11 @@ storm-scale analysis ($\Delta t = 1$\,h versus typical storm duration of several
 hours).
 
 The training period covers April 1, 2024 through September 30, 2025
-(548 days, 18 months), yielding 39\,456 WSPR hours per band. After merging WSPR
+(548 days, 18 months), yielding 39\,456 WSPR hours per band. The
+18-month analysis window is determined by the availability of
+complete hourly WSPR data for all three bands from the wspr.live
+ClickHouse mirror; the boundaries were not selected a priori and
+no data were discarded to achieve a target period length. After merging WSPR
 hourly data with $Kp$ (3-hourly, forward-filled to 1\,h resolution), we obtain
 4\,349 matched hours per band, of which 198 hours satisfy $Kp \ge 5$ (the storm
 threshold). The quiet-time baseline ($Kp < 3$) comprises 3\,359 hours and
@@ -331,7 +335,12 @@ $N = 482$ matched hours and $\rho_1 \approx 0.83$, yielding
 ESS $\approx 82$. This factor-of-6 reduction from raw to effective sample size
 underscores the importance of the block permutation approach: a naive
 permutation test (treating each hour as independent) would produce
-anti-conservative $p$-values.
+anti-conservative $p$-values. This ESS estimate applies to the full
+matched series (20\,m, $N = 482$); it is not computed on the storm
+subsample alone, where clustering further reduces the effective number
+of independent observations, and the block permutation test with its
+24\,h block structure accounts for within-storm autocorrelation
+directly.
 
 \subsection{Multiple testing correction}
 
