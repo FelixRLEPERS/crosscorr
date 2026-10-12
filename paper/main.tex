@@ -558,15 +558,28 @@ cycle (Table~\ref{tab:daynight}).
 
 \begin{table}[h]
 	\centering
-	\caption{Day/night decomposition of the spot drop (training period).}
+	\caption{Day/night decomposition of the spot drop
+		(training period). Point estimates and 95\% CI from
+		bootstrap resampling (\SI{1000}{resamples});
+		$N_{\text{storm}} / N_{\text{quiet}}$ as indicated.
+		All-hours rows are the block permutation result
+		(observed, no CI).}
 	\label{tab:daynight}
-	\begin{tabular}{lll}
+	\begin{tabular}{llrrl}
 		\toprule
-		Period                    & 20\,m drop (\%)        & 40\,m drop (\%)        \\
+		Band & Period & Drop (\%) & 95\% CI & $N_{\text{storm}}/N_{\text{quiet}}$ \\
 		\midrule
-		Daytime peak (12--18 UTC) & $\SI{-28.3}{\percent}$ & $\SI{-19.2}{\percent}$ \\
-		Nighttime (0--6 UTC)      & $\SI{-27.9}{\percent}$ & $\SI{-32.3}{\percent}$ \\
-		All hours                 & $\SI{-27.7}{\percent}$ & $\SI{-27.2}{\percent}$ \\
+		20\,m & Day    & $\SI{-28.4}{\percent}$ & [$\SI{-34.4}{\percent}$, $\SI{-22.8}{\percent}$] & 82/1107  \\
+		20\,m & Night  & $\SI{-27.9}{\percent}$ & [$\SI{-36.4}{\percent}$, $\SI{-20.4}{\percent}$] & 76/1147  \\
+		20\,m & All    & $\SI{-27.7}{\percent}$ & --- & 198/3035 \\
+		\midrule
+		40\,m & Day    & $\SI{-19.4}{\percent}$ & [$\SI{-25.0}{\percent}$, $\SI{-13.8}{\percent}$] & 82/1107  \\
+		40\,m & Night  & $\SI{-32.2}{\percent}$ & [$\SI{-37.4}{\percent}$, $\SI{-27.8}{\percent}$] & 76/1147  \\
+		40\,m & All    & $\SI{-27.2}{\percent}$ & --- & 198/3035 \\
+		\midrule
+		15\,m & Day    & $\SI{-48.3}{\percent}$ & [$\SI{-55.5}{\percent}$, $\SI{-40.8}{\percent}$] & 82/1107  \\
+		15\,m & Night  & $\SI{-16.3}{\percent}$ & [$\SI{-30.2}{\percent}$, $\SI{-0.4}{\percent}$]  & 76/1147  \\
+		15\,m & All    & $\SI{-38.7}{\percent}$ & --- & 198/3035 \\
 		\bottomrule
 	\end{tabular}
 \end{table}
@@ -574,8 +587,8 @@ cycle (Table~\ref{tab:daynight}).
 \textbf{Daytime} (12--18 UTC): MUF is high and 40\,m is far below it.
 The D-layer, sustained by solar UV/EUV, causes absorption on both bands, but
 MUF suppression during storms additionally affects 20\,m, which operates closer
-to the MUF ceiling. Result: 20\,m drops more ($\SI{-28.3}{\percent}$) than
-40\,m ($\SI{-19.2}{\percent}$).
+to the MUF ceiling. Result: 20\,m drops more ($\SI{-28.4}{\percent}$) than
+40\,m ($\SI{-19.4}{\percent}$).
 
 \textbf{Nighttime} (0--6 UTC): The solar-driven D-layer disappears within
 minutes of sunset (electron density falls to $\sim 10^3$\,cm$^{-3}$). However,
@@ -585,8 +598,14 @@ D-region independently of solar radiation: auroral absorption from
 cap absorption (PCA) from \SIrange{1}{30}{MeV} solar protons \citep{reid1974}.
 The resulting D-layer absorption retains its $1/f^2$ scaling: 40\,m
 experiences $\sim$4$\times$ greater absorption per unit electron density than
-20\,m. Result: 40\,m drops more ($\SI{-32.3}{\percent}$) than 20\,m
+20\,m. Result: 40\,m drops more ($\SI{-32.2}{\percent}$) than 20\,m
 ($\SI{-27.9}{\percent}$).
+
+The 15\,m nighttime effect is weak and its 95\% CI
+narrowly excludes zero ($\SI{-16.3}{\percent}$, CI
+[$\SI{-30.2}{\percent}$, $\SI{-0.4}{\percent}$]),
+consistent with the solar-driven D-layer being largely
+absent at night.
 
 Integrated over 24 hours, the daytime MUF penalty on 20\,m is compensated by
 the stronger nighttime auroral/PCA absorption on 40\,m, producing the observed
