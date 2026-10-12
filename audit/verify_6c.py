@@ -1,7 +1,8 @@
 import numpy as np
 import pandas as pd
-import crosscorr_lib.analysis.surrogate as S
+
 import crosscorr_lib.analysis.cross_correlation as CC
+import crosscorr_lib.analysis.surrogate as S
 
 orig = S.max_lag_surrogate_pvalue
 calls = []
@@ -29,7 +30,7 @@ df = CC.cross_correlation_pairs_with_max_stat(
 parent = np.random.default_rng(42)
 children = parent.spawn(6)
 seeds = [int(children[k].integers(0, 2**31)) for k in range(6)]
-print("successful pairs:", list(zip(df.detector_1, df.detector_2)))
+print("successful pairs:", list(zip(df.detector_1, df.detector_2, strict=True)))
 print("seeds passed (pair order):", calls)
 print("child seeds              :", seeds)
 print("duplicate seeds used:", len(calls) != len(set(calls)))

@@ -1,4 +1,5 @@
 import numpy as np
+
 from crosscorr_lib.analysis.surrogate import max_lag_surrogate_pvalue
 
 rng = np.random.default_rng(0)

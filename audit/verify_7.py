@@ -1,8 +1,9 @@
 import numpy as np
+
 from crosscorr_lib.analysis.surrogate import (
-    _time_shift,
-    _lagged_cc,
     _count_valid_at_lag,
+    _lagged_cc,
+    _time_shift,
 )
 
 rng = np.random.default_rng(0)

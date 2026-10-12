@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+
 from crosscorr_lib.analysis.cross_correlation import (
     cross_correlation_pairs_with_max_stat,
 )

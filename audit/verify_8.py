@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+
 from crosscorr_lib.analysis.surrogate import surrogate_test
 
 rng = np.random.default_rng(0)

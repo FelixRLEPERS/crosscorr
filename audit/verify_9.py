@@ -1,4 +1,6 @@
 import numpy as np
+from scipy import stats
+
 from crosscorr_lib.analysis.effective_sample import correlation_pvalue_with_ess
 
 rng = np.random.default_rng(0)
@@ -12,7 +14,6 @@ print("n_eff  =", n_eff)
 print("p      =", p)
 print("p == 0.0:", bool(p == 0.0))
 
-from scipy import stats
 t = r * np.sqrt(n_eff - 2) / np.sqrt(1 - r * r)
 print("t      =", t)
 print("2*(1-cdf) =", 2 * (1 - stats.t.cdf(abs(t), df=n_eff - 2)))

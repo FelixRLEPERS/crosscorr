@@ -4,6 +4,7 @@
 effective_sample_size действительно НЕ дают прокинуть max_lag.
 """
 import inspect
+
 import numpy as np
 
 from crosscorr_lib.analysis import effective_sample as es

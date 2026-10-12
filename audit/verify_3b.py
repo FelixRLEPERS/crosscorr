@@ -1,8 +1,9 @@
 import numpy as np
 import pandas as pd
 from scipy import stats
-from crosscorr_lib.pairs import cross_correlation_pairs_with_max_stat
+
 from crosscorr_lib.analysis.surrogate import max_lag_surrogate_pvalue
+from crosscorr_lib.pairs import cross_correlation_pairs_with_max_stat
 
 T, N, B, REPS = 300, 4, 100, 120
 cols = ["a", "b", "c", "d"]

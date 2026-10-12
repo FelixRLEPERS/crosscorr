@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 from scipy import stats
+
 from crosscorr_lib.pairs import cross_correlation_pairs_with_max_stat
 
 T, N, B = 300, 4, 100

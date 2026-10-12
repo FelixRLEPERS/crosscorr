@@ -1,5 +1,6 @@
 import numpy as np
-from crosscorr_lib.pairs import _make_surrogates, _batch_max_stat_corr
+
+from crosscorr_lib.pairs import _batch_max_stat_corr, _make_surrogates
 
 T, B, REPS = 300, 200, 40
 rhos = []
