@@ -79,6 +79,8 @@ CrossCorr — воспроизводимый научный артефакт д�
   Относительный путь пишется не туда. Правило: перед .NET-API
   строить абсолютный путь через `Join-Path (Get-Location).Path $rel`.
 
+- **`[Environment]::NewLine` = CRLF, не LF.** При работе с LF-файлами (write-tool, here-string, markdown этого репо) использовать LF-escape (backtick + n), а не `[Environment]::NewLine`. Иначе получается mixed-ending файл (LF + один CRLF), который ломает последующие regex/replace и загрязняет diff.
+
 ### Git
 
 - **GitHub Desktop не пушит локальные теги автоматически** (опыт
