@@ -1,3 +1,24 @@
+> **⚠️ DRIFT NOTICE — 2026-10-12**
+>
+> This registry was last fully updated on **2026-10-06** at
+> commit `ebb7d66`. Since then, 71 commits landed
+> (through `v1.0.2` release, Zenodo DOI `10.5281/zenodo.23310672`,
+> ruff repo-wide cleanup, mutual_info vectorization, OpenCode
+> worktree cleanup, and HANDOFF additions).
+>
+> Current HEAD at time of this notice: `56ba121`
+> (2026-10-12).
+>
+> The counters below (e.g. "138 closed", "15 STOP") reflect the
+> 2026-10-06 snapshot and have NOT been re-audited. They should
+> be treated as historical, not current. For pending items after
+> 2026-10-06, see `audit/BACKLOG_2026-10-12.md`.
+>
+> To re-sync this registry, open a dedicated session: read all
+> `audit/AUDIT_v*.md` files newer than 2026-10-06, diff against
+> current code, and recompute counters. Do not edit counters
+> without that audit.
+
 # CrossCorr — состояние проекта
 
 Дата сборки: 2026-10-06 (v6, sync до HEAD ebb7d66)
