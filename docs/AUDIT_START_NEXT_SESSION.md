@@ -1,76 +1,85 @@
 # Audit — Start of Next Session
 
-Generated: 2026-10-12 (end of session 2)
+Generated: 2026-10-12 (end of session 3)
 For: next chat session (MiMo or human)
 Purpose: operational snapshot — read this first.
 
 ## 1. Where we are (state at generation)
 
 - **Branch:** main
-- **HEAD:** `3207345` — chore: add pre-commit hook (ruff + file hygiene)
-- **origin/main:** `3207345` — same as HEAD (ahead by 0)
-- **Project version:** `1.0.2`
-- **Zenodo concept DOI:** `10.5281/zenodo.23283375`
-- **Zenodo version DOI (v1.0.2):** `10.5281/zenodo.23310672`
-- **GitHub Release:** v1.0.2-paper
-- **Latest tag:** `v1.0.2-paper`
-- **Worktrees:** 5 (main + 4 opencode: happy-knight, playful-lagoon,
-  proud-wizard, tidy-pixel — 3 KEEP pending user decision, happy-knight
-  stale at 574f648)
-- **Test files:** 32 (do not confuse with test count; run
-  pytest to get count)
-- **CI workflows:** ci.yml
-- **CI blocking jobs:** fast tests (Py 3.11, 3.12), slow tests (Py 3.12)
-- **CI informational jobs:** shared memory cleanup (Windows, Py 3.10/3.11/3.12, continue-on-error: true)
+- **HEAD:** `fbaa109` — docs: mark C and H closed, add H-2 deferred
+- **origin/main:** `fbaa109` — same as HEAD (ahead 0)
+- **Project version:** 1.1.0-dev (code: pyproject.toml = "1.1.0");
+  CITATION.cff synced to last real release v1.0.2
+- **Zenodo concept DOI:** `10.5281/zenodo.23283375` (unchanged)
+- **Zenodo version DOI:** `10.5281/zenodo.23310672` (v1.0.2)
+- **GitHub Release:** v1.0.2-paper (unchanged)
+- **Latest tag:** `v1.0.2-paper` (unchanged)
+- **Worktrees:** 5 (main + 4 opencode: happy-knight @574f648,
+  playful-lagoon @a114e86, proud-wizard @284cf30, tidy-pixel @a114e86)
+- **Test files:** 32 (test count: 290 passed, pytest -q, session 3)
+- **CI:** ci.yml (only workflow); green on fbaa109
 
-Note: CITATION.cff still says version 1.0.1 while pyproject.toml says
-1.0.2 — stale, fix in next version bump.
+## 2. What was done in session 3 (2026-10-12)
 
-## 2. What was done in session 2 (2026-10-12)
+Session 3 (12 commits, b161ef4..fbaa109) closed 3 findings
+from external audit v11 plus a repo-wide style sweep:
 
-Session 2 (23 commits, 0b82d78…3207345) closed the entire external
-audit backlog: all 5 submission findings verified/fixed (N=23 wording,
-KSG-ties limitation, requirements.lock regenerated, Windows CI verified,
-PROJECT_STATE drift notice), plus governance tooling: DELTA Protocol,
-BOOTSTRAP, DELTA_PROMPT_TEMPLATE, pre-commit hook. Full commit-by-commit
-detail: docs/DELTA_2026-10-12.md.
+- Version bump to 1.1.0-dev in code, CITATION.cff synced
+  to v1.0.2 (was stale at 1.0.1).
+- Finding B (p-value precision): perm test raised to
+  n_iter=50000 with add-one (Davison-Hinkley) correction;
+  p = 1/50001 ~ 2.0e-5 for all bands. Paper synced (text,
+  Tables 2/3, Table 5, Eq.(3), Methods paragraph).
+  Commits: 4c485c1, 6929a0d, f47a538.
+- Finding C (day/night CI+N): script serialises results_dn
+  to results/fig4_day_night.json; tab:daynight restructured
+  in long format, 15m column added, bootstrap CI + N per
+  subgroup. Commits: 8cb5211, 39d9856.
+- Finding H (style sweep): 78 files across scripts/,
+  tests/, crosscorr_lib/, data/scripts/ ruff-formatted in
+  3 commits. pytest 290 passed, PNG/JSON artifacts
+  byte-identical. Commits: 3082bc6, 92b817f, a7724e4.
+- Backlog v11 updated: B, C, H closed; H-2 deferred.
+  Commits: 4761f00, fbaa109.
 
-Highlights:
-- All 5 submission findings from external audit: CLOSED
-- requirements.lock regenerated (core-only, Python 3.11)
-- KSG-ties probe + §5.5 limitation
-- PROJECT_STATE.md drift notice
-- DELTA Protocol + BOOTSTRAP + pre-commit hook installed
-- Worktree cleanup: 22 → 4
+Full detail: audit/BACKLOG_2026-10-12_v11.md (canonical).
 
 ## 3. Open loops (what is NOT closed)
 
-From audit/BACKLOG_2026-10-12.md:
-  - Finding 4 (Windows CI job): VERIFIED informational,
-    action deferred to post-arXiv.
-
-From docs/HANDOFF_2026-10-11.md (ОТКРЫТЫЙ ТЕХДОЛГ):
-  - October 2024 f107 missing from unified.parquet
-    (ETL gap, tracked for v1.1.0)
-  - 3 KEEP worktrees (playful-lagoon, proud-wizard,
-    tidy-pixel): user decision pending
+From external audit v11 (audit/BACKLOG_2026-10-12_v11.md):
+  - A. N_storm_episodes — OPEN, top priority.
+    Group storm hours into episodes (gap > 12h), report
+    N_episodes. New script scripts/storm_episodes.py.
+  - F. ESS=82 scope — OPEN, low priority (10 min).
+    One sentence in §3.4 clarifying that ESS applies to
+    the full series, not storm subsample.
+  - D. Superposed epoch analysis — DEFERRED to Space
+    Weather submission.
+  - H-2. Style sweep outside code dirs — DEFERRED to
+    v1.1.0. 23 files: audit/verify_*.py (19),
+    bench/bench_new_modules.py (1), game/*.py (4).
 
 External / non-code:
-  - **arXiv endorsement** — blocked on Frissell response
-  - **Version bump v1.0.3 / v1.1.0** — optional, not urgent
-  - **2FA on GitHub** — deadline 25 Nov 2026
+  - arXiv endorsement — blocked on Frissell response.
+  - 2FA on GitHub — deadline 25 Nov 2026.
+  - Release v1.1.0 (tag + Zenodo DOI) — bundle with arXiv
+    submission.
 
 ## 4. Ready for next session
 
-These artifacts exist and are up to date:
-  - `docs/BOOTSTRAP.md` — 10-line block for new chat
-  - `docs/HANDOFF_2026-10-11.md` — full structure
-  - `docs/DELTA_2026-10-12.md` — session 2 detail
-  - `audit/BACKLOG_2026-10-12.md` — findings status
-  - `AGENTS.md` — pre-commit + model policy
-  - `.pre-commit-config.yaml` — active
+- audit/BACKLOG_2026-10-12_v11.md (canonical findings)
+- docs/HANDOFF_2026-10-11.md (structure + policy)
+- docs/DELTA_2026-10-12.md (session 2 detail; session 3
+  summary lives in backlog v11 Session log)
+- docs/AUDIT_START_NEXT_SESSION.md (this file)
+- AGENTS.md (model rules, pre-commit)
+- docs/hypothesis.md
+- paper/main.tex (manuscript)
+- scripts/perm_test_18mo_3band.py
+- scripts/make_paper_figures.py
 
-## 5. What NOT to do (anti-patterns from session 2)
+## 5. What NOT to do (anti-patterns from session 2/3)
 
 1. **Do not paste EXACT TEXT with unclosed markdown into
    prompts.** Session 2 lost ~30 min on 3 separate failures
@@ -88,49 +97,51 @@ These artifacts exist and are up to date:
 6. **Do not commit untracked scripts without running
    `ruff check <file>` first.** W292 in probe_ksg_ties.py
    broke CI #139.
+7. **Do not create a new file from an old file's content
+   without checking the old file is gone or explicitly
+   marked superseded** (session 3 backlog update drift).
 
 ## 6. First commands to run in next session
 
     cd g:\crosscorr
     git fetch origin
     git status -sb
-    git log --oneline -5
+    git log --oneline -10
     git worktree list
+    Get-Content audit\BACKLOG_2026-10-12_v11.md
 
 If `ahead > 0` → push before working.
 If any worktree is dirty → decide keep/remove before touching.
 
 ## 7. Recommended first task
 
-**Write the Frissell endorsement request.**
+**Finding A — write scripts/storm_episodes.py (read-only
+analysis first):**
+  - Read unified.parquet
+  - Filter kp >= 5 rows
+  - Sort by hour, group consecutive hours into episodes
+    with gap > 12h
+  - Report N_episodes (vs N_storm_hours = 198)
+  - Decide: one sentence in Limitations, or SEA foundation
+Estimated: ~1 evening.
 
-- Template: `docs/HANDOFF_2026-10-11.md`, section
-  "ШАБЛОНЫ КОММУНИКАЦИИ" → "Черновик письма Dr. Frissell".
-- 4 questions: references, endorsement, HamSCI mailing list,
-  advice for young citizen scientists.
-- This is a HUMAN task, not a MiMo task. Author writes,
-  human sends.
-- After sending: wait 2 weeks before follow-up.
+## 8. Second task
 
-## 8. Second task (if first is done or blocked)
-
-**Version bump decision.** Two options:
-  - v1.0.3 — bugfix level (lock fix + docs only)
-  - v1.1.0 — feature level (5 findings + tooling)
-  Recommended: v1.1.0, bundled with arXiv submission.
+**Finding F — one sentence in paper §3.4 (10 min).**
 
 ## 9. Quick reference — where things live
 
-  docs/HANDOFF_2026-10-11.md         — full structure + policy
-  docs/DELTA_2026-10-12.md           — last session detail
-  docs/BOOTSTRAP.md                  — start-message block
-  docs/DELTA_PROMPT_TEMPLATE.md      — end-of-session prompt
-  docs/AUDIT_START_NEXT_SESSION.md   — this file
-  audit/BACKLOG_2026-10-12.md        — findings tracker
-  AGENTS.md                          — pre-commit + model rules
-  paper/main.tex                     — manuscript
-  crosscorr_lib/analysis/            — statistical core
-  scripts/                           — reproducible scripts
+  audit/BACKLOG_2026-10-12_v11.md       — findings tracker
+  docs/HANDOFF_2026-10-11.md            — structure + policy
+  docs/DELTA_2026-10-12.md              — session 2 detail
+  docs/AUDIT_START_NEXT_SESSION.md      — this file
+  AGENTS.md                             — model rules
+  paper/main.tex                        — manuscript
+  scripts/perm_test_18mo_3band.py       — perm test
+  scripts/make_paper_figures.py         — figures + JSON out
+  results/fig4_day_night.json           — Day/Night CI+N
+                                          (gitignored,
+                                          reproducible)
 
 ## 10. Model policy (from HANDOFF)
 
@@ -142,10 +153,11 @@ If any worktree is dirty → decide keep/remove before touching.
 ## Metadata
 
 - Generated by: MiMo via OpenCode
-- Generated at: 2026-10-12 16:10 +03:00
-- Source HEAD: 3207345
-- Sources read: HANDOFF, DELTA, BACKLOG, BOOTSTRAP, AGENTS,
-  DELTA_PROMPT_TEMPLATE, README, pyproject.toml, ci.yml
+- Generated at: 2026-10-12 19:58 +03:00
+- Source HEAD: fbaa109
+- Sources read: BACKLOG_2026-10-12_v11, HANDOFF_2026-10-11,
+  DELTA_2026-10-12, pyproject.toml, CITATION.cff, ci.yml,
+  git worktree list, git log.
 
 ## Appendix — source inventory (sections found, STEP 1)
 
@@ -158,9 +170,9 @@ If any worktree is dirty → decide keep/remove before touching.
   POLICY; PRE-COMMIT HOOK; DELTA PROTOCOL; OPENCODE WORKTREE.
 - **docs/DELTA_2026-10-12.md**: Что сделано (5 categories);
   Решения; Открытые петли; Следующий шаг; Метаданные.
-- **audit/BACKLOG_2026-10-12.md**: Source; Verification;
-  Findings (all CLOSED/VERIFIED); Session progress; Not yet
-  reviewed; Related; Final status.
+- **audit/BACKLOG_2026-10-12_v11.md**: header; Critical for
+  arXiv; Already addressed; Text-only; Deferred; False
+  positives; Session log; Next actions.
 - **docs/BOOTSTRAP.md**: Bootstrap block; Notes.
 - **AGENTS.md**: Что это за проект; Стек; Структура; Команды;
   Правила для агентов; Известные системные ограничения;
