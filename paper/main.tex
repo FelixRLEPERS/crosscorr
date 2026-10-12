@@ -23,7 +23,7 @@
 
 \begin{keypoints}
 	\item WSPR spot density drops \SIrange{27}{39}{\percent} during
-	$Kp \ge 5$ storms on all three HF bands ($p < 0.0001$)
+	$Kp \ge 5$ storms on all three HF bands ($p < 2 \times 10^{-5}$)
 	\item The effect is scale-dependent: $Kp = 5\text{--}6 \rightarrow
 		\SI{-18}{\percent}$, $Kp \ge 6 \rightarrow \SI{-42.8}{\percent}$,
 	confirmed by independent replication
@@ -40,8 +40,8 @@
 	covering 18 months (April 2024 -- September 2025, 39\,456 WSPR hours,
 	198 storm hours), we find significant storm-induced spot reductions on all three
 	bands: 20\,m: \SI{-27.7}{\percent}, 40\,m: \SI{-27.2}{\percent},
-	15\,m: \SI{-38.7}{\percent} (block permutation $p < 0.0001$ for all,
-	\SI{10000}{iterations}, block = 24\,h).
+	15\,m: \SI{-38.7}{\percent} (block permutation $p < 2 \times 10^{-5}$ for all,
+	\SI{50000}{iterations}, block = 24\,h).
 
 	The effect is scale-dependent: the drop nearly doubles from $Kp = 5\text{--}6$
 	($\sim\SI{-18}{\percent}$) to $Kp \ge 6$ ($\SI{-42.8}{\percent}$), consistent
@@ -281,13 +281,21 @@ autocorrelation, we use a block permutation procedure
 	      24-hour blocks. Each block is treated as an exchangeable unit,
 	      preserving the within-block temporal structure.
 	\item \textbf{Permutation:} $Kp$ labels are shuffled at the block level:
-	      for each of $N_{\text{perm}} = 10\,000$ iterations, the assignment
+	      for each of $N_{\text{perm}} = 50\,000$ iterations, the assignment
 	      of storm/quiet labels to blocks is randomly permuted, and the test
 	      statistic $\Delta_{\text{perm}}$ is recomputed.
 	\item \textbf{p-value:}
-	      $p = \frac{1}{N_{\text{perm}}} \sum_{i=1}^{N_{\text{perm}}}
-		      \mathbf{1}\{ |\Delta_{\text{perm}, i}| \ge |\Delta_{\text{observed}}| \}$.
+	      \begin{equation}
+		      p = \frac{1 + \sum_{i=1}^{N_{\text{perm}}}
+			      \mathbf{1}\{ |\Delta_{\text{perm}, i}| \ge |\Delta_{\text{observed}}| \}}
+			      {1 + N_{\text{perm}}}
+		      \label{eq:perm-p}
+	      \end{equation}
 \end{enumerate}
+
+We apply the add-one (Davison-Hinkley) correction shown in
+Eq.~\eqref{eq:perm-p}, which yields a minimum resolvable
+p-value of $2 \times 10^{-5}$ at \SI{50000}{iterations}.
 
 While a 24-hour block size may occasionally split multi-day storm events,
 this approach is conservative. It strictly preserves the diurnal baseline
@@ -327,7 +335,7 @@ We apply the Benjamini--Hochberg (BH) false discovery rate (FDR) correction
 \citep{benjamini1995} to the 6 primary statistical tests (3 bands $\times$
 \{$Kp$, $Dst$\}) at $\alpha = 0.05$. All six tests have raw
 $p = 0.0$ (no permuted statistic exceeded the observed value in
-\SI{10000}{iterations}), yielding all $p_{\text{FDR}} = 0.0$.
+\SI{50000}{iterations}), yielding all $p_{\text{FDR}} = 0.0$.
 
 \subsection{Robustness checks}
 
@@ -352,7 +360,7 @@ Six robustness checks were performed:
 	      $Kp < 3$. The effect survives controlling for $n_{\text{tx}}$.
 	\item \textbf{Index-independence:} Both $Kp$ and $Dst$, derived from
 	      independent magnetometer networks, confirm the effect at
-	      $p < 0.0001$ on all three bands.
+	      $p < 2 \times 10^{-5}$ on all three bands.
 	\item \textbf{Day-of-week confounder:} As noted in Section~3.1, the
 	      correlation between day\_of\_week and $Kp$ is $r = -0.0087$.
 \end{enumerate}
@@ -387,15 +395,15 @@ reduction on all three HF bands.
 		Band      & $N_{\text{storm}}$ & $N_{\text{quiet}}$ &
 		Drop (\%) & $p$-value (block)                                                            \\
 		\midrule
-		20\,m     & 198                & 3\,359             & $\SI{-27.7}{\percent}$ & $<0.0001$ \\
-		40\,m     & 198                & 3\,359             & $\SI{-27.2}{\percent}$ & $<0.0001$ \\
-		15\,m     & 198                & 3\,359             & $\SI{-38.7}{\percent}$ & $<0.0001$ \\
+		20\,m     & 198                & 3\,359             & $\SI{-27.7}{\percent}$ & $< 2 \times 10^{-5}$ \\
+		40\,m     & 198                & 3\,359             & $\SI{-27.2}{\percent}$ & $< 2 \times 10^{-5}$ \\
+		15\,m     & 198                & 3\,359             & $\SI{-38.7}{\percent}$ & $< 2 \times 10^{-5}$ \\
 		\bottomrule
 	\end{tabular}
 \end{table}
 
 All three bands show a highly significant reduction in spot density during
-$Kp \ge 5$ conditions (block permutation, \SI{10000}{iterations},
+$Kp \ge 5$ conditions (block permutation, \SI{50000}{iterations},
 block = 24\,h). The effect is strongest on 15\,m (\SI{-38.7}{\percent})
 and nearly identical on 20\,m and 40\,m ($\SI{-27.7}{\percent}$ and
 $\SI{-27.2}{\percent}$, respectively). All results remain significant after
@@ -417,9 +425,9 @@ threshold selecting more disturbed conditions.
 		Band  & $N_{\text{Dst}}$  & $\Delta_{\text{observed}}$ (spots/h)
 		      & $p$-value (block)                                                    \\
 		\midrule
-		20\,m & 12\,508           & $-22\,081$                           & $<0.0001$ \\
-		40\,m & 12\,508           & $-15\,038$                           & $<0.0001$ \\
-		15\,m & 12\,508           & $-5\,143$                            & $<0.0001$ \\
+		20\,m & 12\,508           & $-22\,081$                           & $< 2 \times 10^{-5}$ \\
+		40\,m & 12\,508           & $-15\,038$                           & $< 2 \times 10^{-5}$ \\
+		15\,m & 12\,508           & $-5\,143$                            & $< 2 \times 10^{-5}$ \\
 		\bottomrule
 	\end{tabular}
 \end{table}
@@ -906,8 +914,8 @@ in WSPR spot density, with five principal conclusions:
 \begin{enumerate}
 	\item \textbf{Primary effect:} Storm-induced spot reduction is
 	      \SI{-27.7}{\percent} (20\,m), \SI{-27.2}{\percent} (40\,m), and
-	      \SI{-38.7}{\percent} (15\,m), all significant at $p < 0.0001$
-	      (block permutation, \SI{10000}{iterations}). The effect is confirmed
+	      \SI{-38.7}{\percent} (15\,m), all significant at $p < 2 \times 10^{-5}$
+	      (block permutation, \SI{50000}{iterations}). The effect is confirmed
 	      by the independent $Dst$ index and survives all six robustness checks.
 	\item \textbf{Scale-dependence:} The reduction grows non-linearly with
 	      storm intensity: $\sim\SI{-18}{\percent}$ at $Kp = 5\text{--}6$,
