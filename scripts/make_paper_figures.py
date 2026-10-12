@@ -432,14 +432,15 @@ ax.grid(axis="y", alpha=0.3)
 ax.set_ylim(bottom=0, top=24000)
 
 ax.annotate(
-    "40m: identical!\n(\u221218 300 spots/h)",
-    xy=(0.5, 18304),
-    xytext=(1.0, 21000),
+    "40m: identical\n(ratio 1.00)",
+    xy=(1.0, 18304),
+    xytext=(0.5, 22000),
     fontsize=10,
     fontweight="bold",
     color="#2A9D8F",
     arrowprops={"arrowstyle": "->", "color": "#2A9D8F", "lw": 1.5},
     ha="center",
+    va="center",
 )
 ax.annotate(
     "15m: \u00d70.42 dilution\n(MUF ceiling effect)",
