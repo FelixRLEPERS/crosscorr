@@ -6,6 +6,7 @@
 ``residual_method`` и ``quality_flag`` проставляет transform-слой
 ``fit_residuals`` поверх ``crosscorr_lib.analysis.residuals``.
 """
+
 from __future__ import annotations
 
 import json
@@ -27,45 +28,53 @@ from data.scripts.unify_schema import (
 
 def _wspr_csv(tmp_path: Path, n: int = 50) -> Path:
     path = tmp_path / "wspr.csv"
-    pd.DataFrame({
-        "timestamp": pd.date_range("2025-01-01", periods=n, freq="1h", tz="UTC"),
-        "rx_call": [f"RX{i % 3}" for i in range(n)],
-        "tx_call": [f"TX{i % 2}" for i in range(n)],
-        "snr": np.linspace(-10.0, 10.0, n),
-        "band": ["20m"] * n,
-    }).to_csv(path, index=False)
+    pd.DataFrame(
+        {
+            "timestamp": pd.date_range("2025-01-01", periods=n, freq="1h", tz="UTC"),
+            "rx_call": [f"RX{i % 3}" for i in range(n)],
+            "tx_call": [f"TX{i % 2}" for i in range(n)],
+            "snr": np.linspace(-10.0, 10.0, n),
+            "band": ["20m"] * n,
+        }
+    ).to_csv(path, index=False)
     return path
 
 
 def _intermagnet_csv(tmp_path: Path, n: int = 50) -> Path:
     path = tmp_path / "ABBR.csv"
-    pd.DataFrame({
-        "timestamp": pd.date_range("2025-01-01", periods=n, freq="1h", tz="UTC"),
-        "X": np.linspace(30000.0, 30100.0, n),
-        "Y": np.zeros(n),
-        "Z": np.zeros(n),
-    }).to_csv(path, index=False)
+    pd.DataFrame(
+        {
+            "timestamp": pd.date_range("2025-01-01", periods=n, freq="1h", tz="UTC"),
+            "X": np.linspace(30000.0, 30100.0, n),
+            "Y": np.zeros(n),
+            "Z": np.zeros(n),
+        }
+    ).to_csv(path, index=False)
     return path
 
 
 def _horizons_csv(tmp_path: Path, n: int = 50) -> Path:
     path = tmp_path / "mars.csv"
-    pd.DataFrame({
-        "datetime_str": pd.date_range("2025-01-01", periods=n, freq="1h", tz="UTC"),
-        "r": np.linspace(1.4, 1.6, n),
-    }).to_csv(path, index=False)
+    pd.DataFrame(
+        {
+            "datetime_str": pd.date_range("2025-01-01", periods=n, freq="1h", tz="UTC"),
+            "r": np.linspace(1.4, 1.6, n),
+        }
+    ).to_csv(path, index=False)
     return path
 
 
 def _confounders_csv(tmp_path: Path, n: int = 50) -> Path:
     path = tmp_path / "confounders.csv"
     idx = pd.date_range("2025-01-01", periods=n, freq="1h", tz="UTC")
-    pd.DataFrame({
-        "timestamp_utc": idx,
-        "kp": np.linspace(1.0, 5.0, n),
-        "dst": np.linspace(-50.0, -10.0, n),
-        "f107": np.linspace(100.0, 200.0, n),
-    }).to_csv(path, index=False)
+    pd.DataFrame(
+        {
+            "timestamp_utc": idx,
+            "kp": np.linspace(1.0, 5.0, n),
+            "dst": np.linspace(-50.0, -10.0, n),
+            "f107": np.linspace(100.0, 200.0, n),
+        }
+    ).to_csv(path, index=False)
     return path
 
 
@@ -199,10 +208,7 @@ def test_unify_backward_compat(tmp_path: Path):
     df["timestamp_utc"] = pd.to_datetime(df["timestamp_utc"], utc=True)
     df["bucket"] = df["timestamp_utc"].dt.floor("1h")
     wide = (
-        df.groupby(["detector_id", "bucket"])["residual"]
-        .mean()
-        .unstack("detector_id")
-        .sort_index()
+        df.groupby(["detector_id", "bucket"])["residual"].mean().unstack("detector_id").sort_index()
     )
     assert wide.shape[0] > 0
     assert wide.shape[1] == 4  # 3 RX + 1 магнитометр

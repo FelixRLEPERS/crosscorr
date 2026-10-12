@@ -61,11 +61,17 @@ def _assert_released(handles):
 
 def test_no_leak_after_normal_run(wide_data, tracked_shm):
     first = pairs.cross_correlation_pairs_with_max_stat(
-        wide_data, B=10, seed=42, n_jobs=2,
+        wide_data,
+        B=10,
+        seed=42,
+        n_jobs=2,
     )
     _assert_released(tracked_shm)
     second = pairs.cross_correlation_pairs_with_max_stat(
-        wide_data, B=10, seed=42, n_jobs=2,
+        wide_data,
+        B=10,
+        seed=42,
+        n_jobs=2,
     )
     pd.testing.assert_frame_equal(first, second)
     assert sum(owner for _, owner in tracked_shm) == 4
@@ -169,7 +175,9 @@ if __name__ == '__main__':
 """
     result = subprocess.run(
         [sys.executable, "-W", "always", "-c", script],
-        capture_output=True, text=True, timeout=120,
+        capture_output=True,
+        text=True,
+        timeout=120,
     )
     assert result.returncode == 0, result.stdout + result.stderr
     stderr = result.stderr.lower()

@@ -11,9 +11,7 @@ def test_public_api_imports():
     import crosscorr_lib
 
     for name in crosscorr_lib.__all__:
-        assert hasattr(crosscorr_lib, name), (
-            f"{name} in __all__ but not in module"
-        )
+        assert hasattr(crosscorr_lib, name), f"{name} in __all__ but not in module"
 
 
 def test_no_private_in_all():
@@ -31,9 +29,7 @@ def test_analysis_init_all_matches():
     if not hasattr(a, "__all__"):
         return
     for name in a.__all__:
-        assert hasattr(a, name), (
-            f"{name} in analysis.__all__ but not in module"
-        )
+        assert hasattr(a, name), f"{name} in analysis.__all__ but not in module"
 
 
 def test_analysis_all_has_preprocess():

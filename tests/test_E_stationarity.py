@@ -44,17 +44,23 @@ def test_adf_test_short_input_is_degenerate():
 
 def test_check_stationarity_wide_columns_and_flags(rng):
     """check_stationarity_wide возвращает строку на колонку с флагом."""
-    wide = pd.DataFrame({
-        "white": rng.normal(size=400),
-        "rw": np.cumsum(rng.normal(size=400)),
-    })
+    wide = pd.DataFrame(
+        {
+            "white": rng.normal(size=400),
+            "rw": np.cumsum(rng.normal(size=400)),
+        }
+    )
     result = check_stationarity_wide(wide, verbose=False)
 
     assert len(result) == 2
     assert set(result["detector"]) == {"white", "rw"}
     assert set(result.columns) >= {
-        "detector", "statistic", "p_value", "n_lags",
-        "n_obs", "is_stationary",
+        "detector",
+        "statistic",
+        "p_value",
+        "n_lags",
+        "n_obs",
+        "is_stationary",
     }
     flags = dict(zip(result["detector"], result["is_stationary"], strict=True))
     assert flags["white"] is True

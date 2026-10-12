@@ -12,8 +12,7 @@ def test_mantel_perfect_negative_correlation():
     """Идеальная отрицательная связь: dist растёт → corr падает."""
     n = 5
     # Матрица расстояний: d_ij = |i - j|
-    dist = np.array([[abs(i - j) for j in range(n)] for i in range(n)],
-                    dtype=float)
+    dist = np.array([[abs(i - j) for j in range(n)] for i in range(n)], dtype=float)
     # Идеальная отрицательная связь
     corr = 1.0 - dist / dist.max()
 
@@ -84,8 +83,7 @@ def test_mantel_unknown_alternative_raises():
     dist = np.ones((n, n)) - np.eye(n)
 
     with pytest.raises(ValueError, match="alternative"):
-        mantel_test(corr, dist, n_permutations=50,
-                    alternative="bogus")
+        mantel_test(corr, dist, n_permutations=50, alternative="bogus")
 
 
 if __name__ == "__main__":

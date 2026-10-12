@@ -125,16 +125,10 @@ def test_cross_mfdfa_q2_matches_dcca():
     x = np.cumsum(rng.standard_normal(1000))
     y = x.copy()
 
-    result_abs = cross_mfdfa(
-        x, y, q_values=[2], scales=[16, 32, 64], signed="abs"
-    )
-    result_split = cross_mfdfa(
-        x, y, q_values=[2], scales=[16, 32, 64], signed="split"
-    )
+    result_abs = cross_mfdfa(x, y, q_values=[2], scales=[16, 32, 64], signed="abs")
+    result_split = cross_mfdfa(x, y, q_values=[2], scales=[16, 32, 64], signed="split")
 
-    np.testing.assert_allclose(
-        result_abs["h_q"], result_split["h_plus_q"], atol=1e-10
-    )
+    np.testing.assert_allclose(result_abs["h_q"], result_split["h_plus_q"], atol=1e-10)
     assert result_split["n_minus"] == 0
 
 
@@ -157,13 +151,11 @@ def test_cross_mfdfa_anticorrelated_segments():
     assert result["n_plus"] + result["n_minus"] > 0
 
     assert result["h_minus_q"].shape == (len(q_values),)
-    assert not np.allclose(
-        result["h_plus_q"], result["h_minus_q"], atol=0.01
-    ), "h_plus and h_minus are too close — test data may not be split"
-
-    result_abs = cross_mfdfa(
-        x, y, q_values=q_values, scales=scales, signed="abs"
+    assert not np.allclose(result["h_plus_q"], result["h_minus_q"], atol=0.01), (
+        "h_plus and h_minus are too close — test data may not be split"
     )
+
+    result_abs = cross_mfdfa(x, y, q_values=q_values, scales=scales, signed="abs")
     assert np.all(np.isfinite(result_abs["h_q"]))
 
 
@@ -180,16 +172,10 @@ def test_cross_mfdfa_all_positive_matches_standard():
 
     q_values = [2, 3]
     scales = [16, 32, 64]
-    result_abs = cross_mfdfa(
-        x, y, q_values=q_values, scales=scales, signed="abs"
-    )
-    result_split = cross_mfdfa(
-        x, y, q_values=q_values, scales=scales, signed="split"
-    )
+    result_abs = cross_mfdfa(x, y, q_values=q_values, scales=scales, signed="abs")
+    result_split = cross_mfdfa(x, y, q_values=q_values, scales=scales, signed="split")
 
     assert result_split["n_minus"] == 0
     assert result_split["n_plus"] > 0
-    np.testing.assert_allclose(
-        result_abs["h_q"], result_split["h_plus_q"], atol=1e-10
-    )
+    np.testing.assert_allclose(result_abs["h_q"], result_split["h_plus_q"], atol=1e-10)
     assert np.all(np.isnan(result_split["h_minus_q"]))

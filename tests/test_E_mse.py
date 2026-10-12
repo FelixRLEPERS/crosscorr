@@ -54,9 +54,7 @@ def test_mse_periodic_rises_at_period():
 def test_mse_matrix_shape(rng):
     """multiscale_entropy_matrix возвращает (N_detectors, len(scales))."""
     scales = (1, 2, 4, 8)
-    wide = pd.DataFrame(
-        {f"d{i}": rng.normal(size=2000) for i in range(3)}
-    )
+    wide = pd.DataFrame({f"d{i}": rng.normal(size=2000) for i in range(3)})
     mat = multiscale_entropy_matrix(wide, scales=scales, m=2)
     assert mat.shape == (3, 4)
     assert list(mat.columns) == list(scales)

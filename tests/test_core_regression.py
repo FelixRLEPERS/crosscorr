@@ -3,6 +3,7 @@
 Один тест на каждый фикс + smoke-тест импорта всех модулей анализа.
 Заменяет старый ``test_core.py`` (81 тест, импорты из удалённого ``core``).
 """
+
 from __future__ import annotations
 
 import ast
@@ -45,9 +46,7 @@ def test_fix2_block_bootstrap_caps_block_size():
     x = np.arange(100, dtype=float)
     out = block_bootstrap_surrogate(x, block_size=200, rng=np.random.default_rng(0))
     assert len(out) == len(x)
-    assert not np.array_equal(out, x), (
-        "block_size не обрезан: суррогат совпал с исходником"
-    )
+    assert not np.array_equal(out, x), "block_size не обрезан: суррогат совпал с исходником"
 
 
 # ---------------------------------------------------------------------------
@@ -68,12 +67,8 @@ def test_fix3_default_block_size_is_cube_root():
     y = 0.5 * x + rng.normal(size=n)
     expected_block = int(round(n ** (1 / 3)))
 
-    r_default = block_bootstrap_pvalue(
-        x, y, block_size=None, n_surrogates=50, seed=7
-    )
-    r_explicit = block_bootstrap_pvalue(
-        x, y, block_size=expected_block, n_surrogates=50, seed=7
-    )
+    r_default = block_bootstrap_pvalue(x, y, block_size=None, n_surrogates=50, seed=7)
+    r_explicit = block_bootstrap_pvalue(x, y, block_size=expected_block, n_surrogates=50, seed=7)
     np.testing.assert_allclose(r_default[0], r_explicit[0])
     np.testing.assert_allclose(r_default[1], r_explicit[1])
 
@@ -116,9 +111,7 @@ def test_fix5_nan_safe_fdr_propagates_nan():
     _, q = fdr_bh_q(p, alpha=0.05, method="bh")
     assert np.isnan(q[1]), "NaN в p-value не дал NaN в q-value"
 
-    _, q_clean = fdr_bh_q(
-        np.array([0.01, 0.03, 0.04, 0.05]), alpha=0.05, method="bh"
-    )
+    _, q_clean = fdr_bh_q(np.array([0.01, 0.03, 0.04, 0.05]), alpha=0.05, method="bh")
     np.testing.assert_allclose(q[[0, 2, 3, 4]], q_clean)
 
 
@@ -146,9 +139,7 @@ def test_fix7_apply_preprocessing_flag_and_preprocess_body():
         fn = getattr(cc, name, None)
         assert fn is not None, f"{name} не найдена"
         params = inspect.signature(fn).parameters
-        assert "apply_preprocessing" in params, (
-            f"apply_preprocessing отсутствует в {name}"
-        )
+        assert "apply_preprocessing" in params, f"apply_preprocessing отсутствует в {name}"
         assert params["apply_preprocessing"].default is True
 
     # тело фикса реально применено — проверим сам preprocess
@@ -349,16 +340,12 @@ def test_fix11_skipped_surrogates_reduce_denominator():
 
     x = np.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0])
     y = x[::-1].copy()
-    t_obs, p, best_lag = max_lag_surrogate_pvalue(
-        x, y, max_lag=3, n_surrogates=20, seed=42
-    )
+    t_obs, p, best_lag = max_lag_surrogate_pvalue(x, y, max_lag=3, n_surrogates=20, seed=42)
     # либо значение не считается (NaN, p=1.0), либо p >= 1/(n_surr+1)
     if np.isnan(t_obs):
         assert p == 1.0
     else:
-        assert p >= 1.0 / (20 + 1) - 1e-12, (
-            f"p={p} ниже минимума 1/(B+1), знаменатель не защищён"
-        )
+        assert p >= 1.0 / (20 + 1) - 1e-12, f"p={p} ниже минимума 1/(B+1), знаменатель не защищён"
 
 
 # ---------------------------------------------------------------------------
@@ -372,12 +359,8 @@ def test_fix12_phase_surrogate_short_input():
 
     x = np.array([1.0, 2.0, 3.0])
     out = phase_surrogate(x, np.random.default_rng(0))
-    assert not np.array_equal(out, x), (
-        "phase_surrogate вернул исходный ряд при n<4"
-    )
-    assert np.all(np.isnan(out)), (
-        "phase_surrogate должен вернуть NaN при n<4"
-    )
+    assert not np.array_equal(out, x), "phase_surrogate вернул исходный ряд при n<4"
+    assert np.all(np.isnan(out)), "phase_surrogate должен вернуть NaN при n<4"
 
 
 # ---------------------------------------------------------------------------
@@ -403,9 +386,7 @@ def test_fix13_distance_model_constant_x():
 
     for key, val in result.items():
         if isinstance(val, float):
-            assert np.isfinite(val) or np.isnan(val), (
-                f"{key}={val} — inf недопустимо"
-            )
+            assert np.isfinite(val) or np.isnan(val), f"{key}={val} — inf недопустимо"
 
 
 # ---------------------------------------------------------------------------
@@ -421,9 +402,7 @@ def test_fix14_phase_surrogate_preserves_length():
     x[10] = np.nan
     x[20:30] = np.nan
     out = phase_surrogate(x, np.random.default_rng(0))
-    assert len(out) == len(x), (
-        f"phase_surrogate вернул {len(out)} вместо {len(x)}"
-    )
+    assert len(out) == len(x), f"phase_surrogate вернул {len(out)} вместо {len(x)}"
     assert np.isfinite(out).all(), "NaN не интерполированы"
 
 
@@ -438,9 +417,7 @@ def test_fix15_iaaft_surrogate_degenerate_input():
 
     x = np.array([np.nan, np.nan, 1.0, np.nan, np.nan])
     out = iaaft_surrogate(x, np.random.default_rng(0))
-    assert not np.array_equal(out, x), (
-        "iaaft_surrogate вернул исходник при вырожденном входе"
-    )
+    assert not np.array_equal(out, x), "iaaft_surrogate вернул исходник при вырожденном входе"
 
 
 # ---------------------------------------------------------------------------
@@ -460,7 +437,10 @@ def test_fix16_b_zero_raises():
     )
     with pytest.raises(ValueError, match="B must be"):
         cross_correlation_pairs_with_max_stat(
-            wide, B=0, seed=42, n_jobs=1,
+            wide,
+            B=0,
+            seed=42,
+            n_jobs=1,
         )
 
 
@@ -478,5 +458,8 @@ def test_fix16_negative_seed_raises():
     )
     with pytest.raises(ValueError, match="seed must be"):
         cross_correlation_pairs_with_max_stat(
-            wide, B=10, seed=-1, n_jobs=1,
+            wide,
+            B=10,
+            seed=-1,
+            n_jobs=1,
         )

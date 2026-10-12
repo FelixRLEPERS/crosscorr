@@ -3,6 +3,7 @@
 - B24: n_obs считается по исходным данным, не после интерполяции NaN.
 - B38: argsort в FDR стабилен при ties.
 """
+
 from __future__ import annotations
 
 import numpy as np
@@ -28,7 +29,10 @@ def test_n_obs_excludes_interpolated_points_max_stat():
 
     raw_valid = int((~np.isnan(a) & ~np.isnan(b)).sum())
     df = cross_correlation_pairs_with_max_stat(
-        wide, max_lag=10, n_surrogates=30, seed=1,
+        wide,
+        max_lag=10,
+        n_surrogates=30,
+        seed=1,
     )
     assert int(df["n_obs"].iloc[0]) == raw_valid
 

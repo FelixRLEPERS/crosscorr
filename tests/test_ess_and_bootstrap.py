@@ -17,6 +17,7 @@ from crosscorr_lib.analysis.effective_sample import (
 
 # ============ ESS ============
 
+
 def test_ess_is_zero_lag_only_deprecated():
     """ESS — zero-lag only и помечен deprecated для лагового анализа.
 
@@ -44,9 +45,7 @@ def test_ess_is_zero_lag_only_deprecated():
     r_shift, _, _ = correlation_pvalue_with_ess(x, y_shift, method="pearson")
 
     assert abs(r0 - 1.0) < 1e-6 or r0 > 0.9
-    assert abs(r_shift) < 0.1, (
-        f"ESS увидел ненулевую корреляцию на сдвинутом ряде: r={r_shift}"
-    )
+    assert abs(r_shift) < 0.1, f"ESS увидел ненулевую корреляцию на сдвинутом ряде: r={r_shift}"
 
 
 def test_iat_white_noise():
@@ -71,9 +70,7 @@ def test_iat_ar1_decreases_with_phi():
 
     # τ_int монотонно растёт
     for i in range(len(taus) - 1):
-        assert taus[i] < taus[i + 1], (
-            f"τ_int не растёт: {taus[i]:.3f} >= {taus[i+1]:.3f}"
-        )
+        assert taus[i] < taus[i + 1], f"τ_int не растёт: {taus[i]:.3f} >= {taus[i + 1]:.3f}"
 
     print(f"\n  τ_int: {[f'{t:.2f}' for t in taus]}")
 
@@ -91,10 +88,8 @@ def test_ess_reduces_with_autocorrelation():
     y = x + 0.5 * rng.normal(size=n)
 
     n_eff = effective_sample_size(x, y)
-    assert n_eff < n / 2, (
-        f"N_eff={n_eff:.0f} не меньше N/2={n/2:.0f}"
-    )
-    print(f"\n  N={n}, N_eff={n_eff:.0f}, ratio={n_eff/n:.3f}")
+    assert n_eff < n / 2, f"N_eff={n_eff:.0f} не меньше N/2={n / 2:.0f}"
+    print(f"\n  N={n}, N_eff={n_eff:.0f}, ratio={n_eff / n:.3f}")
 
 
 def test_correlation_pvalue_with_ess_is_stricter():
@@ -119,21 +114,19 @@ def test_correlation_pvalue_with_ess_is_stricter():
     r_ess, p_ess, n_eff = correlation_pvalue_with_ess(x, y, method="pearson")
 
     # r должен совпадать (используем одну и ту же корреляцию)
-    assert abs(r_naive - r_ess) < 1e-6, (
-        f"r_naive={r_naive:.6f}, r_ess={r_ess:.6f}"
-    )
+    assert abs(r_naive - r_ess) < 1e-6, f"r_naive={r_naive:.6f}, r_ess={r_ess:.6f}"
 
     # ESS-версия должна давать строже (больше) p-value
     # (с допуском на численные эффекты)
-    assert p_ess >= p_naive * 0.9, (
-        f"p_ess={p_ess:.6e} должен быть ≥ p_naive={p_naive:.6e}"
-    )
+    assert p_ess >= p_naive * 0.9, f"p_ess={p_ess:.6e} должен быть ≥ p_naive={p_naive:.6e}"
 
     print(f"\n  p_naive={p_naive:.4e}")
     print(f"  p_ess  ={p_ess:.4e}")
     print(f"  N_eff  ={n_eff:.0f}")
 
+
 # ============ Block Bootstrap ============
+
 
 def test_block_bootstrap_preserves_length():
     """Суррогат той же длины, что исходный ряд."""
@@ -155,12 +148,11 @@ def test_block_bootstrap_destroys_correlation():
     # Zero-lag связь (не сдвиг!) — block_bootstrap_pvalue считает zero-lag Pearson
     y = 0.5 * x + 0.3 * rng.normal(size=n)
 
-    r, p = block_bootstrap_pvalue(
-        x, y, block_size=24, n_surrogates=200, seed=42
-    )
+    r, p = block_bootstrap_pvalue(x, y, block_size=24, n_surrogates=200, seed=42)
     assert r > 0.3, f"Наблюдаемая корреляция r={r:.3f} слишком мала"
     assert p < 0.05, f"p={p:.4f} слишком большой для реального сигнала"
     print(f"\n  r={r:.4f}, p={p:.4f} (реальный сигнал, zero-lag)")
+
 
 def test_block_bootstrap_rejects_noise():
     """Block bootstrap отклоняет чистый шум."""
@@ -170,9 +162,7 @@ def test_block_bootstrap_rejects_noise():
     x = rng.normal(size=n)
     y = rng.normal(size=n)
 
-    r, p = block_bootstrap_pvalue(
-        x, y, block_size=24, n_surrogates=200, seed=42
-    )
+    r, p = block_bootstrap_pvalue(x, y, block_size=24, n_surrogates=200, seed=42)
     assert p > 0.05, f"Ложное срабатывание: p={p:.4f}"
     print(f"\n  r={r:.4f}, p={p:.4f} (чистый шум)")
 
@@ -183,9 +173,7 @@ def test_iat_uses_fft_not_correlate():
 
     from crosscorr_lib.analysis import effective_sample
 
-    src = inspect.getsource(
-        effective_sample.integrated_autocorrelation_time
-    )
+    src = inspect.getsource(effective_sample.integrated_autocorrelation_time)
     assert "np.correlate" not in src, (
         "IAT должен использовать FFT-based свёртку, не прямую корреляцию"
     )
@@ -230,12 +218,9 @@ def test_fix9_pvalue_not_zero_for_large_t():
     # где sf отличается от cdf
     t_abs = abs(r) * np.sqrt((n_eff - 2) / (1 - r**2))
     assert 37 < t_abs < 343, (
-        f"t = {t_abs:.1f} вне диапазона [37, 343], "
-        f"тест не проверяет замену cdf→sf"
+        f"t = {t_abs:.1f} вне диапазона [37, 343], тест не проверяет замену cdf→sf"
     )
-    assert p > 0.0, (
-        f"p-value = {p}, ожидалось > 0 при t = {t_abs:.1f}"
-    )
+    assert p > 0.0, f"p-value = {p}, ожидалось > 0 при t = {t_abs:.1f}"
 
 
 def test_ess_handles_nan_by_interpolation():
@@ -245,9 +230,7 @@ def test_ess_handles_nan_by_interpolation():
     from crosscorr_lib.analysis import effective_sample
 
     src = inspect.getsource(effective_sample)
-    assert "x = x[~np.isnan(x)]" not in src, (
-        "NaN должны интерполироваться, не удаляться"
-    )
+    assert "x = x[~np.isnan(x)]" not in src, "NaN должны интерполироваться, не удаляться"
 
 
 def test_iat_is_nan_tolerant():

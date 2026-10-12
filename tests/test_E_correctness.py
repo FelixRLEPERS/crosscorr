@@ -89,17 +89,25 @@ def test_cross_correlation_pairs_empty_wide_returns_empty():
     result = cross_correlation_pairs(pd.DataFrame(), max_lag=10)
     assert result.empty
     assert list(result.columns) == [
-        "detector_1", "detector_2", "lag", "correlation",
-        "p_value", "q_value", "n_obs", "significant",
+        "detector_1",
+        "detector_2",
+        "lag",
+        "correlation",
+        "p_value",
+        "q_value",
+        "n_obs",
+        "significant",
     ]
 
 
 def test_cross_correlation_pairs_constant_series_skipped():
     """Все константные ряды → нет валидных лагов, пустой результат без падения."""
-    wide = pd.DataFrame({
-        "a": np.full(200, 5.0),
-        "b": np.full(200, 5.0),
-    })
+    wide = pd.DataFrame(
+        {
+            "a": np.full(200, 5.0),
+            "b": np.full(200, 5.0),
+        }
+    )
     with pytest.warns(Warning):
         result = cross_correlation_pairs(wide, max_lag=10)
     assert result.empty

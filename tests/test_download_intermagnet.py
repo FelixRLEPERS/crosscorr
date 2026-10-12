@@ -8,6 +8,7 @@
 фиксированно-ширинная (ISO-дата + компоненты по 10 символов) и
 каноническая пробельная (``YYYY MM DD HH MM SS.MS [IAF] X Y Z``).
 """
+
 from __future__ import annotations
 
 import math
@@ -23,18 +24,10 @@ from data.scripts.download_intermagnet import (
 
 # Фиксированно-ширинная запись: позиции 0-22 время, далее 10 символов
 # на компоненту начиная с позиции 24.
-FIXED_VALID = (
-    "2023-01-01 00:00:00.000  20230.0   -1045.7   43400.0   43430.0"
-)
-FIXED_NAN_99 = (
-    "2023-01-01 00:00:00.000  99999.99   -1045.7   43400.0   43430.0"
-)
-FIXED_NAN_999 = (
-    "2023-01-01 00:00:00.000  99999.999  -1045.7   43400.0   43430.0"
-)
-FIXED_NAN_NEG = (
-    "2023-01-01 00:00:00.000  -99999.99  -1045.7   43400.0   43430.0"
-)
+FIXED_VALID = "2023-01-01 00:00:00.000  20230.0   -1045.7   43400.0   43430.0"
+FIXED_NAN_99 = "2023-01-01 00:00:00.000  99999.99   -1045.7   43400.0   43430.0"
+FIXED_NAN_999 = "2023-01-01 00:00:00.000  99999.999  -1045.7   43400.0   43430.0"
+FIXED_NAN_NEG = "2023-01-01 00:00:00.000  -99999.99  -1045.7   43400.0   43430.0"
 
 # Каноническая пробельная запись реальных файлов INTERMAGNET.
 SPACED_WITH_IAF = "2020 01 01 00 00 00.000  1 12345.6 -2345.6 5678.9 1 2020 4.1"
@@ -79,9 +72,7 @@ def test_parse_iaga_line_nan_marker_negative():
 
 def test_parse_iaga_line_invalid_time():
     """Невалидное время → None, без исключения."""
-    result = parse_iaga_line(
-        "2023-13-45 99:99:99.999  20230.0   -1045.7   43400.0   43430.0"
-    )
+    result = parse_iaga_line("2023-13-45 99:99:99.999  20230.0   -1045.7   43400.0   43430.0")
 
     assert result is None
 
@@ -102,18 +93,14 @@ def test_parse_iaga_line_blank_and_non_string():
 
 def test_parse_iaga_line_non_numeric_component():
     """Нечитаемая компонента → None, а не частичная строка."""
-    result = parse_iaga_line(
-        "2023-01-01 00:00:00.000  ABCDEFGHIJ   -1045.7   43400.0   43430.0"
-    )
+    result = parse_iaga_line("2023-01-01 00:00:00.000  ABCDEFGHIJ   -1045.7   43400.0   43430.0")
 
     assert result is None
 
 
 def test_parse_iaga_line_all_missing_rejected():
     """Строка, где все компоненты — маркеры пропуска, отбрасывается."""
-    result = parse_iaga_line(
-        "2023-01-01 00:00:00.000  99999.99   99999.99   99999.99   99999.99"
-    )
+    result = parse_iaga_line("2023-01-01 00:00:00.000  99999.99   99999.99   99999.99   99999.99")
 
     assert result is None
 
@@ -235,8 +222,7 @@ def test_parse_iaga2002_handles_real_rows_only(tmp_path: Path):
     src = tmp_path / "ABBR_2020_01.min"
     src.write_text(
         "\n".join(
-            f"2020 01 01 0{h} 00 00.000  1 12345.6 -2345.6 5678.9 1 2020 4.1"
-            for h in range(3)
+            f"2020 01 01 0{h} 00 00.000  1 12345.6 -2345.6 5678.9 1 2020 4.1" for h in range(3)
         )
         + "\n",
         encoding="utf-8",

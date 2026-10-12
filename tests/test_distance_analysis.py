@@ -31,17 +31,21 @@ def test_haversine_zero():
 
 
 def test_add_distances_basic():
-    cc = pd.DataFrame({
-        "detector_1": ["A", "A", "B"],
-        "detector_2": ["B", "C", "C"],
-        "correlation": [0.8, 0.5, 0.3],
-        "lag": [0, 0, 0],
-    })
-    detectors = pd.DataFrame({
-        "detector_id": ["A", "B", "C"],
-        "lat": [55.0, 56.0, 60.0],
-        "lon": [37.0, 38.0, 30.0],
-    }).set_index("detector_id")
+    cc = pd.DataFrame(
+        {
+            "detector_1": ["A", "A", "B"],
+            "detector_2": ["B", "C", "C"],
+            "correlation": [0.8, 0.5, 0.3],
+            "lag": [0, 0, 0],
+        }
+    )
+    detectors = pd.DataFrame(
+        {
+            "detector_id": ["A", "B", "C"],
+            "lat": [55.0, 56.0, 60.0],
+            "lon": [37.0, 38.0, 30.0],
+        }
+    ).set_index("detector_id")
 
     df = add_distances(cc, detectors)
     assert "distance_km" in df.columns
@@ -67,12 +71,14 @@ def test_fit_distance_model_uses_true_correlation():
     distances = np.array([100, 200, 300, 400, 500])
     rho = np.array([0.9, 0.7, 0.5, 0.3, 0.1])
     fisher = np.array([3.0, 2.5, 2.0, 1.5, 1.0])
-    df = pd.DataFrame({
-        "distance_km": distances,
-        "correlation": fisher,          # deprecated alias = Fisher (старый CSV)
-        "max_stat_score": fisher,       # Fisher-score
-        "rho_at_best_lag": rho,         # настоящий Spearman
-    })
+    df = pd.DataFrame(
+        {
+            "distance_km": distances,
+            "correlation": fisher,  # deprecated alias = Fisher (старый CSV)
+            "max_stat_score": fisher,  # Fisher-score
+            "rho_at_best_lag": rho,  # настоящий Spearman
+        }
+    )
 
     model = fit_distance_model(df)
 
@@ -105,9 +111,7 @@ def test_end_to_end_synthetic():
     for i in range(5):
         # Каждый следующий детектор — слабее связан с базовым сигналом
         alpha = np.exp(-i * 0.5)
-        signals[detector_ids[i]] = (
-            alpha * base + (1 - alpha) * rng.normal(size=n_time)
-        )
+        signals[detector_ids[i]] = alpha * base + (1 - alpha) * rng.normal(size=n_time)
 
     # Собираем wide-таблицу
     idx = pd.date_range("2025-01-01", periods=n_time, freq="1h", tz="UTC")
@@ -117,11 +121,13 @@ def test_end_to_end_synthetic():
     cc = cross_correlation_pairs(wide, max_lag=10, alpha=0.05)
 
     # Координаты
-    detectors = pd.DataFrame({
-        "detector_id": detector_ids,
-        "lat": lats,
-        "lon": lons,
-    }).set_index("detector_id")
+    detectors = pd.DataFrame(
+        {
+            "detector_id": detector_ids,
+            "lat": lats,
+            "lon": lons,
+        }
+    ).set_index("detector_id")
 
     df = add_distances(cc, detectors)
     model = fit_distance_model(df)
@@ -130,9 +136,7 @@ def test_end_to_end_synthetic():
     print(f"R²: {model['r_squared']:.4f}")
     print(f"n: {model['n']}")
 
-    assert model["slope"] < 0, (
-        f"Ожидали отрицательный slope, получили {model['slope']}"
-    )
+    assert model["slope"] < 0, f"Ожидали отрицательный slope, получили {model['slope']}"
 
 
 if __name__ == "__main__":

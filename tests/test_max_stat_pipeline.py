@@ -59,12 +59,8 @@ def test_max_stat_pipeline_finds_signal():
 
     assert len(result) == 1
     row = result.iloc[0]
-    assert abs(row["lag"]) == true_lag, (
-        f"Ожидали |lag|={true_lag}, получили {row['lag']}"
-    )
-    assert row["p_value"] < 0.05, (
-        f"p-value={row['p_value']} слишком большой для реального сигнала"
-    )
+    assert abs(row["lag"]) == true_lag, f"Ожидали |lag|={true_lag}, получили {row['lag']}"
+    assert row["p_value"] < 0.05, f"p-value={row['p_value']} слишком большой для реального сигнала"
     assert row["significant"], "Сигнал должен быть значимым"
 
 
@@ -78,9 +74,7 @@ def test_max_stat_pipeline_rejects_noise():
 
     assert len(result) == 1
     row = result.iloc[0]
-    assert row["p_value"] > 0.05, (
-        f"Ложное срабатывание: p={row['p_value']}"
-    )
+    assert row["p_value"] > 0.05, f"Ложное срабатывание: p={row['p_value']}"
     assert not row["significant"], "Шум не должен быть значимым"
 
 
@@ -93,9 +87,17 @@ def test_max_stat_pipeline_tidy_format():
     )
 
     expected_cols = {
-        "detector_1", "detector_2", "lag", "correlation",
-        "max_stat_score", "rho_at_best_lag",
-        "p_value", "q_value", "n_obs", "significant", "n_surrogates",
+        "detector_1",
+        "detector_2",
+        "lag",
+        "correlation",
+        "max_stat_score",
+        "rho_at_best_lag",
+        "p_value",
+        "q_value",
+        "n_obs",
+        "significant",
+        "n_surrogates",
     }
     assert expected_cols.issubset(set(result.columns)), (
         f"Отсутствуют колонки: {expected_cols - set(result.columns)}"
@@ -108,9 +110,7 @@ def test_max_stat_output_has_separate_columns():
     присутствуют и не смешиваются."""
     wide, _ = _make_signal_wide(n_time=1000, lag=6)
 
-    df = cross_correlation_pairs_with_max_stat(
-        wide, max_lag=24, n_surrogates=100, seed=42
-    )
+    df = cross_correlation_pairs_with_max_stat(wide, max_lag=24, n_surrogates=100, seed=42)
 
     assert "max_stat_score" in df.columns
     assert "rho_at_best_lag" in df.columns
@@ -129,9 +129,7 @@ def test_rho_at_best_lag_is_spearman():
     from crosscorr_lib.analysis.preprocessing import preprocess
 
     wide, _ = _make_signal_wide(n_time=1000, lag=6)
-    df = cross_correlation_pairs_with_max_stat(
-        wide, max_lag=24, n_surrogates=100, seed=42
-    )
+    df = cross_correlation_pairs_with_max_stat(wide, max_lag=24, n_surrogates=100, seed=42)
     row = df.iloc[0]
 
     # Функция по умолчанию применяет preprocess к каждой колонке,
@@ -142,8 +140,7 @@ def test_rho_at_best_lag_is_spearman():
     expected = corrs[int(np.where(lags == int(row["lag"]))[0][0])]
 
     assert abs(row["rho_at_best_lag"] - expected) < 1e-9, (
-        f"rho_at_best_lag={row['rho_at_best_lag']} != "
-        f"Spearman на лаге {row['lag']}={expected}"
+        f"rho_at_best_lag={row['rho_at_best_lag']} != Spearman на лаге {row['lag']}={expected}"
     )
 
 
@@ -151,12 +148,11 @@ def test_correlation_column_matches_rho_at_best_lag():
     """Deprecated correlation == rho_at_best_lag, не Fisher-score."""
     wide, _ = _make_signal_wide(n_time=1000, lag=6)
 
-    df = cross_correlation_pairs_with_max_stat(
-        wide, max_lag=24, n_surrogates=100, seed=42
-    )
+    df = cross_correlation_pairs_with_max_stat(wide, max_lag=24, n_surrogates=100, seed=42)
 
     pd.testing.assert_series_equal(
-        df["correlation"], df["rho_at_best_lag"],
+        df["correlation"],
+        df["rho_at_best_lag"],
         check_names=False,
     )
 
@@ -167,15 +163,14 @@ def test_cli_help_uses_naive_flag():
     import sys
 
     result = subprocess.run(
-        [sys.executable, "-m",
-         "crosscorr_lib.analysis.cross_correlation", "--help"],
-        capture_output=True, text=True, timeout=30,
+        [sys.executable, "-m", "crosscorr_lib.analysis.cross_correlation", "--help"],
+        capture_output=True,
+        text=True,
+        timeout=30,
     )
     assert result.returncode == 0
     assert "--use-naive" in result.stdout
-    assert "--use-max-stat" not in result.stdout, (
-        "--use-max-stat не должен оставаться в CLI"
-    )
+    assert "--use-max-stat" not in result.stdout, "--use-max-stat не должен оставаться в CLI"
 
 
 def test_cli_rejects_max_stat_with_ess():
@@ -184,10 +179,10 @@ def test_cli_rejects_max_stat_with_ess():
     import sys
 
     result = subprocess.run(
-        [sys.executable, "-m",
-         "crosscorr_lib.analysis.cross_correlation",
-         "--use-ess"],
-        capture_output=True, text=True, timeout=30,
+        [sys.executable, "-m", "crosscorr_lib.analysis.cross_correlation", "--use-ess"],
+        capture_output=True,
+        text=True,
+        timeout=30,
     )
     assert result.returncode != 0
     assert "use-naive" in result.stderr.lower(), result.stderr

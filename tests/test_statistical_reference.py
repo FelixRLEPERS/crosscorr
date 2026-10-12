@@ -117,9 +117,7 @@ def _signal_with_lag(n=2000, lag=6, strength=0.5, seed=42):
 def test_max_stat_recovers_known_lag():
     """Синтетика lag=6, strength=0.5 → best_lag ≈ 6, p < 0.05."""
     x, y = _signal_with_lag(n=2000, lag=6, strength=0.5, seed=42)
-    t_obs, p, best_lag = max_lag_surrogate_pvalue(
-        x, y, max_lag=24, n_surrogates=200, seed=42
-    )
+    t_obs, p, best_lag = max_lag_surrogate_pvalue(x, y, max_lag=24, n_surrogates=200, seed=42)
     assert abs(best_lag - 6) <= 1, f"best_lag={best_lag}, ожидали ~6"
     assert p < 0.05, f"p={p} слишком большой для реального сигнала"
     assert np.isfinite(t_obs)
@@ -136,9 +134,7 @@ def test_max_stat_rejects_pure_noise():
     rng = np.random.default_rng(99)
     x = rng.normal(size=2000)
     y = rng.normal(size=2000)
-    _, p, _ = max_lag_surrogate_pvalue(
-        x, y, max_lag=24, n_surrogates=200, seed=42
-    )
+    _, p, _ = max_lag_surrogate_pvalue(x, y, max_lag=24, n_surrogates=200, seed=42)
     min_p = 1.0 / (200 + 1)
     assert p > 3 * min_p, f"шум дал вырожденно малый p={p}"
 

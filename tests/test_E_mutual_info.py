@@ -45,8 +45,8 @@ def test_mi_nonlinear_dependence(rng):
     y = x**2 + 0.1 * rng.normal(size=4000)
     pearson = float(np.corrcoef(x, y)[0, 1])
     mi = mutual_information(x, y)
-    assert abs(pearson) < 0.1      # линейная связь отсутствует
-    assert mi > 0.3                # но информационная связь есть
+    assert abs(pearson) < 0.1  # линейная связь отсутствует
+    assert mi > 0.3  # но информационная связь есть
 
 
 def test_mi_gaussian_analytic_reference(rng):
@@ -55,16 +55,14 @@ def test_mi_gaussian_analytic_reference(rng):
     n = 5000
     z1 = rng.normal(size=n)
     z2 = rho * z1 + np.sqrt(1.0 - rho**2) * rng.normal(size=n)
-    expected = -0.5 * np.log(1.0 - rho**2)   # ≈ 0.1438 nats
+    expected = -0.5 * np.log(1.0 - rho**2)  # ≈ 0.1438 nats
     mi = mutual_information(z1, z2, k=5)
     np.testing.assert_allclose(mi, expected, atol=0.05)
 
 
 def test_mi_matrix_shape_and_symmetry(rng):
     """Матрица MI: 5x5, симметричная, диагональ нулевая."""
-    wide = pd.DataFrame(
-        {f"d{i}": rng.normal(size=1500) for i in range(5)}
-    )
+    wide = pd.DataFrame({f"d{i}": rng.normal(size=1500) for i in range(5)})
     mat = mutual_information_matrix(wide, k=5)
     assert mat.shape == (5, 5)
     np.testing.assert_allclose(mat.to_numpy(), mat.to_numpy().T)
@@ -124,10 +122,7 @@ def test_batch_neighbor_counts_match_pointwise(points):
     tree = cKDTree(points)
     radii = np.array([0.0, 1.0, np.nextafter(1.0, -np.inf), 2.0])
     expected = np.array(
-        [
-            len(tree.query_ball_point(points[i], radii[i], p=np.inf)) - 1
-            for i in range(len(points))
-        ]
+        [len(tree.query_ball_point(points[i], radii[i], p=np.inf)) - 1 for i in range(len(points))]
     )
 
     np.testing.assert_array_equal(_count_neighbors(tree, points, radii), expected)

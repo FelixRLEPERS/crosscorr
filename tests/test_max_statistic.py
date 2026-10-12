@@ -35,9 +35,7 @@ def _make_noise(n=2000, seed=99):
 def test_max_stat_finds_real_signal():
     """Реальный сигнал → маленький p-value."""
     x, y = _make_signal(n=2000, lag=6, strength=0.5)
-    t_obs, p, best_lag = max_lag_surrogate_pvalue(
-        x, y, max_lag=24, n_surrogates=200, seed=42
-    )
+    t_obs, p, best_lag = max_lag_surrogate_pvalue(x, y, max_lag=24, n_surrogates=200, seed=42)
     assert abs(best_lag - 6) <= 1, f"Лаг: {best_lag} (ожидали ~6)"
     assert p < 0.05, f"p-value слишком большой: {p}"
 
@@ -45,9 +43,7 @@ def test_max_stat_finds_real_signal():
 def test_max_stat_rejects_pure_noise():
     """Чистый шум → большой p-value."""
     x, y = _make_noise(n=2000)
-    t_obs, p, best_lag = max_lag_surrogate_pvalue(
-        x, y, max_lag=24, n_surrogates=200, seed=42
-    )
+    t_obs, p, best_lag = max_lag_surrogate_pvalue(x, y, max_lag=24, n_surrogates=200, seed=42)
     assert p > 0.1, f"Ложное срабатывание: p={p}"
 
 
@@ -69,14 +65,10 @@ def test_max_stat_is_stricter_than_naive():
     naive_p = pvals[best_idx]
 
     # Max-statistic p-value
-    _, max_p, _ = max_lag_surrogate_pvalue(
-        x, y, max_lag=24, n_surrogates=200, seed=42
-    )
+    _, max_p, _ = max_lag_surrogate_pvalue(x, y, max_lag=24, n_surrogates=200, seed=42)
 
     # Max-statistic должен быть строже (p больше)
-    assert max_p >= naive_p - 0.01, (
-        f"Max-stat p={max_p:.4f} должен быть >= naive p={naive_p:.4f}"
-    )
+    assert max_p >= naive_p - 0.01, f"Max-stat p={max_p:.4f} должен быть >= naive p={naive_p:.4f}"
 
 
 def test_time_shift_null_statistic_comparable():
@@ -88,7 +80,11 @@ def test_time_shift_null_statistic_comparable():
     """
     x, y = _make_noise(n=500, seed=7)
     t_obs, p, best_lag = max_lag_surrogate_pvalue(
-        x, y, max_lag=24, n_surrogates=200, seed=42,
+        x,
+        y,
+        max_lag=24,
+        n_surrogates=200,
+        seed=42,
         surrogate_method="time_shift",
     )
     assert np.isfinite(t_obs)
@@ -108,7 +104,11 @@ def test_max_lag_exceeds_n_raises():
     y = np.random.default_rng(1).normal(size=50)
     with pytest.raises(ValueError, match="max_lag"):
         max_lag_surrogate_pvalue(
-            x, y, max_lag=100, n_surrogates=10, seed=42,
+            x,
+            y,
+            max_lag=100,
+            n_surrogates=10,
+            seed=42,
         )
 
 
@@ -118,7 +118,11 @@ def test_max_lag_negative_raises():
     y = np.random.default_rng(1).normal(size=50)
     with pytest.raises(ValueError, match="max_lag"):
         max_lag_surrogate_pvalue(
-            x, y, max_lag=-1, n_surrogates=10, seed=42,
+            x,
+            y,
+            max_lag=-1,
+            n_surrogates=10,
+            seed=42,
         )
 
 

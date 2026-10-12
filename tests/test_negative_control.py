@@ -34,6 +34,7 @@ def _make_noise_wide(n_detectors=10, n_time=500, seed=42):
 
     return pd.DataFrame(data, index=idx)
 
+
 @pytest.mark.slow
 def test_negative_control_no_false_positives():
     """
@@ -53,13 +54,15 @@ def test_negative_control_no_false_positives():
             t_obs, p, best_lag = max_lag_surrogate_pvalue(
                 x, y, max_lag=24, n_surrogates=200, seed=42 + i * 100 + j
             )
-            rows.append({
-                "detector_1": cols[i],
-                "detector_2": cols[j],
-                "lag": best_lag,
-                "correlation": t_obs,
-                "p_value": p,
-            })
+            rows.append(
+                {
+                    "detector_1": cols[i],
+                    "detector_2": cols[j],
+                    "lag": best_lag,
+                    "correlation": t_obs,
+                    "p_value": p,
+                }
+            )
 
     df = pd.DataFrame(rows)
     n_pairs = len(df)
@@ -80,6 +83,7 @@ def test_negative_control_no_false_positives():
         f"На чистом шуме найдено {n_significant} значимых пар. "
         f"Ожидали ≤ 1. Это ложные срабатывания."
     )
+
 
 @pytest.mark.slow
 def test_negative_control_min_p_value_distribution():

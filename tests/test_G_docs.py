@@ -63,14 +63,9 @@ def test_analysis_readme_lists_all_modules():
         return
     content = readme.read_text(encoding="utf-8")
     analysis = ROOT / "crosscorr_lib" / "analysis"
-    modules = [
-        p.stem for p in analysis.glob("*.py")
-        if not p.stem.startswith("_")
-    ]
+    modules = [p.stem for p in analysis.glob("*.py") if not p.stem.startswith("_")]
     missing = [m for m in modules if m not in content]
-    assert len(missing) < 8, (
-        f"Модули не упомянуты в analysis/README.md: {missing}"
-    )
+    assert len(missing) < 8, f"Модули не упомянуты в analysis/README.md: {missing}"
 
 
 def test_no_deprecated_ci_badge():
@@ -81,9 +76,7 @@ def test_no_deprecated_ci_badge():
 
 
 def test_pyproject_version_matches_readme():
-    data = tomllib.loads(
-        (ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    )
+    data = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
     version = data.get("project", {}).get("version", "0.0.0")
     assert version
 

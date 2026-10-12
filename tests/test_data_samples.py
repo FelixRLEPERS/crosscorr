@@ -10,6 +10,7 @@
 - A21 — --station обязателен в download_intermagnet
 - A24 — registry.expected_fields использует timestamp_utc
 """
+
 from __future__ import annotations
 
 import importlib.util
@@ -76,13 +77,15 @@ def test_wspr_key_is_unique_per_receiver_time(tmp_path: Path):
     from data.scripts.unify_schema import load_wspr
 
     path = tmp_path / "wspr.csv"
-    pd.DataFrame({
-        "timestamp": ["2025-01-01T00:00:00Z"] * 3,
-        "rx_call": ["RX1"] * 3,
-        "tx_call": ["TX1", "TX2", "TX3"],
-        "snr": [-10.0, -12.0, -8.0],
-        "band": ["20m"] * 3,
-    }).to_csv(path, index=False)
+    pd.DataFrame(
+        {
+            "timestamp": ["2025-01-01T00:00:00Z"] * 3,
+            "rx_call": ["RX1"] * 3,
+            "tx_call": ["TX1", "TX2", "TX3"],
+            "snr": [-10.0, -12.0, -8.0],
+            "band": ["20m"] * 3,
+        }
+    ).to_csv(path, index=False)
 
     out = load_wspr(path)
 
@@ -101,7 +104,9 @@ def test_wspr_key_is_unique_per_receiver_time(tmp_path: Path):
 def test_synthetic_detector_types_in_schema_enum():
     gen = _load_synthetic_module()
 
-    enum = set(json.loads(SCHEMA.read_text(encoding="utf-8"))["properties"]["detector_type"]["enum"])
+    enum = set(
+        json.loads(SCHEMA.read_text(encoding="utf-8"))["properties"]["detector_type"]["enum"]
+    )
     used = {d[3] for d in gen.DETECTORS}
 
     assert used <= enum, f"типы вне enum схемы: {used - enum}"
@@ -124,12 +129,14 @@ def test_make_sample_is_balanced_across_detectors(tmp_path: Path):
     n = 1000
     df = pd.concat(
         [
-            pd.DataFrame({
-                "timestamp_utc": pd.date_range("2025-01-01", periods=n, freq="1h", tz="UTC"),
-                "detector_id": det,
-                "detector_type": "wspr",
-                "value": range(n),
-            })
+            pd.DataFrame(
+                {
+                    "timestamp_utc": pd.date_range("2025-01-01", periods=n, freq="1h", tz="UTC"),
+                    "detector_id": det,
+                    "detector_type": "wspr",
+                    "value": range(n),
+                }
+            )
             for det in ("D_A", "D_B")
         ],
         ignore_index=True,
@@ -188,7 +195,8 @@ def test_download_intermagnet_main_has_no_unknown_default():
     src = inspect.getsource(di.main)
     tree = ast.parse(src)
     station_calls = [
-        node for node in ast.walk(tree)
+        node
+        for node in ast.walk(tree)
         if isinstance(node, ast.Call)
         and getattr(node.func, "attr", "") == "add_argument"
         and node.args
@@ -260,13 +268,15 @@ def test_load_wspr_does_not_mutate_input(tmp_path: Path):
     from data.scripts.unify_schema import load_wspr
 
     path = tmp_path / "wspr.csv"
-    pd.DataFrame({
-        "timestamp": ["2025-01-01T00:00:00Z"],
-        "rx_call": ["RX1"],
-        "tx_call": ["TX1"],
-        "snr": [-10.0],
-        "band": ["20m"],
-    }).to_csv(path, index=False)
+    pd.DataFrame(
+        {
+            "timestamp": ["2025-01-01T00:00:00Z"],
+            "rx_call": ["RX1"],
+            "tx_call": ["TX1"],
+            "snr": [-10.0],
+            "band": ["20m"],
+        }
+    ).to_csv(path, index=False)
 
     out = load_wspr(path)
     assert "detector_type" in out.columns

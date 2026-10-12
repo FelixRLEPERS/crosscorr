@@ -3,6 +3,7 @@
 - C6: T < 2 не даёт лишних столбцов в FFT-корреляции.
 - C3: прямая запись суррогатов в shared memory (без промежуточного out).
 """
+
 import numpy as np
 import pandas as pd
 
@@ -48,10 +49,16 @@ def test_c3_result_matches_expected():
     wide = pd.DataFrame(rng.standard_normal((300, 3)), columns=["a", "b", "c"])
 
     df1 = cross_correlation_pairs_with_max_stat(
-        wide, B=30, seed=7, n_jobs=1,
+        wide,
+        B=30,
+        seed=7,
+        n_jobs=1,
     )
     df2 = cross_correlation_pairs_with_max_stat(
-        wide, B=30, seed=7, n_jobs=1,
+        wide,
+        B=30,
+        seed=7,
+        n_jobs=1,
     )
     pd.testing.assert_frame_equal(df1, df2)
     assert len(df1) == 3
@@ -63,7 +70,10 @@ def test_c6_single_row_wide_is_handled():
     """wide из одной строки (T=1) не падает."""
     wide = pd.DataFrame({"a": [1.0], "b": [2.0]})
     df = cross_correlation_pairs_with_max_stat(
-        wide, B=5, seed=1, n_jobs=1,
+        wide,
+        B=5,
+        seed=1,
+        n_jobs=1,
     )
     assert len(df) == 1
     assert np.isfinite(df["C_obs"].iloc[0])

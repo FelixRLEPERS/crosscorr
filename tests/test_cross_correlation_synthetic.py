@@ -37,9 +37,7 @@ def test_lagged_cc_finds_known_lag():
     x, y, true_lag, _ = _make_synthetic_series(n=2000, lag=6)
     lags, corrs, pvals = lagged_cross_correlation(x, y, max_lag=24)
     best_lag = lags[np.argmax(np.abs(corrs))]
-    assert best_lag == true_lag, (
-        f"Ожидали лаг {true_lag}, получили {best_lag}"
-    )
+    assert best_lag == true_lag, f"Ожидали лаг {true_lag}, получили {best_lag}"
 
 
 def test_lagged_cc_zero_lag():
@@ -75,8 +73,14 @@ def test_cross_correlation_pairs_tidy_format():
     wide = pd.DataFrame({"D1": x, "D2": y}, index=idx)
     result = cross_correlation_pairs(wide, max_lag=24, alpha=0.05)
     expected_cols = {
-        "detector_1", "detector_2", "lag", "correlation",
-        "p_value", "q_value", "n_obs", "significant",
+        "detector_1",
+        "detector_2",
+        "lag",
+        "correlation",
+        "p_value",
+        "q_value",
+        "n_obs",
+        "significant",
     }
     assert expected_cols.issubset(set(result.columns))
     assert len(result) == 1

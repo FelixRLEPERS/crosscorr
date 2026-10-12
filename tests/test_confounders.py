@@ -48,16 +48,12 @@ def test_confounders_correlation_before_after():
     wide, conf = _make_two_detectors_driven_by_kp(n_time=1500, coupling=0.8)
 
     corr_before = wide["D1"].corr(wide["D2"])
-    assert corr_before > 0.7, (
-        f"Ожидали высокую корреляцию, получили {corr_before:.3f}"
-    )
+    assert corr_before > 0.7, f"Ожидали высокую корреляцию, получили {corr_before:.3f}"
 
     cleaned = remove_confounders(wide, conf)
 
     corr_after = cleaned["D1"].corr(cleaned["D2"])
-    assert corr_after < 0.2, (
-        f"Ожидали низкую корреляцию, получили {corr_after:.3f}"
-    )
+    assert corr_after < 0.2, f"Ожидали низкую корреляцию, получили {corr_after:.3f}"
 
     print(f"\n  corr до удаления:  {corr_before:.3f}")
     print(f"  corr после удаления: {corr_after:.3f}")

@@ -60,10 +60,7 @@ def test_ci_has_windows_job():
 # ---------------------------------------------------------------------------
 def test_fast_job_uses_coverage():
     data = _ci()
-    runs = [
-        step.get("run", "")
-        for step in data["jobs"]["test-fast"].get("steps", [])
-    ]
+    runs = [step.get("run", "") for step in data["jobs"]["test-fast"].get("steps", [])]
     joined = "\n".join(runs)
     assert "--cov=crosscorr_lib" in joined
 
@@ -73,10 +70,7 @@ def test_fast_job_uses_coverage():
 # ---------------------------------------------------------------------------
 def test_ci_has_compileall():
     data = _ci()
-    runs = [
-        step.get("run", "")
-        for step in data["jobs"]["test-fast"].get("steps", [])
-    ]
+    runs = [step.get("run", "") for step in data["jobs"]["test-fast"].get("steps", [])]
     assert any("compileall" in r for r in runs)
 
 

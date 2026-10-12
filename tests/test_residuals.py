@@ -11,6 +11,7 @@
 загрузчик не выдаёт ``detector_type == "ballistic"``), поэтому баллистическая
 ветка проверяется только на синтетике, сгенерированной из самой формулы.
 """
+
 from __future__ import annotations
 
 import numpy as np
@@ -47,17 +48,21 @@ def _ballistic_frame(n_rows: int = 120, n_groups: int = 3, seed: int = 42):
         charge_temp = rng.normal(15.0, 3.0, per_group)
         mass = rng.uniform(0.5, 3.0, per_group)
         value = 20.0 + 2.0 * charge_temp + 4.0 * mass + u_g + rng.normal(0, 0.5, per_group)
-        rows.append(pd.DataFrame({
-            "timestamp_utc": pd.date_range(
-                "2025-01-01", periods=per_group, freq="1h", tz="UTC"
-            ),
-            "detector_id": f"ball_{g}",
-            "detector_type": "ballistic",
-            "value": value,
-            "charge_temp": charge_temp,
-            "mass": mass,
-            "range_id": g,
-        }))
+        rows.append(
+            pd.DataFrame(
+                {
+                    "timestamp_utc": pd.date_range(
+                        "2025-01-01", periods=per_group, freq="1h", tz="UTC"
+                    ),
+                    "detector_id": f"ball_{g}",
+                    "detector_type": "ballistic",
+                    "value": value,
+                    "charge_temp": charge_temp,
+                    "mass": mass,
+                    "range_id": g,
+                }
+            )
+        )
 
     return pd.concat(rows, ignore_index=True)
 
@@ -66,11 +71,18 @@ def _confounder_frame(n: int = 200, seed: int = 7):
     """Синтетические Kp/Dst/F10.7 на часовой сетке."""
     rng = np.random.default_rng(seed)
     idx = pd.date_range("2025-01-01", periods=n, freq="1h", tz="UTC")
-    return pd.DataFrame({
-        "kp": rng.uniform(0, 9, n),
-        "dst": rng.uniform(-200, 20, n),
-        "f107": rng.uniform(70, 300, n),
-    }, index=idx).reset_index().rename(columns={"index": "timestamp_utc"})
+    return (
+        pd.DataFrame(
+            {
+                "kp": rng.uniform(0, 9, n),
+                "dst": rng.uniform(-200, 20, n),
+                "f107": rng.uniform(70, 300, n),
+            },
+            index=idx,
+        )
+        .reset_index()
+        .rename(columns={"index": "timestamp_utc"})
+    )
 
 
 def _geomagnetic_frame(n: int = 200, seed: int = 11):
@@ -79,12 +91,14 @@ def _geomagnetic_frame(n: int = 200, seed: int = 11):
     rng = np.random.default_rng(seed + 1)
     value = 30000.0 + 120.0 * conf["kp"] + 0.5 * conf["dst"] + 0.01 * conf["f107"]
     value = value + rng.normal(0, 5.0, n)
-    return conf, pd.DataFrame({
-        "timestamp_utc": conf["timestamp_utc"],
-        "detector_id": "ABBR",
-        "detector_type": "magnetometer",
-        "value": value,
-    })
+    return conf, pd.DataFrame(
+        {
+            "timestamp_utc": conf["timestamp_utc"],
+            "detector_id": "ABBR",
+            "detector_type": "magnetometer",
+            "value": value,
+        }
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -103,8 +117,7 @@ def test_fit_residual_model_ballistic_mixedlm_smoke():
 
     finite = out["residual"].notna()
     assert finite.mean() > 0.9, (
-        f"Ожидали конечный остаток почти для всех строк, "
-        f"получили {finite.mean():.3f}"
+        f"Ожидали конечный остаток почти для всех строк, получили {finite.mean():.3f}"
     )
     # Остаток — это шум, а не сигнал: дисперсия мала относительно value
     assert out.loc[finite, "residual"].std() < df["value"].std()
@@ -133,10 +146,12 @@ def test_ballistic_formula_matches_readme():
 
 def test_fit_residual_model_ballistic_requires_covariates():
     """Нет колонок формулы -> ValueError, а не молчаливый NaN."""
-    df = pd.DataFrame({
-        "timestamp_utc": pd.date_range("2025-01-01", periods=10, freq="1h", tz="UTC"),
-        "value": np.arange(10, dtype=float),
-    })
+    df = pd.DataFrame(
+        {
+            "timestamp_utc": pd.date_range("2025-01-01", periods=10, freq="1h", tz="UTC"),
+            "value": np.arange(10, dtype=float),
+        }
+    )
 
     with pytest.raises(ValueError, match="charge_temp"):
         fit_residual_model(df, detector_type="ballistic")
@@ -337,9 +352,7 @@ def test_detector_units_cover_schema_enum():
     import json
     from pathlib import Path
 
-    schema_path = (
-        Path(__file__).resolve().parents[1] / "data" / "schema" / "unified_schema.json"
-    )
+    schema_path = Path(__file__).resolve().parents[1] / "data" / "schema" / "unified_schema.json"
     schema = json.loads(schema_path.read_text(encoding="utf-8"))
     enum = schema["properties"]["detector_type"]["enum"]
 
@@ -355,9 +368,7 @@ def test_schema_declares_new_columns():
     import json
     from pathlib import Path
 
-    schema_path = (
-        Path(__file__).resolve().parents[1] / "data" / "schema" / "unified_schema.json"
-    )
+    schema_path = Path(__file__).resolve().parents[1] / "data" / "schema" / "unified_schema.json"
     schema = json.loads(schema_path.read_text(encoding="utf-8"))
     properties = schema["properties"]
 
@@ -374,7 +385,10 @@ def test_schema_declares_new_columns():
     # Обратная совместимость: старые потребители читают timestamp_utc/residual
     assert list(schema["properties"])[0] == "timestamp_utc"
     assert set(schema["required"]) == {
-        "timestamp_utc", "detector_id", "detector_type", "residual",
+        "timestamp_utc",
+        "detector_id",
+        "detector_type",
+        "residual",
     }
 
 
