@@ -1,6 +1,7 @@
-import requests
-import pandas as pd
 import io
+
+import pandas as pd
+import requests
 
 BASE_URL = "http://db1.wspr.live/"
 sql = """

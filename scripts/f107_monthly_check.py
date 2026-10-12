@@ -3,7 +3,6 @@
 Offline: uses only data/processed/unified.parquet (no network).
 Note: source F10.7 in the parquet is MONTHLY (18 rows), not daily.
 """
-import numpy as np
 import pandas as pd
 from scipy import stats
 

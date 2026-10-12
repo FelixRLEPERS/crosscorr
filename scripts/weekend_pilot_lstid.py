@@ -1,10 +1,11 @@
-import requests
-import pandas as pd
 import io
-import time
-import matplotlib.pyplot as plt
-import seaborn as sns
 import warnings
+
+import matplotlib.pyplot as plt
+import pandas as pd
+import requests
+import seaborn as sns
+
 warnings.filterwarnings('ignore')
 
 BASE_URL = "http://db1.wspr.live/"

@@ -21,13 +21,12 @@ journal-published.
 from __future__ import annotations
 
 import warnings
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 from scipy import stats
-
 
 WSPR_BANDS: dict[int, float] = {
     7: 7.040,
@@ -134,8 +133,10 @@ def _synthesize_mock_chem(band: int, n: int = 60, seed: int = 1) -> tuple[np.nda
 
 def analyze_all_bands(
     load_real: bool = False,
-    data_dir: Path = Path("."),
+    data_dir: Path | None = None,
 ) -> pd.DataFrame:
+    if data_dir is None:
+        data_dir = Path(".")
     rows: list[BandResult] = []
 
     for band, freq in WSPR_BANDS.items():
@@ -172,7 +173,7 @@ def plot_tau_vs_d(
     if len(bands) == 1:
         axes = [axes]
 
-    for ax, band in zip(axes, bands):
+    for ax, band in zip(axes, bands, strict=False):
         d, tau = per_band_points[band]
         r = per_band_results[band]
         ax.scatter(d, tau, s=12, alpha=0.6, label="data")

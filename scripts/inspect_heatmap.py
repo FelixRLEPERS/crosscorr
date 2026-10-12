@@ -1,6 +1,5 @@
-import pandas as pd
 import numpy as np
-from scipy import stats
+import pandas as pd
 
 df_s = pd.read_parquet('storm_day_agg.parquet')
 df_q = pd.read_parquet('quiet_all_agg.parquet')
