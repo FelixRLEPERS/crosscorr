@@ -85,8 +85,7 @@ def build_wide(df: pd.DataFrame, freq: str = "1h") -> pd.DataFrame:
     )
 
     warnings.warn(
-        "surrogate.build_wide is deprecated; use "
-        "cross_correlation.build_wide_by_detector",
+        "surrogate.build_wide is deprecated; use cross_correlation.build_wide_by_detector",
         DeprecationWarning,
         stacklevel=2,
     )
@@ -120,9 +119,7 @@ def surrogate_test(
     nan_mask = wide.isna().values
 
     for i in range(n_surrogates):
-        surro = np.column_stack([
-            phase_surrogate(wide[c].values, rng) for c in cols
-        ])
+        surro = np.column_stack([phase_surrogate(wide[c].values, rng) for c in cols])
         surro[nan_mask] = np.nan
         surro_df = pd.DataFrame(surro, columns=cols)
         surrogate_corrs[i] = surro_df.corr(method="spearman").values
@@ -142,9 +139,7 @@ def surrogate_test(
             if n_used == 0:
                 pvals[r, c] = 1.0
                 continue
-            n_extreme = int(np.sum(
-                np.abs(cell[valid]) >= abs(real[r, c])
-            ))
+            n_extreme = int(np.sum(np.abs(cell[valid]) >= abs(real[r, c])))
             pvals[r, c] = (n_extreme + 1) / (n_used + 1)
 
     result = pd.DataFrame(pvals, index=cols, columns=cols)
@@ -179,8 +174,7 @@ def fdr_bh(
     if pvals.ndim == 2:
         if not np.allclose(pvals, pvals.T, equal_nan=True):
             raise ValueError(
-                "fdr_bh: 2D input must be symmetric "
-                "(p-values for pairs (i, j) and (j, i))"
+                "fdr_bh: 2D input must be symmetric (p-values for pairs (i, j) and (j, i))"
             )
         n_total = pvals.shape[0]
         iu = np.triu_indices(n_total, k=1)
@@ -357,15 +351,15 @@ def main() -> None:
     for i in range(len(cols)):
         for j in range(i + 1, len(cols)):
             if significant[i, j]:
-                pairs.append({
-                    "Detector1": cols[i],
-                    "Detector2": cols[j],
-                    "p_value": float(pvals.iloc[i, j]),
-                })
+                pairs.append(
+                    {
+                        "Detector1": cols[i],
+                        "Detector2": cols[j],
+                        "p_value": float(pvals.iloc[i, j]),
+                    }
+                )
 
-    pd.DataFrame(pairs).to_csv(
-        DEFAULT_OUT / "surrogate_significant.csv", index=False
-    )
+    pd.DataFrame(pairs).to_csv(DEFAULT_OUT / "surrogate_significant.csv", index=False)
     print(f"[OK] p-values -> {DEFAULT_OUT / 'surrogate_pvalues.csv'}")
     print(f"[OK] significant pairs: {len(pairs)}")
 
@@ -470,10 +464,7 @@ def max_lag_surrogate_pvalue(
             # n_surr(tau) < n_obs(tau). Общие веса делали Var(score) > 1 и
             # нуль консервативным. Считаем n для тех же рядов, что пошли в
             # корреляцию, чтобы наблюдение и нуль были соизмеримы.
-            n_lags_surr = np.array([
-                _count_valid_at_lag(x_surr, y_surr, int(tau))
-                for tau in lags
-            ])
+            n_lags_surr = np.array([_count_valid_at_lag(x_surr, y_surr, int(tau)) for tau in lags])
             t_surr, _, _ = fisher_weighted_max_stat(corrs_surr, n_lags_surr)
             if not np.isfinite(t_surr):
                 continue
@@ -519,6 +510,7 @@ def _lagged_cc(
     from crosscorr_lib.analysis.cross_correlation import (
         lagged_cross_correlation,
     )
+
     return lagged_cross_correlation(x, y, max_lag)
 
 
@@ -665,9 +657,7 @@ def iaaft_surrogate(
     for _ in range(max_iter):
         fft_s = np.fft.rfft(s_curr)
         phases = np.angle(fft_s)
-        s_spectrum_matched = np.fft.irfft(
-            target_amplitudes * np.exp(1j * phases), n=n
-        )
+        s_spectrum_matched = np.fft.irfft(target_amplitudes * np.exp(1j * phases), n=n)
 
         ranks = np.argsort(np.argsort(s_spectrum_matched))
         s_new = sorted_x[ranks]

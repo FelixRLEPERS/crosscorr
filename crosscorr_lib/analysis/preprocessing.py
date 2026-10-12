@@ -20,6 +20,7 @@
 это ломало бы публичный API. Для остатков с тяжёлыми выбросами
 рекомендуется ``robust=True``.
 """
+
 from __future__ import annotations
 
 import numpy as np
@@ -62,9 +63,7 @@ def preprocess(
             return arr  # всё NaN — нечего интерполировать
         idx = np.arange(arr.size)
         arr = arr.copy()
-        arr[~finite_mask] = np.interp(
-            idx[~finite_mask], idx[finite_mask], arr[finite_mask]
-        )
+        arr[~finite_mask] = np.interp(idx[~finite_mask], idx[finite_mask], arr[finite_mask])
 
     # --- Детренд (МНК-прямая) --------------------------------------------
     if detrend and arr.size >= 2:

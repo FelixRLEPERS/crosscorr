@@ -74,9 +74,7 @@ def _count_neighbors(
     radii: np.ndarray,
 ) -> np.ndarray:
     """Пакетно посчитать точки в радиусе, не создавая списки индексов."""
-    return np.asarray(
-        tree.query_ball_point(points, radii, p=np.inf, return_length=True)
-    ) - 1
+    return np.asarray(tree.query_ball_point(points, radii, p=np.inf, return_length=True)) - 1
 
 
 def mutual_information(
@@ -115,9 +113,7 @@ def mutual_information(
     if xa_raw.size == 0 or ya_raw.size == 0:
         raise ValueError("x and y must be non-empty")
     if xa_raw.size != ya_raw.size:
-        raise ValueError(
-            f"x and y must have equal lengths, got {xa_raw.size} and {ya_raw.size}"
-        )
+        raise ValueError(f"x and y must have equal lengths, got {xa_raw.size} and {ya_raw.size}")
     xa = _as_1d(xa_raw)
     ya = _as_1d(ya_raw)
     if not np.isfinite(xa).all() or not np.isfinite(ya).all():
@@ -141,8 +137,7 @@ def mutual_information(
     n_x = _count_neighbors(tree_x, xa[:, None], r)
     n_y = _count_neighbors(tree_y, ya[:, None], r)
 
-    mi_nats = (digamma(k) + digamma(n)
-               - np.mean(digamma(n_x + 1) + digamma(n_y + 1)))
+    mi_nats = digamma(k) + digamma(n) - np.mean(digamma(n_x + 1) + digamma(n_y + 1))
     if base == np.e:
         return float(mi_nats)
     return float(mi_nats / np.log(base))
@@ -198,10 +193,7 @@ def conditional_mutual_information(
     n_yz = _count_neighbors(tree_yz, yz, r)
     n_z = _count_neighbors(tree_zm, za[:, None], r)
 
-    cmi_nats = (digamma(k)
-                + np.mean(digamma(n_z + 1)
-                          - digamma(n_xz + 1)
-                          - digamma(n_yz + 1)))
+    cmi_nats = digamma(k) + np.mean(digamma(n_z + 1) - digamma(n_xz + 1) - digamma(n_yz + 1))
     if base == np.e:
         return float(cmi_nats)
     return float(cmi_nats / np.log(base))
@@ -230,9 +222,7 @@ def mutual_information_matrix(
     mat = np.zeros((ncol, ncol), dtype=np.float64)
     for i in range(ncol):
         for j in range(i + 1, ncol):
-            mi = mutual_information(
-                wide[cols[i]].to_numpy(), wide[cols[j]].to_numpy(), k=k
-            )
+            mi = mutual_information(wide[cols[i]].to_numpy(), wide[cols[j]].to_numpy(), k=k)
             mat[i, j] = mi
             mat[j, i] = mi
     return pd.DataFrame(mat, index=cols, columns=cols)

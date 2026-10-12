@@ -35,10 +35,7 @@ def haversine_km(lat1, lon1, lat2, lon2):
     phi1, phi2 = np.radians(lat1), np.radians(lat2)
     dphi = np.radians(lat2 - lat1)
     dlam = np.radians(lon2 - lon1)
-    a = (
-        np.sin(dphi / 2) ** 2
-        + np.cos(phi1) * np.cos(phi2) * np.sin(dlam / 2) ** 2
-    )
+    a = np.sin(dphi / 2) ** 2 + np.cos(phi1) * np.cos(phi2) * np.sin(dlam / 2) ** 2
     return 2 * R * np.arcsin(np.sqrt(a))
 
 
@@ -63,10 +60,7 @@ def add_distances(
     df = cc_df.copy()
 
     # Отбрасываем пары с неизвестными детекторами
-    mask = (
-        df["detector_1"].isin(detectors.index)
-        & df["detector_2"].isin(detectors.index)
-    )
+    mask = df["detector_1"].isin(detectors.index) & df["detector_2"].isin(detectors.index)
     n_before = len(df)
     df = df[mask].copy()
     n_after = len(df)
@@ -80,8 +74,10 @@ def add_distances(
         d1 = detectors.loc[row["detector_1"]]
         d2 = detectors.loc[row["detector_2"]]
         d = haversine_km(
-            d1["lat"], d1["lon"],
-            d2["lat"], d2["lon"],
+            d1["lat"],
+            d1["lon"],
+            d2["lat"],
+            d2["lon"],
         )
         distances.append(d)
 
@@ -130,8 +126,7 @@ def fit_distance_model(df: pd.DataFrame) -> dict:
 
     denom = np.sum((x - x_mean) ** 2)
     if not np.isfinite(denom) or denom <= 0:
-        return {"slope": np.nan, "intercept": np.nan,
-                "r_squared": np.nan, "n": int(n)}
+        return {"slope": np.nan, "intercept": np.nan, "r_squared": np.nan, "n": int(n)}
 
     b = np.sum((x - x_mean) * (y - y_mean)) / denom
     a = y_mean - b * x_mean
@@ -176,13 +171,10 @@ def main() -> None:
 
     # 1. Загрузка
     if not args.cc.exists():
-        raise SystemExit(
-            f"{args.cc} не найден. Оначала запустите cross_correlation.py"
-        )
+        raise SystemExit(f"{args.cc} не найден. Оначала запустите cross_correlation.py")
     if not args.detectors.exists():
         raise SystemExit(
-            f"{args.detectors} не найден. Оначала запустите "
-            f"scripts/make_synthetic_unified.py"
+            f"{args.detectors} не найден. Оначала запустите scripts/make_synthetic_unified.py"
         )
 
     cc_df = pd.read_csv(args.cc)
@@ -206,15 +198,14 @@ def main() -> None:
         detector_ids = sorted(detectors.index.tolist())
 
         corr_mat = build_corr_matrix(df, detector_ids)
-        dist_mat = build_dist_matrix(
-            detectors.reset_index(), detector_ids
-        )
+        dist_mat = build_dist_matrix(detectors.reset_index(), detector_ids)
 
         print(f"\n[MANTEL] Матрицы {len(detector_ids)}x{len(detector_ids)}")
         print(f"[MANTEL] Пермутаций: {args.n_permutations}")
 
         result = mantel_test(
-            dist_mat, corr_mat,
+            dist_mat,
+            corr_mat,
             n_permutations=args.n_permutations,
             seed=args.seed,
             alternative="less",

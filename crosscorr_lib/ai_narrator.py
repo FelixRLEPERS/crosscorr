@@ -12,11 +12,13 @@ CC_CSV = "results/cross_correlation_pairs.csv"
 SIG_CSV = "results/surrogate_significant.csv"
 NARRATOR_MODULE = "code.narrator"
 
+
 class AINarrator:
     """
     Оркестратор, который принимает научные данные и превращает их в
             повествование для ребёнка (11-13 лет).
     """
+
     def __init__(self):
         pass
 
@@ -39,7 +41,7 @@ class AINarrator:
         significant_pairs = set()
         for _index, row in df_sig.iterrows():
             # Предполагаем, что столбцы содержат детекторы A и B
-            pair = tuple(sorted([row['Detector1'], row['Detector2']]))
+            pair = tuple(sorted([row["Detector1"], row["Detector2"]]))
             significant_pairs.add(pair)
 
         return list(significant_pairs)
@@ -70,9 +72,6 @@ class AINarrator:
         ]
         return " ".join(story_parts)
 
-
-
-
     def run_narrative(self):
         """Главный метод, запускающий полный пайплайн: Анализ -> Текст -> Голос."""
         print("--- AI Narrator запущен ---")
@@ -93,6 +92,7 @@ class AINarrator:
             print("Narrator успешно запущен и озвучил финальную историю.")
         except Exception as e:
             print(f"ВНИМАНИЕ: Не удалось вызвать модуль narrator.py для озвучивания. Ошибка: {e}")
+
 
 # Пример использования (для отладки)
 if __name__ == "__main__":

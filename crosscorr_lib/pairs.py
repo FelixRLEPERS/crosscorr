@@ -34,6 +34,7 @@ import pandas as pd
 
 try:
     from joblib import Parallel, delayed
+
     _HAS_JOBLIB = True
 except ImportError:
     _HAS_JOBLIB = False
@@ -144,7 +145,7 @@ def _batch_max_stat_corr(si: np.ndarray, sj: np.ndarray) -> np.ndarray:
     cc = np.fft.irfft(Fsi * np.conj(Fsj), n=n_fft, axis=1)
 
     # Circular shift to linear correlation: [(T-1) tail, T head] / T
-    cc = np.concatenate([cc[:, -(T - 1):], cc[:, :T]], axis=1) / T
+    cc = np.concatenate([cc[:, -(T - 1) :], cc[:, :T]], axis=1) / T
 
     out = np.max(np.abs(cc), axis=1)
     out[degenerate[:, 0]] = 0.0
@@ -188,7 +189,7 @@ def _max_stat_corr(x: np.ndarray, y: np.ndarray) -> float:
     cc = np.fft.irfft(Fx * np.conj(Fy), n=n_fft)
 
     # Circular shift to linear correlation: [(T-1) tail, T head] / T
-    cc = np.concatenate([cc[-(len(x)-1):], cc[: len(x)]]) / len(x)
+    cc = np.concatenate([cc[-(len(x) - 1) :], cc[: len(x)]]) / len(x)
 
     return float(np.max(np.abs(cc)))
 
@@ -233,14 +234,10 @@ def cross_correlation_pairs_with_max_stat(
     """
 
     if B < 1:
-        raise ValueError(
-            f"B must be >= 1, got {B}. "
-            f"Number of surrogates must be positive."
-        )
+        raise ValueError(f"B must be >= 1, got {B}. Number of surrogates must be positive.")
     if seed < 0:
         raise ValueError(
-            f"seed must be >= 0, got {seed}. "
-            f"Use any non-negative integer for reproducibility."
+            f"seed must be >= 0, got {seed}. Use any non-negative integer for reproducibility."
         )
 
     X = wide.values.astype(np.float64)
@@ -255,11 +252,12 @@ def cross_correlation_pairs_with_max_stat(
     # --- Step 0: Build pair list ---
     pairs = [(i, j) for i in range(N) for j in range(i + 1, N)]
     if pair_filter is not None:
-        pairs = [pair for pair in pairs
-                 if pair_filter(detectors[pair[0]], detectors[pair[1]])]
+        pairs = [pair for pair in pairs if pair_filter(detectors[pair[0]], detectors[pair[1]])]
 
     if len(pairs) == 0:
-        return pd.DataFrame(columns=["detector_a", "detector_b", "C_obs", "p_value", "q_value", "verdict"])
+        return pd.DataFrame(
+            columns=["detector_a", "detector_b", "C_obs", "p_value", "q_value", "verdict"]
+        )
 
     # --- Step 1: Pre-generate surrogates and data in shared memory ---
     surr_shape = (N, B, T)
@@ -272,17 +270,13 @@ def cross_correlation_pairs_with_max_stat(
         # C3: раньше создавался `out` в куче (N,B,T) и копировался в shm,
         # что давало пик памяти ~2x. Теперь view_surr выделяется первым и
         # заполняется напрямую — без промежуточного массива.
-        shm_surr = shm_module.SharedMemory(
-            create=True, size=N * B * T * np.dtype(dtype).itemsize
-        )
+        shm_surr = shm_module.SharedMemory(create=True, size=N * B * T * np.dtype(dtype).itemsize)
         stack.callback(_close_and_unlink, shm_surr)
 
         view_surr = np.ndarray(surr_shape, dtype=dtype, buffer=shm_surr.buf)
         try:
             for i in range(N):
-                view_surr[i] = _make_surrogates(
-                    X[:, i], method, B, int(sub_seeds[i])
-                )
+                view_surr[i] = _make_surrogates(X[:, i], method, B, int(sub_seeds[i]))
         finally:
             del view_surr
 
@@ -334,7 +328,9 @@ def cross_correlation_pairs_with_max_stat(
     df = pd.DataFrame(results, columns=["detector_a", "detector_b", "C_obs", "p_value"])
 
     if len(df) == 0:
-        return pd.DataFrame(columns=["detector_a", "detector_b", "C_obs", "p_value", "q_value", "verdict"])
+        return pd.DataFrame(
+            columns=["detector_a", "detector_b", "C_obs", "p_value", "q_value", "verdict"]
+        )
 
     # FDR via Benjamini–Hochberg with monotonicity enforcement.
     p = df["p_value"].to_numpy()

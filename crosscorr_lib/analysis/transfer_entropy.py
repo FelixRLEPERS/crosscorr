@@ -49,9 +49,7 @@ def _validate_inputs(
     if xa_raw.size == 0 or ya_raw.size == 0:
         raise ValueError("x and y must be non-empty")
     if xa_raw.size != ya_raw.size:
-        raise ValueError(
-            f"x and y must have equal lengths, got {xa_raw.size} and {ya_raw.size}"
-        )
+        raise ValueError(f"x and y must have equal lengths, got {xa_raw.size} and {ya_raw.size}")
 
     # Reuse the MI module's NaN interpolation policy, then reject all-NaN/inf.
     xa = _as_1d(xa_raw)
@@ -68,8 +66,7 @@ def _embed_history(x: np.ndarray, k: int, lag: int) -> np.ndarray:
     n_eff = x.size - span
     if n_eff <= 0:
         raise ValueError("ряд слишком короткий для заданных k и lag")
-    cols = [x[span - (j + 1) * lag: span - (j + 1) * lag + n_eff]
-            for j in range(k)]
+    cols = [x[span - (j + 1) * lag : span - (j + 1) * lag + n_eff] for j in range(k)]
     return np.column_stack(cols) if k > 1 else cols[0][:, None]
 
 
@@ -109,8 +106,7 @@ def transfer_entropy(
     xa, ya = _validate_inputs(x, y, k, lag, k_nn)
     if k > 1:
         raise NotImplementedError(
-            "joint-history transfer entropy for k>1 is not implemented; "
-            "use k=1"
+            "joint-history transfer entropy for k>1 is not implemented; use k=1"
         )
     n = xa.size
 
@@ -118,9 +114,9 @@ def transfer_entropy(
     if n - span < k_nn + 2:
         raise ValueError("ряд слишком короткий для TE-оценки")
 
-    hist_x = _embed_history(xa, k, lag)     # x_t (история)
-    hist_y = _embed_history(ya, k, lag)     # y_t (история)
-    y_next = ya[span:]                      # y_{t+1}
+    hist_x = _embed_history(xa, k, lag)  # x_t (история)
+    hist_y = _embed_history(ya, k, lag)  # y_t (история)
+    y_next = ya[span:]  # y_{t+1}
 
     # Совместить по длине.
     m = min(hist_x.shape[0], hist_y.shape[0], y_next.size)
@@ -129,9 +125,7 @@ def transfer_entropy(
     y_next = y_next[:m]
 
     # For k=1 this is the Schreiber definition T(X->Y)=I(Y[t+lag]:X[t]|Y[t]).
-    return conditional_mutual_information(
-        y_next, hist_x[:, 0], hist_y[:, 0], k=k_nn
-    )
+    return conditional_mutual_information(y_next, hist_x[:, 0], hist_y[:, 0], k=k_nn)
 
 
 def transfer_entropy_matrix(
@@ -159,6 +153,8 @@ def transfer_entropy_matrix(
             mat[i, j] = transfer_entropy(
                 wide[cols[i]].to_numpy(),
                 wide[cols[j]].to_numpy(),
-                k=k, lag=lag, k_nn=k_nn,
+                k=k,
+                lag=lag,
+                k_nn=k_nn,
             )
     return pd.DataFrame(mat, index=cols, columns=cols)

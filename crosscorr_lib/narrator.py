@@ -16,6 +16,7 @@ import streamlit as st
 
 try:
     import edge_tts
+
     EDGE_TTS_OK = True
 except ImportError:
     EDGE_TTS_OK = False
@@ -25,9 +26,9 @@ except ImportError:
 # НАСТРОЙКИ ГОЛОСА
 # ============================================================
 
-VOICE  = "ru-RU-DmitryNeural"   # мужской, глубокий
-RATE   = "+30%"                  # быстрее обычного
-PITCH  = "-4Hz"                  # чуть ниже
+VOICE = "ru-RU-DmitryNeural"  # мужской, глубокий
+RATE = "+30%"  # быстрее обычного
+PITCH = "-4Hz"  # чуть ниже
 VOLUME = "+0%"
 
 
@@ -53,6 +54,7 @@ def _cache_set(text, audio):
 # ГЕНЕРАЦИЯ АУДИО
 # ============================================================
 
+
 async def _synthesize_async(text):
     communicate = edge_tts.Communicate(
         text=text,
@@ -71,6 +73,7 @@ async def _synthesize_async(text):
 def _synthesize(text):
     def run():
         return asyncio.run(_synthesize_async(text))
+
     with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
         return pool.submit(run).result()
 
@@ -78,6 +81,7 @@ def _synthesize(text):
 # ============================================================
 # ПРЕДГЕНЕРАЦИЯ (в фоне)
 # ============================================================
+
 
 def pregenerate_async(texts):
     def worker():
@@ -90,12 +94,14 @@ def pregenerate_async(texts):
                     _cache_set(text, audio)
             except Exception:
                 pass
+
     threading.Thread(target=worker, daemon=True).start()
 
 
 # ============================================================
 # ОЗВУЧКА
 # ============================================================
+
 
 def speak(text, autoplay=True):
     if not EDGE_TTS_OK:
@@ -130,13 +136,10 @@ def speak(text, autoplay=True):
 # ХЕЛПЕРЫ
 # ============================================================
 
+
 def build_level_text(level, title, story, task=""):
     if task:
-        return (
-            f"Уровень {level}. {title}. "
-            f"История. {story} "
-            f"Задание. {task}"
-        )
+        return f"Уровень {level}. {title}. История. {story} Задание. {task}"
     return f"Уровень {level}. {title}. История. {story}"
 
 
@@ -153,6 +156,7 @@ def build_intro_text(name):
 # ГОТОВЫЕ ФРАЗЫ
 # ============================================================
 
+
 def narrator_intro(name):
     text = build_intro_text(name)
     speak(text)
@@ -163,7 +167,7 @@ def narrator_level_start(*args, **kwargs):
     level = args[0] if len(args) > 0 else kwargs.get("level", 1)
     title = args[1] if len(args) > 1 else kwargs.get("title", "")
     story = args[2] if len(args) > 2 else kwargs.get("story", "")
-    task  = args[3] if len(args) > 3 else kwargs.get("task", "")
+    task = args[3] if len(args) > 3 else kwargs.get("task", "")
     text = build_level_text(level, title, story, task)
     speak(text)
     return text

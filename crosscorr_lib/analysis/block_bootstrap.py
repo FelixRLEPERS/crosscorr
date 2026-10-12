@@ -147,11 +147,8 @@ def main() -> None:
     y[6:] = 0.5 * x[:-6]
     y = y + 0.3 * rng.normal(size=args.n)
 
-    r, p = block_bootstrap_pvalue(
-        x, y, block_size=args.block, n_surrogates=args.n_surrogates
-    )
-    print(f"\n[OK] r = {r:.4f}, p = {p:.4f} "
-          f"(block_size={args.block}, n_surr={args.n_surrogates})")
+    r, p = block_bootstrap_pvalue(x, y, block_size=args.block, n_surrogates=args.n_surrogates)
+    print(f"\n[OK] r = {r:.4f}, p = {p:.4f} (block_size={args.block}, n_surr={args.n_surrogates})")
     print()
 
 

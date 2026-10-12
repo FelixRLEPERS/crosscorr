@@ -166,8 +166,5 @@ def multiscale_entropy_matrix(
         Форма (N_detectors, len(scales)); индекс — детекторы, колонки — s.
     """
     cols = list(wide.columns)
-    mat = np.vstack([
-        multiscale_entropy(wide[c].to_numpy(), scales=scales, m=m, r=r)
-        for c in cols
-    ])
+    mat = np.vstack([multiscale_entropy(wide[c].to_numpy(), scales=scales, m=m, r=r) for c in cols])
     return pd.DataFrame(mat, index=cols, columns=list(scales))

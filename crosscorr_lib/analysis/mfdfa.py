@@ -51,9 +51,7 @@ def mfdfa_spectrum(
         q = np.array([-4, -2, -1, 1, 2, 4], dtype=float)
 
     if lag is None:
-        lag = np.unique(
-            np.logspace(0.7, np.log10(x.size // 4), 20).astype(int)
-        )
+        lag = np.unique(np.logspace(0.7, np.log10(x.size // 4), 20).astype(int))
 
     lag, dq = MFDFA(x, lag=lag, q=q, order=1)
     return lag, q, dq
@@ -70,11 +68,7 @@ def main() -> None:
     df = pd.read_parquet(args.input)
     df["timestamp_utc"] = pd.to_datetime(df["timestamp_utc"], utc=True)
     df["bucket"] = df["timestamp_utc"].dt.floor(args.freq)
-    wide = (
-        df.groupby(["detector_id", "bucket"])["residual"]
-        .mean()
-        .unstack("detector_id")
-    )
+    wide = df.groupby(["detector_id", "bucket"])["residual"].mean().unstack("detector_id")
     rows = []
     for col in wide.columns:
         try:
@@ -86,17 +80,16 @@ def main() -> None:
 
             for i, lag_val in enumerate(lag):
                 for j in range(n_q_cols):
-                    rows.append({
-                        "detector": col,
-                        "lag": int(lag_val),
-                        "q_index": int(j),
-                        "dq": float(dq[i, j]),
-                    })
+                    rows.append(
+                        {
+                            "detector": col,
+                            "lag": int(lag_val),
+                            "q_index": int(j),
+                            "dq": float(dq[i, j]),
+                        }
+                    )
 
-            print(
-                f"[OK] {col}: {len(lag)} масштабов × {n_q_cols} q "
-                f"= {len(lag) * n_q_cols} точек"
-            )
+            print(f"[OK] {col}: {len(lag)} масштабов × {n_q_cols} q = {len(lag) * n_q_cols} точек")
 
         except Exception as e:  # noqa: BLE001
             print(f"[SKIP] {col}: {e}")

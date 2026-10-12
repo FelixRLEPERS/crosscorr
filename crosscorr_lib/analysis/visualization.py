@@ -25,28 +25,47 @@ ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_FIG_DIR = ROOT / "results" / "figures"
 
 # Стиль для публикации
-plt.rcParams.update({
-    "font.family": "sans-serif",
-    "font.size": 10,
-    "axes.titlesize": 12,
-    "axes.labelsize": 11,
-    "legend.fontsize": 9,
-    "xtick.labelsize": 9,
-    "ytick.labelsize": 9,
-    "figure.dpi": 100,
-    "savefig.dpi": 300,
-    "savefig.bbox": "tight",
-})
+plt.rcParams.update(
+    {
+        "font.family": "sans-serif",
+        "font.size": 10,
+        "axes.titlesize": 12,
+        "axes.labelsize": 11,
+        "legend.fontsize": 9,
+        "xtick.labelsize": 9,
+        "ytick.labelsize": 9,
+        "figure.dpi": 100,
+        "savefig.dpi": 300,
+        "savefig.bbox": "tight",
+    }
+)
 
 # Упрощённые границы России (внешний контур).
 # Точки — приблизительные, для визуального ориентира.
 RUSSIA_OUTLINE = [
-    (28.0, 60.0), (30.0, 65.0), (30.0, 70.0), (45.0, 68.0),
-    (60.0, 70.0), (80.0, 73.0), (100.0, 76.0), (120.0, 74.0),
-    (140.0, 72.0), (160.0, 70.0), (170.0, 68.0), (180.0, 66.0),
-    (180.0, 62.0), (160.0, 60.0), (140.0, 50.0), (130.0, 44.0),
-    (120.0, 42.0), (100.0, 50.0), (80.0, 50.0), (60.0, 52.0),
-    (40.0, 48.0), (30.0, 52.0), (28.0, 60.0),
+    (28.0, 60.0),
+    (30.0, 65.0),
+    (30.0, 70.0),
+    (45.0, 68.0),
+    (60.0, 70.0),
+    (80.0, 73.0),
+    (100.0, 76.0),
+    (120.0, 74.0),
+    (140.0, 72.0),
+    (160.0, 70.0),
+    (170.0, 68.0),
+    (180.0, 66.0),
+    (180.0, 62.0),
+    (160.0, 60.0),
+    (140.0, 50.0),
+    (130.0, 44.0),
+    (120.0, 42.0),
+    (100.0, 50.0),
+    (80.0, 50.0),
+    (60.0, 52.0),
+    (40.0, 48.0),
+    (30.0, 52.0),
+    (28.0, 60.0),
 ]
 
 
@@ -93,10 +112,16 @@ def plot_detectors_map(
     # Подсчёт значимых пар на детектор
     if "significant" in corr_pairs.columns:
         sig_pairs = corr_pairs[corr_pairs["significant"]]
-        counts = pd.concat([
-            sig_pairs["detector_1"].value_counts(),
-            sig_pairs["detector_2"].value_counts(),
-        ]).groupby(level=0).sum()
+        counts = (
+            pd.concat(
+                [
+                    sig_pairs["detector_1"].value_counts(),
+                    sig_pairs["detector_2"].value_counts(),
+                ]
+            )
+            .groupby(level=0)
+            .sum()
+        )
     else:
         counts = pd.Series(0, index=detectors["detector_id"])
 
@@ -112,10 +137,15 @@ def plot_detectors_map(
     # Детекторы
     sizes = 50 + 40 * detectors["n_significant"]
     sc = ax.scatter(
-        detectors["lon"], detectors["lat"],
-        s=sizes, c=detectors["n_significant"],
-        cmap="viridis", edgecolor="black", linewidth=0.8,
-        alpha=0.85, zorder=3,
+        detectors["lon"],
+        detectors["lat"],
+        s=sizes,
+        c=detectors["n_significant"],
+        cmap="viridis",
+        edgecolor="black",
+        linewidth=0.8,
+        alpha=0.85,
+        zorder=3,
     )
 
     # Подписи
@@ -123,8 +153,10 @@ def plot_detectors_map(
         ax.annotate(
             row["detector_id"].replace("D_", ""),
             (row["lon"], row["lat"]),
-            xytext=(5, 5), textcoords="offset points",
-            fontsize=8, color="0.2",
+            xytext=(5, 5),
+            textcoords="offset points",
+            fontsize=8,
+            color="0.2",
         )
 
     ax.set_xlabel("Longitude (°E)")
@@ -170,8 +202,7 @@ def plot_distance_correlation(
     x = distance_df["distance_km"].values
     y = distance_df[_rho_column(distance_df)].values
 
-    ax.scatter(x, y, s=50, c="steelblue", edgecolor="black",
-               linewidth=0.8, alpha=0.8, zorder=3)
+    ax.scatter(x, y, s=50, c="steelblue", edgecolor="black", linewidth=0.8, alpha=0.8, zorder=3)
 
     # Линия регрессии
     if not np.isnan(model.get("slope", np.nan)):
@@ -186,7 +217,9 @@ def plot_distance_correlation(
             f"$n = {model['n']}$"
         )
         ax.text(
-            0.02, 0.98, text,
+            0.02,
+            0.98,
+            text,
             transform=ax.transAxes,
             verticalalignment="top",
             fontsize=10,
@@ -257,9 +290,7 @@ def plot_correlation_heatmap(
         for j in range(n):
             if not np.isnan(mat[i, j]):
                 color = "white" if abs(mat[i, j]) > 0.6 else "black"
-                ax.text(j, i, f"{mat[i, j]:.2f}",
-                        ha="center", va="center",
-                        fontsize=7, color=color)
+                ax.text(j, i, f"{mat[i, j]:.2f}", ha="center", va="center", fontsize=7, color=color)
 
     ax.set_title("Correlation matrix between detectors")
     fig.colorbar(im, ax=ax, shrink=0.85, label="Spearman correlation")
@@ -279,25 +310,31 @@ def main() -> None:
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--corr-pairs", type=Path,
+        "--corr-pairs",
+        type=Path,
         default=ROOT / "results" / "cross_correlation_pairs.csv",
     )
     parser.add_argument(
-        "--detectors", type=Path,
+        "--detectors",
+        type=Path,
         default=ROOT / "data" / "detectors.csv",
     )
     parser.add_argument(
-        "--distance", type=Path,
+        "--distance",
+        type=Path,
         default=ROOT / "results" / "distance_analysis.csv",
     )
     parser.add_argument(
-        "--out", type=Path,
+        "--out",
+        type=Path,
         default=DEFAULT_FIG_DIR,
     )
     args = parser.parse_args()
 
     if not args.corr_pairs.exists():
-        raise SystemExit(f"[ERR] Не найден {args.corr_pairs}. Запустите cross_correlation.py сначала.")
+        raise SystemExit(
+            f"[ERR] Не найден {args.corr_pairs}. Запустите cross_correlation.py сначала."
+        )
     if not args.detectors.exists():
         raise SystemExit(f"[ERR] Не найден {args.detectors}. Запустите make_synthetic_unified.py.")
 
@@ -316,9 +353,7 @@ def main() -> None:
 
         distance_df = pd.read_csv(args.distance)
         # Оставляем только валидные пары
-        distance_df = distance_df.dropna(
-            subset=["distance_km", _rho_column(distance_df)]
-        )
+        distance_df = distance_df.dropna(subset=["distance_km", _rho_column(distance_df)])
         model = fit_distance_model(distance_df)
         plot_distance_correlation(distance_df, model, args.out)
     else:

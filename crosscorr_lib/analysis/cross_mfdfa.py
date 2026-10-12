@@ -76,7 +76,7 @@ def _detrended_cov(px: np.ndarray, py: np.ndarray, s: int) -> np.ndarray:
     for offset, arr_x, arr_y in ((0, px, py), (ns, px[::-1], py[::-1])):
         rx = _residuals(arr_x)
         ry = _residuals(arr_y)
-        vals[offset:offset + ns] = (rx * ry).mean(axis=1)
+        vals[offset : offset + ns] = (rx * ry).mean(axis=1)
     return vals
 
 
@@ -108,9 +108,7 @@ def _q_curve(covs: np.ndarray, q: np.ndarray) -> np.ndarray:
     return out
 
 
-def _fit_h_q(
-    fq: np.ndarray, q: np.ndarray, s_arr: np.ndarray
-) -> tuple[np.ndarray, np.ndarray]:
+def _fit_h_q(fq: np.ndarray, q: np.ndarray, s_arr: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     """Наклон log F_q vs log s и R² для каждого q.
 
     Возвращает ``(h_q, r_squared)``; NaN, если конечных точек < 3.
@@ -124,9 +122,7 @@ def _fit_h_q(
         if good.sum() >= _MIN_FIT_SCALES:
             slope, intercept = np.polyfit(log_s[good], yv[good], 1)
             h_q[qi] = float(slope)
-            ss_res = float(
-                np.sum((yv[good] - (slope * log_s[good] + intercept)) ** 2)
-            )
+            ss_res = float(np.sum((yv[good] - (slope * log_s[good] + intercept)) ** 2))
             ss_tot = float(np.sum((yv[good] - yv[good].mean()) ** 2))
             if ss_tot > 0.0:
                 r_squared[qi] = float(1.0 - ss_res / ss_tot)
@@ -208,44 +204,29 @@ def cross_mfdfa(
     xa = np.asarray(x, dtype=np.float64).ravel()
     ya = np.asarray(y, dtype=np.float64).ravel()
     if xa.size != ya.size:
-        raise ValueError(
-            f"разные длины x и y: {xa.size} и {ya.size} (должны быть равны)"
-        )
+        raise ValueError(f"разные длины x и y: {xa.size} и {ya.size} (должны быть равны)")
     if not np.all(np.isfinite(xa)) or not np.all(np.isfinite(ya)):
-        raise ValueError(
-            "x и y должны содержать только конечные значения (NaN/Inf "
-            "недопустимы)"
-        )
+        raise ValueError("x и y должны содержать только конечные значения (NaN/Inf недопустимы)")
     n = xa.size
     if n < 100:
         raise ValueError("ряды слишком короткие для cross-MFDFA")
 
     q = np.asarray(q_values, dtype=np.float64)
     if q.size == 0 or not np.all(np.isfinite(q)):
-        raise ValueError(
-            "q_values: пустая последовательность или nonfinite-значения "
-            "недопустимы"
-        )
+        raise ValueError("q_values: пустая последовательность или nonfinite-значения недопустимы")
 
     if scales is not None:
         s_raw = np.asarray(scales, dtype=np.float64).ravel()
         if s_raw.size == 0 or not np.all(np.isfinite(s_raw)):
-            raise ValueError(
-                "scales: пустая последовательность или nonfinite-значения "
-                "недопустимы"
-            )
+            raise ValueError("scales: пустая последовательность или nonfinite-значения недопустимы")
         s_arr = np.sort(s_raw.astype(int))
     else:
         s_arr = _default_scales(n)
     if np.any(s_arr <= 0) or np.any(s_arr > n):
-        raise ValueError(
-            f"scales: все значения должны быть > 0 и <= n={n}"
-        )
+        raise ValueError(f"scales: все значения должны быть > 0 и <= n={n}")
 
     if signed not in ("abs", "split"):
-        raise ValueError(
-            f"signed должен быть 'abs' или 'split', получено {signed!r}"
-        )
+        raise ValueError(f"signed должен быть 'abs' или 'split', получено {signed!r}")
 
     px = _profile(xa)
     py = _profile(ya)
@@ -296,8 +277,7 @@ def cross_mfdfa(
         h_minus = np.full(q.size, np.nan, dtype=np.float64)
         r_minus = np.full(q.size, np.nan, dtype=np.float64)
         warnings.warn(
-            "Cross-MFDFA (signed='split'): меньше 3 сегментов F²_v < 0; "
-            "h_minus_q = NaN",
+            "Cross-MFDFA (signed='split'): меньше 3 сегментов F²_v < 0; h_minus_q = NaN",
             UserWarning,
             stacklevel=2,
         )
@@ -307,8 +287,7 @@ def cross_mfdfa(
         h_plus = np.full(q.size, np.nan, dtype=np.float64)
         r_plus = np.full(q.size, np.nan, dtype=np.float64)
         warnings.warn(
-            "Cross-MFDFA (signed='split'): меньше 3 сегментов F²_v > 0; "
-            "h_plus_q = NaN",
+            "Cross-MFDFA (signed='split'): меньше 3 сегментов F²_v > 0; h_plus_q = NaN",
             UserWarning,
             stacklevel=2,
         )

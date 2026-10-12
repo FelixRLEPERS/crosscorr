@@ -167,8 +167,7 @@ def _failed(df: pd.DataFrame, method: str, reason: str) -> pd.DataFrame:
     предупреждением.
     """
     warnings.warn(
-        f"[residuals] Модель '{method}' не применена: {reason}. "
-        "residual = NaN, quality_flag = 1.",
+        f"[residuals] Модель '{method}' не применена: {reason}. residual = NaN, quality_flag = 1.",
         UserWarning,
         stacklevel=3,
     )
@@ -328,7 +327,8 @@ def _fit_mixedlm(df: pd.DataFrame) -> pd.DataFrame:
     complete = work[list(BALLISTIC_COLUMNS)].notna().all(axis=1)
     if int(complete.sum()) < _MIN_MIXEDLM_GROUPS * _MIN_MIXEDLM_PER_GROUP:
         return _failed(
-            df, METHOD_MIXEDLM,
+            df,
+            METHOD_MIXEDLM,
             f"недостаточно полных строк ({int(complete.sum())})",
         )
 
@@ -357,10 +357,9 @@ def _fit_mixedlm(df: pd.DataFrame) -> pd.DataFrame:
 
     try:
         predicted = fitted.predict(usable)
-        out.loc[complete, RESIDUAL_COLUMN] = (
-            usable[BALLISTIC_VALUE_COL].to_numpy(dtype=float)
-            - np.asarray(predicted, dtype=float)
-        )
+        out.loc[complete, RESIDUAL_COLUMN] = usable[BALLISTIC_VALUE_COL].to_numpy(
+            dtype=float
+        ) - np.asarray(predicted, dtype=float)
     except Exception as exc:  # noqa: BLE001 - предсказание тоже может упасть
         return _failed(df, METHOD_MIXEDLM, f"предсказание не удалось: {exc!r}")
 

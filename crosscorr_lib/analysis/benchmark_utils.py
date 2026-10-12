@@ -57,11 +57,11 @@ def benchmark(
     Returns:
         dict: hit, detected_lag, rho_max, p_value.
     """
-    x, y = synthetic_ar1_pair(n=n, true_lag=true_lag, coupling=coupling,
-                              ar=ar, seed=seed)
+    x, y = synthetic_ar1_pair(n=n, true_lag=true_lag, coupling=coupling, ar=ar, seed=seed)
 
     t_obs, p_value, detected_lag = max_lag_surrogate_pvalue(
-        x, y,
+        x,
+        y,
         max_lag=max_lag,
         n_surrogates=n_surrogates,
         seed=seed + 10000,

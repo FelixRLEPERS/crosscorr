@@ -89,14 +89,16 @@ def check_stationarity_wide(
     rows = []
     for col in wide.columns:
         res = adf_test(wide[col].values, alpha=alpha)
-        rows.append({
-            "detector": col,
-            "statistic": res["statistic"],
-            "p_value": res["p_value"],
-            "n_lags": res["n_lags"],
-            "n_obs": res["n_obs"],
-            "is_stationary": res["is_stationary"],
-        })
+        rows.append(
+            {
+                "detector": col,
+                "statistic": res["statistic"],
+                "p_value": res["p_value"],
+                "n_lags": res["n_lags"],
+                "n_obs": res["n_obs"],
+                "is_stationary": res["is_stationary"],
+            }
+        )
 
     result = pd.DataFrame(rows)
 
@@ -108,8 +110,10 @@ def check_stationarity_wide(
         if n_nonstat > 0:
             print(f"[ADF] НЕстационарных: {n_nonstat}")
             print(result[~result["is_stationary"]].to_string(index=False))
-            print("\n[WARN] Нестационарные ряды могут давать ложные p-values "
-                  "в phase randomization. Рекомендуется дифференцирование.")
+            print(
+                "\n[WARN] Нестационарные ряды могут давать ложные p-values "
+                "в phase randomization. Рекомендуется дифференцирование."
+            )
 
     return result
 
@@ -122,7 +126,8 @@ def main() -> None:
     ROOT = Path(__file__).resolve().parents[2]
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--input", type=Path,
+        "--input",
+        type=Path,
         default=ROOT / "data" / "processed" / "unified.parquet",
     )
     parser.add_argument("--freq", default="1h")
@@ -135,10 +140,7 @@ def main() -> None:
 
     # Группируем по detector_id (как в основном пайплайне)
     wide = (
-        df.groupby(["detector_id", "bucket"])["residual"]
-        .mean()
-        .unstack("detector_id")
-        .sort_index()
+        df.groupby(["detector_id", "bucket"])["residual"].mean().unstack("detector_id").sort_index()
     )
 
     result = check_stationarity_wide(wide, alpha=args.alpha)

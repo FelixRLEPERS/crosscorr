@@ -50,10 +50,7 @@ def build_wide_by_detector(df: pd.DataFrame, freq: str = "1h") -> pd.DataFrame:
     df = df.copy()
     df["bucket"] = df["timestamp_utc"].dt.floor(freq)
     wide = (
-        df.groupby(["detector_id", "bucket"])["residual"]
-        .mean()
-        .unstack("detector_id")
-        .sort_index()
+        df.groupby(["detector_id", "bucket"])["residual"].mean().unstack("detector_id").sort_index()
     )
     return wide
 
@@ -100,7 +97,6 @@ def lagged_cross_correlation(x: np.ndarray, y: np.ndarray, max_lag: int = 72):
     return lags, corrs, pvals
 
 
-
 def cross_correlation_pairs(
     wide: pd.DataFrame,
     max_lag: int = 72,
@@ -120,6 +116,7 @@ def cross_correlation_pairs(
     raw_wide = wide.copy()
     if apply_preprocessing:
         from crosscorr_lib.analysis.preprocessing import preprocess
+
         wide = wide.copy()
         for col in wide.columns:
             wide[col] = preprocess(wide[col].values)
@@ -139,31 +136,40 @@ def cross_correlation_pairs(
 
         # Лаг с максимальной |corr|
         best_idx = int(np.nanargmax(np.abs(corrs)))
-        rows.append({
-            "detector_1": d1,
-            "detector_2": d2,
-            "lag": int(lags[best_idx]),
-            "correlation": float(corrs[best_idx]),
-            "p_value": float(pvals[best_idx]),
-            "n_obs": int(np.sum(~np.isnan(raw_x) & ~np.isnan(raw_y))),
-        })
+        rows.append(
+            {
+                "detector_1": d1,
+                "detector_2": d2,
+                "lag": int(lags[best_idx]),
+                "correlation": float(corrs[best_idx]),
+                "p_value": float(pvals[best_idx]),
+                "n_obs": int(np.sum(~np.isnan(raw_x) & ~np.isnan(raw_y))),
+            }
+        )
 
     if not rows:
-        return pd.DataFrame(columns=[
-            "detector_1", "detector_2", "lag", "correlation",
-            "p_value", "q_value", "n_obs", "significant",
-        ])
+        return pd.DataFrame(
+            columns=[
+                "detector_1",
+                "detector_2",
+                "lag",
+                "correlation",
+                "p_value",
+                "q_value",
+                "n_obs",
+                "significant",
+            ]
+        )
 
     result = pd.DataFrame(rows)
 
     # FDR на всех парах
-    sig_mask, q_vals = _fdr_correct(
-        result["p_value"].values, alpha, method=fdr_method
-    )
+    sig_mask, q_vals = _fdr_correct(result["p_value"].values, alpha, method=fdr_method)
     result["q_value"] = q_vals
     result["significant"] = sig_mask
 
     return result
+
 
 def cross_correlation_pairs_with_max_stat(
     wide: pd.DataFrame,
@@ -220,6 +226,7 @@ def cross_correlation_pairs_with_max_stat(
     raw_wide = wide.copy()
     if apply_preprocessing:
         from crosscorr_lib.analysis.preprocessing import preprocess
+
         wide = wide.copy()
         for col in wide.columns:
             wide[col] = preprocess(wide[col].values)
@@ -227,7 +234,9 @@ def cross_correlation_pairs_with_max_stat(
     n_pairs = len(cols) * (len(cols) - 1) // 2
     logger.info(
         "[MAX-STAT] Пар: %s, суррогатов на пару: %s, max_lag: %s",
-        n_pairs, n_surrogates, max_lag,
+        n_pairs,
+        n_surrogates,
+        max_lag,
     )
     logger.info(
         "[MAX-STAT] Ожидаемое время: ~%.0f сек",
@@ -249,7 +258,8 @@ def cross_correlation_pairs_with_max_stat(
             pair_idx += 1
 
             t_obs, p, best_lag = max_lag_surrogate_pvalue(
-                x, y,
+                x,
+                y,
                 max_lag=max_lag,
                 n_surrogates=n_surrogates,
                 seed=pair_seed,
@@ -274,49 +284,74 @@ def cross_correlation_pairs_with_max_stat(
             else:
                 rho_best = np.nan
 
-            rows.append({
-                "detector_1": d1,
-                "detector_2": d2,
-                "lag": int(best_lag),
-                # deprecated alias: раньше здесь лежал Fisher-score,
-                # теперь — Spearman r (== rho_at_best_lag).
-                "correlation": rho_best,
-                "max_stat_score": float(t_obs),
-                "rho_at_best_lag": rho_best,
-                "p_value": float(p),
-                "n_obs": n_obs,
-                "n_surrogates": int(n_surrogates),
-            })
+            rows.append(
+                {
+                    "detector_1": d1,
+                    "detector_2": d2,
+                    "lag": int(best_lag),
+                    # deprecated alias: раньше здесь лежал Fisher-score,
+                    # теперь — Spearman r (== rho_at_best_lag).
+                    "correlation": rho_best,
+                    "max_stat_score": float(t_obs),
+                    "rho_at_best_lag": rho_best,
+                    "p_value": float(p),
+                    "n_obs": n_obs,
+                    "n_surrogates": int(n_surrogates),
+                }
+            )
 
             if pair_idx % 5 == 0:
                 logger.info(
                     "  [%s/%s] %s — %s: p=%.4f",
-                    pair_idx, n_pairs, d1, d2, p,
+                    pair_idx,
+                    n_pairs,
+                    d1,
+                    d2,
+                    p,
                 )
 
     if not rows:
-        return pd.DataFrame(columns=[
-            "detector_1", "detector_2", "lag", "correlation",
-            "max_stat_score", "rho_at_best_lag", "p_value", "q_value",
-            "n_obs", "significant", "n_surrogates",
-        ])
+        return pd.DataFrame(
+            columns=[
+                "detector_1",
+                "detector_2",
+                "lag",
+                "correlation",
+                "max_stat_score",
+                "rho_at_best_lag",
+                "p_value",
+                "q_value",
+                "n_obs",
+                "significant",
+                "n_surrogates",
+            ]
+        )
 
     result = pd.DataFrame(rows)
 
     # FDR на всех парах
-    sig_mask, q_vals = _fdr_correct(
-        result["p_value"].values, alpha, method=fdr_method
-    )
+    sig_mask, q_vals = _fdr_correct(result["p_value"].values, alpha, method=fdr_method)
     result["q_value"] = q_vals
     result["significant"] = sig_mask
 
-    result = result[[
-        "detector_1", "detector_2", "lag", "correlation",
-        "max_stat_score", "rho_at_best_lag", "p_value", "q_value",
-        "n_obs", "significant", "n_surrogates",
-    ]]
+    result = result[
+        [
+            "detector_1",
+            "detector_2",
+            "lag",
+            "correlation",
+            "max_stat_score",
+            "rho_at_best_lag",
+            "p_value",
+            "q_value",
+            "n_obs",
+            "significant",
+            "n_surrogates",
+        ]
+    ]
 
     return result
+
 
 def main() -> None:
     logging.basicConfig(
@@ -421,14 +456,17 @@ def main() -> None:
             load_confounders,
             remove_confounders,
         )
+
         conf = load_confounders(args.remove_confounders)
         wide = remove_confounders(wide, conf)
         print(f"[INFO] Конфаундеры удалены: {args.remove_confounders}")
 
     print(f"[INFO] Детекторов: {wide.shape[1]}, точек: {wide.shape[0]}")
-    print(f"[INFO] Режим: "
-          f"{'наивный (--use-naive)' if args.use_naive else 'max-stat (default)'} / "
-          f"{'ESS' if args.use_ess else 'без ESS'}")
+    print(
+        f"[INFO] Режим: "
+        f"{'наивный (--use-naive)' if args.use_naive else 'max-stat (default)'} / "
+        f"{'ESS' if args.use_ess else 'без ESS'}"
+    )
 
     if args.use_naive:
         result = cross_correlation_pairs(
@@ -476,6 +514,7 @@ def main() -> None:
     print(f"[OK] Пар: {len(result)}")
     if "significant" in result.columns:
         print(f"[OK] Значимых: {int(result['significant'].sum())}")
+
 
 if __name__ == "__main__":
     main()

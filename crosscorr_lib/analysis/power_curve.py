@@ -16,6 +16,7 @@ power_curve.py — кривая мощности CrossCorr 2.0.
     python -u power_curve.py --couplings 0.02 0.30 15 --seeds 30 --n 4000
     python -u power_curve.py --by-n --plot
 """
+
 from __future__ import annotations
 
 import argparse
@@ -33,6 +34,7 @@ from crosscorr_lib.analysis.benchmark_utils import benchmark  # локальны
 # ------------------------------------------------------------------ #
 #                         конфигурация                               #
 # ------------------------------------------------------------------ #
+
 
 @dataclass
 class PowerPoint:
@@ -59,16 +61,19 @@ class PowerPoint:
 #                       одна точка кривой                            #
 # ------------------------------------------------------------------ #
 
-def measure_point(coupling: float,
-                  n_seeds: int = 30,
-                  n: int = 4000,
-                  true_lag: int = 6,
-                  ar: float = 0.85,
-                  max_lag: int = 24,
-                  null_model_name: str = "time_shift",
-                  n_surrogates: int = 200,
-                  base_seed: int = 0,
-                  verbose: bool = True) -> PowerPoint:
+
+def measure_point(
+    coupling: float,
+    n_seeds: int = 30,
+    n: int = 4000,
+    true_lag: int = 6,
+    ar: float = 0.85,
+    max_lag: int = 24,
+    null_model_name: str = "time_shift",
+    n_surrogates: int = 200,
+    base_seed: int = 0,
+    verbose: bool = True,
+) -> PowerPoint:
     """
     Прогоняет benchmark() по n_seeds реализациям и возвращает сводку.
 
@@ -138,22 +143,27 @@ def measure_point(coupling: float,
 #                        основная кривая                             #
 # ------------------------------------------------------------------ #
 
-def power_curve(couplings: np.ndarray,
-                n_seeds: int = 30,
-                n: int = 4000,
-                true_lag: int = 6,
-                ar: float = 0.85,
-                max_lag: int = 24,
-                null_model_name: str = "time_shift",
-                n_surrogates: int = 200,
-                base_seed: int = 0,
-                verbose: bool = True) -> list[PowerPoint]:
+
+def power_curve(
+    couplings: np.ndarray,
+    n_seeds: int = 30,
+    n: int = 4000,
+    true_lag: int = 6,
+    ar: float = 0.85,
+    max_lag: int = 24,
+    null_model_name: str = "time_shift",
+    n_surrogates: int = 200,
+    base_seed: int = 0,
+    verbose: bool = True,
+) -> list[PowerPoint]:
     """Прогон по всем coupling."""
     if verbose:
-        print(f"\n=== Power curve: n={n}, true_lag={true_lag}, "
-              f"ar={ar}, max_lag={max_lag}, "
-              f"null={null_model_name}, "
-              f"n_surrogates={n_surrogates} ===")
+        print(
+            f"\n=== Power curve: n={n}, true_lag={true_lag}, "
+            f"ar={ar}, max_lag={max_lag}, "
+            f"null={null_model_name}, "
+            f"n_surrogates={n_surrogates} ==="
+        )
     return [
         measure_point(
             coupling=float(c),
@@ -171,39 +181,44 @@ def power_curve(couplings: np.ndarray,
     ]
 
 
-def power_curve_by_n(n_values: list[int],
-                     couplings: np.ndarray,
-                     n_seeds: int = 30,
-                     true_lag: int = 6,
-                     ar: float = 0.85,
-                     max_lag: int = 24,
-                     null_model_name: str = "time_shift",
-                     n_surrogates: int = 200,
-                     base_seed: int = 0,
-                     verbose: bool = True) -> list[PowerPoint]:
+def power_curve_by_n(
+    n_values: list[int],
+    couplings: np.ndarray,
+    n_seeds: int = 30,
+    true_lag: int = 6,
+    ar: float = 0.85,
+    max_lag: int = 24,
+    null_model_name: str = "time_shift",
+    n_surrogates: int = 200,
+    base_seed: int = 0,
+    verbose: bool = True,
+) -> list[PowerPoint]:
     """Прогон по сетке (n, coupling)."""
     out: list[PowerPoint] = []
     for n in n_values:
         if verbose:
             print(f"\n--- n = {n} ---")
-        out.extend(power_curve(
-            couplings=couplings,
-            n_seeds=n_seeds,
-            n=n,
-            true_lag=true_lag,
-            ar=ar,
-            max_lag=max_lag,
-            null_model_name=null_model_name,
-            n_surrogates=n_surrogates,
-            base_seed=base_seed,
-            verbose=verbose,
-        ))
+        out.extend(
+            power_curve(
+                couplings=couplings,
+                n_seeds=n_seeds,
+                n=n,
+                true_lag=true_lag,
+                ar=ar,
+                max_lag=max_lag,
+                null_model_name=null_model_name,
+                n_surrogates=n_surrogates,
+                base_seed=base_seed,
+                verbose=verbose,
+            )
+        )
     return out
 
 
 # ------------------------------------------------------------------ #
 #                     сохранение и вывод                             #
 # ------------------------------------------------------------------ #
+
 
 def save_csv(points: list[PowerPoint], path: Path) -> None:
     if not points:
@@ -223,21 +238,24 @@ def save_json(points: list[PowerPoint], path: Path) -> None:
         return
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8") as f:
-        json.dump([asdict(p) for p in points], f,
-                  ensure_ascii=False, indent=2)
+        json.dump([asdict(p) for p in points], f, ensure_ascii=False, indent=2)
     print(f"JSON сохранён: {path}")
 
 
 def print_table(points: list[PowerPoint]) -> None:
     print("\n" + "=" * 78)
-    print(f"{'coupling':>9} {'n':>7} {'power':>7} {'hits':>7} "
-          f"{'lag_med':>8} {'lag_iqr':>8} {'p_med':>7} {'p_10':>7}")
+    print(
+        f"{'coupling':>9} {'n':>7} {'power':>7} {'hits':>7} "
+        f"{'lag_med':>8} {'lag_iqr':>8} {'p_med':>7} {'p_10':>7}"
+    )
     print("-" * 78)
     for p in points:
-        print(f"{p.coupling:>9.3f} {p.n:>7d} {p.power:>7.2f} "
-              f"{p.n_hits:>3d}/{p.n_seeds:<3d} "
-              f"{p.lag_median:>8.1f} {p.lag_iqr:>8.1f} "
-              f"{p.p_median:>7.3f} {p.p_10:>7.3f}")
+        print(
+            f"{p.coupling:>9.3f} {p.n:>7d} {p.power:>7.2f} "
+            f"{p.n_hits:>3d}/{p.n_seeds:<3d} "
+            f"{p.lag_median:>8.1f} {p.lag_iqr:>8.1f} "
+            f"{p.p_median:>7.3f} {p.p_10:>7.3f}"
+        )
     print("=" * 78)
 
 
@@ -245,9 +263,11 @@ def print_table(points: list[PowerPoint]) -> None:
 #                           график                                   #
 # ------------------------------------------------------------------ #
 
+
 def plot_curves(points: list[PowerPoint], path: Path) -> None:
     try:
         import matplotlib
+
         matplotlib.use("Agg")
         import matplotlib.pyplot as plt
     except ImportError:
@@ -270,7 +290,7 @@ def plot_curves(points: list[PowerPoint], path: Path) -> None:
         ax2.plot(c, pm, marker="s", label=f"n={n}")
 
     ax1.axhline(0.8, color="grey", linestyle="--", linewidth=0.8)
-    ax1.axhline(0.5, color="grey", linestyle=":",  linewidth=0.8)
+    ax1.axhline(0.5, color="grey", linestyle=":", linewidth=0.8)
     ax1.set_xlabel("coupling")
     ax1.set_ylabel("power")
     ax1.set_title("Power vs coupling")
@@ -278,8 +298,7 @@ def plot_curves(points: list[PowerPoint], path: Path) -> None:
     ax1.grid(alpha=0.3)
     ax1.legend()
 
-    ax2.axhline(0.05, color="red", linestyle="--", linewidth=0.8,
-                label="α=0.05")
+    ax2.axhline(0.05, color="red", linestyle="--", linewidth=0.8, label="α=0.05")
     ax2.set_xlabel("coupling")
     ax2.set_ylabel("median p-value")
     ax2.set_title("Median p-value vs coupling")
@@ -297,33 +316,35 @@ def plot_curves(points: list[PowerPoint], path: Path) -> None:
 #                           CLI                                      #
 # ------------------------------------------------------------------ #
 
+
 def parse_args(argv: list[str]) -> argparse.Namespace:
     p = argparse.ArgumentParser(
         description="CrossCorr 2.0: power curve benchmark",
     )
-    p.add_argument("--couplings", nargs="+", type=float,
-                   default=None,
-                   help="список coupling или пара (min, max, count). "
-                        "По умолчанию: 0.02..0.30, 15 точек")
-    p.add_argument("--seeds", type=int, default=30,
-                   help="число seeds на точку (default: 30)")
-    p.add_argument("--n", type=int, default=4000,
-                   help="длина ряда (default: 4000)")
-    p.add_argument("--n-list", nargs="+", type=int, default=None,
-                   help="сетка длин ряда для --by-n")
-    p.add_argument("--by-n", action="store_true",
-                   help="прогон по сетке n (использует --n-list)")
+    p.add_argument(
+        "--couplings",
+        nargs="+",
+        type=float,
+        default=None,
+        help="список coupling или пара (min, max, count). По умолчанию: 0.02..0.30, 15 точек",
+    )
+    p.add_argument("--seeds", type=int, default=30, help="число seeds на точку (default: 30)")
+    p.add_argument("--n", type=int, default=4000, help="длина ряда (default: 4000)")
+    p.add_argument("--n-list", nargs="+", type=int, default=None, help="сетка длин ряда для --by-n")
+    p.add_argument("--by-n", action="store_true", help="прогон по сетке n (использует --n-list)")
     p.add_argument("--true-lag", type=int, default=6)
     p.add_argument("--ar", type=float, default=0.85)
     p.add_argument("--max-lag", type=int, default=24)
-    p.add_argument("--null", dest="null_model", default="time_shift",
-                   choices=["time_shift", "phase", "iaaft", "block"])
+    p.add_argument(
+        "--null",
+        dest="null_model",
+        default="time_shift",
+        choices=["time_shift", "phase", "iaaft", "block"],
+    )
     p.add_argument("--n-surrogates", type=int, default=200)
     p.add_argument("--base-seed", type=int, default=0)
-    p.add_argument("--out-dir", type=str, default=".",
-                   help="куда сохранить CSV/JSON/PNG")
-    p.add_argument("--plot", action="store_true",
-                   help="построить график (нужен matplotlib)")
+    p.add_argument("--out-dir", type=str, default=".", help="куда сохранить CSV/JSON/PNG")
+    p.add_argument("--plot", action="store_true", help="построить график (нужен matplotlib)")
     return p.parse_args(argv)
 
 
@@ -345,8 +366,7 @@ def main(argv: list[str] | None = None) -> int:
     out_dir.mkdir(parents=True, exist_ok=True)
 
     print("CrossCorr 2.0 — power curve")
-    print(f"couplings: {len(couplings)} точек от "
-          f"{couplings.min():.3f} до {couplings.max():.3f}")
+    print(f"couplings: {len(couplings)} точек от {couplings.min():.3f} до {couplings.max():.3f}")
     print(f"seeds/tочка: {args.seeds}  n_surrogates: {args.n_surrogates}")
 
     if args.by_n:

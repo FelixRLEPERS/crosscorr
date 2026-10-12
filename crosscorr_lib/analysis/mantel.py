@@ -72,12 +72,7 @@ def mantel_test(
     x_norm = np.linalg.norm(x_c)
     y_norm = np.linalg.norm(y_c)
 
-    if (
-        not np.isfinite(x_norm)
-        or not np.isfinite(y_norm)
-        or x_norm == 0
-        or y_norm == 0
-    ):
+    if not np.isfinite(x_norm) or not np.isfinite(y_norm) or x_norm == 0 or y_norm == 0:
         return {
             "r_obs": float("nan"),
             "p_value": 1.0,
