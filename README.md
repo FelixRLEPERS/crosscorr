@@ -35,7 +35,7 @@ from [wspr.live](https://wspr.live), 198 storm hours.
 Confirmed independently by Kp and Dst indices, all 4 seasons,
 and replicated on a held-out period (Jan–Mar 2026).
 
-Preprint: [DOI: 10.5281/zenodo.23283375](https://doi.org/10.5281/zenodo.23283375)
+Preprint: [DOI: 10.5281/zenodo.23285958](https://doi.org/10.5281/zenodo.23285958)
 
 **Key findings (5 layers):**
 
@@ -69,7 +69,7 @@ Preprint: [DOI: 10.5281/zenodo.23283375](https://doi.org/10.5281/zenodo.23283375
 | Tests | ✅ 291 passed |
 | Independent audit | ✅ Qwen 3.8 27B + external LLM audit |
 | Independent replication | ✅ Primary hypothesis + scale-dependence confirmed (Jan–Mar 2026) |
-| Preprint | ✅ Published on Zenodo ([DOI: 10.5281/zenodo.23283375](https://doi.org/10.5281/zenodo.23283375)) |
+| Preprint | ✅ Published on Zenodo ([DOI: 10.5281/zenodo.23285958](https://doi.org/10.5281/zenodo.23285958)) |
 | Journal submission | 🚧 Planned (Space Weather / Ann. Geophys.) |
 
 ---
@@ -318,8 +318,8 @@ If you use this work, please cite:
                   frequency dependence and baseline-invariant absolute loss},
   year         = {2026},
   publisher    = {Zenodo},
-  doi          = {10.5281/zenodo.23283375},
-  url          = {https://doi.org/10.5281/zenodo.23283375},
+  doi          = {10.5281/zenodo.23285958},
+  url          = {https://doi.org/10.5281/zenodo.23285958},
   note         = {Preprint, version 1.0.1}
 }
 ```

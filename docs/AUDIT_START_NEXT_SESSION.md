@@ -13,8 +13,8 @@ Purpose: operational snapshot — read this first.
   через GitHub Desktop если ещё ahead)
 - **Project version:** 1.1.0-dev (code: pyproject.toml = "1.1.0");
   CITATION.cff synced to last real release v1.0.2
-- **Zenodo concept DOI:** `10.5281/zenodo.23283375` (unchanged)
-- **Zenodo version DOI:** `10.5281/zenodo.23310672` (v1.0.2)
+- **Zenodo concept DOI:** `10.5281/zenodo.23285958` (unchanged)
+- **Zenodo version DOI:** `10.5281/zenodo.23325197` (v1.0.2)
 - **GitHub Release:** v1.0.2-paper (unchanged)
 - **Latest tag:** `v1.0.2-paper` (unchanged)
 - **Worktrees:** 5 (main + 4 opencode: happy-knight @574f648,
