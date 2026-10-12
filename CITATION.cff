@@ -6,7 +6,7 @@ authors:
   - family-names: Petrov
     given-names: Makar
 title: "Scale-dependent WSPR response to geomagnetic storms: frequency dependence and baseline-invariant absolute loss"
-version: 1.0.1
+version: 1.0.2
 doi: 10.5281/zenodo.23283375
 date-released: 2026-10-10
 url: "https://github.com/FelixRLEPERS/crosscorr"
