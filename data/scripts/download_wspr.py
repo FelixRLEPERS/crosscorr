@@ -32,9 +32,18 @@ def _write_checksum(path: Path) -> Path:
 RAW_DIR = Path(__file__).resolve().parents[1] / "raw" / "wspr"
 
 BAND_MHZ = {
-    "160m": 1, "80m": 3, "60m": 5, "40m": 7, "30m": 10,
-    "20m": 14, "17m": 18, "15m": 21, "12m": 24, "10m": 28,
-    "6m": 50, "2m": 144,
+    "160m": 1,
+    "80m": 3,
+    "60m": 5,
+    "40m": 7,
+    "30m": 10,
+    "20m": 14,
+    "17m": 18,
+    "15m": 21,
+    "12m": 24,
+    "10m": 28,
+    "6m": 50,
+    "2m": 144,
 }
 
 WSPR_API = "http://db1.wspr.live/"
@@ -69,19 +78,18 @@ def _request_chunk(sql: str) -> list[list]:
         except requests.RequestException as e:
             last_error = e
             if attempt < MAX_RETRIES - 1:
-                print(f"[RETRY] Попытка {attempt + 1}/{MAX_RETRIES} "
-                      f"не удалась: {e}. Ждём {backoff} сек...")
+                print(
+                    f"[RETRY] Попытка {attempt + 1}/{MAX_RETRIES} "
+                    f"не удалась: {e}. Ждём {backoff} сек..."
+                )
                 time.sleep(backoff)
 
     raise RuntimeError(
-        f"WSPR сервер недоступен после {MAX_RETRIES} попыток. "
-        f"Последняя ошибка: {last_error}"
+        f"WSPR сервер недоступен после {MAX_RETRIES} попыток. Последняя ошибка: {last_error}"
     )
 
 
-def fetch_wspr(
-    date: dt.date, band: str = "20m", chunk_size: int = CHUNK_SIZE
-) -> pd.DataFrame:
+def fetch_wspr(date: dt.date, band: str = "20m", chunk_size: int = CHUNK_SIZE) -> pd.DataFrame:
     """Скачивает все споты WSPR за день пагинацией (raw mode).
 
     Использует ORDER BY time + OFFSET для детерминированного обхода.
@@ -114,8 +122,7 @@ def fetch_wspr(
 
         if not rows:
             if chunk_num == 1:
-                print("[WARN] WSPR: 0 строк. Дата может быть в будущем "
-                      "или сервер не отвечает.")
+                print("[WARN] WSPR: 0 строк. Дата может быть в будущем или сервер не отвечает.")
             break
 
         all_rows.extend(rows)
@@ -126,18 +133,22 @@ def fetch_wspr(
             break
 
     else:
-        print(f"[WARN] Достигнут лимит {MAX_CHUNKS} чанков "
-              f"({MAX_CHUNKS * chunk_size} строк). Возможно, данных больше.")
+        print(
+            f"[WARN] Достигнут лимит {MAX_CHUNKS} чанков "
+            f"({MAX_CHUNKS * chunk_size} строк). Возможно, данных больше."
+        )
 
     if not all_rows:
         return pd.DataFrame()
 
     df = pd.DataFrame(all_rows, columns=COLS)
-    df = df.rename(columns={
-        "time": "timestamp",
-        "tx_sign": "tx_call",
-        "rx_sign": "rx_call",
-    })
+    df = df.rename(
+        columns={
+            "time": "timestamp",
+            "tx_sign": "tx_call",
+            "rx_sign": "rx_call",
+        }
+    )
     return df[["timestamp", "tx_call", "rx_call", "band", "snr", "frequency", "distance"]]
 
 
@@ -172,8 +183,7 @@ def fetch_wspr_hourly(date: dt.date, band: str = "20m") -> pd.DataFrame:
     rows = _request_chunk(sql)
 
     if not rows:
-        print("[WARN] WSPR hourly: 0 строк. Дата может быть в будущем "
-              "или сервер не отвечает.")
+        print("[WARN] WSPR hourly: 0 строк. Дата может быть в будущем или сервер не отвечает.")
         return pd.DataFrame()
 
     hourly_cols = ["hour", "spots_count", "mean_snr", "max_distance", "mean_frequency"]

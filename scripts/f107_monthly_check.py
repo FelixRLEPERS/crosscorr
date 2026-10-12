@@ -3,6 +3,7 @@
 Offline: uses only data/processed/unified.parquet (no network).
 Note: source F10.7 in the parquet is MONTHLY (18 rows), not daily.
 """
+
 import pandas as pd
 from scipy import stats
 
@@ -13,13 +14,13 @@ WIN_START, WIN_END = "2024-04", "2025-09"
 df = pd.read_parquet(PARQUET)
 
 wspr = df[df["detector_type"] == "wspr_hourly"].copy()
-wspr = wspr[(wspr["timestamp_utc"] >= "2024-04-01") &
-            (wspr["timestamp_utc"] < "2025-10-01")]
+wspr = wspr[(wspr["timestamp_utc"] >= "2024-04-01") & (wspr["timestamp_utc"] < "2025-10-01")]
 wspr["month"] = wspr["timestamp_utc"].dt.strftime("%Y-%m")
-monthly_resid = (wspr.groupby("month")["residual"]
-                 .agg(["mean", "median", "count"])
-                 .rename(columns={"mean": "residual_mean",
-                                  "median": "residual_median"}))
+monthly_resid = (
+    wspr.groupby("month")["residual"]
+    .agg(["mean", "median", "count"])
+    .rename(columns={"mean": "residual_mean", "median": "residual_median"})
+)
 
 f107 = df[df["detector_type"] == "f107"].copy()
 f107["month"] = f107["timestamp_utc"].dt.strftime("%Y-%m")

@@ -53,8 +53,8 @@ PROCESSED_DIR = DATA_DIR / "processed"
 # "wspr", "magnetometer", "gnss". Прежние значения "intermagnet" и "ngl"
 # не входили в enum и ломали валидацию схемы (находка A4 / V2-16).
 DETECTORS = [
-    ("D_MOSCOW",  55.7558, 37.6173, "wspr"),
-    ("D_SPB",     59.9311, 30.3609, "wspr"),
+    ("D_MOSCOW", 55.7558, 37.6173, "wspr"),
+    ("D_SPB", 59.9311, 30.3609, "wspr"),
     ("D_KALININGRAD", 54.7104, 20.4522, "magnetometer"),
     ("D_EKATERINBURG", 56.8389, 60.6057, "magnetometer"),
     ("D_NOVOSIBIRSK", 55.0084, 82.9357, "gnss"),
@@ -65,9 +65,9 @@ DETECTORS = [
     ("D_SOCHI", 43.5855, 39.7231, "wspr"),
 ]
 
-LAG_CORRELATION_KM = 500.0   # характерная длина корреляции
-N_TIME = 720                  # 30 дней по часам
-AR_PHI = 0.7                  # AR(1) коэффициент
+LAG_CORRELATION_KM = 500.0  # характерная длина корреляции
+N_TIME = 720  # 30 дней по часам
+AR_PHI = 0.7  # AR(1) коэффициент
 SEED = 42
 
 
@@ -77,10 +77,7 @@ def haversine_km(lat1, lon1, lat2, lon2):
     phi1, phi2 = np.radians(lat1), np.radians(lat2)
     dphi = np.radians(lat2 - lat1)
     dlam = np.radians(lon2 - lon1)
-    a = (
-        np.sin(dphi / 2) ** 2
-        + np.cos(phi1) * np.cos(phi2) * np.sin(dlam / 2) ** 2
-    )
+    a = np.sin(dphi / 2) ** 2 + np.cos(phi1) * np.cos(phi2) * np.sin(dlam / 2) ** 2
     return 2 * R * np.arcsin(np.sqrt(a))
 
 
@@ -118,23 +115,23 @@ def main():
         signal[:, t] = AR_PHI * signal[:, t - 1] + base[:, t]
 
     # 5. Собрать long-format
-    timestamps = pd.date_range(
-        "2025-01-01", periods=N_TIME, freq="1h", tz="UTC"
-    )
+    timestamps = pd.date_range("2025-01-01", periods=N_TIME, freq="1h", tz="UTC")
 
     rows = []
     for k, det_id in enumerate(detector_ids):
-        df_det = pd.DataFrame({
-            "timestamp_utc": timestamps,
-            "detector_id": det_id,
-            "detector_type": types[k],
-            "value": signal[k],
-            "residual": signal[k],
-            "residual_method": "none",
-            "unit": "arbitrary",
-            "quality_flag": 0,
-            "meta": "{}",
-        })
+        df_det = pd.DataFrame(
+            {
+                "timestamp_utc": timestamps,
+                "detector_id": det_id,
+                "detector_type": types[k],
+                "value": signal[k],
+                "residual": signal[k],
+                "residual_method": "none",
+                "unit": "arbitrary",
+                "quality_flag": 0,
+                "meta": "{}",
+            }
+        )
         rows.append(df_det)
 
     unified = pd.concat(rows, ignore_index=True)
@@ -145,12 +142,14 @@ def main():
     print(f"[OK] unified.parquet: {unified.shape} -> {parquet_path}")
 
     # 7. Координаты детекторов
-    detectors_df = pd.DataFrame({
-        "detector_id": detector_ids,
-        "lat": [c[0] for c in coords],
-        "lon": [c[1] for c in coords],
-        "detector_type": types,
-    })
+    detectors_df = pd.DataFrame(
+        {
+            "detector_id": detector_ids,
+            "lat": [c[0] for c in coords],
+            "lon": [c[1] for c in coords],
+            "detector_type": types,
+        }
+    )
     detectors_path = DATA_DIR / "detectors.csv"
     detectors_df.to_csv(detectors_path, index=False)
     print(f"[OK] detectors.csv: {detectors_df.shape} -> {detectors_path}")

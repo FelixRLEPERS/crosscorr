@@ -17,6 +17,7 @@ class SourceRegistry:
     Централизованный реестр всех поддерживаемых источников данных CrossCorr.
     Содержит информацию о том, как и какие данные мы ожидаем от каждого источника.
     """
+
     _registry: dict[str, SourceMetadata] = {}
 
     @classmethod
@@ -42,6 +43,7 @@ class SourceRegistry:
 # Эта секция должна быть расширена при добавлении новых источников.
 # ==============================================
 
+
 def _initialize_registry():
     """Автоматическая инициализация реестра известными источниками.
 
@@ -62,7 +64,7 @@ def _initialize_registry():
             "is_critical": True,
             "base_url": None,  # реальный эндпоинт не зафиксирован
             "api_endpoint": "drupal/wsprnet/spotquery",
-        }
+        },
     )
 
     # 2. INTERMAGNET (магнитное поле Земли)
@@ -76,7 +78,7 @@ def _initialize_registry():
             "is_critical": True,
             "base_url": None,  # ручная загрузка через intermagnet.org
             "api_endpoint": None,
-        }
+        },
     )
 
     # 3. NGL (GNSS данные)
@@ -90,7 +92,7 @@ def _initialize_registry():
             "is_critical": False,
             "base_url": None,
             "api_endpoint": None,
-        }
+        },
     )
 
 

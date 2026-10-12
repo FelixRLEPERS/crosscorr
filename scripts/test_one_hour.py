@@ -20,11 +20,11 @@ if r.status_code == 200 and len(r.content) > 100:
     print("Global rows:", len(df))
 
     # Региональный фильтр локально
-    mask = (df['rx_lon'].between(-100, -60)) & (df['rx_lat'].between(25, 60))
+    mask = (df["rx_lon"].between(-100, -60)) & (df["rx_lat"].between(25, 60))
     df_reg = df[mask]
     print("Regional rows:", len(df_reg))
     print("Columns:", list(df.columns))
-    print("Lat range:", df_reg['rx_lat'].min(), "-", df_reg['rx_lat'].max())
+    print("Lat range:", df_reg["rx_lat"].min(), "-", df_reg["rx_lat"].max())
     print(df_reg.head(3))
 else:
     print("FAIL:", r.text[:300])

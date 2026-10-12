@@ -36,25 +36,31 @@ all_start = pd.Timestamp("2024-10-01", tz="UTC")
 all_end = pd.Timestamp("2025-02-01", tz="UTC")
 
 # --- WSPR hourly ---
-wspr = df[(df["detector_type"] == "wspr_hourly")
-          & (df["timestamp_utc"] >= all_start)
-          & (df["timestamp_utc"] < all_end)].copy()
+wspr = df[
+    (df["detector_type"] == "wspr_hourly")
+    & (df["timestamp_utc"] >= all_start)
+    & (df["timestamp_utc"] < all_end)
+].copy()
 wspr["hour"] = wspr["timestamp_utc"].dt.floor("1h")
 wspr_h = wspr.groupby("hour")["value"].sum().reset_index()
 wspr_h = wspr_h.rename(columns={"value": "spots"})
 
 # --- Kp ---
-kp = df[(df["detector_type"] == "kp")
-        & (df["timestamp_utc"] >= all_start)
-        & (df["timestamp_utc"] < all_end)].copy()
+kp = df[
+    (df["detector_type"] == "kp")
+    & (df["timestamp_utc"] >= all_start)
+    & (df["timestamp_utc"] < all_end)
+].copy()
 kp["hour"] = kp["timestamp_utc"].dt.floor("1h")
 kp_h = kp.groupby("hour")["value"].mean().reset_index()
 kp_h = kp_h.rename(columns={"value": "kp"})
 
 # --- Dst ---
-dst = df[(df["detector_type"] == "dst")
-         & (df["timestamp_utc"] >= all_start)
-         & (df["timestamp_utc"] < all_end)].copy()
+dst = df[
+    (df["detector_type"] == "dst")
+    & (df["timestamp_utc"] >= all_start)
+    & (df["timestamp_utc"] < all_end)
+].copy()
 dst["hour"] = dst["timestamp_utc"].dt.floor("1h")
 dst_h = dst.groupby("hour")["value"].mean().reset_index()
 dst_h = dst_h.rename(columns={"value": "dst_nt"})
@@ -78,6 +84,7 @@ m_dst["month"] = m_dst["hour"].dt.to_period("M")
 diurnal_d = m_dst.groupby(["month", "hour_of_day"])["spots"].transform("mean")
 m_dst["spots_resid"] = m_dst["spots"] - diurnal_d
 
+
 # ---------------------------------------------------------------------------
 # Block permutation test
 # ---------------------------------------------------------------------------
@@ -89,8 +96,8 @@ def block_permutation_test(values, condition_mask, n_perm=10_000, block=24):
     """
     n = len(values)
     n_blocks = n // block
-    values = values[:n_blocks * block]
-    condition_mask = condition_mask[:n_blocks * block]
+    values = values[: n_blocks * block]
+    condition_mask = condition_mask[: n_blocks * block]
 
     v = values.values if hasattr(values, "values") else np.array(values)
     c = condition_mask.values if hasattr(condition_mask, "values") else np.array(condition_mask)
@@ -116,7 +123,7 @@ def block_bootstrap(values, n_boot=1000, block=24):
     """Block bootstrap for CI."""
     n = len(values)
     n_blocks = n // block
-    v = values[:n_blocks * block]
+    v = values[: n_blocks * block]
     blocks = v.reshape(n_blocks, block)
     means = np.empty(n_boot)
     for i in range(n_boot):
@@ -149,8 +156,13 @@ for month in sorted(m_kp["month"].unique()):
     print(f"  {month}: {len(mm)} rows, mean Kp={mm['kp'].mean():.2f}")
 
 # Binned analysis
-bins = [(0, 3, "KP < 3"), (3, 4, "KP 3-4"), (4, 5, "KP 4-5"),
-        (5, 10, "KP >= 5"), (6, 10, "KP >= 6")]
+bins = [
+    (0, 3, "KP < 3"),
+    (3, 4, "KP 3-4"),
+    (4, 5, "KP 4-5"),
+    (5, 10, "KP >= 5"),
+    (6, 10, "KP >= 6"),
+]
 
 print("\n--- Binned Kp (residuals) ---")
 kp_low = m_kp["kp"] < 3
@@ -167,7 +179,7 @@ p_kp_naive = np.mean(np.abs(perm_stats_kp) >= np.abs(obs_kp_naive))
 # ESS
 ess = ess_ar1(m_kp["spots_resid"])
 print(f"ESS (AR1): {ess} (raw N: {len(m_kp)})")
-print(f"Autocorrelation ratio: {ess}/{len(m_kp)} = {ess/len(m_kp):.2f}")
+print(f"Autocorrelation ratio: {ess}/{len(m_kp)} = {ess / len(m_kp):.2f}")
 
 for lo, hi, label in bins:
     mask = (m_kp["kp"] >= lo) & (m_kp["kp"] < hi)
@@ -175,8 +187,7 @@ for lo, hi, label in bins:
     val = m_kp["spots_resid"][mask]
     mean_v = val.mean()
     ci = block_bootstrap(val.values) if n >= 24 else (np.nan, np.nan)
-    print(f"  {label:12s}: N={n:4d}, mean={mean_v:+.0f}, "
-          f"95%CI=[{ci[0]:.0f}, {ci[1]:.0f}]")
+    print(f"  {label:12s}: N={n:4d}, mean={mean_v:+.0f}, 95%CI=[{ci[0]:.0f}, {ci[1]:.0f}]")
 
 print(f"\nStatistic mean(KP>=5) - mean(KP<3): {obs_kp:+.0f}")
 print(f"Block permutation p-value (block={BLOCK_HRS}h): {p_kp_block:.4f}")
@@ -186,8 +197,12 @@ print(f"Naive permutation p-value:                    {p_kp_naive:.4f}")
 print("\n--- Binned Dst (residuals) ---")
 print(f"Dst merge: {len(m_dst)} rows")
 
-dst_bins = [(-200, -50, "Dst < -50"), (-50, -20, "Dst -50..-20"),
-            (-20, 0, "Dst -20..0"), (0, 20, "Dst 0..20")]
+dst_bins = [
+    (-200, -50, "Dst < -50"),
+    (-50, -20, "Dst -50..-20"),
+    (-20, 0, "Dst -20..0"),
+    (0, 20, "Dst 0..20"),
+]
 
 dst_low = m_dst["dst_nt"] < -50
 dst_high = m_dst["dst_nt"] > -20
@@ -202,8 +217,7 @@ for lo, hi, label in dst_bins:
     val = m_dst["spots_resid"][mask]
     mean_v = val.mean()
     ci = block_bootstrap(val.values) if n >= 24 else (np.nan, np.nan)
-    print(f"  {label:15s}: N={n:4d}, mean={mean_v:+.0f}, "
-          f"95%CI=[{ci[0]:.0f}, {ci[1]:.0f}]")
+    print(f"  {label:15s}: N={n:4d}, mean={mean_v:+.0f}, 95%CI=[{ci[0]:.0f}, {ci[1]:.0f}]")
 
 print(f"\nStatistic mean(Dst<-50) - mean(Dst>-20): {obs_dst:+.0f}")
 print(f"Block permutation p-value:                   {p_dst_block:.4f}")
@@ -211,9 +225,9 @@ print(f"Block permutation p-value:                   {p_dst_block:.4f}")
 # ---------------------------------------------------------------------------
 # Per-month check
 # ---------------------------------------------------------------------------
-print(f"\n{'='*60}")
+print(f"\n{'=' * 60}")
 print("PER-MONTH CHECK")
-print(f"{'='*60}")
+print(f"{'=' * 60}")
 
 for month in sorted(m_kp["month"].unique()):
     mm = m_kp[m_kp["month"] == month]
@@ -223,8 +237,7 @@ for month in sorted(m_kp["month"].unique()):
     obs_m, p_m, _ = block_permutation_test(
         mm["spots_resid"], k_high, n_perm=N_PERM, block=BLOCK_HRS
     )
-    print(f"  {month}: Kp>=5 N={n_high}, obs={obs_m:+.0f}, "
-          f"block-p={p_m:.4f}")
+    print(f"  {month}: Kp>=5 N={n_high}, obs={obs_m:+.0f}, block-p={p_m:.4f}")
 
 # Dst per month
 for month in sorted(m_dst["month"].unique()):
@@ -236,8 +249,7 @@ for month in sorted(m_dst["month"].unique()):
         obs_dm, p_dm, _ = block_permutation_test(
             mm["spots_resid"], d_low, n_perm=N_PERM, block=BLOCK_HRS
         )
-        print(f"  Dst {month}: Dst<-50 N={n_low}, obs={obs_dm:+.0f}, "
-              f"block-p={p_dm:.4f}")
+        print(f"  Dst {month}: Dst<-50 N={n_low}, obs={obs_dm:+.0f}, block-p={p_dm:.4f}")
     else:
         print(f"  Dst {month}: Dst<-50 N=0 (skipped)")
 
@@ -248,11 +260,13 @@ for month in sorted(m_dst["month"].unique()):
 # Plot 1: Binned Kp
 fig, axes = plt.subplots(1, 3, figsize=(20, 5))
 
-k_bins = [("KP<3", m_kp["kp"] < 3, "steelblue"),
-          ("KP 3-4", (m_kp["kp"] >= 3) & (m_kp["kp"] < 4), "skyblue"),
-          ("KP 4-5", (m_kp["kp"] >= 4) & (m_kp["kp"] < 5), "coral"),
-          ("KP>=5", m_kp["kp"] >= 5, "firebrick"),
-          ("KP>=6", m_kp["kp"] >= 6, "darkred")]
+k_bins = [
+    ("KP<3", m_kp["kp"] < 3, "steelblue"),
+    ("KP 3-4", (m_kp["kp"] >= 3) & (m_kp["kp"] < 4), "skyblue"),
+    ("KP 4-5", (m_kp["kp"] >= 4) & (m_kp["kp"] < 5), "coral"),
+    ("KP>=5", m_kp["kp"] >= 5, "firebrick"),
+    ("KP>=6", m_kp["kp"] >= 6, "darkred"),
+]
 
 ax = axes[0]
 x_labels, x_means, x_ci_low, x_ci_high = [], [], [], []
@@ -296,8 +310,14 @@ for i, (lo, hi, _) in enumerate(dst_bins):
     ax.bar(i, mean_v, color=d_colors[i], edgecolor="black", linewidth=0.5)
     if n >= 24:
         ci = block_bootstrap(val)
-        ax.errorbar(i, mean_v, yerr=[[max(mean_v - ci[0], 0)], [max(ci[1] - mean_v, 0)]],
-                   fmt="none", color="black", capsize=4)
+        ax.errorbar(
+            i,
+            mean_v,
+            yerr=[[max(mean_v - ci[0], 0)], [max(ci[1] - mean_v, 0)]],
+            fmt="none",
+            color="black",
+            capsize=4,
+        )
     ax.annotate(f"N={n}", (i, mean_v + 300), ha="center", fontsize=8)
 ax.axhline(0, color="gray", ls="--", lw=0.8)
 ax.set_xticks(range(4))
@@ -353,14 +373,14 @@ print("[OK] timeseries_2months.png")
 # ---------------------------------------------------------------------------
 # Summary
 # ---------------------------------------------------------------------------
-print(f"\n{'='*60}")
+print(f"\n{'=' * 60}")
 print("SUMMARY")
-print(f"{'='*60}")
+print(f"{'=' * 60}")
 print(f"Period: {m_kp['hour'].min().date()} -- {m_kp['hour'].max().date()}")
 print(f"Total Kp rows: {len(m_kp)}")
-print(f"ESS: {ess} (autocorr={ess/len(m_kp):.2f})")
-print(f"Hours KP>=5: {kp_high.sum()} (in {m_kp[ kp_high]['hour'].dt.date.nunique()} days)")
-print(f"Hours KP>=6: {(m_kp['kp']>=6).sum()}")
+print(f"ESS: {ess} (autocorr={ess / len(m_kp):.2f})")
+print(f"Hours KP>=5: {kp_high.sum()} (in {m_kp[kp_high]['hour'].dt.date.nunique()} days)")
+print(f"Hours KP>=6: {(m_kp['kp'] >= 6).sum()}")
 print(f"Hours Dst<-50: {dst_low.sum()}")
 print()
 print("--- Kp results ---")

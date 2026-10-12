@@ -1,4 +1,5 @@
 """Download 2026 WSPR hourly — single worker, resumable."""
+
 import datetime as dt
 import json
 import time
@@ -18,7 +19,9 @@ while cur <= dt.datetime(2026, 6, 30):
     cur += dt.timedelta(days=1)
 
 existing = {f.stem for f in OUT.glob("wspr_2026*.json") if f.stat().st_size > 10}
-tasks = [(d, b, bi) for d in dates for b, bi in BANDS.items() if f"wspr_2026_{d}_{b}" not in existing]
+tasks = [
+    (d, b, bi) for d in dates for b, bi in BANDS.items() if f"wspr_2026_{d}_{b}" not in existing
+]
 print(f"Tasks: {len(tasks)}", flush=True)
 
 ok = 0
@@ -36,7 +39,9 @@ for date_str, band_name, band_idx in tasks:
             f"AND band = {band_idx} "
             f"GROUP BY hour ORDER BY hour) FORMAT JSONCompact"
         )
-        resp = requests.get(API, params={"query": sql}, headers={"User-Agent": "cr/1.0"}, timeout=300)
+        resp = requests.get(
+            API, params={"query": sql}, headers={"User-Agent": "cr/1.0"}, timeout=300
+        )
         resp.raise_for_status()
         data = resp.json().get("data", [])
         fpath = OUT / f"wspr_2026_{date_str}_{band_name}.json"

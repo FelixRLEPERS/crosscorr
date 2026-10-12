@@ -18,6 +18,7 @@ Example:
     python scripts/simulate_network.py
     python scripts/simulate_network.py --n-detectors 100 --B 500
 """
+
 from __future__ import annotations
 
 import argparse
@@ -41,8 +42,10 @@ TRUE_LAGS = [3, 6, 12, 18, 24]
 # Data generation
 # --------------------------------------------------------------------------- #
 
-def _generate_ar1(rng: np.random.Generator, n: int,
-                  phi: float = 0.85, sigma: float = 1.0) -> np.ndarray:
+
+def _generate_ar1(
+    rng: np.random.Generator, n: int, phi: float = 0.85, sigma: float = 1.0
+) -> np.ndarray:
     """Generate AR(1) noise with given phi."""
     eps = rng.normal(0, sigma, size=n)
     out = np.zeros(n)
@@ -85,10 +88,15 @@ def _inject_hidden_pairs(rng, X, n_hidden, coupling):
 # Analysis
 # --------------------------------------------------------------------------- #
 
+
 def _run_analysis(X, names, B, seed, n_jobs):
     wide = pd.DataFrame(X, columns=names)
     return cross_correlation_pairs_with_max_stat(
-        wide, B=B, seed=seed, method="phase", n_jobs=n_jobs,
+        wide,
+        B=B,
+        seed=seed,
+        method="phase",
+        n_jobs=n_jobs,
     )
 
 
@@ -113,12 +121,15 @@ def _compute_metrics(result, hidden, names):
 
     precision = TP / (TP + FP) if (TP + FP) > 0 else 0.0
     recall = TP / (TP + FN) if (TP + FN) > 0 else 0.0
-    f1 = (2 * precision * recall / (precision + recall)
-          if (precision + recall) > 0 else 0.0)
+    f1 = 2 * precision * recall / (precision + recall) if (precision + recall) > 0 else 0.0
 
     return {
-        "TP": TP, "FP": FP, "FN": FN,
-        "precision": precision, "recall": recall, "f1": f1,
+        "TP": TP,
+        "FP": FP,
+        "FN": FN,
+        "precision": precision,
+        "recall": recall,
+        "f1": f1,
         "n_significant": len(sig_pairs),
         "n_hidden": len(hidden_pairs),
         "hidden_info": hidden_info,
@@ -130,28 +141,38 @@ def _compute_metrics(result, hidden, names):
 # Saving
 # --------------------------------------------------------------------------- #
 
-def _save_results(out_dir, names, lats, lons, types,
-                  result, hidden, metrics, params, elapsed):
+
+def _save_results(out_dir, names, lats, lons, types, result, hidden, metrics, params, elapsed):
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    pd.DataFrame({
-        "id": names, "type": types, "lat": lats, "lon": lons,
-    }).to_csv(out_dir / "detectors.csv", index=False)
+    pd.DataFrame(
+        {
+            "id": names,
+            "type": types,
+            "lat": lats,
+            "lon": lons,
+        }
+    ).to_csv(out_dir / "detectors.csv", index=False)
 
     result.to_csv(out_dir / "pairs.csv", index=False)
 
     hidden_rows = [
-        {"detector_a": names[i], "detector_b": names[j], "true_lag": tau}
-        for i, j, tau in hidden
+        {"detector_a": names[i], "detector_b": names[j], "true_lag": tau} for i, j, tau in hidden
     ]
     pd.DataFrame(hidden_rows).to_csv(out_dir / "hidden_pairs.csv", index=False)
 
-    pd.DataFrame([{
-        "TP": metrics["TP"], "FP": metrics["FP"], "FN": metrics["FN"],
-        "precision": round(metrics["precision"], 4),
-        "recall": round(metrics["recall"], 4),
-        "f1": round(metrics["f1"], 4),
-    }]).to_csv(out_dir / "metrics.csv", index=False)
+    pd.DataFrame(
+        [
+            {
+                "TP": metrics["TP"],
+                "FP": metrics["FP"],
+                "FN": metrics["FN"],
+                "precision": round(metrics["precision"], 4),
+                "recall": round(metrics["recall"], 4),
+                "f1": round(metrics["f1"], 4),
+            }
+        ]
+    ).to_csv(out_dir / "metrics.csv", index=False)
 
     lines = [
         "CrossCorr — Network Simulation Summary",
@@ -187,6 +208,7 @@ def _save_results(out_dir, names, lats, lons, types,
 # Plots
 # --------------------------------------------------------------------------- #
 
+
 def _plot_network_map(out_dir, names, lats, lons, types, metrics):
     fig, ax = plt.subplots(figsize=(12, 6))
     for t in set(types):
@@ -199,8 +221,7 @@ def _plot_network_map(out_dir, names, lats, lons, types, metrics):
         found = key in metrics["sig_pairs"]
         color = "red" if found else "orange"
         lw = 2.0 if found else 1.0
-        ax.plot([lons[ia], lons[ib]], [lats[ia], lats[ib]],
-                color=color, lw=lw, alpha=0.6)
+        ax.plot([lons[ia], lons[ib]], [lats[ia], lats[ib]], color=color, lw=lw, alpha=0.6)
 
     ax.set_xlabel("Longitude")
     ax.set_ylabel("Latitude")
@@ -248,6 +269,7 @@ def _plot_corr_matrix(out_dir, X, names):
 # CLI
 # --------------------------------------------------------------------------- #
 
+
 def parse_args(argv=None):
     p = argparse.ArgumentParser(
         description="Simulate sensor network for CrossCorr",
@@ -267,11 +289,15 @@ def main(argv=None):
     args = parse_args(argv)
     rng = np.random.default_rng(args.seed)
 
-    print(f"Generating {args.n_detectors} detectors, "
-          f"{args.n_samples} samples, {args.n_hidden} hidden pairs...")
+    print(
+        f"Generating {args.n_detectors} detectors, "
+        f"{args.n_samples} samples, {args.n_hidden} hidden pairs..."
+    )
 
     X, names, lats, lons, types = _generate_detectors(
-        rng, args.n_detectors, args.n_samples,
+        rng,
+        args.n_detectors,
+        args.n_samples,
     )
     hidden = _inject_hidden_pairs(rng, X, args.n_hidden, args.coupling)
 
@@ -291,8 +317,7 @@ def main(argv=None):
         "B": args.B,
         "seed": args.seed,
     }
-    _save_results(out_dir, names, lats, lons, types,
-                  result, hidden, metrics, params, elapsed)
+    _save_results(out_dir, names, lats, lons, types, result, hidden, metrics, params, elapsed)
 
     _plot_network_map(out_dir, names, lats, lons, types, metrics)
     _plot_pvalue_hist(out_dir, result)

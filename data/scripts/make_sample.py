@@ -44,9 +44,7 @@ def make_sample(
         Записанный сэмпл.
     """
     if not src.exists():
-        raise FileNotFoundError(
-            f"Нет файла {src}. Сначала запустите data/scripts/unify_schema.py"
-        )
+        raise FileNotFoundError(f"Нет файла {src}. Сначала запустите data/scripts/unify_schema.py")
 
     df = pd.read_parquet(src)
     if df.empty:
@@ -69,16 +67,12 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--src", type=Path, default=DEFAULT_SRC)
     parser.add_argument("--dst", type=Path, default=DEFAULT_DST)
-    parser.add_argument(
-        "--rows-per-detector", type=int, default=DEFAULT_ROWS_PER_DETECTOR
-    )
+    parser.add_argument("--rows-per-detector", type=int, default=DEFAULT_ROWS_PER_DETECTOR)
     args = parser.parse_args()
 
     sample = make_sample(args.src, args.dst, args.rows_per_detector)
     n_detectors = sample["detector_id"].nunique()
-    print(
-        f"[OK] {len(sample)} строк, {n_detectors} детекторов -> {args.dst}"
-    )
+    print(f"[OK] {len(sample)} строк, {n_detectors} детекторов -> {args.dst}")
 
 
 if __name__ == "__main__":

@@ -30,16 +30,13 @@ PLANETS = {
 }
 
 
-def fetch_ephemeris(
-    planet: str, start: str, stop: str, step: str = "1h"
-) -> Table:
+def fetch_ephemeris(planet: str, start: str, stop: str, step: str = "1h") -> Table:
     code = PLANETS[planet.lower()]
     if planet.lower() == "sun":
         location = "500"  # геоцентр: Солнце нельзя наблюдать с Солнца
     else:
         location = "@sun"
-    obj = Horizons(id=code, location=location,
-                   epochs={"start": start, "stop": stop, "step": step})
+    obj = Horizons(id=code, location=location, epochs={"start": start, "stop": stop, "step": step})
     return obj.ephemerides()
 
 
@@ -63,15 +60,19 @@ def main() -> None:
     # метаданные запроса.
     meta = RAW_DIR / f"horizons_{args.planet}_{args.start}_{args.stop}.json"
     meta.write_text(
-        json.dumps({
-            "planet": args.planet,
-            "horizons_id": PLANETS[args.planet.lower()],
-            "start": args.start,
-            "stop": args.stop,
-            "step": args.step,
-            "location": "500" if args.planet.lower() == "sun" else "@sun",
-            "rows": int(len(df)),
-        }, indent=2, ensure_ascii=False),
+        json.dumps(
+            {
+                "planet": args.planet,
+                "horizons_id": PLANETS[args.planet.lower()],
+                "start": args.start,
+                "stop": args.stop,
+                "step": args.step,
+                "location": "500" if args.planet.lower() == "sun" else "@sun",
+                "rows": int(len(df)),
+            },
+            indent=2,
+            ensure_ascii=False,
+        ),
         encoding="utf-8",
     )
     digest = hashlib.sha256(out.read_bytes()).hexdigest()

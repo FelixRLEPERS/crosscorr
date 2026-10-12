@@ -1,4 +1,5 @@
 """Independent replication on held-out period (2026-01-01 .. 2026-06-30)."""
+
 import json
 from pathlib import Path
 
@@ -39,8 +40,8 @@ def download_wspr_day(date_str: str, band_name: str, band_idx: int) -> pd.DataFr
 
 def block_perm_test(merged, block_size=BLOCK, n_iter=N_ITER):
     merged = merged.copy()
-    merged["resid"] = (
-        merged["value"] - merged.groupby(["month", "hour_of_day"])["value"].transform("mean")
+    merged["resid"] = merged["value"] - merged.groupby(["month", "hour_of_day"])["value"].transform(
+        "mean"
     )
     sm = (merged["kp"] >= 5).values
     qm = (merged["kp"] < 3).values
@@ -77,16 +78,14 @@ def main():
 
     # Load existing unified parquet (has Kp/Dst for 2026)
     df = pd.read_parquet(ROOT / "data" / "processed" / "unified.parquet")
-    full = df[
-        (df["timestamp_utc"] >= "2026-01-01") & (df["timestamp_utc"] < "2026-07-01")
-    ]
+    full = df[(df["timestamp_utc"] >= "2026-01-01") & (df["timestamp_utc"] < "2026-07-01")]
 
     # Extract Kp
     kp = full[full["detector_type"] == "kp"][["timestamp_utc", "value"]].copy()
     kp.columns = ["timestamp_utc", "kp"]
     kp["hour"] = kp["timestamp_utc"].dt.floor("1h")
     kp_h = kp.groupby("hour")["kp"].mean().reset_index()
-    print(f"Kp: {len(kp)} rows, Kp>=5: {(kp['kp']>=5).sum()} hours\n")
+    print(f"Kp: {len(kp)} rows, Kp>=5: {(kp['kp'] >= 5).sum()} hours\n")
 
     # Download WSPR for each month
     all_wspr = []
@@ -116,9 +115,11 @@ def main():
     print("=== Permutation Test Results ===\n")
     for band in ["20m", "40m", "15m"]:
         sub = wspr[wspr["band"] == band].copy()
-        merged = pd.merge(
-            sub, kp_h, left_on="hour_bin", right_on="hour", how="inner"
-        ).sort_values("hour").reset_index(drop=True)
+        merged = (
+            pd.merge(sub, kp_h, left_on="hour_bin", right_on="hour", how="inner")
+            .sort_values("hour")
+            .reset_index(drop=True)
+        )
         if len(merged) < 100:
             print(f"  {band}: insufficient data (N={len(merged)})")
             continue
@@ -145,9 +146,7 @@ def main():
     print("\n=== Day/Night Asymmetry ===\n")
     for band in ["20m", "40m", "15m"]:
         sub = wspr[wspr["band"] == band].copy()
-        merged = pd.merge(
-            sub, kp_h, left_on="hour_bin", right_on="hour", how="inner"
-        )
+        merged = pd.merge(sub, kp_h, left_on="hour_bin", right_on="hour", how="inner")
         peak = merged[merged["hour_of_day"].between(12, 18)]
         night = merged[merged["hour_of_day"].between(0, 6)]
         for period, df_sel in [("Day 12-18h", peak), ("Night 0-6h", night)]:

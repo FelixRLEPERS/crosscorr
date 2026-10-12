@@ -105,11 +105,20 @@ def bootstrap_regression(
         v_hi = np.nan
 
     return BandResult(
-        band=-1, freq_mhz=np.nan, n_points=n,
-        slope_b=b, slope_ci_lo=slope_lo, slope_ci_hi=slope_hi,
-        intercept_a=a, intercept_ci_lo=int_lo, intercept_ci_hi=int_hi,
-        v_tid_ms=v_tid, v_tid_ci_lo=v_lo, v_tid_ci_hi=v_hi,
-        wave_regime=wave_regime, r_squared=r ** 2,
+        band=-1,
+        freq_mhz=np.nan,
+        n_points=n,
+        slope_b=b,
+        slope_ci_lo=slope_lo,
+        slope_ci_hi=slope_hi,
+        intercept_a=a,
+        intercept_ci_lo=int_lo,
+        intercept_ci_hi=int_hi,
+        v_tid_ms=v_tid,
+        v_tid_ci_lo=v_lo,
+        v_tid_ci_hi=v_hi,
+        wave_regime=wave_regime,
+        r_squared=r**2,
     )
 
 
@@ -142,8 +151,7 @@ def analyze_all_bands(
     for band, freq in WSPR_BANDS.items():
         if load_real:
             raise NotImplementedError(
-                "Real-data path not yet implemented. "
-                "Requires tau(d,f) cube from Paper II pipeline."
+                "Real-data path not yet implemented. Requires tau(d,f) cube from Paper II pipeline."
             )
         else:
             if band == 7:
@@ -186,7 +194,9 @@ def plot_tau_vs_d(
             d_grid,
             r.intercept_ci_lo + r.slope_ci_lo * d_grid,
             r.intercept_ci_hi + r.slope_ci_hi * d_grid,
-            color="C1", alpha=0.15, label="95% CI (approx)",
+            color="C1",
+            alpha=0.15,
+            label="95% CI (approx)",
         )
 
         regime = "WAVE" if r.wave_regime else "CHEM"
@@ -210,29 +220,43 @@ def main() -> None:
     pd.set_option("display.width", 160)
     pd.set_option("display.max_columns", 20)
     print("\n--- Regression results per band ---")
-    print(df[[
-        "band", "freq_mhz", "n_points",
-        "slope_b", "slope_ci_lo", "slope_ci_hi",
-        "intercept_a", "v_tid_ms", "v_tid_ci_lo", "v_tid_ci_hi",
-        "wave_regime", "r_squared",
-    ]].to_string(index=False))
+    print(
+        df[
+            [
+                "band",
+                "freq_mhz",
+                "n_points",
+                "slope_b",
+                "slope_ci_lo",
+                "slope_ci_hi",
+                "intercept_a",
+                "v_tid_ms",
+                "v_tid_ci_lo",
+                "v_tid_ci_hi",
+                "wave_regime",
+                "r_squared",
+            ]
+        ].to_string(index=False)
+    )
 
     row40 = df.loc[df["band"] == 7].iloc[0]
     row20 = df.loc[df["band"] == 14].iloc[0]
     print("\n--- Sanity check ---")
     print(f"40 m: wave_regime={row40.wave_regime}, V_TID={row40.v_tid_ms:.1f} m/s (expected ~ 350)")
-    print(f"20 m: wave_regime={row20.wave_regime}, V_TID={row20.v_tid_ms} (expected NaN -> chemical regime)")
+    print(
+        f"20 m: wave_regime={row20.wave_regime}, V_TID={row20.v_tid_ms} (expected NaN -> chemical regime)"
+    )
 
     out_csv = Path("results_tau_regression.csv")
     df.to_csv(out_csv, index=False)
     print(f"\nSaved: {out_csv}")
 
     mock_points = {
-        7:  _synthesize_mock(7),
+        7: _synthesize_mock(7),
         14: _synthesize_mock_chem(14),
     }
     mock_results = {
-        7:  bootstrap_regression(*mock_points[7]),
+        7: bootstrap_regression(*mock_points[7]),
         14: bootstrap_regression(*mock_points[14]),
     }
     mock_results[7].band, mock_results[7].freq_mhz = 7, 7.040

@@ -106,6 +106,7 @@ def iter_months(start: dt.date, end: dt.date):
 
 # ─── WSPR ────────────────────────────────────────────────────────
 
+
 def _fetch_wspr_range(start: dt.date, end: dt.date, config: dict) -> int:
     """Скачать WSPR за диапазон дат. Возвращает число успешных дней."""
     from data.scripts.download_wspr import RAW_DIR, fetch_wspr, normalize
@@ -126,11 +127,14 @@ def _fetch_wspr_range(start: dt.date, end: dt.date, config: dict) -> int:
             print(f"[OK]  WSPR {date.isoformat()}: {len(df)} строк -> {out.name}")
             ok += 1
         except Exception:
-            print(f"[ERR] WSPR {date.isoformat()}: {traceback.format_exc().strip().splitlines()[-1]}")
+            print(
+                f"[ERR] WSPR {date.isoformat()}: {traceback.format_exc().strip().splitlines()[-1]}"
+            )
     return ok
 
 
 # ─── Horizons ────────────────────────────────────────────────────
+
 
 def _fetch_horizons_range(start: str, end: str, config: dict) -> int:
     """Скачать эфемериды JPL Horizons. Возвращает число успешных объектов."""
@@ -156,6 +160,7 @@ def _fetch_horizons_range(start: str, end: str, config: dict) -> int:
 
 # ─── INTERMAGNET ─────────────────────────────────────────────────
 
+
 def _print_intermagnet_manual(start: dt.date, end: dt.date, config: dict):
     """Напечатать инструкцию по ручной загрузке INTERMAGNET."""
     from data.scripts.download_intermagnet import download_and_save_intermagnet
@@ -174,13 +179,12 @@ def _print_intermagnet_manual(start: dt.date, end: dt.date, config: dict):
         for year, month in iter_months(start, end):
             download_and_save_intermagnet(station, year, month)
     print()
-    print(
-        "После скачивания .min файлов запустите: python data/scripts/unify_schema.py"
-    )
+    print("После скачивания .min файлов запустите: python data/scripts/unify_schema.py")
     print()
 
 
 # ─── Space Weather ───────────────────────────────────────────────
+
 
 def _fetch_space_weather(start: str, end: str, indices: set[str]) -> int:
     """Скачать индексы космической погоды. Возвращает число успешных."""
@@ -209,6 +213,7 @@ def _fetch_space_weather(start: str, end: str, indices: set[str]) -> int:
 
 # ─── Unify ───────────────────────────────────────────────────────
 
+
 def _run_unify():
     """Запустить unify_schema.py для сборки unified.parquet."""
     print()
@@ -216,6 +221,7 @@ def _run_unify():
     print("[STEP] Запуск unify_schema.py ...")
     try:
         from data.scripts import unify_schema
+
         unify_schema.main()
     except SystemExit as e:
         msg = str(e).strip() if e else ""
@@ -225,6 +231,7 @@ def _run_unify():
 
 
 # ─── Main ────────────────────────────────────────────────────────
+
 
 def main() -> None:
     config = load_config(CONFIG_PATH)

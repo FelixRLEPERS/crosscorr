@@ -24,10 +24,7 @@ import requests
 RAW_DIR = Path(__file__).resolve().parents[1] / "raw" / "space_weather"
 KP_API = "https://kp.gfz-potsdam.de/app/json/"
 DST_BASE = "http://wdc.kugi.kyoto-u.ac.jp/dst_provisional"
-F107_API = (
-    "https://services.swpc.noaa.gov/json/solar-cycle/"
-    "observed-solar-cycle-indices.json"
-)
+F107_API = "https://services.swpc.noaa.gov/json/solar-cycle/observed-solar-cycle-indices.json"
 
 MAX_RETRIES = 3
 BACKOFF = 5
@@ -48,13 +45,13 @@ def _retry_get(url: str, **kwargs) -> requests.Response:
         except requests.RequestException as e:
             last_err = e
             if attempt < MAX_RETRIES - 1:
-                wait = BACKOFF * (2 ** attempt)
-                print(f"[RETRY] Попытка {attempt + 1}/{MAX_RETRIES} "
-                      f"не удалась: {e}. Ждём {wait}с...")
+                wait = BACKOFF * (2**attempt)
+                print(
+                    f"[RETRY] Попытка {attempt + 1}/{MAX_RETRIES} не удалась: {e}. Ждём {wait}с..."
+                )
                 time.sleep(wait)
     raise DataFetchError(
-        f"Не удалось скачать {url} за {MAX_RETRIES} попыток. "
-        f"Последняя ошибка: {last_err}"
+        f"Не удалось скачать {url} за {MAX_RETRIES} попыток. Последняя ошибка: {last_err}"
     )
 
 
@@ -77,29 +74,29 @@ def fetch_kp(start_date: str, end_date: str, out_dir: Path) -> Path:
     start_iso = f"{start_date}T00:00:00Z"
     end_iso = f"{end_date}T00:00:00Z"
 
-    r = _retry_get(KP_API, params={
-        "start": start_iso,
-        "end": end_iso,
-        "index": "Kp",
-    })
+    r = _retry_get(
+        KP_API,
+        params={
+            "start": start_iso,
+            "end": end_iso,
+            "index": "Kp",
+        },
+    )
 
     data = r.json()
     if not isinstance(data, dict) or "Kp" not in data or "datetime" not in data:
         got = str(data)[:200]
-        raise DataFetchError(
-            f"Kp API: ожидался JSON с ключами 'Kp' и 'datetime', "
-            f"получено: {got}"
-        )
+        raise DataFetchError(f"Kp API: ожидался JSON с ключами 'Kp' и 'datetime', получено: {got}")
 
-    df = pd.DataFrame({
-        "timestamp": pd.to_datetime(data["datetime"]),
-        "kp": [float(v) if v is not None else float("nan") for v in data["Kp"]],
-    })
+    df = pd.DataFrame(
+        {
+            "timestamp": pd.to_datetime(data["datetime"]),
+            "kp": [float(v) if v is not None else float("nan") for v in data["Kp"]],
+        }
+    )
 
     if df.empty:
-        raise DataFetchError(
-            f"Kp API: пустой ответ для {start_date} – {end_date}"
-        )
+        raise DataFetchError(f"Kp API: пустой ответ для {start_date} – {end_date}")
 
     out_dir.mkdir(parents=True, exist_ok=True)
     path = out_dir / f"kp_{start_date}_{end_date}.csv"
@@ -185,14 +182,16 @@ def fetch_dst(start_date: str, end_date: str, out_dir: Path) -> Path:
                 continue
             for day, hour, dst in parsed:
                 ts = pd.Timestamp(
-                    year=current.year, month=current.month,
-                    day=day, hour=hour, tz="UTC",
+                    year=current.year,
+                    month=current.month,
+                    day=day,
+                    hour=hour,
+                    tz="UTC",
                 )
                 if start_dt <= ts <= end_dt:
                     all_rows.append({"timestamp": ts, "dst_nt": dst})
 
-        print(f"[INFO] Dst {current.year}-{current.month:02d}: "
-              f"прочитано записей за месяц")
+        print(f"[INFO] Dst {current.year}-{current.month:02d}: прочитано записей за месяц")
         current = (current + pd.DateOffset(months=1)).replace(day=1)
 
     if not all_rows:
@@ -254,9 +253,7 @@ def fetch_f107(start_date: str, end_date: str, out_dir: Path) -> Path:
             rows.append({"date": ts, "f107": float(f107)})
 
     if not rows:
-        raise DataFetchError(
-            f"F10.7: нет данных за {start_date} – {end_date}."
-        )
+        raise DataFetchError(f"F10.7: нет данных за {start_date} – {end_date}.")
 
     df = pd.DataFrame(rows).sort_values("date").reset_index(drop=True)
 
@@ -264,8 +261,10 @@ def fetch_f107(start_date: str, end_date: str, out_dir: Path) -> Path:
     path = out_dir / f"f107_{start_date}_{end_date}.csv"
     df.to_csv(path, index=False)
     print(f"[OK] F10.7: {len(df)} строк (месячных) -> {path.name}")
-    print("[INFO] F10.7: данные МЕСЯЧНЫЕ. Для часовых значений "
-          "заполните confounders.csv синтетикой или другим источником.")
+    print(
+        "[INFO] F10.7: данные МЕСЯЧНЫЕ. Для часовых значений "
+        "заполните confounders.csv синтетикой или другим источником."
+    )
     return path
 
 
@@ -301,9 +300,11 @@ def main() -> None:
     parser.add_argument("--start", required=True, help="YYYY-MM-DD")
     parser.add_argument("--end", required=True, help="YYYY-MM-DD")
     parser.add_argument(
-        "--indices", nargs="+", choices=["kp", "dst", "f107"],
+        "--indices",
+        nargs="+",
+        choices=["kp", "dst", "f107"],
         default=["kp", "dst", "f107"],
-        help="Какие индексы скачивать (по умолчанию все)"
+        help="Какие индексы скачивать (по умолчанию все)",
     )
     args = parser.parse_args()
 

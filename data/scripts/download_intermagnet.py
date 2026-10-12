@@ -349,9 +349,7 @@ def main() -> None:
 
     df = parse_iaga2002(src)
     if df.empty:
-        raise SystemExit(
-            f"В {src} нет читаемых строк IAGA-2002. Проверьте формат файла."
-        )
+        raise SystemExit(f"В {src} нет читаемых строк IAGA-2002. Проверьте формат файла.")
 
     RAW_DIR.mkdir(parents=True, exist_ok=True)
     out = RAW_DIR / f"{args.station}_{src.stem}.csv"

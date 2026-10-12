@@ -20,13 +20,11 @@ FORMAT CSV
 r = requests.get(BASE_URL, params={"query": sql}, timeout=120)
 print("HTTP:", r.status_code, "size:", len(r.content))
 if r.status_code == 200:
-    df = pd.read_csv(io.BytesIO(r.content),
-                     header=None,
-                     names=["hour", "lat_bin", "lon_bin", "n"])
+    df = pd.read_csv(io.BytesIO(r.content), header=None, names=["hour", "lat_bin", "lon_bin", "n"])
     print("Rows:", len(df))
     print(df.head(10))
-    print("Lat range:", df['lat_bin'].min(), "-", df['lat_bin'].max())
-    us = df[(df['lon_bin'].between(-100, -60)) & (df['lat_bin'].between(25, 60))]
-    print("US East rows:", len(us), "total spots:", us['n'].sum())
+    print("Lat range:", df["lat_bin"].min(), "-", df["lat_bin"].max())
+    us = df[(df["lon_bin"].between(-100, -60)) & (df["lat_bin"].between(25, 60))]
+    print("US East rows:", len(us), "total spots:", us["n"].sum())
 else:
     print("FAIL:", r.text[:300])

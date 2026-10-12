@@ -108,12 +108,14 @@ def load_wspr(path: Path) -> pd.DataFrame:
 def load_intermagnet(path: Path) -> pd.DataFrame:
     """Прочитать CSV магнитометра в unified-формат (сырое наблюдение = X)."""
     df = pd.read_csv(path)
-    out = pd.DataFrame({
-        "timestamp_utc": pd.to_datetime(df["timestamp"], utc=True),
-        "detector_id": path.stem,
-        "detector_type": "magnetometer",
-        "value": df["X"].astype(float),
-    })
+    out = pd.DataFrame(
+        {
+            "timestamp_utc": pd.to_datetime(df["timestamp"], utc=True),
+            "detector_id": path.stem,
+            "detector_type": "magnetometer",
+            "value": df["X"].astype(float),
+        }
+    )
     out["meta"] = json.dumps({})
     return out
 
@@ -142,20 +144,19 @@ def load_horizons(path: Path) -> pd.DataFrame:
         )
     if HORIZONS_RANGE_COLUMN not in df.columns:
         raise ValueError(
-            f"В выгрузке Horizons нет колонки {HORIZONS_RANGE_COLUMN!r}; "
-            f"есть {list(df.columns)}"
+            f"В выгрузке Horizons нет колонки {HORIZONS_RANGE_COLUMN!r}; есть {list(df.columns)}"
         )
-    out = pd.DataFrame({
-        "timestamp_utc": pd.to_datetime(df[ts_col], utc=True, errors="coerce"),
-        "detector_id": path.stem,
-        "detector_type": "ephemeris",
-        "value": pd.to_numeric(df[HORIZONS_RANGE_COLUMN], errors="coerce"),
-    })
+    out = pd.DataFrame(
+        {
+            "timestamp_utc": pd.to_datetime(df[ts_col], utc=True, errors="coerce"),
+            "detector_id": path.stem,
+            "detector_type": "ephemeris",
+            "value": pd.to_numeric(df[HORIZONS_RANGE_COLUMN], errors="coerce"),
+        }
+    )
     dropped = int(out["timestamp_utc"].isna().sum() + out["value"].isna().sum())
     if dropped:
-        logger.warning(
-            "%s: отброшено %d строк без времени или расстояния", path.name, dropped
-        )
+        logger.warning("%s: отброшено %d строк без времени или расстояния", path.name, dropped)
     out = out.dropna(subset=["timestamp_utc", "value"])
     out["meta"] = json.dumps({})
     return out[["timestamp_utc", "detector_id", "detector_type", "value", "meta"]]
@@ -164,12 +165,14 @@ def load_horizons(path: Path) -> pd.DataFrame:
 def load_kp(path: Path) -> pd.DataFrame:
     """Прочитать Kp CSV в unified-формат (сырое наблюдение = Kp)."""
     df = pd.read_csv(path)
-    out = pd.DataFrame({
-        "timestamp_utc": pd.to_datetime(df["timestamp"], utc=True),
-        "detector_id": "kp_index",
-        "detector_type": "kp",
-        "value": df["kp"].astype(float),
-    })
+    out = pd.DataFrame(
+        {
+            "timestamp_utc": pd.to_datetime(df["timestamp"], utc=True),
+            "detector_id": "kp_index",
+            "detector_type": "kp",
+            "value": df["kp"].astype(float),
+        }
+    )
     out["meta"] = json.dumps({"granularity": "3h"})
     return out[["timestamp_utc", "detector_id", "detector_type", "value", "meta"]]
 
@@ -177,12 +180,14 @@ def load_kp(path: Path) -> pd.DataFrame:
 def load_dst(path: Path) -> pd.DataFrame:
     """Прочитать Dst CSV в unified-формат (сырое наблюдение = Dst, нТ)."""
     df = pd.read_csv(path)
-    out = pd.DataFrame({
-        "timestamp_utc": pd.to_datetime(df["timestamp"], utc=True),
-        "detector_id": "dst_index",
-        "detector_type": "dst",
-        "value": df["dst_nt"].astype(float),
-    })
+    out = pd.DataFrame(
+        {
+            "timestamp_utc": pd.to_datetime(df["timestamp"], utc=True),
+            "detector_id": "dst_index",
+            "detector_type": "dst",
+            "value": df["dst_nt"].astype(float),
+        }
+    )
     out["meta"] = json.dumps({"granularity": "1h"})
     return out[["timestamp_utc", "detector_id", "detector_type", "value", "meta"]]
 
@@ -190,12 +195,14 @@ def load_dst(path: Path) -> pd.DataFrame:
 def load_f107(path: Path) -> pd.DataFrame:
     """Прочитать F10.7 CSV в unified-формат (сырое наблюдение = F10.7)."""
     df = pd.read_csv(path)
-    out = pd.DataFrame({
-        "timestamp_utc": pd.to_datetime(df["date"], utc=True),
-        "detector_id": "f107_index",
-        "detector_type": "f107",
-        "value": df["f107"].astype(float),
-    })
+    out = pd.DataFrame(
+        {
+            "timestamp_utc": pd.to_datetime(df["date"], utc=True),
+            "detector_id": "f107_index",
+            "detector_type": "f107",
+            "value": df["f107"].astype(float),
+        }
+    )
     out["meta"] = json.dumps({"granularity": "monthly"})
     return out[["timestamp_utc", "detector_id", "detector_type", "value", "meta"]]
 
@@ -215,18 +222,24 @@ def load_wspr_hourly(path: Path) -> pd.DataFrame:
     df = pd.read_csv(path)
     band = path.stem.split("_")[-1]
     band_index = int(df["band"].iloc[0]) if "band" in df.columns else None
-    out = pd.DataFrame({
-        "timestamp_utc": pd.to_datetime(df["timestamp"], utc=True),
-        "detector_id": f"wspr_hourly_{band}",
-        "detector_type": "wspr_hourly",
-        "value": df["spots_count"].astype(float),
-    })
-    out["meta"] = json.dumps({
-        "band": band,
-        "band_index": band_index,
-        "mean_snr": float(df["mean_snr"].iloc[0]) if "mean_snr" in df.columns else None,
-        "max_distance": float(df["max_distance"].iloc[0]) if "max_distance" in df.columns else None,
-    })
+    out = pd.DataFrame(
+        {
+            "timestamp_utc": pd.to_datetime(df["timestamp"], utc=True),
+            "detector_id": f"wspr_hourly_{band}",
+            "detector_type": "wspr_hourly",
+            "value": df["spots_count"].astype(float),
+        }
+    )
+    out["meta"] = json.dumps(
+        {
+            "band": band,
+            "band_index": band_index,
+            "mean_snr": float(df["mean_snr"].iloc[0]) if "mean_snr" in df.columns else None,
+            "max_distance": float(df["max_distance"].iloc[0])
+            if "max_distance" in df.columns
+            else None,
+        }
+    )
     return out[["timestamp_utc", "detector_id", "detector_type", "value", "meta"]]
 
 
@@ -248,8 +261,7 @@ def _route_sw(path: Path) -> pd.DataFrame:
     if name.startswith("f107"):
         return load_f107(path)
     raise ValueError(
-        f"Неизвестный префикс файла space_weather: {path.name}. "
-        f"Ожидается kp_*, dst_* или f107_*."
+        f"Неизвестный префикс файла space_weather: {path.name}. Ожидается kp_*, dst_* или f107_*."
     )
 
 
@@ -361,7 +373,8 @@ def main() -> None:
         logger.warning(
             "residual содержит %d NaN строк из %d; они не удаляются, "
             "quality_flag помечает их как missing.",
-            n_nan_residual, len(unified),
+            n_nan_residual,
+            len(unified),
         )
 
     unified = unified[UNIFIED_COLUMNS].sort_values("timestamp_utc").reset_index(drop=True)
@@ -375,7 +388,9 @@ def main() -> None:
     unified.to_parquet(out, index=False)
     logger.info(
         "[DONE] %d строк -> %s (пропущено файлов: %d)",
-        len(unified), out, skipped,
+        len(unified),
+        out,
+        skipped,
     )
 
 

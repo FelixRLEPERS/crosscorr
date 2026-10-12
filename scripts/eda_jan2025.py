@@ -17,16 +17,20 @@ df = pd.read_parquet(ROOT / "data" / "processed" / "unified.parquet")
 jan_start = pd.Timestamp("2025-01-01", tz="UTC")
 jan_end = pd.Timestamp("2025-02-01", tz="UTC")
 
-wspr = df[(df["detector_type"] == "wspr_hourly")
-          & (df["timestamp_utc"] >= jan_start)
-          & (df["timestamp_utc"] < jan_end)].copy()
+wspr = df[
+    (df["detector_type"] == "wspr_hourly")
+    & (df["timestamp_utc"] >= jan_start)
+    & (df["timestamp_utc"] < jan_end)
+].copy()
 wspr["hour"] = wspr["timestamp_utc"].dt.floor("1h")
 wspr_hourly = wspr.groupby("hour")["value"].sum().reset_index()
 wspr_hourly = wspr_hourly.rename(columns={"value": "spots"})
 
-kp = df[(df["detector_type"] == "kp")
-        & (df["timestamp_utc"] >= jan_start)
-        & (df["timestamp_utc"] < jan_end)].copy()
+kp = df[
+    (df["detector_type"] == "kp")
+    & (df["timestamp_utc"] >= jan_start)
+    & (df["timestamp_utc"] < jan_end)
+].copy()
 kp["hour"] = kp["timestamp_utc"].dt.floor("1h")
 kp_hourly = kp.groupby("hour")["value"].mean().reset_index()
 kp_hourly = kp_hourly.rename(columns={"value": "kp"})
@@ -67,18 +71,22 @@ axes[0].scatter(merged["kp"], merged["spots"], alpha=0.3, s=12, c="steelblue")
 axes[0].set_xlabel("Kp")
 axes[0].set_ylabel("Spots per hour")
 axes[0].set_title("Raw correlation: spots vs Kp")
-axes[0].text(0.05, 0.95,
-             f"Spearman r = {r_spearman:.3f}\nPearson r = {r_pearson:.3f}",
-             transform=axes[0].transAxes, fontsize=11, va="top",
-             bbox={"boxstyle": "round", "facecolor": "white", "alpha": 0.8})
+axes[0].text(
+    0.05,
+    0.95,
+    f"Spearman r = {r_spearman:.3f}\nPearson r = {r_pearson:.3f}",
+    transform=axes[0].transAxes,
+    fontsize=11,
+    va="top",
+    bbox={"boxstyle": "round", "facecolor": "white", "alpha": 0.8},
+)
 axes[0].grid(alpha=0.3)
 
-merged["kp_bin"] = pd.cut(merged["kp"], bins=[0, 1, 2, 3, 4, 9],
-                          labels=["0-1", "1-2", "2-3", "3-4", "4+"])
-pivot = merged.pivot_table(values="spots", index="kp_bin",
-                           columns="hour_of_day", aggfunc="mean")
-im = axes[1].imshow(pivot.values, aspect="auto", cmap="YlOrRd",
-                    origin="lower")
+merged["kp_bin"] = pd.cut(
+    merged["kp"], bins=[0, 1, 2, 3, 4, 9], labels=["0-1", "1-2", "2-3", "3-4", "4+"]
+)
+pivot = merged.pivot_table(values="spots", index="kp_bin", columns="hour_of_day", aggfunc="mean")
+im = axes[1].imshow(pivot.values, aspect="auto", cmap="YlOrRd", origin="lower")
 axes[1].set_xlabel("Hour of day (UTC)")
 axes[1].set_title("Mean spots/hour by Kp bin x hour")
 axes[1].set_yticks(range(len(pivot.index)))
@@ -96,8 +104,14 @@ hourly_mean = merged.groupby("hour_of_day")["spots"].mean()
 hourly_std = merged.groupby("hour_of_day")["spots"].std()
 
 fig, ax = plt.subplots(figsize=(10, 5))
-ax.errorbar(hourly_mean.index, hourly_mean.values, yerr=hourly_std.values,
-            fmt="bo-", capsize=3, markersize=6)
+ax.errorbar(
+    hourly_mean.index,
+    hourly_mean.values,
+    yerr=hourly_std.values,
+    fmt="bo-",
+    capsize=3,
+    markersize=6,
+)
 ax.set_xlabel("Hour of day (UTC)")
 ax.set_ylabel("Mean spots/hour +/- 1 sigma")
 ax.set_title("Diurnal cycle - WSPR 20m (January 2025)")
@@ -142,16 +156,21 @@ for h in range(24):
         print(f"  {h:02d} UTC: no data")
 
 with open(str(OUT_DIR / "summary_jan2025.json"), "w", encoding="utf-8") as f:
-    json.dump({
-        "hours": len(merged),
-        "mean_spots_per_day": float(daily_spots.mean()),
-        "std_spots_per_day": float(daily_spots.std()),
-        "mean_kp": float(merged["kp"].mean()),
-        "std_kp": float(merged["kp"].std()),
-        "max_kp": float(merged["kp"].max()),
-        "spearman_rho": float(r_spearman),
-        "pearson_r": float(r_pearson),
-    }, f, indent=2, ensure_ascii=False)
+    json.dump(
+        {
+            "hours": len(merged),
+            "mean_spots_per_day": float(daily_spots.mean()),
+            "std_spots_per_day": float(daily_spots.std()),
+            "mean_kp": float(merged["kp"].mean()),
+            "std_kp": float(merged["kp"].std()),
+            "max_kp": float(merged["kp"].max()),
+            "spearman_rho": float(r_spearman),
+            "pearson_r": float(r_pearson),
+        },
+        f,
+        indent=2,
+        ensure_ascii=False,
+    )
 
 print()
 print("[DONE] All plots saved to results/eda/")
