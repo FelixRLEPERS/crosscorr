@@ -29,7 +29,7 @@ CrossCorr: кросс-корреляционный анализ гетероге
 """
 
 # Sync with git tag vX.Y.Z (см. audit/STOP_DECISIONS.md, D5)
-__version__ = "0.1.0"
+__version__ = "1.0.2"
 
 # Основной пайплайн.
 # ВНИМАНИЕ (D1): cross_correlation_pairs_with_max_stat импортируется из
