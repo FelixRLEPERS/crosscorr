@@ -1,110 +1,113 @@
 # Audit — Start of Next Session
 
-Generated: 2026-10-12 (end of session 4)
+Generated: 2026-10-12 (end of session 5)
 For: next chat session (MiMo or human)
 Purpose: operational snapshot — read this first.
 
 ## 1. Where we are (state at generation)
 
 - **Branch:** main
-- **HEAD:** `306d5e7` — paper: clarify ESS scope (F) +
-  justify 18-month window (M)
-- **origin/main:** `306d5e7` (после пуша; синхронизировать
-  через GitHub Desktop если ещё ahead)
-- **Project version:** 1.1.0-dev (code: pyproject.toml = "1.1.0");
-  CITATION.cff synced to last real release v1.0.2
-- **Zenodo concept DOI:** `10.5281/zenodo.23285958` (unchanged)
-- **Zenodo version DOI:** `10.5281/zenodo.23325197` (v1.0.2)
-- **GitHub Release:** v1.0.2-paper (unchanged)
-- **Latest tag:** `v1.0.2-paper` (unchanged)
-- **Worktrees:** 5 (main + 4 opencode: happy-knight @574f648,
-  playful-lagoon @a114e86, proud-wizard @284cf30, tidy-pixel @a114e86)
-- **Test files:** 32 (test count: 290 passed, pytest -q, session 3)
+- **HEAD:** `2dd71b5` — paper: Code Availability — pin exact
+  version to v1.1.0 (tag + version DOI)
+- **origin/main:** `2dd71b5` (fully synced; ahead 0, behind 0)
+- **Project version:** 1.1.0 (pyproject.toml = "1.1.0";
+  CITATION.cff = "1.1.0", date-released 2026-10-12)
+- **Zenodo concept DOI:** `10.5281/zenodo.23285958` (**active**;
+  previously mis-recorded as `23283375`)
+- **Zenodo version DOI (v1.1.0):** `10.5281/zenodo.23325197`
+- **Legacy Zenodo concept:** `10.5281/zenodo.23283375` (manual
+  uploads only; see Open loops §3)
+- **GitHub Release:** v1.1.0 (latest)
+- **Latest tag:** `v1.1.0` @`a0141dd` (annotated)
+- **Worktrees:** 5 (main + 4 opencode: happy-knight @574f648
+  clean, playful-lagoon @a114e86 dirty-untracked,
+  proud-wizard @284cf30 dirty-untracked, tidy-pixel @a114e86
+  dirty-modified `crosscorr_lib/analysis/cross_mfdfa.py`) —
+  **not touched**; outside release scope (Lesson 8).
+- **Test files:** 32 (290 passed, pytest -q, session 5 re-run)
 - **CI:** ci.yml (only workflow); green on latest HEAD
 
-## 2. What was done in session 4 (2026-10-12 continuation)
+## 2. What was done in session 5 (2026-10-12 continuation)
 
-Session 4 (3 commits, 8e68d05..306d5e7) closed Finding A, F, M
-plus two cosmetic fixes:
+Session 5 shipped **release v1.1.0** end-to-end (4 commits,
+`997d171..2dd71b5`) plus 1 DOI-fix correction:
 
-- Finding A (47de960): new script scripts/storm_episodes.py.
-  Groups the 198 Kp >= 5 3-hourly slots in window
-  2024-04-01..2025-10-01 into 58 episodes (gap > 12 h); also
-  computed 76 distinct UTC days. Paper synced: §2.2 (198/76/58 +
-  script reference), §3.6 item 2 (robustness check), §5.5 new
-  item 8 (Storm-slot independence). Fixed pre-existing double-count
-  bug in §2.2 (paper had "226 raw intervals across 67 storm days" —
-  artifact of overlapping CSV files in data/raw/space_weather/).
-  Also fixed Table 1 overflow: tabular -> tabularx (added
-  \usepackage{tabularx} to preamble).
+- `3a06f1a` — bump CITATION.cff to 1.1.0 / date 2026-10-12
+  (with BOM-avoidance workaround).
+- `a0141dd` — release notes at `docs/releases/v1.1.0.md`
+  (95 lines); tagged v1.1.0.
+- Tag `v1.1.0` pushed; GitHub Release created; Zenodo minted
+  version DOI `10.5281/zenodo.23325197` (webhook delivery OK,
+  release.published event confirmed in Recent Deliveries).
+- `4c4e332` — concept DOI fix in live files: `23283375` →
+  `23285958` in paper/main.tex (×2), README.md (×4),
+  CITATION.cff (×1), docs/AUDIT_START_NEXT_SESSION.md (×1 +
+  version DOI update). HANDOFF untouched (history).
+- `2dd71b5` — paper Code Availability: `264cc93` → tag `v1.1.0`
+  (`a0141dd`) + concept `23285958` → version `23325197`
+  (exact-version citation).
 
-- Finding F (306d5e7): §3.4 ESS scope clarified — applies to full
-  matched series (20 m, N = 482), not the storm subsample.
-
-- Finding M (306d5e7): §2 training window justification — boundaries
-  determined by wspr.live data availability, not selected a priori.
-
-- Finding I: FALSE POSITIVE. grep "additive|additivity" in
-  paper/main.tex: 0 matches. No change needed.
-
-- Fix Figure 5 (2890603): annotation "40m: identical (ratio 1.00)"
-  repositioned so it no longer overflows axes.
+Also verified:
+- Table 1 overflow fix (commit `47de960`, tabularx) — verified
+  in session 4 in rebuilt PDF.
+- `ruff check .` green; `ruff format --check .` fails only on
+  H-2 scope + 5 `.md` code-fences (deferred).
+- Full 6-antipattern set for AGENTS.md recorded (see §5).
 
 Full detail: audit/BACKLOG_2026-10-12_v11.md (canonical).
 
 ## 3. Open loops (what is NOT closed)
 
-From external audit v11 (audit/BACKLOG_2026-10-12_v11.md):
-  - D. Superposed epoch analysis — DEFERRED to Space Weather
-    (v1.1.0 or later submission).
-  - E. Recovery-phase exclusion from quiet group — DEFERRED.
-  - H-2. Style sweep outside code dirs — DEFERRED to v1.1.0.
-    23 files: audit/verify_*.py (19), bench/bench_new_modules.py (1),
-    game/*.py (4).
-  - J, K, L — deferred to Space Weather.
+arXiv-minimum audit findings: **all closed** (or false positive).
+Release v1.1.0: **shipped**.
 
-Closed in session 3: B, C, H. Closed in session 4: A, F, M.
-False positive: I.
+Remaining:
+
+- **arXiv submission** — pending endorsement (Frissell).
+  Prerequisites done: paper references `v1.1.0` tag, concept DOI
+  is `23285958`, PDF builds.
+- **Legacy Zenodo concept** `23283375` — parallel; manual
+  uploads only. Options: leave, deprecate, or merge. Not a
+  blocker.
+- **H-2** — style sweep outside code dirs (23 `.py` +
+  5 `.md` with python-fences: `AUDIT_REPORT.md`,
+  `EXPORT_FOR_AUDIT.md`, `EXPORT_FOR_AUDIT_v2.md`,
+  `EXPORT_FOR_AUDIT_v3.md`, `audit/AUDIT_2026-10-05_v2.md`).
+  Deferred to v1.2.0 / Space Weather prep.
+- **D, E, J, K, L** — deferred to Space Weather.
 
 External / non-code:
-  - arXiv endorsement — blocked on Frissell response.
-  - 2FA on GitHub — deadline 25 Nov 2026.
-  - Release v1.1.0 (tag + Zenodo DOI) — bundle with arXiv submission.
+- arXiv endorsement — blocked on Frissell response.
+- 2FA on GitHub — deadline 25 Nov 2026.
+- (Optional) Zenodo support contact re: legacy concept.
 
 ## 4. Ready for next session
 
 - audit/BACKLOG_2026-10-12_v11.md (canonical findings)
 - docs/HANDOFF_2026-10-11.md (structure + policy)
-- docs/DELTA_2026-10-12.md (session 2 detail; session 3
-  summary lives in backlog v11 Session log)
 - docs/AUDIT_START_NEXT_SESSION.md (this file)
-- AGENTS.md (model rules, pre-commit)
-- docs/hypothesis.md
-- paper/main.tex (manuscript)
+- docs/releases/v1.1.0.md (shipped release notes)
+- AGENTS.md (model rules, pre-commit, **lessons §**)
+- paper/main.tex (manuscript, references v1.1.0)
 - scripts/perm_test_18mo_3band.py
+- scripts/storm_episodes.py
 - scripts/make_paper_figures.py
 
-## 5. What NOT to do (anti-patterns from session 2/3)
+## 5. What NOT to do (anti-patterns)
 
-1. **Do not paste EXACT TEXT with unclosed markdown into
-   prompts.** Session 2 lost ~30 min on 3 separate failures
-   (Bonsai × 2, MiMo × 1).
-2. **Do not mix PowerShell and bash in one command.**
-   Bonsai hangs.
-3. **Do not give multi-Part prompts (Part A + Part B) as
-   one task.** MiMo executed Part A, skipped Part B.
-4. **Do not put contradictions in prompts** (e.g. "don't run
-   pytest" + "run pytest in step 1"). Both Bonsai and MiMo
-   stall.
-5. **Do not copy files from a worktree into main without
-   checking `git merge-base --is-ancestor`.** Session 2
-   reverted signed-implementation this way (Lesson 8).
-6. **Do not commit untracked scripts without running
-   `ruff check <file>` first.** W292 in probe_ksg_ties.py
-   broke CI #139.
-7. **Do not create a new file from an old file's content
-   without checking the old file is gone or explicitly
-   marked superseded** (session 3 backlog update drift).
+Consolidated in **AGENTS.md → Уроки (операционные
+анти-паттерны)**. HANDOFF-уроки 1–8 (session 2/3) still apply:
+no multi-Part prompts, no contradiction in prompts, no
+worktree-cherry-pick without `merge-base --is-ancestor`, no
+mixed PS/bash in one command.
+
+Session 5 additions (now in AGENTS.md):
+- `credential.helper manager` required for CLI push.
+- `Set-Content -Encoding utf8` adds BOM (PS 5.1).
+- `Get-Content -Raw` reads cp1251 (PS 5.1).
+- `.NET File.*` uses .NET cwd, not PS `$PWD`.
+- GitHub Desktop does not push tags.
+- First commit of a new file → EOF-fixer fix-up.
 
 ## 6. First commands to run in next session
 
@@ -115,43 +118,46 @@ External / non-code:
     git worktree list
     Get-Content audit\BACKLOG_2026-10-12_v11.md
 
-If `ahead > 0` → push before working.
-If any worktree is dirty → decide keep/remove before touching.
+If `ahead > 0` → push before working (CLI, credential.helper
+now configured).
+If any worktree is dirty → decide keep/remove (Lesson 8).
 
 ## 7. Recommended first task
 
-**Prepare v1.1.0 release:**
-  - All arXiv-minimum audit findings closed.
-  - Steps:
-    1. Bump version in pyproject.toml and CITATION.cff to 1.1.0.
-    2. Generate release notes from git log v1.0.2-paper..HEAD.
-    3. Create tag v1.1.0.
-    4. Push tag, create GitHub Release, mint Zenodo DOI.
-    5. Update DOIs in paper/main.tex Code Availability section.
-  - Estimated: ~1 hour + Zenodo propagation time.
+**arXiv submission** (once endorsement arrives):
+  1. Rebuild PDF, verify page count + Table 1 + Figure 5.
+  2. Verify author list, affiliations, acknowledgments.
+  3. Confirm `paper/main.tex` references v1.1.0 (done in
+     `2dd71b5`).
+  4. Upload to arXiv, choose categories.
+  5. Record arXiv ID in README + CITATION.cff (post-accept).
+
+If endorsement not yet available: address H-2 (style sweep
+extension) or start D (SEA) for Space Weather.
 
 ## 8. Second task
 
-**Prepare arXiv submission (once endorsement arrives):**
-  - Rebuild PDF, verify page count and Table 1 / Figure 5 fixes.
-  - Verify author list, affiliations, acknowledgments.
-  - Confirm paper/main.tex references v1.1.0 tag (not 264cc93).
-  - Upload to arXiv, choose categories.
+**Space Weather submission prep** (D/E/J/K/L):
+- D — superposed epoch analysis.
+- E — recovery-phase exclusion.
+- J — additional bands 30 m / 17 m.
+- K — foF2 comparison (GIRO / DIDBase).
+- L — Zenodo DOI for data + code.
 
 ## 9. Quick reference — where things live
 
-  audit/BACKLOG_2026-10-12_v11.md       — findings tracker
-  docs/HANDOFF_2026-10-11.md            — structure + policy
-  docs/DELTA_2026-10-12.md              — session 2 detail
-  docs/AUDIT_START_NEXT_SESSION.md      — this file
-  AGENTS.md                             — model rules
-  paper/main.tex                        — manuscript
-  scripts/perm_test_18mo_3band.py       — perm test
-  scripts/storm_episodes.py             — Finding A (episodes)
-  scripts/make_paper_figures.py         — figures + JSON out
-  results/fig4_day_night.json           — Day/Night CI+N
-                                          (gitignored,
-                                          reproducible)
+    audit/BACKLOG_2026-10-12_v11.md    — findings tracker
+    docs/HANDOFF_2026-10-11.md         — structure + policy
+    docs/AUDIT_START_NEXT_SESSION.md   — this file
+    docs/releases/v1.1.0.md            — shipped release notes
+    AGENTS.md                          — model rules + lessons
+    paper/main.tex                     — manuscript
+    scripts/perm_test_18mo_3band.py    — perm test
+    scripts/storm_episodes.py          — Finding A
+    scripts/make_paper_figures.py      — figures + JSON out
+    results/fig4_day_night.json        — Day/Night CI+N
+                                         (gitignored,
+                                         reproducible)
 
 ## 10. Model policy (from HANDOFF)
 
@@ -163,30 +169,24 @@ If any worktree is dirty → decide keep/remove before touching.
 ## Metadata
 
 - Generated by: MiMo via OpenCode
-- Generated at: 2026-10-12 (end of session 4)
-- Source HEAD: 306d5e7
-- Sources read: BACKLOG_2026-10-12_v11, AUDIT_START_NEXT_SESSION
-  (session 3 version), git log, git worktree list.
+- Generated at: 2026-10-12 (end of session 5)
+- Source HEAD: 2dd71b5
+- Sources read: git log, git status, AGENTS.md,
+  BACKLOG_2026-10-12_v11.md, HANDOFF_2026-10-11.md,
+  docs/releases/v1.1.0.md.
 
-## Appendix — source inventory (sections found, STEP 1)
+## Appendix — source inventory (sections found)
 
-- **docs/HANDOFF_2026-10-11.md** (21 sections): КТО МЫ; PAPER I;
-  PAPER II PILOT; PAPER II τ(d,f) model; КРИТИЧЕСКИЕ ТЕХНИЧЕСКИЕ
-  НЮАНСЫ; СДЕЛАНО; ЧТО ОСТАЛОСЬ; ЧТО НЕ ДЕЛАТЬ; СТРАТЕГИЯ;
-  ШАБЛОНЫ КОММУНИКАЦИЙ; КОНТЕКСТ ДЛЯ НОВОГО ЧАТА; ОТКРЫТЫЙ
-  ТЕХДОЛГ; ПОЛНЫЙ СПИСОК АРТЕФАКТОВ; v1.0.2 ЗАВЕРШЕНО; Уроки
-  сессии 2026-10-11 (1–8); Следующая сессия; OPENCODE MODEL
-  POLICY; PRE-COMMIT HOOK; DELTA PROTOCOL; OPENCODE WORKTREE.
-- **docs/DELTA_2026-10-12.md**: Что сделано (5 categories);
-  Решения; Открытые петли; Следующий шаг; Метаданные.
-- **audit/BACKLOG_2026-10-12_v11.md**: header; Critical for
-  arXiv (A closed, B closed); Already addressed (C, H closed;
-  H-2 deferred; G, sporadic-E already); Text-only (F, I, M —
-  F/M closed, I false positive); Deferred; False positives;
-  Session log (session 3 + session 4); Next actions.
-- **docs/BOOTSTRAP.md**: Bootstrap block; Notes.
-- **AGENTS.md**: Что это за проект; Стек; Структура; Команды;
-  Правила для агентов; Известные системные ограничения;
+- **AGENTS.md** (9 sections incl. Уроки):
+  Что это за проект; Стек; Структура; Команды; Правила для
+  агентов; Известные системные ограничения; Уроки;
   Pre-commit hook.
-- **docs/DELTA_PROMPT_TEMPLATE.md**: What this is; When to run;
-  Placeholders; Prompt; Failure modes; Cross-repo use.
+- **audit/BACKLOG_2026-10-12_v11.md** (7 sections):
+  Critical for arXiv; Already addressed; Text-only fixes;
+  Deferred to Space Weather; False positives / notes;
+  Session log; Next actions.
+- **docs/HANDOFF_2026-10-11.md** (21 sections) — unchanged.
+- **docs/releases/v1.1.0.md** (6 sections): Added; Changed;
+  Fixed; Docs / Internal; Deferred; Notes.
+- **docs/BOOTSTRAP.md** — unchanged.
+- **docs/DELTA_PROMPT_TEMPLATE.md** — unchanged.

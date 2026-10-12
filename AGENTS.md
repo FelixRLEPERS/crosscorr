@@ -52,6 +52,44 @@ CrossCorr — воспроизводимый научный артефакт д�
 - Held-out период (Jan–Mar 2026) содержит N_storm = 23 часа — статистическая
   мощность ограничена, это ожидаемо и признано в Limitations.
 
+## Уроки (операционные анти-паттерны)
+
+Из сессии 2026-10-12 (релиз v1.1.0). Дополняют HANDOFF-уроки 1–8;
+там же — специфика session 2/3 (worktree, cherry-pick, force-push).
+
+### Windows / PowerShell
+
+- **credential.helper.** GCM установлен
+  (`git-credential-manager.exe` в `C:\Program Files\Git\mingw64\bin`,
+  verified), но git о нём не знает, пока не сконфигурирован:
+  `git config --global credential.helper manager`. Без этого push
+  из PowerShell падает (`could not read Username for
+  'https://github.com'`), даже если GitHub Desktop пушит из UI.
+- **UTF-8 без BOM.** `Set-Content -Encoding utf8` в PS 5.1
+  добавляет BOM (U+FEFF) в начало файла. Для записи UTF-8-без-BOM:
+  `[System.IO.File]::WriteAllText($path, $c, (New-Object
+  System.Text.UTF8Encoding $false))`.
+- **Чтение UTF-8.** `Get-Content -Raw` в PS 5.1 читает файл как
+  cp1251 на русской локали → не-ASCII превращается в моджеику при
+  обратной записи (UTF-8 → cp1251-байты → UTF-8). Для корректного
+  чтения: `[System.IO.File]::ReadAllText($path,
+  [System.Text.Encoding]::UTF8)`. Симметрично с записью.
+- **.NET cwd ≠ PS `$PWD`.** `[System.IO.File]::*` использует .NET
+  current directory (обычно `C:\Users\<user>`), а не `Get-Location`.
+  Относительный путь пишется не туда. Правило: перед .NET-API
+  строить абсолютный путь через `Join-Path (Get-Location).Path $rel`.
+
+### Git
+
+- **GitHub Desktop не пушит локальные теги автоматически** (опыт
+  проекта, HANDOFF-урок 6). Push тега — только из CLI:
+  `git push origin <tag>`. Дополняет урок 6: remote-тег может
+  отличаться от локального (`v1.0.2-paper`: локально `00e692a`,
+  remote `f97844e`); переписывать задним числом нельзя.
+- **First commit of a new file.** write-инструмент не ставит final
+  newline; pre-commit `end-of-file-fixer` допишет его и уронит
+  коммит. Ожидаемо: re-add + повторный commit. Тот же класс, что
+  W292 в `probe_ksg_ties.py` (CI #139).
 ## Pre-commit hook (2026-10-12)
 
 Repo runs ruff + file hygiene on every CLI `git commit`.
