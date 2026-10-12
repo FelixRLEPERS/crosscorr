@@ -7,6 +7,7 @@
 \usepackage{hyperref}
 \usepackage{booktabs}
 \usepackage{array}
+\usepackage{tabularx}
 
 \journalname{Space Weather}
 
@@ -154,7 +155,7 @@ The data sources and analysis periods are summarised in Table~\ref{tab:data}.
 	\centering
 	\caption{Data sources and coverage.}
 	\label{tab:data}
-	\begin{tabular}{lllll}
+	\begin{tabularx}{\textwidth}{@{}l >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X r@{}}
 		\toprule
 		Source                 & Variable                  & Resolution        & Period               & Total records \\
 		\midrule
@@ -166,7 +167,7 @@ The data sources and analysis periods are summarised in Table~\ref{tab:data}.
 		WDC Kyoto              & $Dst$ index (provisional) & 1\,h
 		                       & Apr 2024 -- Sep 2025      & 12\,508                                                  \\
 		\bottomrule
-	\end{tabular}
+	\end{tabularx}
 \end{table}
 
 \subsection{WSPR network}
@@ -204,9 +205,12 @@ The $Kp$ index is obtained from GFZ Potsdam's real-time JSON API
 (https://kp.gfz-potsdam.de). $Kp$ is a 3-hourly planetary index on a
 quasi-logarithmic scale from 0 to 9, derived from 13 subauroral magnetometer
 stations. The mean $Kp$ over the training period is 2.29, with a maximum
-of 8.7 (multiple events). Across the 18 months, 226 raw 3-hourly $Kp$
-intervals reach $Kp \ge 5$, distributed across 67 storm days, representing
-independent events from all four seasons.
+of 8.7 (multiple events). Across the 18 months, 198 raw 3-hourly $Kp$
+intervals reach $Kp \ge 5$, distributed across 76 storm days. Grouped
+into episodes separated by more than 12~h (scripts/storm\_episodes.py),
+these intervals form 58 storm episodes, so the effective number of
+independent events is substantially smaller than the slot count, and
+they cover all four seasons.
 
 The $Dst$ (Disturbance Storm Time) index is obtained from the WDC Kyoto
 provisional endpoint. $Dst$ is an hourly equatorial ring-current index,
@@ -348,9 +352,9 @@ Six robustness checks were performed:
 	      The normalised residual correlates with $Kp$ at $\rho = -0.21$,
 	      stronger than the raw spot residual ($\rho = -0.13$). The effect is
 	      \emph{not} driven by fewer transmitters.
-	\item \textbf{Independent events:} The 198 storm hours derive from 67 storm
-	      days across 18 months, covering all four seasons. This is not a
-	      single-event result.
+	\item \textbf{Independent events:} The 198 storm hours derive from 76 storm days,
+	      grouping into 58 episodes separated by more than 12~h, across 18 months
+	      and covering all four seasons. This is not a single-event result.
 	\item \textbf{Absolute magnitude:} The $\SI{-37}{\percent}$ absolute drop at
 	      $Kp \ge 5$ is within the literature range of $\SIrange{30}{60}{\percent}$
 	      MUF reduction for moderate storms \citep{frissell2016,themens2021}.
@@ -919,6 +923,14 @@ as exploratory tooling, not as validated analytical instruments.
 	      that within-block stationarity holds and that the block size (24\,h)
 	      exceeds the autocorrelation timescale. Storms lasting more than
 	      24\,h may violate this assumption.
+	\item \textbf{Storm-slot independence:} The 198 $Kp \ge 5$ 3-hourly
+	      slots are not statistically independent observations. Grouping
+	      them into episodes separated by more than 12~h yields 58 distinct
+	      storm episodes (scripts/storm\_episodes.py), so the effective
+	      number of independent storm events is $N_{\text{eff}} \approx 58$,
+	      not 198. The block permutation test with a 24~h block size partially
+	      accounts for this serial dependence, but the effective sample size
+	      is smaller than the nominal storm-slot count suggests.
 \end{enumerate}
 
 
