@@ -12,22 +12,6 @@
 k-го соседа в совместном (максимальном) пространстве, N — размер
 выборки.
 
-Numerical properties (measured, N=10000, k=5)
----------------------------------------------
-Непрерывные гауссовы данные: для бивариантного нормального с rho=0.5
-аналитическое значение I = -0.5 ln(1 - rho^2) ≈ 0.1438 нат. Оценка KSG
-сходится к нему с типичной ошибкой ~0.1% (на 20 независимых seed'ах
-максимум ~11%); расхождение убывает с ростом N.
-
-Ограничение при квантовании: KSG предполагает непрерывность. Если ряд
-квантован грубо (эффективно ≲30 уровней на серию), расстояние до k-го
-совместного соседа eps становится ровно 0, log-члены дают ``digamma(0)``
-и оценка возвращает ``inf``. Даже при более тонком квантовании оценка
-сильно смещена вверх и медленно сходится: при round-масштабе s=100
-(≈570 уровней, N=10000) MI ≈ 0.31 вместо 0.144 (+0.17 нат); при s=200
-(≈1000 уровней) MI ≈ 0.22. На квантованных данных KSG использовать
-нельзя без дискретного (не-KSG) оценщика; см. MI-1 в audit/.
-
 References
 ----------
 Kraskov, Stoegbauer, Grassberger (2004), Phys. Rev. E 69, 066138.
@@ -84,6 +68,17 @@ def _joint_eps(tree_z: cKDTree, k: int) -> np.ndarray:
     return dist[:, k]
 
 
+def _count_neighbors(
+    tree: cKDTree,
+    points: np.ndarray,
+    radii: np.ndarray,
+) -> np.ndarray:
+    """Пакетно посчитать точки в радиусе, не создавая списки индексов."""
+    return np.asarray(
+        tree.query_ball_point(points, radii, p=np.inf, return_length=True)
+    ) - 1
+
+
 def mutual_information(
     x: np.ndarray,
     y: np.ndarray,
@@ -95,12 +90,6 @@ def mutual_information(
     Оценка предполагает непрерывные распределения; поведение на ties/
     квантованных данных не определено. Точные дубликаты совместных
     наблюдений вызывают ``UserWarning``.
-
-    На непрерывных гауссовых данных сходится к аналитическому значению
-    ``I = -0.5 ln(1 - rho^2)`` (N=10000, rho=0.5: ~0.144, ошибка ~0.1%).
-    При грубом квантовании (≲30 уровней) eps обнуляется и результат —
-    ``inf``; при более тонком квантовании оценка смещена вверх (см.
-    численные свойства в docstring модуля).
 
     Parameters
     ----------
@@ -149,10 +138,8 @@ def mutual_information(
     # ВАЖНО: все маргинальные подсчёты — в той же (Chebyshev) метрике, что и
     # совместный KDTree, иначе в размерности > 1 оценки расходятся.
     r = np.nextafter(eps, -np.inf)
-    n_x = np.array([len(tree_x.query_ball_point(xa[i], r[i], p=np.inf)) - 1
-                    for i in range(n)])
-    n_y = np.array([len(tree_y.query_ball_point(ya[i], r[i], p=np.inf)) - 1
-                    for i in range(n)])
+    n_x = _count_neighbors(tree_x, xa[:, None], r)
+    n_y = _count_neighbors(tree_y, ya[:, None], r)
 
     mi_nats = (digamma(k) + digamma(n)
                - np.mean(digamma(n_x + 1) + digamma(n_y + 1)))
@@ -207,12 +194,9 @@ def conditional_mutual_information(
 
     xz = np.column_stack([xa, za])
     yz = np.column_stack([ya, za])
-    n_xz = np.array([len(tree_xz.query_ball_point(xz[i], r[i], p=np.inf)) - 1
-                     for i in range(n)])
-    n_yz = np.array([len(tree_yz.query_ball_point(yz[i], r[i], p=np.inf)) - 1
-                     for i in range(n)])
-    n_z = np.array([len(tree_zm.query_ball_point(za[i], r[i], p=np.inf)) - 1
-                    for i in range(n)])
+    n_xz = _count_neighbors(tree_xz, xz, r)
+    n_yz = _count_neighbors(tree_yz, yz, r)
+    n_z = _count_neighbors(tree_zm, za[:, None], r)
 
     cmi_nats = (digamma(k)
                 + np.mean(digamma(n_z + 1)
