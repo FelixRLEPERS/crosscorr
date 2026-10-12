@@ -51,3 +51,21 @@ CrossCorr — воспроизводимый научный артефакт д�
 - Windows: см. `tests/test_shared_memory_cleanup.py` (shared_memory cleanup).
 - Held-out период (Jan–Mar 2026) содержит N_storm = 23 часа — статистическая
   мощность ограничена, это ожидаемо и признано в Limitations.
+
+## Pre-commit hook (2026-10-12)
+
+Repo runs ruff + file hygiene on every CLI `git commit`.
+
+Setup after clone:
+    python -m pip install pre-commit
+    pre-commit install
+
+Enforces: ruff --fix, ruff-format, end-of-file-fixer,
+trailing-whitespace, check-yaml, check-added-large-files (2MB).
+
+If blocked: hook modified files → `git add -u && git commit`.
+
+Bypass (rare): `git commit --no-verify`. CI still runs ruff.
+
+Note: GitDesktop uses libgit2 → hooks don't fire. CLI commits
+(MiMo) → hooks fire.
