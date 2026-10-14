@@ -355,27 +355,32 @@ band_abs = {
     "15m": {"train": 5178, "heldout": 2181, "ratio": 0.42, "growth": 25},
 }
 
-train_ci = {}
+# Block-bootstrap CI (24h blocks, 1000 resamples, seed 42) -- matches
+# Table 9 and Fig 5 caption. Values hardcoded from
+# scripts/training_live_phaseD_2026-10-13.py; see
+# audit/FINDING_HELDOUT_LIVE_2026-10-13.md.
+train_ci = {
+    "20m": (14544.0, 26834.0),
+    "40m": (12930.0, 23807.0),
+    "15m": (3684.0, 6671.0),
+}
+
+# The loop below is retained SOLELY to advance the RNG stream to the
+# same state as before this change, so that Figure 3 remains
+# byte-identical. It must consume exactly the same RNG.choice draws
+# (3 bands x N_BOOT x 2 calls) as the original iid bootstrap. Computed
+# values are discarded; do NOT delete without re-verifying fig3
+# determinism. It performs no I/O and mutates nothing outside its scope.
 for band in BANDS:
     sub = wspr[wspr["band"] == band].copy()
     merged = pd.merge(sub, kp_h, left_on="hour", right_on="hour", how="inner")
-    merged["resid"] = merged["value"] - merged.groupby(["month", "hour_of_day", "day_of_week"])[
-        "value"
-    ].transform("mean")
     s = merged[merged["kp"] >= 5]
     q = merged[merged["kp"] < 3]
     sv, qv = s["value"].values, q["value"].values
     sn, qn = len(sv), len(qv)
-    abs_losses = []
     for _ in range(N_BOOT):
-        sm = RNG.choice(sv, size=sn).mean()
-        qm = RNG.choice(qv, size=qn).mean()
-        abs_losses.append(qm - sm)
-    abs_losses = np.array(abs_losses)
-    lo = np.percentile(abs_losses, 2.5)
-    hi = np.percentile(abs_losses, 97.5)
-    train_ci[band] = (float(lo), float(hi))
-    print(f"  {band} training abs loss CI: [{lo:.0f}, {hi:.0f}] mean={abs_losses.mean():.0f}")
+        RNG.choice(sv, size=sn).mean()
+        RNG.choice(qv, size=qn).mean()
 
 fig, ax = plt.subplots(figsize=(8, 5.5))
 x = np.arange(2)
