@@ -432,7 +432,7 @@ ax.grid(axis="y", alpha=0.3)
 ax.set_ylim(bottom=0, top=24000)
 
 ax.annotate(
-    "40m: identical\n(ratio 1.00)",
+    "40m: ratio 1.00\n(wide CIs)",
     xy=(1.0, 18304),
     xytext=(0.5, 22000),
     fontsize=10,

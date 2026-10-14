@@ -232,7 +232,7 @@ larger sample size than the $Kp$-based analysis.
 
 The F10.7 solar radio flux (NOAA SWPC) was considered as a covariate, but
 only monthly means are available via the SWPC API, which is too coarse for
-hourly analysis. Daily F10.7 could not be retrieved for the full period.
+hourly analysis. A daily/hourly F10.7 endpoint exists (SWPC \texttt{f107\_cm\_flux.json}), but it covers only a rolling $\sim$40-day window; the historical daily record for the training period (April 2024 -- September 2025) requires the NGDC Penticton archive, which was not accessible for this analysis.
 
 
 %=============================================================
@@ -355,8 +355,7 @@ directly.
 We apply the Benjamini--Hochberg (BH) false discovery rate (FDR) correction
 \citep{benjamini1995} to the 6 primary statistical tests (3 bands $\times$
 \{$Kp$, $Dst$\}) at $\alpha = 0.05$. All six tests have raw
-$p = 0.0$ (no permuted statistic exceeded the observed value in
-\SI{50000}{iterations}), yielding all $p_{\text{FDR}} = 0.0$.
+$p < 2 \times 10^{-5}$ (no permuted statistic exceeded the observed value in \SI{50000}{iterations}), yielding all $p_{\text{FDR}} < 2 \times 10^{-5}$.
 
 \subsection{Robustness checks}
 
@@ -428,7 +427,7 @@ $Kp \ge 5$ conditions (block permutation, \SI{50000}{iterations},
 block = 24\,h). The effect is strongest on 15\,m (\SI{-38.7}{\percent})
 and nearly identical on 20\,m and 40\,m ($\SI{-27.7}{\percent}$ and
 $\SI{-27.2}{\percent}$, respectively). All results remain significant after
-Benjamini--Hochberg FDR correction across 6 tests ($p_{\text{FDR}} = 0.0$
+Benjamini--Hochberg FDR correction across 6 tests ($p_{\text{FDR}} < 2 \times 10^{-5}$
 for all).
 
 The $Dst$-based analysis confirms the result independently (Table~\ref{tab:dst}).
@@ -472,12 +471,12 @@ the binned analysis by $Kp$ for the training period.
 
 \begin{table}[h]
 	\centering
-	\caption{Scale-dependence: spot drop (\%) by $Kp$ bin for 20\,m and 40\,m
+	\caption{Scale-dependence: residual spot drop (\%) by $Kp$ bin for 20\,m and 40\,m
 		(training period).}
 	\label{tab:scale}
 	\begin{tabular}{lll}
 		\toprule
-		$Kp$ bin & 20\,m drop (\%)        & 40\,m drop (\%)        \\
+		$Kp$ bin & 20\,m residual drop (\%) & 40\,m residual drop (\%) \\
 		\midrule
 		5--6     & $\SI{-18.3}{\percent}$ & $\SI{-16.9}{\percent}$ \\
 		6--7     & $\SI{-33.6}{\percent}$ & $\SI{-34.4}{\percent}$ \\
@@ -721,8 +720,7 @@ were not prevalent in this particular 3-month interval.
 	\label{fig:baseline}
 \end{figure}
 
-A key result of this study is that the absolute spot loss is invariant to
-network growth. Table~\ref{tab:baseline} compares the absolute and relative
+A key result of this study is that the absolute spot loss is consistent with invariance within the wide confidence intervals of an 18-month series, despite substantial network growth. Table~\ref{tab:baseline} compares the absolute and relative
 drops between the training and held-out periods.
 
 \begin{table}[h]
@@ -844,17 +842,18 @@ in only 38 hours (2.3\%) of the 18-month training period.
 
 \subsection{Baseline invariance and practical monitoring}
 
-The discovery that the absolute spot loss is invariant to network growth has
-important implications for operational HF propagation monitoring:
+The discovery that the absolute spot loss is consistent with invariance within the wide confidence intervals of an 18-month series (Section~\ref{sec:invariant}) has important implications for operational HF propagation monitoring:
 
 \begin{enumerate}
 	\item \textbf{Metric stability:} Percentage-based metrics are unstable when
 	      the denominator (network size) changes over time. Absolute spot loss
 	      per hour is a physically meaningful alternative that remains stable
 	      across periods.
-	\item \textbf{Structurally constrained paths:} The invariance on 40\,m (ratio = 1.00
-	      despite $\SI{+38}{\percent}$ growth) suggests that the population of
-	      storm-vulnerable propagation paths is structurally constrained. Adding more stations
+	\item \textbf{Structurally constrained paths:} The apparent invariance on 40\,m (ratio = 1.00 and overlapping 95\% CIs
+	      despite $\SI{+38}{\percent}$ growth) is consistent with the interpretation
+	      that the population of storm-vulnerable propagation paths is
+	      structurally constrained, though the wide confidence intervals
+	      prevent a strong claim. Adding more stations
 	      within the already-covered geographic region does not create new
 	      vulnerable paths; it only increases the quiet-time baseline.
 	\item \textbf{Real-time monitoring:} WSPR spot density, normalised by the
