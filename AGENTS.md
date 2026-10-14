@@ -81,6 +81,8 @@ CrossCorr — воспроизводимый научный артефакт д�
 
 - **`[Environment]::NewLine` = CRLF, не LF.** При работе с LF-файлами (write-tool, here-string, markdown этого репо) использовать LF-escape (backtick + n), а не `[Environment]::NewLine`. Иначе получается mixed-ending файл (LF + один CRLF), который ломает последующие regex/replace и загрязняет diff.
 
+- **LF→CRLF warnings при `git add`** — ожидаемо на Windows (`core.autocrlf=true`); файлы пишутся в LF, git конвертирует в CRLF при checkout. Не ошибка. Cross-platform fix (`.gitattributes` `* text=auto eol=lf`) — в backlog.
+
 ### Git
 
 - **GitHub Desktop не пушит локальные теги автоматически** (опыт

@@ -4,6 +4,13 @@ Reading results/training_live_2026-10-13.parquet (39456 rows).
 Three-state labels: storm kp>=5, quiet kp<3, unsettled excluded.
 Point = mean(quiet spots) - mean(storm spots), value metric (no baseline).
 Block bootstrap: 24h blocks, 1000 resamples, seed 42, time-sorted input.
+
+Dependencies:
+- Input: results/training_live_2026-10-13.parquet (gitignored;
+  reproducible from scripts/training_live_2026-10-13.py via
+  wspr.live download, ~30 min).
+
+See audit/FINDING_HELDOUT_LIVE_2026-10-13.md for context.
 """
 
 import numpy as np
