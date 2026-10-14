@@ -292,10 +292,14 @@ autocorrelation, we use a block permutation procedure
 	\item \textbf{Blocking:} The time series is divided into non-overlapping
 	      24-hour blocks. Each block is treated as an exchangeable unit,
 	      preserving the within-block temporal structure.
-	\item \textbf{Permutation:} $Kp$ labels are shuffled at the block level:
-	      for each of $N_{\text{perm}} = 50\,000$ iterations, the assignment
-	      of storm/quiet labels to blocks is randomly permuted, and the test
-	      statistic $\Delta_{\text{perm}}$ is recomputed.
+	\item \textbf{Permutation:} The 24\,h blocks of the residual series are shuffled at the
+	      block level (via a random permutation of block indices): for
+	      each of $N_{\text{perm}} = 50\,000$ iterations, the residual
+	      blocks are re-ordered while the $Kp$ labels remain fixed at
+	      their original positions, and the test statistic
+	      $\Delta_{\text{perm}}$ is recomputed. This is statistically
+	      equivalent to shuffling the $Kp$ labels, since only the
+	      pairing between residual blocks and $Kp$ labels matters.
 	\item \textbf{p-value:}
 	      \begin{equation}
 		      p = \frac{1 + \sum_{i=1}^{N_{\text{perm}}}
@@ -407,14 +411,14 @@ reduction on all three HF bands.
 	\caption{Primary result: WSPR spot reduction during $Kp \ge 5$ storms
 		(18 months, April 2024 -- September 2025).}
 	\label{tab:main}
-	\begin{tabular}{lrrrl}
+	\begin{tabular}{lrrrlr}
 		\toprule
 		Band      & $N_{\text{storm}}$ & $N_{\text{quiet}}$ &
-		Drop (\%) & $p$-value (block)                                                            \\
+		Drop (\%) & $\Delta$ (spots/h) & $p$-value (block)                                                            \\
 		\midrule
-		20\,m     & 198                & 3\,359             & $\SI{-27.7}{\percent}$ & $< 2 \times 10^{-5}$ \\
-		40\,m     & 198                & 3\,359             & $\SI{-27.2}{\percent}$ & $< 2 \times 10^{-5}$ \\
-		15\,m     & 198                & 3\,359             & $\SI{-38.7}{\percent}$ & $< 2 \times 10^{-5}$ \\
+		20\,m     & 198                & 3\,359             & $\SI{-27.7}{\percent}$ & $\SI{-20421}{spots/h}$ & $< 2 \times 10^{-5}$ \\
+		40\,m     & 198                & 3\,359             & $\SI{-27.2}{\percent}$ & $\SI{-18285}{spots/h}$ & $< 2 \times 10^{-5}$ \\
+		15\,m     & 198                & 3\,359             & $\SI{-38.7}{\percent}$ & $\SI{-5178}{spots/h}$ & $< 2 \times 10^{-5}$ \\
 		\bottomrule
 	\end{tabular}
 \end{table}
@@ -933,7 +937,7 @@ as exploratory tooling, not as validated analytical instruments.
 	      Ionospheric Disturbances, SIDs) are not separately accounted for.
 	      Summer 15\,m observations may be partially contaminated by
 	      sporadic-E propagation; however, the storm effect is present in all
-	      seasons, including winter when Es is absent.
+	      seasons, including winter when Es is absent. No corresponding F10.7 analysis was performed for the held-out period, as only a single monthly data point (January 2026) is available.
 	\item \textbf{Band coverage:} Only three WSPR bands are analysed. Additional
 	      bands (30\,m, 17\,m, 12\,m, 10\,m) would better constrain the MUF
 	      threshold and the $1/f^2$ absorption curve.
