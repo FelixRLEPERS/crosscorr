@@ -26,8 +26,8 @@ Purpose: operational snapshot — read this first.
 - **Title (v1.3.0):** 'Scale-dependent WSPR response to geomagnetic
   storms: frequency dependence and network-size effects on absolute
   loss'
-- **PDF:** paper/main.pdf — 25 pages, pdflatex+bibtex clean
-  (rebuilt session 14 after Phase A), 21 references, 10 tables,
+- **PDF:** paper/main.pdf — 26 pages, pdflatex+bibtex clean
+  (rebuilt session 14 after Phase C), 21 references, 10 tables,
   5 figures, \linenumbers active, Plain Language Summary present.
 - **Test files:** 32 (288 passed, `pytest -m "not slow"`,
   session 14 re-run — unchanged baseline)
@@ -243,18 +243,35 @@ awaiting user go-ahead:
   (5 912 rows in file); held-out WSPR '~5 850' unverifiable locally.
 - (B-4 = ntx checks — CLOSED this session, commit `332ef5b`.)
 
-**Phase C (minors):** m1 Table 5 header 'residual drop' (values are
-raw); m2 Table 3 caption 'quiet-minus-storm' sign wording; m3 Table 4
-Δ-scale disclosure (month×hour residual, no dow); m4 Figures 1/4/5
-never \ref'd in text; m5 stale `results/perm_test_18mo_3band_fdr.json`
-(5000 iters, p_raw=0.0 — substance re-verified at 50k); m6 'adjacent'
-wording (3/9 pairwise rows are non-adjacent); m7 §2.2 Kp 'max 8.7' ->
-9.0 (G5 May-2024 present); m8 §2.2 Dst '42 storm events' unreproducible
-(48@12h, 41@24h, 61 days, 96 runs); m9 'mean duration ≈10 h' -> 9.0 h;
-m11 Fig2 caption 'quiet (Kp<3)' (fig shows only storm bins); m13
-Overfull boxes (4 cosmetic, ≤20pt); m14 Table 10 caption provenance
-(training CI from 2026-10-13 run; equals frozen-parquet recompute).
-(m10 = 'for this band' — CLOSED by A1.)
+**Phase C (minors) — DONE (commit `2f3a230`, session 14):** m1 Table 5
+header 'residual drop' -> 'drop' (values are raw); m2 Table 3 caption
+'storm-minus-quiet'; m3 Table 4 caption discloses delta scale (month x
+hour residual, no dow); m6 'adjacent' -> 'Kp bins (all 9 combinations)'
+(sec 3.3 + sec 4.2); m7 Kp maximum 8.7 -> 9.0; m9 mean episode duration
+~10 h -> ~9 h (both spots); m11 Fig 2 caption = storm bins only, quiet =
+zero level; m13 scoped {\sloppy ... \par} killed the 19.9pt/17.9pt
+Overfull (8 -> 6, remaining <=10pt cosmetic; +2 Underfull, invisible);
+m14 Table 10 caption: training CI from 2026-10-13 live run (identical to
+frozen-parquet recompute), held-out from live 2026-10-15.
+
+Phase C **skipped by user decision (open, do not re-litigate):**
+- m5: `results/perm_test_18mo_3band_fdr.json` is a STALE artifact
+  (n_iter=5000, p_raw=0.0 without add-one, Kp deltas on no-dow model).
+  Substance re-verified at 50k (all six p=2e-5); the JSON itself is
+  misleading — either regenerate from scripts/ or leave with this note.
+- m8: §2.2 Dst '42 storm events' unreproducible: gap>12h -> 48,
+  gap>24h -> 41, contiguous runs -> 96, distinct days -> 61; no rule
+  yields 42 (source likely a pre-freeze Dst vintage).
+- m12: 'adequate storm data' month threshold informal (>=3 storm epochs
+  per window now stated in the Fig 4 caption after A2; original claim
+  from docs/first_result.md, code not preserved).
+
+Still open from audit-5 minor list: **m4** — Fig 1 now cited (B-4), but
+Figure 4 and Figure 5 have NO in-text \\ref (AGU wants all figures
+cited; one-sentence fix each). m10 closed by A1.
+
+PDF note: 25 -> **26 pages** after Phase C (caption additions pushed ~4
+lines of references over; page 26 = tail of bibliography only).
 
 Carried-over external/manual items:
 
@@ -294,7 +311,7 @@ Carried-over external/manual items:
 - results/heldout_3band_2026-10-15.json (live held-out cache)
 - results/heldout_resid_2026-10-15.json (residual p-values, gitignored)
 - zenodo_v1.3.0/ (upload staging, gitignored)
-- paper/main.pdf (25 pages, rebuilt clean after Phase A)
+- paper/main.pdf (26 pages, rebuilt clean after Phase C)
 
 ## 5. What NOT to do (anti-patterns)
 
@@ -332,11 +349,13 @@ configured).
 
 ## 7. Recommended next tasks (in order)
 
-1. **User review of audit-5 Phase A** (commits `73ac6a4`, `867af34`,
-   `332ef5b` + this docs commit): PDF pages 1 (Abstract/15m), 13
-   (Table 7 narrow windows), 14 (Table 8 residual p's) — then go/no-go
-   for **Phase B** (B-1 baselines, B-2 themens, B-3 Davies, B-5 diurnal,
-   B-6 Table 1) and Phase C minors.
+1. **User review of audit-5 full fix pass** — Phases A (blockers,
+   `73ac6a4..332ef5b`), maketitle (`976ffa6`), B (`d9a824d..ee4563f`),
+   C (`2f3a230`) are ALL committed and pushed: check PDF pages 1
+   (title block + Abstract), 4 (Table 1), 9-11 (Tables 3-6, §3.6),
+   13-14 (Table 7/8), 16-17 (Table 10 caption), 26 (ref tail).
+   Remaining from audit-5: m4 (Fig 4/5 uncited), m5/m8/m12 (skipped,
+   see §3). If satisfied -> re-run external audit #5 deltas or submit.
 2. **Push session-14 commits** (user confirms; credential.helper ready).
 3. **Zenodo live-cache upload (manual, user)** — staging ready at
    `zenodo_v1.3.0/` (see §3).
