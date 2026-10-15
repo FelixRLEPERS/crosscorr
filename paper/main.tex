@@ -694,20 +694,23 @@ are $\SI{-22482}{spots/h}$ (20\,m), $\SI{-26287}{spots/h}$ (40\,m), and
 $\SI{-3627}{spots/h}$ (15\,m); see Section~\ref{sec:invariant}.
 
 Critically, when matched by storm strength, the scale-dependence replicates:
-at $Kp = 6\text{--}7$, the training and held-out drops agree to within a
-factor of 0.89--1.05 (Table~\ref{tab:scale_rep}).
+at $Kp = 6\text{--}7$, the training and held-out drops agree to within
+factors of 1.01--1.12 (Table~\ref{tab:scale_rep}), based on $N_{\text{storm}} = 10$
+per band in the held-out period.
 
 \begin{table}[h]
 	\centering
-	\caption{Scale-dependence replication: training vs held-out at $Kp = 6\text{--}7$.}
+	\caption{Scale-dependence replication: training vs held-out at
+		$Kp = 6\text{--}7$. Held-out numbers from a live \texttt{wspr.live}
+		download on 2026-10-15 ($N_{\text{storm}} = 10$ per band).}
 	\label{tab:scale_rep}
 	\begin{tabular}{llll}
 		\toprule
 		Band  & Training drop (\%)     & Held-out drop (\%)     & Ratio (H/T) \\
 		\midrule
-		20\,m & $\SI{-33.6}{\percent}$ & $\SI{-31.7}{\percent}$ & 0.95        \\
-		40\,m & $\SI{-34.4}{\percent}$ & $\SI{-30.5}{\percent}$ & 0.89        \\
-		15\,m & $\SI{-50.7}{\percent}$ & $\SI{-53.2}{\percent}$ & 1.05        \\
+		20\,m & $\SI{-33.6}{\percent}$ & $\SI{-37.4}{\percent}$ & 1.11        \\
+		40\,m & $\SI{-34.4}{\percent}$ & $\SI{-34.6}{\percent}$ & 1.01        \\
+		15\,m & $\SI{-50.7}{\percent}$ & $\SI{-57.0}{\percent}$ & 1.12        \\
 		\bottomrule
 	\end{tabular}
 \end{table}
@@ -916,8 +919,8 @@ detected and decomposed using WSPR as a distributed sensor.
 	      day/night asymmetry. Specifically, the $+1.4\%$ anomaly for
 	      15\,m at $Kp = 5\text{--}6$ in the held-out period is attributed
 	      to low statistical power ($N < 5$ hours in this bin), whereas the
-	      $Kp = 6\text{--}7$ bin ($N = 7$ hours) robustly replicates the
-	      training trend ($\SI{-53.2}{\percent}$ held-out vs.\
+	      $Kp = 6\text{--}7$ bin ($N = 10$ hours) replicates the
+	      training trend ($\SI{-57.0}{\percent}$ held-out vs.\
 	      $\SI{-50.7}{\percent}$ training). The purpose of the held-out
 	      period is not to discover new effects but to confirm the direction
 	      and order of magnitude of the primary results and the
