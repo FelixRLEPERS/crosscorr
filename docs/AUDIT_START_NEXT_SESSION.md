@@ -7,10 +7,10 @@ Purpose: operational snapshot — read this first.
 ## 1. Where we are (state at generation)
 
 - **Branch:** main
-- **HEAD:** `70ad0b5` — paper: batch 7 — Table 8 recomputed from
-  live held-out cache. (Session 10b: 7 batches total + PDF
-  rebuilt; all numeric audit findings closed.)
-- **origin/main:** `70ad0b5` (fully synced; ahead 0, behind 0)
+- **HEAD:** `66b919b` — paper: batch 8 — replication wording +
+  fig5 title/legend/layout. (Session 10: 8 batches; all numeric
+  audit findings closed; PDF rebuilt.)
+- **origin/main:** `66b919b` (fully synced; ahead 0, behind 0)
 - **Project version:** 1.1.0 (pyproject.toml = "1.1.0";
   CITATION.cff = "1.1.0", date-released 2026-10-12)
 - **Zenodo concept DOI:** `10.5281/zenodo.23285958` (**active**;
