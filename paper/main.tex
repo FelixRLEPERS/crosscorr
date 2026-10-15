@@ -27,7 +27,7 @@
 	$Kp \ge 5$ storms on all three HF bands ($p < 2 \times 10^{-5}$)
 	\item The effect is scale-dependent: $Kp = 5\text{--}6 \rightarrow
 		\SI{-18}{\percent}$, $Kp \ge 6 \rightarrow \SI{-42.8}{\percent}$,
-	confirmed by independent replication
+	with the primary drop replicated on 20\,m and 40\,m in a held-out period
 	\item On the 40\,m band, the absolute spot loss was initially
 	consistent with invariance across $\SI{+38}{\percent}$ network
 	growth, but a re-downloaded held-out sample (October 2026) yields
@@ -47,10 +47,11 @@
 
 	The effect is scale-dependent: the drop nearly doubles from $Kp = 5\text{--}6$
 	($\sim\SI{-18}{\percent}$) to $Kp \ge 6$ ($\SI{-42.8}{\percent}$), consistent
-	with non-linear ionospheric response to geomagnetic forcing. This gradient
-	replicates on an independent held-out period (January--March 2026): at
-	$Kp = 6\text{--}7$, the held-out drops are 0.89--1.05$\times$ the
-	training drops.
+	with non-linear ionospheric response to geomagnetic forcing. The primary
+	effect replicates on an independent held-out period (January--March 2026,
+	updated live-database pull) on 20\,m and 40\,m ($p < 10^{-3}$); on
+	15\,m the negative sign is preserved but does not reach significance
+	($p = 0.26$), consistent with the reduced storm-hour count.
 
 	The frequency dependence supports a dual-mechanism interpretation: the 15\,m drop
 	(\SI{-38.7}{\percent}) is consistent with MUF reduction, while D-layer absorption affects
@@ -663,27 +664,34 @@ of both the primary effect and its scale-dependence (Table~\ref{tab:heldout}).
 
 \begin{table}[h]
 	\centering
-	\caption{Independent replication: held-out period (January--March 2026).}
+	\caption{Independent replication: held-out period (January--March 2026).
+		Numbers from a live \texttt{wspr.live} download on 2026-10-15; an
+		earlier archived snapshot yielded smaller $N$ and drops. See
+		Section~5.5 item~9.}
 	\label{tab:heldout}
 	\begin{tabular}{lrrrl}
 		\toprule
 		Band  & $N_{\text{total}}$ & $N_{\text{storm}}$ & Drop (\%)              & $p$-value \\
 		\midrule
-		20\,m & 656                & 39                 & $\SI{-12.0}{\percent}$ & $0.002$   \\
-		40\,m & 648                & 38                 & $\SI{-17.0}{\percent}$ & $0.0002$  \\
-		15\,m & 648                & 38                 & $\SI{-11.2}{\percent}$ & $0.014$   \\
+		20\,m & 720                & 47                 & $\SI{-26.7}{\percent}$ & $6.8 \times 10^{-4}$ \\
+		40\,m & 720                & 47                 & $\SI{-29.0}{\percent}$ & $6.8 \times 10^{-4}$ \\
+		15\,m & 720                & 47                 & $\SI{-22.1}{\percent}$ & $0.258$              \\
 		\bottomrule
 	\end{tabular}
 \end{table}
 
-All three bands are negative and significant ($p \le 0.014$). The primary
-hypothesis replicates.
+All three bands show negative drops. On 20\,m and 40\,m the held-out
+reductions ($\SI{-26.7}{\percent}$ and $\SI{-29.0}{\percent}$) are
+significant at $p < 10^{-3}$. On 15\,m the drop ($\SI{-22.1}{\percent}$)
+does not reach significance ($p = 0.26$), with a confidence interval that
+includes zero, consistent with the reduced storm-hour count for this band.
 
-The overall percentage drop is 2--3$\times$ smaller than in the training period
-(e.g., 20\,m: $\SI{-12.0}{\percent}$ vs $\SI{-27.7}{\percent}$), but this is
-an artefact of the higher quiet-time baseline (the WSPR network grew by
-$\SIrange{17}{38}{\percent}$ between the two periods), not a weaker physical
-effect. In absolute terms, the spot loss is comparable (Section~\ref{sec:invariant}).
+Percentage drops on 20\,m and 40\,m are comparable to the training-period
+values ($\SI{-27.7}{\percent}$ and $\SI{-27.2}{\percent}$, respectively);
+the 15\,m held-out drop is smaller than its training value
+($\SI{-38.7}{\percent}$) with a wide confidence interval. Absolute losses
+are $\SI{-22482}{spots/h}$ (20\,m), $\SI{-26287}{spots/h}$ (40\,m), and
+$\SI{-3627}{spots/h}$ (15\,m); see Section~\ref{sec:invariant}.
 
 Critically, when matched by storm strength, the scale-dependence replicates:
 at $Kp = 6\text{--}7$, the training and held-out drops agree to within a
@@ -902,7 +910,7 @@ detected and decomposed using WSPR as a distributed sensor.
 	      training period covers a solar maximum phase; effects may differ at
 	      solar minimum.
 	\item \textbf{Replication period and statistical power:} The held-out
-	      sample of 3 months contains only $N = 23$ storm hours
+	      sample of 3 months contains $N = 47$ storm hours
 	      ($Kp \ge 5$), compared to $N = 198$ in the training period.
 	      This limits statistical power for secondary effects such as the
 	      day/night asymmetry. Specifically, the $+1.4\%$ anomaly for
@@ -914,7 +922,7 @@ detected and decomposed using WSPR as a distributed sensor.
 	      period is not to discover new effects but to confirm the direction
 	      and order of magnitude of the primary results and the
 	      scale-dependence gradient on independent data.
-	      The primary hypothesis replicates robustly on held-out data; however, the held-out power for scale-dependence is limited by the small number of storm hours (N = 23), and the scale-dependent effect should be regarded as a training-set result directionally confirmed by held-out, not as an independently powered claim.
+	      The primary effect replicates on 20\,m and 40\,m in the held-out data; the 15\,m primary drop does not reach significance in this window ($p = 0.26$). The held-out power for scale-dependence is limited by the small number of storm hours ($N = 47$); the scale-dependent effect should therefore be regarded as a training-set result directionally confirmed by held-out, not as an independently powered claim.
 	      A 6-month
 	      replication is planned but not yet complete due to wspr.live server
 	      throughput limits.
@@ -977,13 +985,15 @@ as exploratory tooling, not as validated analytical instruments.
 	      on 2026-10-13 yields a larger held-out sample for 40\,m
 	      ($N = 720$ hours, $N_{\text{storm}} = 47$) and an absolute loss of
 	      $\SI{-26287}{spots/h}$ (block bootstrap 95\% CI
-	      $[-\SI{37144}{spots/h},\, -\SI{12472}{spots/h}]$), slightly above
-	      the upper bound of the training CI. Training-period numbers remain
+	      $[-\SI{37144}{spots/h},\, -\SI{12472}{spots/h}]$), below
+	      the lower bound of the training CI, invalidating the
+	      baseline-invariance reading. Training-period numbers remain
 	      reproducible exactly (three bands, $\Delta = 0$ versus the original
-	      analysis), since that period is fully mature. We therefore treat
-	      the training-based invariance claim as robust and the held-out
-	      consistency as supported but not definitive. Archival reproduction
-	      is available at the v1.1.0 release tag.
+	      analysis), since that period is fully mature. We therefore report the
+	      training-period invariance observation as suggestive but not
+	      established, and treat the absolute loss as a descriptive
+	      quantity. Archival reproduction is available at the v1.1.0
+	      release tag.
 \end{enumerate}
 
 
@@ -1006,11 +1016,11 @@ in WSPR spot density, with five principal conclusions:
 	      $\sim\SI{-34}{\percent}$ at $Kp = 6\text{--}7$, and $\sim\SI{-53}{\percent}$
 	      at $Kp \ge 7$. Pairwise tests confirm this is a real physical gradient
 	      ($p < 0.05$ in 7/9 comparisons).
-	\item \textbf{Independent replication:} All three bands replicate on a
-	      held-out period (January--March 2026, all $p \le 0.014$).
-	      Scale-dependence replicates when matched by $Kp$ bin: the
-	      held-out drops are 0.89--1.05$\times$ the training drops at
-	      $Kp = 6\text{--}7$.
+	\item \textbf{Independent replication:} On a held-out period
+	      (January--March 2026, updated live-database pull), the primary
+	      effect replicates on 20\,m and 40\,m ($p < 10^{-3}$); on 15\,m
+	      the negative sign is preserved but does not reach significance
+	      ($p = 0.26$), consistent with the reduced storm-hour count.
 	\item \textbf{Absolute-loss stability not established:} The training
 	      point estimate of absolute spot loss on 40\,m ($\SI{-18285}{spots/h}$)
 	      was initially matched by a held-out snapshot ($\SI{-18304}{spots/h}$,
