@@ -81,3 +81,6 @@ paper/*.bak*
 # Smoke-test probes (network calls at module level — pytest-unsafe)
 scripts/test_connection.py
 scripts/test_wspr_query.py
+
+# Zenodo upload staging (manual upload by user; never commit)
+zenodo_v1.3.0/
