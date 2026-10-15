@@ -97,7 +97,7 @@ on ionospheric reflection from the F-layer, whose critical frequency $f_oF_2$
 determines the Maximum Usable Frequency (MUF) for a given path and elevation
 angle \citep{davies1990}. During geomagnetic storms, enhanced magnetospheric
 convection and particle precipitation transfer energy into the ionosphere--
-thermosphere system. Joule heating increases the neutral temperature, driving
+thermosphere system \citep{gonzalez1994,tsurutani2003}. Joule heating increases the neutral temperature, driving
 composition changes that enhance molecular species (N$_2$, O$_2$) relative to
 atomic oxygen, which in turn increases the recombination rate in the F2 layer
 \citep{proelss1995}. The net effect is a reduction of $f_oF_2$ and a
@@ -296,7 +296,7 @@ We group residual spot counts into $Kp$ bins: $Kp < 3$ (quiet),
 $3 \le Kp < 4$ (unsettled), $4 \le Kp < 5$ (active),
 $5 \le Kp < 6$ (minor storm), $6 \le Kp < 7$ (moderate storm),
 $Kp \ge 7$ (strong storm). For each bin we compute the mean residual,
-standard deviation, and 95\% confidence intervals via block bootstrap
+standard deviation, and 95\% confidence intervals via block bootstrap \citep{efron1993}
 (block = 24 epochs = 72\,h, \SI{1000}{resamples}).
 
 We also consider the aggregate bins $Kp \ge 5$ (all storms) and
@@ -1017,9 +1017,9 @@ as exploratory tooling, not as validated analytical instruments.
 	      monthly mean residuals (Spearman $r = +0.047$, $p = 0.86$; median-based
 	      check, $r = -0.17$, $p = 0.52$, agrees), confirming that the storm-driven
 	      effects reported here are not solar-cycle artifacts. Solar flare effects (Sudden
-	      Ionospheric Disturbances, SIDs) are not separately accounted for.
+	      Ionospheric Disturbances, SIDs) are not separately accounted for \citep{mitra1974}.
 	      Summer 15\,m observations may be partially contaminated by
-	      sporadic-E propagation; however, the storm effect is present in all
+	      sporadic-E propagation \citep{whitehead1989}; however, the storm effect is present in all
 	      seasons, including winter when Es is absent. No corresponding F10.7 analysis was performed for the held-out period, as only a single monthly data point (January 2026) is available.
 	\item \textbf{Band coverage:} Only three WSPR bands are analysed. Additional
 	      bands (30\,m, 17\,m, 12\,m, 10\,m) would better constrain the MUF
