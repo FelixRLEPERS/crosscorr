@@ -39,9 +39,10 @@
 	We test the hypothesis that geomagnetic storms ($Kp \ge 5$) suppress WSPR spot
 	counts on HF amateur bands. Using openly available data from wspr.live
 	(hourly aggregated, 3 bands: 20\,m, 40\,m, 15\,m) and GFZ Potsdam $Kp$ index,
-	covering 18 months (April 2024 -- September 2025, 39\,456 WSPR hours,
-	198 storm hours), we find significant storm-induced spot reductions on all three
-	bands: 20\,m: \SI{-27.7}{\percent}, 40\,m: \SI{-27.2}{\percent},
+	covering 18 months (April 2024 -- September 2025; 39\,456 WSPR hours
+	across the three bands, 198 storm epochs at $Kp \ge 5$), we find
+	significant storm-induced spot reductions on all three bands:
+	20\,m: \SI{-27.7}{\percent}, 40\,m: \SI{-27.2}{\percent},
 	15\,m: \SI{-38.7}{\percent} (block permutation $p = 2 \times 10^{-5}$ for all,
 	\SI{50000}{iterations}, block = 24 epochs = 72\,h).
 
@@ -190,20 +191,24 @@ storm-scale analysis ($\Delta t = 1$\,h versus typical storm duration of several
 hours).
 
 The training period covers April 1, 2024 through September 30, 2025
-(548 days, 18 months), yielding 39\,456 WSPR hours per band. The
-18-month analysis window is determined by the availability of
-complete hourly WSPR data for all three bands from the wspr.live
-ClickHouse mirror; the boundaries were not selected a priori and
-no data were discarded to achieve a target period length. After merging WSPR
-hourly data with $Kp$ (3-hourly, forward-filled to 1\,h resolution), we obtain
-4\,349 matched hours per band, of which 198 hours satisfy $Kp \ge 5$ (the storm
-threshold). The quiet-time baseline ($Kp < 3$) comprises 3\,035 hours and
-exhibits mean spot counts of 73\,718 (20\,m), 67\,105 (40\,m), and
-13\,386 spots/h (15\,m).
+(548 days, 18 months), yielding 13\,152 WSPR hours per band
+(39\,456 across the three bands). The 18-month analysis window is
+determined by the availability of complete hourly WSPR data for all
+three bands from the wspr.live ClickHouse mirror; the boundaries were
+not selected a priori and no data were discarded to achieve a target
+period length. We merge hourly WSPR counts with the native 3-hourly
+$Kp$ series by an inner join on the exact $Kp$ epoch timestamps,
+without forward-filling; the analysis series is therefore 3-hourly.
+This yields 4\,349 matched epochs per band ($\approx$13\,047\,h of
+coverage), of which 198 epochs satisfy $Kp \ge 5$ (the storm
+threshold, equivalent to 594\,h). The quiet-time baseline ($Kp < 3$)
+comprises 3\,035 epochs and exhibits mean spot counts of 73\,718
+(20\,m), 67\,105 (40\,m), and 13\,386 spots/h (15\,m).
 
 The held-out (replication) period covers January through March 2026 (90 days).
-After merging, it yields 47 storm hours per band, with a higher quiet-time
-baseline due to the growing WSPR network: 86\,355 spots/h
+After the same 3-hourly merge, it yields 47 storm epochs per band
+(= 141\,h), with a higher quiet-time baseline due to the growing WSPR
+network: 86\,355 spots/h
 (20\,m, $\SI{+17}{\percent}$), 92\,694 (40\,m, $\SI{+38}{\percent}$),
 and 16\,784 (15\,m, $\SI{+25}{\percent}$).
 
@@ -217,12 +222,12 @@ The $Kp$ index is obtained from GFZ Potsdam's real-time JSON API
 (https://kp.gfz-potsdam.de). $Kp$ is a 3-hourly planetary index on a
 quasi-logarithmic scale from 0 to 9, derived from 13 subauroral magnetometer
 stations. The mean $Kp$ over the training period is 2.29, with a maximum
-of 8.7 (multiple events). Across the 18 months, 66 raw 3-hourly $Kp$
-intervals reach $Kp \ge 5$, distributed across 76 storm days. Grouped
-into episodes separated by more than 12~h (scripts/storm\_episodes.py),
-these intervals form 58 storm episodes, so the effective number of
-independent events is substantially smaller than the slot count, and
-they cover all four seasons.
+of 8.7 (multiple events). Across the 18 months, 198 3-hourly $Kp$
+epochs reach $Kp \ge 5$ (= 594 storm hours), distributed across 76
+storm days. Grouped into episodes separated by more than 12~h
+(scripts/storm\_episodes.py), these epochs form 58 storm episodes, so
+the effective number of independent events is substantially smaller
+than the epoch count, and they cover all four seasons.
 
 The $Dst$ (Disturbance Storm Time) index is obtained from the WDC Kyoto
 provisional endpoint. $Dst$ is an hourly equatorial ring-current index,
@@ -231,8 +236,9 @@ temporal resolution than $Kp$ (hourly versus 3-hourly) and serves as an
 independent storm proxy. The provisional data cover all 18 months of the
 training period (mean $Dst = \SI{-11.5}{nT}$, minimum
 $Dst = \SI{-96}{nT}$). A total of 471 hours satisfy $Dst < \SI{-50}{nT}$
-across 42 storm events, yielding 2.4$\times$ more storm hours and 2.4$\times$
-larger sample size than the $Kp$-based analysis.
+across 42 storm events, yielding 2.4$\times$ more storm samples
+(471 vs 198) and 2.9$\times$ larger total sample size
+(12\,508 vs 4\,349) than the $Kp$-based analysis.
 
 The F10.7 solar radio flux (NOAA SWPC) was considered as a covariate, but
 only monthly means are available via the SWPC API, which is too coarse for
@@ -336,8 +342,8 @@ $Dst > -20$\,nT) and to pairwise comparisons between adjacent $Kp$ bins for the
 scale-dependence analysis.
 
 The primary hypothesis test intentionally excludes unsettled conditions
-($3 \leq Kp < 5$, $N = 1\,116$ hours) to maximise the statistical
-contrast between quiet and storm states. These hours are included in
+($3 \leq Kp < 5$, $N = 1\,116$ epochs) to maximise the statistical
+contrast between quiet and storm states. These epochs are included in
 the scale-dependent binned analysis (Section 4.2).
 
 \subsection{Effective sample size}
@@ -350,9 +356,10 @@ first-order autoregressive process:
 	\label{eq:ess}
 \end{equation}
 
-where $\rho_1$ is the lag-1 autocorrelation of the residual series. On the
-18-month matched series ($N = 4\,349$ hours per band), $\rho_1$ ranges
-from 0.69 (40\,m) to 0.75 (20\,m), yielding ESS of 610 (20\,m),
+where $\rho_1$ is the lag-1 autocorrelation of the residual series
+(lag = 3\,h, the native $Kp$ cadence). On the 18-month matched series
+($N = 4\,349$ epochs per band), $\rho_1$ ranges from 0.69 (40\,m) to
+0.75 (20\,m), yielding ESS of 610 (20\,m),
 793 (40\,m), and 743 (15\,m) hours. This factor-of-5 to factor-of-7
 reduction from raw to effective sample size underscores the importance
 of the block permutation approach: a naive permutation test (treating
@@ -380,7 +387,7 @@ Six robustness checks were performed:
 	      The normalised residual correlates with $Kp$ at $\rho = -0.21$,
 	      stronger than the raw spot residual ($\rho = -0.13$). The effect is
 	      \emph{not} driven by fewer transmitters.
-	\item \textbf{Independent events:} The 198 storm hours derive from 76 storm days,
+	\item \textbf{Independent events:} The 198 storm epochs derive from 76 storm days,
 	      grouping into 58 episodes separated by more than 12~h, across 18 months
 	      and covering all four seasons. This is not a single-event result.
 	\item \textbf{Absolute magnitude:} The observed spot-density drops
@@ -422,7 +429,8 @@ reduction on all three HF bands.
 \begin{table}[h]
 	\centering
 	\caption{Primary result: WSPR spot reduction during $Kp \ge 5$ storms
-		(18 months, April 2024 -- September 2025).}
+		(18 months, April 2024 -- September 2025). $N$ in 3-h $Kp$
+		epochs.}
 	\label{tab:main}
 	\begin{tabular}{lrrrlr}
 		\toprule
@@ -873,7 +881,7 @@ The practical implication is that $Kp \ge 6$ is required for substantial HF
 disruption on the mid-bands (20\,m and 40\,m), while lower $Kp = 5\text{--}6$
 produces only modest $\sim\SI{-18}{\percent}$ reductions. For severe disruption
 exceeding $\SI{50}{\percent}$ loss, $Kp \ge 7$ is needed---a threshold reached
-in only 38 hours (0.87\%) of the 18-month training period.
+in only 38 epochs (114\,h, 0.87\%) of the 18-month training period.
 
 \subsection{Practical implications for monitoring}
 
@@ -922,19 +930,19 @@ detected and decomposed using WSPR as a distributed sensor.
 	      training period covers a solar maximum phase; effects may differ at
 	      solar minimum.
 	\item \textbf{Replication period and statistical power:} The held-out
-	      sample of 3 months contains $N = 47$ storm hours
-	      ($Kp \ge 5$), compared to $N = 198$ in the training period.
+	      sample of 3 months contains $N = 47$ storm epochs
+	      ($Kp \ge 5$), compared to $N = 198$ epochs in the training period.
 	      This limits statistical power for secondary effects such as the
 	      day/night asymmetry. Specifically, the $+1.4\%$ anomaly for
 	      15\,m at $Kp = 5\text{--}6$ in the held-out period is attributed
-	      to low statistical power ($N < 5$ hours in this bin), whereas the
-	      $Kp = 6\text{--}7$ bin ($N = 10$ hours) replicates the
+	      to low statistical power ($N < 5$ epochs in this bin), whereas the
+	      $Kp = 6\text{--}7$ bin ($N = 10$ epochs) replicates the
 	      training trend ($\SI{-57.0}{\percent}$ held-out vs.\
 	      $\SI{-50.7}{\percent}$ training). The purpose of the held-out
 	      period is not to discover new effects but to confirm the direction
 	      and order of magnitude of the primary results and the
 	      scale-dependence gradient on independent data.
-	      The primary effect replicates on 20\,m and 40\,m in the held-out data; the 15\,m primary drop does not reach significance in this window ($p = 0.26$). The held-out power for scale-dependence is limited by the small number of storm hours ($N = 47$); the scale-dependent effect should therefore be regarded as a training-set result directionally confirmed by held-out, not as an independently powered claim.
+	      The primary effect replicates on 20\,m and 40\,m in the held-out data; the 15\,m primary drop does not reach significance in this window ($p = 0.26$). The held-out power for scale-dependence is limited by the small number of storm epochs ($N = 47$); the scale-dependent effect should therefore be regarded as a training-set result directionally confirmed by held-out, not as an independently powered claim.
 	      A 6-month
 	      replication is planned but not yet complete due to wspr.live server
 	      throughput limits.
@@ -986,7 +994,7 @@ as exploratory tooling, not as validated analytical instruments.
 	      only exceptionally long episodes (>72\,h) could violate the
 	      within-block stationarity assumption.
 	\item \textbf{Storm-slot independence:} The 198 $Kp \ge 5$
-	      hours are not statistically independent observations. Grouping
+	      epochs are not statistically independent observations. Grouping
 	      them into episodes separated by more than 12~h yields 58 distinct
 	      storm episodes (scripts/storm\_episodes.py), so the effective
 	      number of independent storm events is $N_{\text{eff}} \approx 58$,
