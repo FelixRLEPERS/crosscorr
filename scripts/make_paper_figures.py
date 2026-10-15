@@ -350,9 +350,9 @@ print(f"[OK] {path_fig4} ({path_fig4.stat().st_size} bytes)")
 print("\n=== Figure 5: Absolute spot loss across periods ===")
 
 band_abs = {
-    "20m": {"train": 20421, "heldout": 15793, "ratio": 0.77, "growth": 17},
+    "20m": {"train": 20421, "heldout": 22482, "ratio": 1.10, "growth": 17},
     "40m": {"train": 18285, "heldout": 26287, "ratio": 1.44, "growth": 38},
-    "15m": {"train": 5178, "heldout": 2181, "ratio": 0.42, "growth": 25},
+    "15m": {"train": 5178, "heldout": 3627, "ratio": 0.70, "growth": 25},
 }
 
 # Block-bootstrap CI (24h blocks, 1000 resamples, seed 42) -- matches
@@ -448,8 +448,8 @@ ax.annotate(
     va="center",
 )
 ax.annotate(
-    "15m: \u00d70.42 dilution\n(MUF ceiling effect)",
-    xy=(1.5, 2181),
+    "15m: ratio 0.70\n(CI includes zero)",
+    xy=(1.5, 3627),
     xytext=(1.6, 6000),
     fontsize=10,
     fontweight="bold",
