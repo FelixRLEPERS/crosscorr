@@ -7,10 +7,9 @@ Purpose: operational snapshot — read this first.
 ## 1. Where we are (state at generation)
 
 - **Branch:** main
-- **HEAD:** `10e2408` — fig5: hardcode block-CI training values;
-  keep RNG-advance loop. (Prior: `b4fc568` — paper: address
-  external audit round 2)
-- **origin/main:** `10e2408` (fully synced; ahead 0, behind 0)
+- **HEAD:** `0712511` — paper: batch 4 — remaining baseline-invariance
+  references. (Session 10: 5 batches + fig5 regenerate; PDF rebuilt.)
+- **origin/main:** `0712511` (fully synced; ahead 0, behind 0)
 - **Project version:** 1.1.0 (pyproject.toml = "1.1.0";
   CITATION.cff = "1.1.0", date-released 2026-10-12)
 - **Zenodo concept DOI:** `10.5281/zenodo.23285958` (**active**;
