@@ -1,276 +1,222 @@
 # Audit — Start of Next Session
 
-Generated: 2026-10-15 (end of session 11)
+Generated: 2026-10-15 (end of session 12)
 For: next chat session (MiMo or human)
 Purpose: operational snapshot — read this first.
 
 ## 1. Where we are (state at generation)
 
 - **Branch:** main
-- **HEAD:** `c53e3e3` — release: v1.2.0 -- version DOI 23394340
-  in CITATION.cff and Code Availability. (Session 11: batches
-  9-10 + v1.2.0 release; 7 of 9 blockers from external audit
-  closed.)
-- **origin/main:** `c53e3e3` (fully synced; ahead 0, behind 0)
-- **Project version:** 1.2.0 (pyproject.toml = "1.2.0";
-  CITATION.cff = "1.2.0", date-released 2026-10-15)
-- **Zenodo concept DOI:** `10.5281/zenodo.23285958` (**active**;
-  previously mis-recorded as `23283375`)
+- **HEAD:** `d32bf52` — paper: fix corruption -- repair broken \ref
+  macros in sec 2 intro. (Session 12: batches 11-20 + 2 fixes;
+  ALL external-audit-round-4 blockers, majors and minors closed.)
+- **origin/main:** in sync after session-12 push
+- **Project version:** 1.2.0 (pyproject.toml = "1.2.0"; CITATION.cff
+  = "1.2.0", date-released 2026-10-15)
+- **Zenodo concept DOI:** `10.5281/zenodo.23285958` (**active**)
 - **Zenodo version DOI (v1.2.0):** `10.5281/zenodo.23394340`
-  (v1.1.0 version DOI was `23325197`; retired but still resolves)
-- **Legacy Zenodo concept:** `10.5281/zenodo.23283375` (manual
-  uploads only; see Open loops §3)
 - **GitHub Release:** v1.2.0 (latest)
 - **Latest tag:** `v1.2.0` @`df843b6` (annotated)
 - **Title (v1.2.0):** 'Scale-dependent WSPR response to geomagnetic
   storms: frequency dependence and network-size effects on absolute
-  loss' (baseline-invariance retracted; see §3)
-- **Worktrees:** 5 (main + 4 opencode: happy-knight @574f648
-  clean, playful-lagoon @a114e86 dirty-untracked,
-  proud-wizard @284cf30 dirty-untracked, tidy-pixel @a114e86
-  dirty-modified `crosscorr_lib/analysis/cross_mfdfa.py`) —
-  **not touched**; outside release scope (Lesson 8).
-- **Test files:** 32 (290 passed, pytest -q, session 5 re-run)
-- **CI:** ci.yml (only workflow); green on latest HEAD
+  loss'
+- **PDF:** paper/main.pdf — 25 pages, pdflatex+bibtex clean,
+  21 references, 7 tables + provenance table, 5 figures,
+  \linenumbers active, Plain Language Summary present.
+- **Test files:** 32 (288 passed, `pytest -m "not slow"`,
+  session 12 re-run)
+- **CI:** ci.yml (only workflow); green on latest pushed HEAD
+- **ruff:** clean on project code (crosscorr_lib/scripts/tests);
+  15 ruff errors live only in untracked tmp_*.py session scripts.
 
-## 2. What was done in session 5 (2026-10-12 continuation)
+## 2. What was done in session 12 (2026-10-15, external audit round 4)
 
-Session 5 shipped **release v1.1.0** end-to-end (4 commits,
-`997d171..2dd71b5`) plus 1 DOI-fix correction:
+Closed ALL 3 blockers + all major + all minor items from external
+audit round 4. Commits `f84a3b2..d32bf52` (batches 11-20 + 2 fixes).
+Every fix = its own two-phase tmp_fix_*.py (verify -> apply) and
+its own commit, per AGENTS.md lessons.
 
-- `3a06f1a` — bump CITATION.cff to 1.1.0 / date 2026-10-12
-  (with BOM-avoidance workaround).
-- `a0141dd` — release notes at `docs/releases/v1.1.0.md`
-  (95 lines); tagged v1.1.0.
-- Tag `v1.1.0` pushed; GitHub Release created; Zenodo minted
-  version DOI `10.5281/zenodo.23325197` (webhook delivery OK,
-  release.published event confirmed in Recent Deliveries).
-- `4c4e332` — concept DOI fix in live files: `23283375` →
-  `23285958` in paper/main.tex (×2), README.md (×4),
-  CITATION.cff (×1), docs/AUDIT_START_NEXT_SESSION.md (×1 +
-  version DOI update). HANDOFF untouched (history).
-- `2dd71b5` — paper Code Availability: `264cc93` → tag `v1.1.0`
-  (`a0141dd`) + concept `23285958` → version `23325197`
-  (exact-version citation).
+### Phase 0 — reconnaissance (read-only scripts, results below)
 
-Also verified:
-- Table 1 overflow fix (commit `47de960`, tabularx) — verified
-  in session 4 in rebuilt PDF.
-- `ruff check .` green; `ruff format --check .` fails only on
-  H-2 scope + 5 `.md` code-fences (deferred).
-- Full 6-antipattern set for AGENTS.md recorded (see §5).
+- **C5-новая RESOLVED (was B1 in audit):** Table 5 reproduces
+  EXACTLY (9/9 rows, diff=0) from the month x hod x dow residual
+  model (model A) — audit's B1 was misdiagnosed. Table 4 does NOT
+  come from either residual model; it matches the RAW-value drop
+  formula 100*(mean_bin - quiet)/quiet exactly (8/8 cells) — the
+  same formula as fig 2/3/4, Table 2 Drop%, and Table 8. The audit
+  multiplied Table 4 % by quiet_mean, which is invalid because
+  Table 4 was never residual-based. Table 2 Delta (-20421/-18285/
+  -5178) is also raw (quiet-minus-storm), NOT the sec 3.3 residual
+  statistic (-19793/-14847/-4362, in results JSON only).
+  Decision (user): fix DEFINITIONS/CAPTIONS, not numbers.
+- **.bib:** was 26 keys / 16 cited / 10 unused (not 8).
+- **Table 9 live values (verified vs results JSON, exact):**
+  20m -22482 [-35044,-2938] ratio 1.10; 40m -26287 [-37144,-12472]
+  ratio 1.44; 15m -3627 [-7172,+3738] ratio 0.70 (CI crosses zero).
+- **BH-FDR on 9 pairwise:** 5/9 pass (exceptions p_FDR 0.058, 0.058,
+  0.097, 0.855) — audit's M2 confirmed.
+- **M4 sensitivity (read-only):** occupancy 4.3 epochs/cell
+  (range 4-5, zero n<4 cells); self-inclusion shrinkage 23.4%;
+  day_of_week residual-variance reduction 13.4/12.7/16.1% (20/40/15m)
+  — matches paper claim 12-16%. Residual Delta is 0.97/0.81/0.84x
+  raw Delta. LOO baseline flips sign (degenerate for clustered
+  data) — deliberately NOT reported.
+- **m7 recomputed:** held-out 15m Kp 5-6 anomaly = +4.9% (N=25),
+  not +1.4% (N<5) from archived snapshot.
 
-Full detail: audit/BACKLOG_2026-10-12_v11.md (canonical).
+### Phase 1 — blockers (batches 11-13)
 
-### Session 6 — 2026-10-13
+- `f84a3b2` batch 11 (B2+N1+N4): Table 9 20m/15m -> live values,
+  CIs for all 3 bands, captions/footnote updated, dates unified to
+  2026-10-15 (Fig5 caption, tab:baseline caption, sec 4.6, sec 5.5
+  item 10; audit filename FINDING_HELDOUT_LIVE_2026-10-13.md kept),
+  abstract N1 clause fixed, sec 4.6 ratio range 0.70-1.44, fig5
+  band_abs 20m/15m -> 22482/1.10 and 3627/0.70, 15m annotation
+  updated, figure regenerated (fig1-4 byte-identical).
+- `09f1f09` batch 12 (B3): affiliation -> 'Independent researchers,
+  Russia' (user-approved); KP2/KP3 shortened to 138/139 chars of
+  source (limit 140); \usepackage{lineno} + \linenumbers; Plain
+  Language Summary (~130 words, user-approved draft) after abstract.
+- `61be805` batch 13 (N2): sec 3.4 ESS 610/793/743 relabelled
+  epochs (= 1830/2379/2229 h); 'each hour as independent' ->
+  'each epoch as independent'.
 
-Letter to Dr. Nathaniel Frissell sent (arXiv endorsement inquiry).
-Two commits:
+### Phase 2 — major (batches 14-19)
 
-- `a06caa3` — docs(letters): draft for Dr. Frissell (arXiv endorsement inquiry)
-- `debd96e` — docs(letters): mark Frissell draft as sent (2026-10-13)
-
-Full letter: docs/letters/2026-10-13_frissell.md.
-Attached paper/main.pdf (834 KB). Frissell silent 4 days after
-CC reply (2026-10-09). Follow-up planned: 2026-10-27 if no reply.
-
-### Sessions 7–9 — 2026-10-13/14
-
-- Session 7 (night): found HELDOUT-LIVE-REVISION — training
-  reproducible byte-for-byte, held-out shifted 18304 → 26287
-  (data revision on wspr.live). Commit `11dc5e0`.
-- Session 8 (night): paper fix — invariance wording softened,
-  block-CI in Table 9 (40m training [12930, 23807], 40m held-out
-  [12472, 37144]), §5.5 archive note. Commit `dd52ef1`.
-- Session 9 (morning): reply to Dr. Frissell sent — declined live
-  telecon (time-zone + family constraints), offered written
-  alternatives, re-asked arXiv endorsement. Commit `7e0ee64`.
-  Follow-up 2026-10-28 if no reply.
-- Session 9 (afternoon): audit round 2 — §3.3 wording, Table 2 Δ (spots/h),
-  §5.5 F10.7 held-out note. Commit `b4fc568`.
-
-### Session 10 — 2026-10-15 (external audit round 3, batches 1-8)
-
-Eight paper fixes + fig5 regen + docs sync. Closed numeric audit
-findings: 198 raw -> 66 raw -> 198 epochs; 2.3% -> 0.87%; -37% ->
-own drops; 89-95% -> 0.89-1.05 (then 1.01-1.12); Table 3 caption;
-Table 9 caption; N_quiet 3359 -> 3035; N_unsettled 792 -> 1116;
-baseline-invariance reframed; ESS 482/0.83/82 -> 4349/0.69-0.75/
-610-793; Table 7 -> live wspr.live 2026-10-15 (720/47, drops
--26.7/-29.0/-22.1%, 15m p=0.26); Table 8 ratios 1.11/1.01/1.12.
-
-Commits `688ceab..66b919b` (see DELTA_2026-10-14.md for full log).
-
-### Session 11 — 2026-10-15 (external audit round 3, batches 9-10 + v1.2.0)
-
-Second, deeper external audit identified 9 blockers + 9 major items.
-Verified with read-only scripts (tmp_verify_*.py):
-- **C1 verified**: analysis series is 3-hourly (inner join on
-  native Kp timestamps, no forward-fill). hours-of-day ∈
-  {0,3,6,9,12,15,18,21}; gap = 3h (4344/4348).
-- **C4 verified**: `BLOCK = 24` rows = 72 h (three diurnal cycles).
-- **C5 mostly rejected**: Table 5 reproduces exactly from current
-  parquet. But new finding: Table 2 Δ (raw value diff) differs
-  from §3.3 definition (residual diff). Left for future work.
-- **C6 verified**: retracted claim still in README (6 places),
-  CITATION.cff, and Zenodo concept record.
-- **M8 verified**: 26 .bib keys, 16 rendered in .bbl.
-
-**Batches 9-10 (paper):**
-- `8b2058b` — batch 9: block size = 24 epochs = 72 h throughout;
-  M6 (null statement corrected: residual blocks permuted, Kp
-  labels fixed; not 'equivalent to shuffling Kp labels');
-  M7 (p = 2×10⁻⁵ add-one floor, not p <).
-- `5984d9a` — batch 10: C1 (3-hourly epoch units throughout
-  methods); C2 (39,456 WSPR hours -> 13,152 per band + 39,456
-  across three); C3 (66 raw 3-hourly intervals -> 198 epochs,
-  = 594 storm hours); M2 (Dst 2.4× more storm samples + 2.9×
-  larger total sample).
-
-**v1.2.0 release:**
-- `df843b6` — CITATION.cff title 'baseline-invariant absolute loss'
-  -> 'network-size effects on absolute loss'; version 1.2.0;
-  README 5 places updated (key findings #3 rewritten as
-  database-mutability cautionary); pyproject 1.2.0; paper Code
-  Availability tag v1.2.0 + concept DOI 23285958.
-- Tag `v1.2.0` @`df843b6` (annotated); GitHub Release published;
-  Zenodo minted version DOI `10.5281/zenodo.23394340` (webhook OK).
-- `c53e3e3` — version DOI in CITATION.cff and paper Code
-  Availability; concept DOI kept for Data Availability.
-
-**Major items still open (not blockers):** C5-новая (Table 2 Δ
-vs §3.3), C7 (Table 9 20m/15m), C8 (§5.5 item 9 first
-sentence), C9 (date re-download 13 vs 15), M1 (provenance
-table), M5 (frequency inversion in held-out), M8 (.bib 26 vs
-16), M9 (affiliation placeholder / KeyPoints >140 / linenumbers).
+- `dc5bc10` batch 14 (M2): Conclusion #2 '7/9' -> '5 of 9 survive
+  BH'; Table 5 caption nominal+BH note; sec 4.2 nominal wording.
+- `65e10b4` batch 15 (M5+m11): sec 4.5 inversion paragraph (training
+  38.7/27.7/27.2 vs held-out 22.1/26.7/29.0 for 15/20/40m + power/
+  season/sporadic-E factors); Conclusion #5 -> 'Dual mechanism
+  (training period; seasonal replication pending)'.
+- `85d6042` batch 16 (M8): 4 new citations (efron1993 sec 3.2,
+  gonzalez1994+tsurutani2003 intro, mitra1974 sec 5.5 SIDs,
+  whitehead1989 sec 5.5 sporadic-E); 5 entries deleted from .bib
+  (wilcoxon1945, schunk2009, hargreaves1992, goodman1992,
+  ratcliffe1972 — user-approved); labelle2023 pages->eid 1184171;
+  cerwin2026 eid 1723511. Post-condition: cited == bib == 21 keys.
+- `1842897` batch 17 (N3): sec 3.6 check 3 MUF-range citation
+  frissell2016,themens2021 -> davies1990 (those two works do not
+  contain the 30-60% range).
+- `396bb3f` batch 18 (M3+C5+M4): Eq (eq:drop) in sec 3.2 — drops
+  are raw-value differences / quiet mean; Table 2 caption discloses
+  the raw-Delta + residual-p mix (C5-новая); Table 4/fig2 captions
+  and sec 4.2 prose drop the word 'residual'; Table 5 caption defines
+  its Delta as residual-based (separate quantity); sec 3.1 M4
+  paragraph (occupancy 4.3/cell, 23% self-inclusion shrinkage,
+  type-I error unaffected, residual Delta 0.97/0.81/0.84x raw).
+  NOTE: M4 and M3 scripts were both applied before this commit, so
+  the M4 paragraph rode along in the M3 commit message.
+- `6a9fbc1` batch 19 (M1): provenance table (tab:provenance) after
+  Table 1 — training/Kp/Dst retrieved 7-8 Oct 2026 frozen in
+  unified.parquet; held-out: archived 8 Oct 2026, live re-download
+  15 Oct 2026 (dates from fs/git evidence per user decision); intro
+  sentence links the table.
+- `98a22d0` batch 20 (minors m1,m3-m8,m12,m13): -48.2->-48.3;
+  Table 3 caption 3226 excluded hours; Table 6 caption 158/198 +
+  2254/3035 coverage; rho=-0.13 over all epochs; spots/tx/h units;
+  anomaly +4.9% (N=25, live); KSG paragraph -> own Limitations item;
+  Table 7 caption shared-Kp note; sec 2.1 storm-share 6.5% vs 4.6%.
+- `5568b27` batch 20 fix-up: Limitations item ref 9 -> 10 (KSG item
+  shifted the numbering).
+- `d32bf52` corruption repair: heredoc double-escaping mangled
+  \ref in sec 2 intro (CR before 'ef'); restored both Table refs.
+  Lesson recorded in AGENTS.md candidates (see §5).
 
 ## 3. Open loops (what is NOT closed)
 
-Release v1.2.0: **shipped** (Zenodo version DOI `23394340`).
-All **arXiv-minimum** blockers from external audit rounds 3 and 4:
-**closed** (C1, C2, C3, C4, C6, M6, M7).
-
-Remaining — **major, not blockers for arXiv submission**:
-
-- **C5-новая** — Table 2 Δ (raw value diff) vs §3.3 definition
-  (residual diff) are not the same quantity. Either rename Table
-  2 column or redefine §3.3. Small fix, needs decision.
-- **C7** — Table 9 rows 20m/15m still archived snapshot (ratios
-  0.77 / 0.42). Recompute from live-cache parquet; update §4.6
-  ratios + fig5.
-- **C8** — §5.5 item 9 first sentence ('Held-out numbers ...
-  reflect wspr.live snapshot at time of original analysis') still
-  contradicts Tables 7-8 captions (live 2026-10-15).
-- **C9** — re-download date inconsistent: Table 7/8 say
-  2026-10-15; Table 9/Fig 5/§4.6 say 2026-10-13. Same pull,
-  different dates.
-- **M1** — Data provenance table (download dates, freeze status,
-  storage location) missing; §4.6 relies on it. Also: commit
-  live-cache held-out to Zenodo as separate file.
-- **M5** — frequency ordering reverses in held-out (training
-  15m > 20m ≈ 40m; held-out 40m > 20m > 15m). Needs explicit
-  discussion (power / season / sporadic-E), soften Conclusion #5.
-- **M8** — 26 .bib keys, 16 rendered. Cite 5 (whitehead1989,
-  gonzalez1994, tsurutani2003, mitra1974, efron1993), delete
-  wilcoxon1945, decide on 4 (schunk2009, hargreaves1992,
-  goodman1992, ratcliffe1972).
-- **M9** — affiliation placeholder `[City, Country]`; KeyPoints
-  2 and 3 exceed 140 chars; no `linenumbers`; no Plain Language
-  Summary.
-- **H-2** — style sweep outside code dirs. Deferred.
-- **D, E, J, K, L** — deferred to Space Weather.
-
-External / non-code:
-- arXiv endorsement — Frissell follow-up 2026-10-28; HamSCI
+- **Zenodo live-cache upload** — held-out per-band parquet caches
+  (results/heldout_3band_{20m,40m,15m}_2026-10-15.parquet +
+  heldout_3band_2026-10-15.json) are gitignored; user was asked
+  whether to archive them to Zenodo as a separate file (manual
+  web step). NOT YET DONE.
+- **v1.3.0 release** — not cut. Paper is submit-ready modulo
+  endorsement; consider a release after user review of the PDF.
+- **arXiv endorsement** — Frissell follow-up 2026-10-28; HamSCI
   mailing list as second channel.
-- 2FA on GitHub — deadline 25 Nov 2026.
-- Legacy Zenodo concept `23283375` (v1, v2, 1.0.2-paper) — still
-  contains retracted claim. Options: deprecate or annotate with
-  'Superseded by 23285958; baseline-invariance retracted in
-  v1.2.0'.
+- **2FA on GitHub** — deadline 25 Nov 2026.
+- **Legacy Zenodo concept** `23283375` — still contains retracted
+  claim; options: deprecate or annotate.
+- **H-2** (style sweep outside code dirs), **D/E/J/K/L** — deferred
+  to Space Weather.
+- **LOO baseline** — sign-flipping leave-one-out residual baseline
+  observed in M4 recon (degenerate with clustered storms in
+  4-5-obs cells); not reported; revisit if a reviewer asks.
 
 ## 4. Ready for next session
 
 - audit/BACKLOG_2026-10-12_v11.md (canonical findings)
 - docs/HANDOFF_2026-10-11.md (structure + policy)
 - docs/AUDIT_START_NEXT_SESSION.md (this file)
-- docs/releases/v1.1.0.md (shipped release notes)
-- AGENTS.md (model rules, pre-commit, **lessons §**)
-- paper/main.tex (manuscript, references v1.1.0)
+- AGENTS.md (model rules, pre-commit, lessons §)
+- paper/main.tex (manuscript, references v1.2.0; 21 bib keys)
 - scripts/perm_test_18mo_3band.py
-- scripts/storm_episodes.py
-- scripts/make_paper_figures.py
+- scripts/make_paper_figures.py (fig5 band_abs = live values)
+- results/heldout_3band_2026-10-15.json (live held-out cache)
+- paper/main.pdf (25 pages, rebuilt clean in session 12)
 
 ## 5. What NOT to do (anti-patterns)
 
-Consolidated in **AGENTS.md → Уроки (операционные
-анти-паттерны)**. HANDOFF-уроки 1–8 (session 2/3) still apply:
-no multi-Part prompts, no contradiction in prompts, no
-worktree-cherry-pick without `merge-base --is-ancestor`, no
-mixed PS/bash in one command.
+Consolidated in **AGENTS.md → Уроки**. Session 12 additions:
 
-Session 5 additions (now in AGENTS.md):
-- `credential.helper manager` required for CLI push.
-- `Set-Content -Encoding utf8` adds BOM (PS 5.1).
-- `Get-Content -Raw` reads cp1251 (PS 5.1).
-- `.NET File.*` uses .NET cwd, not PS `$PWD`.
-- GitHub Desktop does not push tags.
-- First commit of a new file → EOF-fixer fix-up.
+- **Heredoc double-escaping on Windows:** a `python - <<'PYEOF'`
+  heredoc inside Git Bash collapsed `\\ref` to `\ref`, which Python
+  interpreted as a CR escape -> silently corrupted two \ref macros
+  in main.tex (detected only at the next commit review). RULE: for
+  LaTeX backslash edits use a written .py file (tmp_fix_*.py with
+  Phase-1 verify), NEVER inline heredocs. Dump bytes with repr()
+  after any automated edit that touches backslashes.
+- **read_text/write_text newline trap:** read_text() universal-
+  newline-normalizes CR -> LF; mixing read_text/write_text on a
+  CRLF file rewrites every line (1256-line diff from a 1-line
+  edit). Prefer read_bytes/write_bytes with explicit BOM handling.
+- **git commit --amend + renormalize trap:** amending a commit that
+  contains a worktree-written CRLF file with `* text=auto` can
+  store CRLF in the blob (renormalize diff was empty). Fix: reset
+  --soft, convert file to LF explicitly, re-add, re-commit.
+- HANDOFF-уроки 1–8 (session 2/3) and session 5/11 lessons still
+  apply (see AGENTS.md).
 
 ## 6. First commands to run in next session
 
     cd g:\crosscorr
     git fetch origin
     git status -sb
-    git log --oneline -10
-    git worktree list
-    Get-Content audit\BACKLOG_2026-10-12_v11.md
+    git log --oneline -14
+    python -m ruff check .
+    python -m pytest -m "not slow" -q
 
 If `ahead > 0` → push before working (CLI, credential.helper
-now configured).
-If any worktree is dirty → decide keep/remove (Lesson 8).
+configured).
 
-## 7. Recommended first task
+## 7. Recommended next tasks (in order)
 
-**arXiv submission** (once endorsement arrives):
-  1. Rebuild PDF, verify page count + Table 1 + Figure 5.
-  2. Verify author list, affiliations (placeholder
-     `[City, Country]` in main.tex L21 needs to be filled in),
-     acknowledgments.
-  3. Confirm `paper/main.tex` references v1.2.0 (tag `df843b6`,
-     version DOI `23394340`) — done in `c53e3e3`.
-  4. Upload to arXiv, choose categories.
-  5. Record arXiv ID in README + CITATION.cff (post-accept).
-
-If endorsement not yet available: address H-2 (style sweep
-extension) or start D (SEA) for Space Weather.
-
-## 8. Second task
-
-**Space Weather submission prep** (D/E/J/K/L):
-- D — superposed epoch analysis.
-- E — recovery-phase exclusion.
-- J — additional bands 30 m / 17 m.
-- K — foF2 comparison (GIRO / DIDBase).
-- L — Zenodo DOI for data + code.
+1. **User review of paper/main.pdf** (25 pages) — all audit-4
+   blockers closed; look at Table 9, fig5, PLS, Key Points.
+2. **Zenodo live-cache decision** (open loop §3) — upload the
+   three held-out parquets + JSON as a versioned supplement,
+   update Data Availability if done.
+3. **arXiv submission** once endorsement arrives:
+   rebuild PDF, verify author list/affiliations (now 'Russia',
+   no placeholder), upload, choose categories, record arXiv ID.
+4. **Space Weather prep** (D/E/J/K/L) if endorsement is slow.
 
 ## 9. Quick reference — where things live
 
     audit/BACKLOG_2026-10-12_v11.md    — findings tracker
     docs/HANDOFF_2026-10-11.md         — structure + policy
     docs/AUDIT_START_NEXT_SESSION.md   — this file
-    docs/releases/v1.1.0.md            — shipped release notes
-    docs/letters/2026-10-14_frissell_reply.md — Frissell reply (sent)
+    docs/DELTA_2026-10-14.md           — session 7-11 journal
+    audit/REVIEWER2_FULL_AUDIT.txt     — external audit round 4
     audit/FINDING_HELDOUT_LIVE_2026-10-13.md — HELDOUT-LIVE finding
-    docs/letters/2026-10-13_frissell.md — Frissell letter (sent)
+    audit/NUMBERS_MAP_2026-10-15.md    — numbers map (session 10)
     AGENTS.md                          — model rules + lessons
     paper/main.tex                     — manuscript
-    scripts/perm_test_18mo_3band.py    — perm test
-    scripts/storm_episodes.py          — Finding A
-    scripts/make_paper_figures.py      — figures + JSON out
-    results/fig4_day_night.json        — Day/Night CI+N
-                                         (gitignored,
-                                         reproducible)
+    paper/references.bib               — 21 keys, all cited
+    scripts/perm_test_18mo_3band.py    — perm test (model A)
+    scripts/make_paper_figures.py      — figures + fig5 band_abs
+    results/heldout_3band_2026-10-15.json — live held-out cache
+    results/perm_test_18mo_3band.json  — pairwise p-values source
 
 ## 10. Model policy (from HANDOFF)
 
@@ -282,24 +228,10 @@ extension) or start D (SEA) for Space Weather.
 ## Metadata
 
 - Generated by: MiMo via OpenCode
-- Generated at: 2026-10-15 (session 11 tail, after c53e3e3)
-- Source HEAD: c53e3e3
-- Sources read: git log, git status, AGENTS.md,
-  BACKLOG_2026-10-12_v11.md, HANDOFF_2026-10-11.md,
-  docs/DELTA_2026-10-14.md, external audit round 4 (chat).
-
-## Appendix — source inventory (sections found)
-
-- **AGENTS.md** (9 sections incl. Уроки):
-  Что это за проект; Стек; Структура; Команды; Правила для
-  агентов; Известные системные ограничения; Уроки;
-  Pre-commit hook.
-- **audit/BACKLOG_2026-10-12_v11.md** (7 sections):
-  Critical for arXiv; Already addressed; Text-only fixes;
-  Deferred to Space Weather; False positives / notes;
-  Session log; Next actions.
-- **docs/HANDOFF_2026-10-11.md** (21 sections) — unchanged.
-- **docs/releases/v1.1.0.md** (6 sections): Added; Changed;
-  Fixed; Docs / Internal; Deferred; Notes.
-- **docs/BOOTSTRAP.md** — unchanged.
-- **docs/DELTA_PROMPT_TEMPLATE.md** — unchanged.
+- Generated at: 2026-10-15 (session 12 tail)
+- Source HEAD: d32bf52 (corruption repair)
+- Sources read: git log, AGENTS.md, DELTA_2026-10-14.md,
+  REVIEWER2_FULL_AUDIT.txt (round 4, via chat prompt),
+  paper/main.tex, paper/references.bib, results JSONs,
+  tmp_verify_T4_T5.py / tmp_verify_heldout_live.py /
+  tmp_verify_M4_sensitivity.py outputs (session 12).

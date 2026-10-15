@@ -130,6 +130,26 @@ CrossCorr — воспроизводимый научный артефакт д�
   провале одного паттерна откат бьёт по всем категориям. Если
   пакетов несколько — отдельные `tmp_fix_<topic>.py`,
   последовательные коммиты.
+
+- **Никаких heredoc-инлайнов для LaTeX-правок (session 12).**
+  `python - <<'PYEOF'` внутри Git Bash на Windows схлопнул
+  `\\ref` → `\ref`, Python интерпретировал `\r` как CR — два
+  `\ref` в main.tex молча превратились в битые макросы (поймано
+  только при ревью diff следующего коммита). Правило: правки,
+  затрагивающие обратные слэши, — только через записанный
+  `tmp_fix_*.py` с Phase-1 verify. После любого автобайтового
+  редактирования — dump `repr()` вокруг затронутых строк.
+
+- **read_text/write_text vs CRLF (session 12).** `read_text()`
+  делает universal-newline-нормализацию CR→LF; смешение
+  `read_text`/`write_text` на CRLF-файле переписывает все 1256
+  строк (diff от «однострочной» правки). Итог: `git add` хранит
+  CRLF в blob при `* text=auto`. Правило: только
+  `read_bytes`/`write_bytes` + явная проверка BOM и переводов
+  строк. Если CRLF всё же попал в blob: `git reset --soft HEAD~1`,
+  нормализовать файл в LF, `git add`, закоммитить заново
+  (renormalize при этом бывает пустым — не доверять ему вслепую).
+
 ## Pre-commit hook (2026-10-12)
 
 Repo runs ruff + file hygiene on every CLI `git commit`.
