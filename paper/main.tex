@@ -8,6 +8,7 @@
 \usepackage{booktabs}
 \usepackage{array}
 \usepackage{tabularx}
+\usepackage{lineno}
 
 \journalname{Space Weather}
 
@@ -18,21 +19,16 @@
 
 \authors{Alexey Petrov\affil{1}, Makar Petrov\affil{1}}
 
-\affiliation{1}{Independent researchers, [City, Country]}
+\affiliation{1}{Independent researchers, Russia}
 
 \correspondingauthor{Alexey Petrov}{felixrpetrov@gmail.com}
 
+\linenumbers
 \begin{keypoints}
 	\item WSPR spot density drops \SIrange{27}{39}{\percent} during
 	$Kp \ge 5$ storms on all three HF bands ($p = 2 \times 10^{-5}$)
-	\item The effect is scale-dependent: $Kp = 5\text{--}6 \rightarrow
-		\SI{-18}{\percent}$, $Kp \ge 6 \rightarrow \SI{-42.8}{\percent}$,
-	with the primary drop replicated on 20\,m and 40\,m in a held-out period
-	\item On the 40\,m band, the absolute spot loss was initially
-	consistent with invariance across $\SI{+38}{\percent}$ network
-	growth, but a re-downloaded held-out sample (October 2026) yields
-	a larger loss ($\SI{-26287}{spots/h}$, ratio 1.44), outside the
-	training CI; invariance is therefore not established
+	\item The effect is scale-dependent: at Kp 5--6 \SI{-18}{\percent}, at Kp $\ge$ 6 \SI{-42.8}{\percent}; replicated on 20\,m/40\,m held-out
+	\item Absolute spot loss on 40\,m is not stable under network growth: re-download yields ratio 1.44, outside CI; invariance not established
 \end{keypoints}
 
 \begin{abstract}
@@ -72,6 +68,25 @@
 	detecting and characterising the scale-dependent effects of geomagnetic
 	storms on HF propagation.
 \end{abstract}
+
+\section*{Plain Language Summary}
+
+Geomagnetic storms disturb the ionosphere, the atmospheric layer that
+reflects high-frequency radio waves back to Earth. We tested whether a
+global network of amateur radio beacons (WSPR) can detect these
+disturbances. Analysing 18 months of data on three bands (20\,m, 40\,m,
+15\,m), we found that during moderate-to-strong storms the number of
+successfully reported signals falls by 27--39 percent, and that the
+reduction grows sharply with storm intensity. The pattern repeats in an
+independent three-month period. Stronger effects on the highest band
+point to storm-driven reductions of the maximum usable frequency, while
+the nighttime effect on the lowest band points to particle-driven
+absorption. Because the network keeps growing, the absolute number of
+lost signals is not stable across periods, whereas percentage drops
+remain a usable monitoring metric. Volunteer radio data can therefore
+serve as a low-cost, globally distributed sensor of space-weather
+effects on radio propagation.
+
 
 %=============================================================
 \section{Introduction}
