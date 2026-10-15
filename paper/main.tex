@@ -758,6 +758,27 @@ larger storm samples to separate the two mechanisms, and day/night asymmetry
 requires specific storm morphologies (energetic particle precipitation) that
 were not prevalent in this particular 3-month interval.
 
+Specifically, the frequency ordering inverts between the two periods:
+in training the drops are \SI{-38.7}{\percent} (15\,m),
+\SI{-27.7}{\percent} (20\,m), and \SI{-27.2}{\percent} (40\,m), whereas
+in the held-out window they are \SI{-22.1}{\percent} (15\,m),
+\SI{-26.7}{\percent} (20\,m), and \SI{-29.0}{\percent} (40\,m)
+(Table~\ref{tab:heldout}). Three factors can account for this inversion
+without contradicting the dual-mechanism interpretation. First,
+statistical power: only 47 storm epochs are available, and the 15\,m
+held-out drop is not significant ($p = 0.26$, 95\% CI includes zero), so
+the ordering of the point estimates is poorly constrained. Second,
+seasonal composition: the training period spans all four seasons,
+whereas January--March contains only late-winter and early-spring
+storms, with a different daytime-MUF climatology and shorter days.
+Third, sporadic-E: a fraction of summer 15\,m training spots arrives
+via Es rather than F-layer propagation (Section~5.5), so the training
+and held-out 15\,m samples are not strictly comparable, and the
+direction of this bias cannot be determined from spot counts alone.
+The held-out window is therefore consistent with, but does not
+independently confirm, the frequency-dependence ordering; confirmation
+requires a longer replication window spanning multiple seasons.
+
 \subsection{Absolute loss and network-size dependence}
 \label{sec:invariant}
 
@@ -1073,7 +1094,8 @@ in WSPR spot density, with five principal conclusions:
 	      yields $\SI{-26287}{spots/h}$ (ratio 1.44), outside the training
 	      CI. We therefore do not claim baseline invariance and treat the
 	      absolute loss as a descriptive quantity.
-	\item \textbf{Dual mechanism:} The frequency dependence and day/night
+	\item \textbf{Dual mechanism (training period; seasonal replication
+	      pending):} The frequency dependence and day/night
 	      asymmetry support two distinct physical mechanisms: MUF reduction
 	      (dominating 15\,m) and D-layer absorption via energetic particle
 	      precipitation (dominating 20\,m/40\,m, with nighttime enhancement on
