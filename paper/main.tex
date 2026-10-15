@@ -173,7 +173,8 @@ In this paper, we address these gaps with five contributions:
 \section{Data}
 %=============================================================
 
-The data sources and analysis periods are summarised in Table~\ref{tab:data}.
+The data sources and analysis periods are summarised in Table~ef{tab:data};
+download dates and freeze status are listed in Table~ef{tab:provenance}.
 
 \begin{table}[h]
 	\centering
@@ -190,6 +191,34 @@ The data sources and analysis periods are summarised in Table~\ref{tab:data}.
 		                       & Apr 2024 -- Mar 2026      & $\sim$5\,500                                             \\
 		WDC Kyoto              & $Dst$ index (provisional) & 1\,h
 		                       & Apr 2024 -- Sep 2025      & 12\,508                                                  \\
+		\bottomrule
+	\end{tabularx}
+\end{table}
+
+
+\begin{table}[h]
+	\centering
+	\small
+	\setlength{\tabcolsep}{4pt}
+	\caption{Data provenance. Training-period inputs are frozen;
+		the held-out period is served by the live \texttt{wspr.live}
+		database (see Section~5.5).}
+	\label{tab:provenance}
+	\begin{tabularx}{\textwidth}{@{}l >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X@{}}
+		\toprule
+		Dataset & Content & Retrieved & Storage / freeze status \\
+		\midrule
+		WSPR spots (training) & Hourly aggregates, 20\,m/40\,m/15\,m,
+		Apr 2024 -- Sep 2025 & 7--8 Oct 2026 (wspr.live ClickHouse) &
+		\texttt{data/processed/unified.parquet}; frozen \\
+		$Kp$ index & GFZ Potsdam, 3-hourly, Apr 2024 -- Mar 2026 &
+		7--8 Oct 2026 & unified parquet; frozen \\
+		$Dst$ index & WDC Kyoto provisional, hourly,
+		Apr 2024 -- Sep 2025 & 7--8 Oct 2026 & unified parquet; frozen \\
+		Held-out WSPR & Hourly aggregates, Jan -- Mar 2026 &
+		8 Oct 2026 (archived snapshot); 15 Oct 2026 (live
+		re-download, reported here) & Live database; per-band
+		parquet caches in \texttt{results/} (gitignored) \\
 		\bottomrule
 	\end{tabularx}
 \end{table}
