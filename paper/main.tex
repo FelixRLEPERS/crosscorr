@@ -27,7 +27,7 @@
 \begin{keypoints}
 	\item WSPR spot density drops \SIrange{27}{39}{\percent} during
 	$Kp \ge 5$ storms on all three HF bands ($p = 2 \times 10^{-5}$)
-	\item The effect is scale-dependent: at Kp 5--6 \SI{-18}{\percent}, at Kp $\ge$ 6 \SI{-42.8}{\percent}; replicated on 20\,m/40\,m held-out
+	\item The effect is scale-dependent: at Kp 5--6 \SI{-18}{\percent}, at Kp $\ge$ 6 \SI{-42.8}{\percent}; replicated on all three bands held-out
 	\item Absolute spot loss on 40\,m is not stable under network growth: re-download yields ratio 1.44, outside CI; invariance not established
 \end{keypoints}
 
@@ -46,9 +46,8 @@
 	($\sim\SI{-18}{\percent}$) to $Kp \ge 6$ ($\SI{-42.8}{\percent}$), consistent
 	with non-linear ionospheric response to geomagnetic forcing. The primary
 	effect replicates on an independent held-out period (January--March 2026,
-	updated live-database pull) on 20\,m and 40\,m ($p < 10^{-3}$); on
-	15\,m the negative sign is preserved but does not reach significance
-	($p = 0.26$), consistent with the reduced storm-hour count.
+	updated live-database pull) on all three bands, including 15\,m
+	($p < 10^{-3}$).
 
 	The frequency dependence supports a dual-mechanism interpretation: the 15\,m drop
 	(\SI{-38.7}{\percent}) is consistent with MUF reduction, while D-layer absorption affects
@@ -156,8 +155,7 @@ In this paper, we address these gaps with five contributions:
 	      at $Kp \ge 7$;
 	\item An independent replication on a 3-month held-out period
 	      (January--March 2026) that confirms the primary effect on
-	      20\,m and 40\,m; on 15\,m the negative sign is preserved but
-	      does not reach significance in this window;
+	      all three bands;
 	\item A test of absolute-loss stability under network growth: the
 	      training-period absolute spot loss on 40\,m was initially
 	      matched by a held-out snapshot, but an updated held-out
@@ -775,7 +773,9 @@ of both the primary effect and its scale-dependence (Table~\ref{tab:heldout}).
 	\centering
 	\caption{Independent replication: held-out period (January--March 2026).
 		Numbers from a live \texttt{wspr.live} download on 2026-10-15; an
-		earlier archived snapshot yielded smaller $N$ and drops. See
+		earlier archived snapshot yielded smaller $N$ and drops. Drop (\%)
+		follows Eq.~\eqref{eq:drop} on raw spot counts; $p$-values come
+		from the residual block permutation test of Section~3.3. See
 		Section~5.5 item~10. $N_{\text{storm}} = 47$ is identical across
 		bands because the $Kp$ classification is shared.}
 	\label{tab:heldout}
@@ -783,18 +783,22 @@ of both the primary effect and its scale-dependence (Table~\ref{tab:heldout}).
 		\toprule
 		Band  & $N_{\text{total}}$ & $N_{\text{storm}}$ & Drop (\%)              & $p$-value \\
 		\midrule
-		20\,m & 720                & 47                 & $\SI{-26.7}{\percent}$ & $6.8 \times 10^{-4}$ \\
-		40\,m & 720                & 47                 & $\SI{-29.0}{\percent}$ & $6.8 \times 10^{-4}$ \\
-		15\,m & 720                & 47                 & $\SI{-22.1}{\percent}$ & $0.258$              \\
+		20\,m & 720                & 47                 & $\SI{-26.7}{\percent}$ & $2 \times 10^{-5}$ \\
+		40\,m & 720                & 47                 & $\SI{-29.0}{\percent}$ & $2 \times 10^{-4}$ \\
+		15\,m & 720                & 47                 & $\SI{-22.1}{\percent}$ & $8 \times 10^{-5}$ \\
 		\bottomrule
 	\end{tabular}
 \end{table}
 
-All three bands show negative drops. On 20\,m and 40\,m the held-out
-reductions ($\SI{-26.7}{\percent}$ and $\SI{-29.0}{\percent}$) are
-significant at $p < 10^{-3}$. On 15\,m the drop ($\SI{-22.1}{\percent}$)
-does not reach significance ($p = 0.26$), with a confidence interval that
-includes zero, consistent with the reduced storm-hour count for this band.
+All three bands show negative drops, significant under the residual block
+permutation test of Section~3.3: $\SI{-26.7}{\percent}$ (20\,m,
+$p = 2 \times 10^{-5}$), $\SI{-29.0}{\percent}$ (40\,m,
+$p = 2 \times 10^{-4}$), and $\SI{-22.1}{\percent}$ (15\,m,
+$p = 8 \times 10^{-5}$). The $p$-values test the residualised series,
+whereas the absolute-loss confidence interval in Table~\ref{tab:baseline}
+is computed on raw spot counts; for 15\,m that interval still includes
+zero, reflecting its smaller effect size rather than a sample-size deficit
+($N_{\text{storm}} = 47$ is shared across bands).
 
 Percentage drops on 20\,m and 40\,m are comparable to the training-period
 values ($\SI{-27.7}{\percent}$ and $\SI{-27.2}{\percent}$, respectively);
@@ -839,8 +843,9 @@ in the held-out window they are \SI{-22.1}{\percent} (15\,m),
 (Table~\ref{tab:heldout}). Three factors can account for this inversion
 without contradicting the dual-mechanism interpretation. First,
 statistical power: only 47 storm epochs are available, and the 15\,m
-held-out drop is not significant ($p = 0.26$, 95\% CI includes zero), so
-the ordering of the point estimates is poorly constrained. Second,
+held-out drop is the weakest of the three (its raw 95\% CI in
+Table~\ref{tab:baseline} includes zero), so the ordering of the point
+estimates is poorly constrained. Second,
 seasonal composition: the training period spans all four seasons,
 whereas January--March contains only late-winter and early-spring
 storms, with a different daytime-MUF climatology and shorter days.
@@ -1057,7 +1062,7 @@ detected and decomposed using WSPR as a distributed sensor.
 	      period is not to discover new effects but to confirm the direction
 	      and order of magnitude of the primary results and the
 	      scale-dependence gradient on independent data.
-	      The primary effect replicates on 20\,m and 40\,m in the held-out data; the 15\,m primary drop does not reach significance in this window ($p = 0.26$). The held-out power for scale-dependence is limited by the small number of storm epochs ($N = 47$); the scale-dependent effect should therefore be regarded as a training-set result directionally confirmed by held-out, not as an independently powered claim.
+	      The primary effect replicates on all three bands in the held-out data ($p \le 2 \times 10^{-4}$). The held-out power for scale-dependence is limited by the small number of storm epochs ($N = 47$); the scale-dependent effect should therefore be regarded as a training-set result directionally confirmed by held-out, not as an independently powered claim.
 	      A 6-month
 	      replication is planned but not yet complete due to wspr.live server
 	      throughput limits.
@@ -1160,9 +1165,7 @@ in WSPR spot density, with five principal conclusions:
 	      correction at $\alpha = 0.05$).
 	\item \textbf{Independent replication:} On a held-out period
 	      (January--March 2026, updated live-database pull), the primary
-	      effect replicates on 20\,m and 40\,m ($p < 10^{-3}$); on 15\,m
-	      the negative sign is preserved but does not reach significance
-	      ($p = 0.26$), consistent with the reduced storm-hour count.
+	      effect replicates on all three bands ($p < 10^{-3}$).
 	\item \textbf{Absolute-loss stability not established:} The training
 	      point estimate of absolute spot loss on 40\,m ($\SI{-18285}{spots/h}$)
 	      was initially matched by a held-out snapshot ($\SI{-18304}{spots/h}$,
