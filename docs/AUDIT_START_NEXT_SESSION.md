@@ -144,61 +144,6 @@ sentence), C9 (date re-download 13 vs 15), M1 (provenance
 table), M5 (frequency inversion in held-out), M8 (.bib 26 vs
 16), M9 (affiliation placeholder / KeyPoints >140 / linenumbers).
 
-### Session 10 — 2026-10-15 (external audit round 3, batches 1-8)
-
-Eight paper fixes + fig5 regen + docs sync. Closed numeric audit
-findings: 198 raw -> 66 raw -> 198 epochs; 2.3% -> 0.87%; -37% ->
-own drops; 89-95% -> 0.89-1.05 (then 1.01-1.12); Table 3 caption;
-Table 9 caption; N_quiet 3359 -> 3035; N_unsettled 792 -> 1116;
-baseline-invariance reframed; ESS 482/0.83/82 -> 4349/0.69-0.75/
-610-793; Table 7 -> live wspr.live 2026-10-15 (720/47, drops
--26.7/-29.0/-22.1%, 15m p=0.26); Table 8 ratios 1.11/1.01/1.12.
-
-Commits `688ceab..66b919b` (see DELTA_2026-10-14.md for full log).
-
-### Session 11 — 2026-10-15 (external audit round 3, batches 9-10 + v1.2.0)
-
-Second, deeper external audit identified 9 blockers + 9 major items.
-Verified with read-only scripts (tmp_verify_*.py):
-- **C1 verified**: analysis series is 3-hourly (inner join on
-  native Kp timestamps, no forward-fill). hours-of-day ∈
-  {0,3,6,9,12,15,18,21}; gap = 3h (4344/4348).
-- **C4 verified**: `BLOCK = 24` rows = 72 h (three diurnal cycles).
-- **C5 mostly rejected**: Table 5 reproduces exactly from current
-  parquet. But new finding: Table 2 Δ (raw value diff) differs
-  from §3.3 definition (residual diff). Left for future work.
-- **C6 verified**: retracted claim still in README (6 places),
-  CITATION.cff, and Zenodo concept record.
-- **M8 verified**: 26 .bib keys, 16 rendered in .bbl.
-
-**Batches 9-10 (paper):**
-- `8b2058b` — batch 9: block size = 24 epochs = 72 h throughout;
-  M6 (null statement corrected: residual blocks permuted, Kp
-  labels fixed; not 'equivalent to shuffling Kp labels');
-  M7 (p = 2×10⁻⁵ add-one floor, not p <).
-- `5984d9a` — batch 10: C1 (3-hourly epoch units throughout
-  methods); C2 (39,456 WSPR hours -> 13,152 per band + 39,456
-  across three); C3 (66 raw 3-hourly intervals -> 198 epochs,
-  = 594 storm hours); M2 (Dst 2.4× more storm samples + 2.9×
-  larger total sample).
-
-**v1.2.0 release:**
-- `df843b6` — CITATION.cff title 'baseline-invariant absolute loss'
-  -> 'network-size effects on absolute loss'; version 1.2.0;
-  README 5 places updated (key findings #3 rewritten as
-  database-mutability cautionary); pyproject 1.2.0; paper Code
-  Availability tag v1.2.0 + concept DOI 23285958.
-- Tag `v1.2.0` @`df843b6` (annotated); GitHub Release published;
-  Zenodo minted version DOI `10.5281/zenodo.23394340` (webhook OK).
-- `c53e3e3` — version DOI in CITATION.cff and paper Code
-  Availability; concept DOI kept for Data Availability.
-
-**Major items still open (not blockers):** C5-новая (Table 2 Δ
-vs §3.3), C7 (Table 9 20m/15m), C8 (§5.5 item 9 first
-sentence), C9 (date re-download 13 vs 15), M1 (provenance
-table), M5 (frequency inversion in held-out), M8 (.bib 26 vs
-16), M9 (affiliation placeholder / KeyPoints >140 / linenumbers).
-
 ## 3. Open loops (what is NOT closed)
 
 Release v1.2.0: **shipped** (Zenodo version DOI `23394340`).
