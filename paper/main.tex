@@ -251,7 +251,10 @@ comprises 3\,035 epochs and exhibits mean spot counts of 73\,718
 
 The held-out (replication) period covers January through March 2026 (90 days).
 After the same 3-hourly merge, it yields 47 storm epochs per band
-(= 141\,h), with a higher quiet-time baseline due to the growing WSPR
+(= 141\,h). The window is slightly storm-richer than training
+(47/720 = 6.5\% versus 198/4349 = 4.6\% of epochs), which matters for
+interpreting the absolute-loss ratio of Section~4.6. It also has a higher
+quiet-time baseline due to the growing WSPR
 network: 86\,355 spots/h
 (20\,m, $\SI{+17}{\percent}$), 92\,694 (40\,m, $\SI{+38}{\percent}$),
 and 16\,784 (15\,m, $\SI{+25}{\percent}$).
@@ -458,7 +461,8 @@ Six robustness checks were performed:
 	      transmitters during storms (operators switching off stations) explain
 	      the effect? We compute residuals for $\text{spots} / n_{\text{tx}}$.
 	      The normalised residual correlates with $Kp$ at $\rho = -0.21$,
-	      stronger than the raw spot residual ($\rho = -0.13$). The effect is
+	      stronger than the raw spot residual ($\rho = -0.13$, computed over
+	      all epochs including unsettled $Kp = 3$--4). The effect is
 	      \emph{not} driven by fewer transmitters.
 	\item \textbf{Independent events:} The 198 storm epochs derive from 76 storm days,
 	      grouping into 58 episodes separated by more than 12~h, across 18 months
@@ -470,8 +474,8 @@ Six robustness checks were performed:
 	      MUF reduction for moderate storms \citep{davies1990}.
 	      This is not a blackout.
 	\item \textbf{Per-transmitter normalisation:} $\text{spots\_per\_tx}$
-	      residual drops by $\SI{-31.8}{}$ at $Kp \ge 5$ versus $+4.0$ at
-	      $Kp < 3$. The effect survives controlling for $n_{\text{tx}}$.
+	      residual (in spots per transmitter per hour) drops by $-31.8$ at
+	      $Kp \ge 5$ versus $+4.0$ at $Kp < 3$. The effect survives controlling for $n_{\text{tx}}$.
 	\item \textbf{Index-independence:} Both $Kp$ and $Dst$, derived from
 	      independent magnetometer networks, confirm the effect at
 	      $p = 2 \times 10^{-5}$ on all three bands.
@@ -540,7 +544,8 @@ threshold selecting more disturbed conditions.
 		$Dst > \SI{-20}{nT}$. $N_{\text{Dst}}$ is the total number of
 		matched hours per band ($N_{\text{storm}} = 471$ at
 		$Dst < \SI{-50}{nT}$, $N_{\text{quiet}} = 8\,811$ at
-		$Dst > \SI{-20}{nT}$).}
+		$Dst > \SI{-20}{nT}$). The remaining 3\,226 matched hours with
+		$-50 \le Dst \le -20$\,nT are excluded from this comparison.}
 	\label{tab:dst}
 	\begin{tabular}{lrrl}
 		\toprule
@@ -661,7 +666,7 @@ simultaneously:
 	      geographic path and solar conditions). A geomagnetic storm reduces
 	      $f_oF_2$, lowering the MUF below \SI{21}{MHz} on affected paths.
 	      During peak daylight hours (12--18 UTC), the 15\,m drop reaches
-	      \SI{-48.2}{\percent}, confirming MUF as the primary daytime
+	      \SI{-48.3}{\percent}, confirming MUF as the primary daytime
 	      constraint.
 	\item \textbf{D-layer absorption (20\,m / 40\,m bands):} Both bands
 	      operate well below typical MUF, so their primary sensitivity is to
@@ -694,7 +699,9 @@ cycle (Table~\ref{tab:daynight}).
 		bootstrap resampling (\SI{1000}{resamples});
 		$N_{\text{storm}} / N_{\text{quiet}}$ as indicated.
 		All-hours rows are the block permutation result
-		(observed, no CI).}
+		(observed, no CI). Day and night rows cover 158 of the 198 storm
+		epochs and 2\,254 of the 3\,035 quiet epochs; the remainder fall
+		outside the 12--18 and 0--6 UTC windows.}
 	\label{tab:daynight}
 	\begin{tabular}{llrrl}
 		\toprule
@@ -769,7 +776,8 @@ of both the primary effect and its scale-dependence (Table~\ref{tab:heldout}).
 	\caption{Independent replication: held-out period (January--March 2026).
 		Numbers from a live \texttt{wspr.live} download on 2026-10-15; an
 		earlier archived snapshot yielded smaller $N$ and drops. See
-		Section~5.5 item~9.}
+		Section~5.5 item~9. $N_{\text{storm}} = 47$ is identical across
+		bands because the $Kp$ classification is shared.}
 	\label{tab:heldout}
 	\begin{tabular}{lrrrl}
 		\toprule
@@ -1039,9 +1047,10 @@ detected and decomposed using WSPR as a distributed sensor.
 	      sample of 3 months contains $N = 47$ storm epochs
 	      ($Kp \ge 5$), compared to $N = 198$ epochs in the training period.
 	      This limits statistical power for secondary effects such as the
-	      day/night asymmetry. Specifically, the $+1.4\%$ anomaly for
-	      15\,m at $Kp = 5\text{--}6$ in the held-out period is attributed
-	      to low statistical power ($N < 5$ epochs in this bin), whereas the
+	      day/night asymmetry. Specifically, the $+4.9\%$ anomaly for
+	      15\,m at $Kp = 5\text{--}6$ in the held-out period ($N = 25$
+	      epochs in this bin, live re-download) is attributed to the small
+	      window and wide sampling uncertainty, whereas the
 	      $Kp = 6\text{--}7$ bin ($N = 10$ epochs) replicates the
 	      training trend ($\SI{-57.0}{\percent}$ held-out vs.\
 	      $\SI{-50.7}{\percent}$ training). The purpose of the held-out
@@ -1053,16 +1062,18 @@ detected and decomposed using WSPR as a distributed sensor.
 	      replication is planned but not yet complete due to wspr.live server
 	      throughput limits.
 
-The mutual information and transfer entropy modules included in
-the codebase for exploratory analysis use the Kraskov–Stögbauer–
-Grassberger (KSG) estimator, which assumes continuous probability
-densities. Applied to discrete or coarsely quantized data — as
-WSPR spot counts and integer geomagnetic indices are — the
-estimator degrades rapidly: a standalone probe (scripts/probe\_ksg\_ties.py)
-shows infinite estimates at $\le$30 quantization levels and 7×
-overestimation at 100 levels. These modules are therefore excluded
-from all reported results in this paper and should be regarded
-as exploratory tooling, not as validated analytical instruments.
+\item \textbf{Exploratory KSG modules:} The mutual information and
+	      transfer entropy modules included in the codebase for
+	      exploratory analysis use the Kraskov--Stoegbauer--Grassberger
+	      (KSG) estimator, which assumes continuous probability
+	      densities. Applied to discrete or coarsely quantized data -- as
+	      WSPR spot counts and integer geomagnetic indices are -- the
+	      estimator degrades rapidly: a standalone probe
+	      (scripts/probe\_ksg\_ties.py) shows infinite estimates at
+	      $\le$30 quantization levels and $7\times$ overestimation at
+	      100 levels. These modules are therefore excluded from all
+	      reported results in this paper and should be regarded as
+	      exploratory tooling, not as validated analytical instruments.
 
 	\item \textbf{Spatial resolution:} Aggregating global spot counts masks
 	      regional ionospheric responses (e.g., polar cap absorption vs.\
