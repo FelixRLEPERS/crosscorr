@@ -14,7 +14,7 @@
 \begin{document}
 
 \title{Scale-dependent WSPR response to geomagnetic storms: \\
-	frequency dependence and baseline-invariant absolute loss}
+	frequency dependence and network-size effects on absolute loss}
 
 \authors{Alexey Petrov\affil{1}, Makar Petrov\affil{1}}
 
@@ -28,11 +28,11 @@
 	\item The effect is scale-dependent: $Kp = 5\text{--}6 \rightarrow
 		\SI{-18}{\percent}$, $Kp \ge 6 \rightarrow \SI{-42.8}{\percent}$,
 	confirmed by independent replication
-	\item On the 40\,m band, the absolute spot loss is consistent with
-	invariance within wide confidence intervals across
-	$\SI{+38}{\percent}$ network growth (block bootstrap 95\% CI
-	$[\SI{-23807}{spots/h},\, \SI{-12930}{spots/h}]$), indicating
-	structurally constrained vulnerable propagation paths
+	\item On the 40\,m band, the absolute spot loss was initially
+	consistent with invariance across $\SI{+38}{\percent}$ network
+	growth, but a re-downloaded held-out sample (October 2026) yields
+	a larger loss ($\SI{-26287}{spots/h}$, ratio 1.44), outside the
+	training CI; invariance is therefore not established
 \end{keypoints}
 
 \begin{abstract}
@@ -58,14 +58,14 @@
 	(40\,m drop stronger at night in 9/10 training months) is consistent with
 	intermittent auroral and polar cap absorption.
 
-	A key result is baseline invariance: the absolute spot loss on 40\,m is
-	consistent across training and held-out periods within wide confidence
-	intervals ($\SI{-18300}{spots/h}$ in both; block bootstrap 95\% CI
-	$[\SI{-23807}{spots/h},\, \SI{-12930}{spots/h}]$), despite
-	$\SI{+38}{\percent}$ growth in the WSPR network. This supports
-	the interpretation that the storm effect is physically real, not a
-	network-size artifact, and indicates a structurally constrained
-	population of vulnerable propagation paths.
+	The training-period absolute spot loss on 40\,m ($\SI{-18285}{spots/h}$)
+	was initially matched by a held-out snapshot ($\SI{-18304}{spots/h}$),
+	consistent with network-size invariance within wide confidence
+	intervals despite $\SI{+38}{\percent}$ network growth. However, a
+	re-downloaded held-out sample (October 2026) yields a larger absolute
+	loss ($\SI{-26287}{spots/h}$, ratio 1.44), below the training CI. We
+	therefore report the training-period invariance as suggestive but not
+	established, and use the updated held-out loss in all derived quantities.
 	We conclude that WSPR can serve as a distributed ionospheric sensor for
 	detecting and characterising the scale-dependent effects of geomagnetic
 	storms on HF propagation.
@@ -193,7 +193,7 @@ ClickHouse mirror; the boundaries were not selected a priori and
 no data were discarded to achieve a target period length. After merging WSPR
 hourly data with $Kp$ (3-hourly, forward-filled to 1\,h resolution), we obtain
 4\,349 matched hours per band, of which 198 hours satisfy $Kp \ge 5$ (the storm
-threshold). The quiet-time baseline ($Kp < 3$) comprises 3\,359 hours and
+threshold). The quiet-time baseline ($Kp < 3$) comprises 3\,035 hours and
 exhibits mean spot counts of 73\,718 (20\,m), 67\,105 (40\,m), and
 13\,386 spots/h (15\,m).
 
@@ -324,7 +324,7 @@ $Dst > -20$\,nT) and to pairwise comparisons between adjacent $Kp$ bins for the
 scale-dependence analysis.
 
 The primary hypothesis test intentionally excludes unsettled conditions
-($3 \leq Kp < 5$, $N \approx 792$ hours) to maximise the statistical
+($3 \leq Kp < 5$, $N = 1\,116$ hours) to maximise the statistical
 contrast between quiet and storm states. These hours are included in
 the scale-dependent binned analysis (Section 4.2).
 
@@ -417,9 +417,9 @@ reduction on all three HF bands.
 		Band      & $N_{\text{storm}}$ & $N_{\text{quiet}}$ &
 		Drop (\%) & $\Delta$ (spots/h) & $p$-value (block)                                                            \\
 		\midrule
-		20\,m     & 198                & 3\,359             & $\SI{-27.7}{\percent}$ & $\SI{-20421}{spots/h}$ & $< 2 \times 10^{-5}$ \\
-		40\,m     & 198                & 3\,359             & $\SI{-27.2}{\percent}$ & $\SI{-18285}{spots/h}$ & $< 2 \times 10^{-5}$ \\
-		15\,m     & 198                & 3\,359             & $\SI{-38.7}{\percent}$ & $\SI{-5178}{spots/h}$ & $< 2 \times 10^{-5}$ \\
+		20\,m     & 198                & 3\,035             & $\SI{-27.7}{\percent}$ & $\SI{-20421}{spots/h}$ & $< 2 \times 10^{-5}$ \\
+		40\,m     & 198                & 3\,035             & $\SI{-27.2}{\percent}$ & $\SI{-18285}{spots/h}$ & $< 2 \times 10^{-5}$ \\
+		15\,m     & 198                & 3\,035             & $\SI{-38.7}{\percent}$ & $\SI{-5178}{spots/h}$ & $< 2 \times 10^{-5}$ \\
 		\bottomrule
 	\end{tabular}
 \end{table}
@@ -708,7 +708,7 @@ larger storm samples to separate the two mechanisms, and day/night asymmetry
 requires specific storm morphologies (energetic particle precipitation) that
 were not prevalent in this particular 3-month interval.
 
-\subsection{Baseline-invariant absolute loss}
+\subsection{Absolute loss and network-size dependence}
 \label{sec:invariant}
 
 \begin{figure}[t]
@@ -726,63 +726,72 @@ were not prevalent in this particular 3-month interval.
 	\label{fig:baseline}
 \end{figure}
 
-A key result of this study is that the absolute spot loss is consistent with invariance within the wide confidence intervals of an 18-month series, despite substantial network growth. Table~\ref{tab:baseline} compares the absolute and relative
-drops between the training and held-out periods.
+A central question for operational monitoring is whether the absolute
+spot loss (spots/h) is stable as the WSPR network grows.
+Table~\ref{tab:baseline} compares absolute and relative drops between
+the training and held-out periods.
 
 \begin{table}[h]
 	\centering
 	\small
 	\setlength{\tabcolsep}{5pt}
-	\caption{Baseline invariance: absolute spot loss (units: spots/h).
+	\caption{Absolute spot loss across periods (units: spots/h).
 		Training point estimates with 95\% block bootstrap CI
 		(24\,h blocks, 1000 resamples, seed 42); held-out CI shown for
-		40\,m only, from live wspr.live download 2026-10-13.\protect\footnotemark{}}
+		40\,m only, from live wspr.live download 2026-10-13. The updated
+		held-out 40\,m value ($\SI{-26287}{spots/h}$, ratio 1.44) lies
+		outside the training CI; invariance is therefore not claimed.\protect\footnotemark{}}
 	\label{tab:baseline}
 	\begin{tabular}{lrrrc}
 		\toprule
 		Band  & Training abs loss [95\% CI] & Held-out abs loss [95\% CI] & Ratio (H/T) \\
 		\midrule
 		20\,m & $\SI{-20421}{spots/h}$ $[-26834,\,-14544]$ & $\SI{-15793}{spots/h}$ & 0.77 \\
-		40\,m & $\SI{-18285}{spots/h}$ $[-23807,\,-12930]$ & $\SI{-18304}{spots/h}$ $[-37144,\,-12472]$ & \textbf{1.00} \\
+		40\,m & $\SI{-18285}{spots/h}$ $[-23807,\,-12930]$ & $\SI{-26287}{spots/h}$ $[-37144,\,-12472]$ & \textbf{1.44} \\
 		15\,m & $\SI{-5178}{spots/h}$ $[-6671,\,-3684]$ & $\SI{-2181}{spots/h}$ & 0.42 \\
 		\bottomrule
 	\end{tabular}
 \end{table}
 \footnotetext{Held-out CI 40\,m only (live 2026-10-13); see \texttt{audit/FINDING\_HELDOUT\_LIVE\_2026-10-13.md}.}
 
-On 40\,m, the absolute loss is consistent with invariance between the
-two periods ($\SI{-18285}{spots/h}$ in training and
-$\SI{-18304}{spots/h}$ in held-out, ratio = 1.00; block bootstrap 95\% CI
-$[\SI{-23807}{spots/h},\, \SI{-12930}{spots/h}]$), despite a
-$\SI{+38}{\percent}$ increase in the quiet-time baseline from network
-growth. The ratio of 1.00 and the overlapping confidence intervals
-support the interpretation that the storm effect is physically real:
-the ionosphere loses approximately \SI{18300}{spots/h} on 40\,m during
-storms, regardless of how many additional stations join the network.
-The effect is not a network-size artefact.
-The baseline-invariant absolute loss may reflect a structural
-bottleneck: storms disrupt a finite set of vulnerable propagation
-paths determined by ionospheric geometry, independent of network
-size.
+The initial training-period point estimate for 40\,m
+($\SI{-18285}{spots/h}$; block bootstrap 95\% CI
+$[\SI{-23807}{spots/h},\, \SI{-12930}{spots/h}]$) and the first
+held-out snapshot ($\SI{-18304}{spots/h}$) were consistent with a
+constant absolute loss despite a $\SI{+38}{\percent}$ increase in the
+quiet-time baseline from network growth. We initially read this as
+evidence that storm-vulnerable propagation paths form a structurally
+constrained population that is not enlarged by adding stations within
+already-covered regions.
 
-The baseline-invariance differs by band in a physically meaningful way:
+However, the held-out period is served by the live \texttt{wspr.live}
+database, which is continuously updated as operators upload delayed
+logs. A re-download on 2026-10-13 yields a substantially larger held-out
+sample for 40\,m ($N = 720$ hours, $N_{\text{storm}} = 47$, compared
+with $N_{\text{total}} = 648$, $N_{\text{storm}} = 38$ in the archived
+snapshot), and an absolute loss of $\SI{-26287}{spots/h}$ (block
+bootstrap 95\% CI $[-\SI{37144}{spots/h},\, -\SI{12472}{spots/h}]$),
+which lies \emph{below} the lower bound of the training CI. The
+held-out / training ratio under the extended data is 1.44, not 1.00.
 
-\begin{itemize}
-	\item \textbf{40\,m (ratio = 1.00):} MUF is rarely the limiting factor.
-	      The dominant mechanism is D-layer absorption, which acts uniformly on
-	      all paths at a given frequency. New stations add a proportional
-	      number of ``blockable'' paths---the absolute loss stays constant.
-	\item \textbf{15\,m (ratio = 0.42):} Operates near the MUF ceiling. New
-	      stations added by 2026 are more likely to be on shorter paths or
-	      at lower latitudes, where MUF remains above \SI{21}{MHz} even during
-	      storms. These new paths are less vulnerable and dilute the absolute
-	      loss.
-	\item \textbf{20\,m (ratio = 0.77):} An intermediate case, affected by both
-	      mechanisms.
-\end{itemize}
+We therefore do not claim baseline invariance as an established result.
+The training-period observation remains internally consistent, but the
+extended held-out data indicate that the absolute loss is not stable
+at the level suggested by the initial snapshot. Two explanations are
+possible and cannot be separated with the present data: (i) the
+absolute loss genuinely increases with network size and storm-driven
+coverage, or (ii) the archived held-out snapshot was biased low by the
+delayed-upload effect in the \texttt{wspr.live} database. Distinguishing
+these would require a frozen data snapshot at analysis time, which was
+not preserved for the original held-out period.
 
-This asymmetry between 15\,m and 40\,m is evidence for two distinct physical
-mechanisms, not a flaw in the baseline-invariance concept.
+The training-period point estimates differ across bands
+(40\,m: $\SI{-18285}{spots/h}$; 20\,m: $\SI{-20421}{spots/h}$;
+15\,m: $\SI{-5178}{spots/h}$), and the held-out / training ratios
+(0.42 to 1.44) are not consistent with a single universal
+network-size-invariant absolute-loss metric. We report these absolute
+values as descriptive quantities rather than as evidence of a
+network-size invariant metric.
 
 
 %=============================================================
@@ -846,22 +855,22 @@ produces only modest $\sim\SI{-18}{\percent}$ reductions. For severe disruption
 exceeding $\SI{50}{\percent}$ loss, $Kp \ge 7$ is needed---a threshold reached
 in only 38 hours (0.87\%) of the 18-month training period.
 
-\subsection{Baseline invariance and practical monitoring}
+\subsection{Practical implications for monitoring}
 
-The discovery that the absolute spot loss is consistent with invariance within the wide confidence intervals of an 18-month series (Section~\ref{sec:invariant}) has important implications for operational HF propagation monitoring:
+The absolute-loss comparison across training and held-out periods (Section~\ref{sec:invariant}) has direct implications for operational HF propagation monitoring:
 
 \begin{enumerate}
-	\item \textbf{Metric stability:} Percentage-based metrics are unstable when
-	      the denominator (network size) changes over time. Absolute spot loss
-	      per hour is a physically meaningful alternative that remains stable
-	      across periods.
-	\item \textbf{Structurally constrained paths:} The apparent invariance on 40\,m (ratio = 1.00 and overlapping 95\% CIs
-	      despite $\SI{+38}{\percent}$ growth) is consistent with the interpretation
-	      that the population of storm-vulnerable propagation paths is
-	      structurally constrained, though the wide confidence intervals
-	      prevent a strong claim. Adding more stations
-	      within the already-covered geographic region does not create new
-	      vulnerable paths; it only increases the quiet-time baseline.
+	\item \textbf{Percentage metrics are network-dependent:} Percentage-based
+	      metrics are unstable when the denominator (network size) changes
+	      over time. Absolute spot loss per hour is a physically meaningful
+	      alternative that is more directly interpretable as a propagation
+	      quantity, though its stability across periods should not be assumed
+	      without validation (see next item).
+	\item \textbf{Metric stability caveat:} The apparent 40\,m invariance
+	      in the initial snapshot did not survive an updated held-out
+	      download (ratio = 1.44), so absolute loss per hour should not be
+	      assumed stable over multi-year network growth without periodic
+	      re-validation.
 	\item \textbf{Real-time monitoring:} WSPR spot density, normalised by the
 	      quiet-time baseline, could serve as a near-real-time proxy for
 	      storm-induced HF propagation degradation, complementing existing
@@ -1002,11 +1011,13 @@ in WSPR spot density, with five principal conclusions:
 	      Scale-dependence replicates when matched by $Kp$ bin: the
 	      held-out drops are 0.89--1.05$\times$ the training drops at
 	      $Kp = 6\text{--}7$.
-	\item \textbf{Baseline invariance:} The absolute spot loss on 40\,m is
-	      consistent with invariance between training and held-out
-	      ($\SI{-18300}{spots/h}$ in both, ratio = 1.00), despite
-	      $\SI{+38}{\percent}$ network growth. The storm effect is
-	      physically real, not a network-size artefact.
+	\item \textbf{Absolute-loss stability not established:} The training
+	      point estimate of absolute spot loss on 40\,m ($\SI{-18285}{spots/h}$)
+	      was initially matched by a held-out snapshot ($\SI{-18304}{spots/h}$,
+	      ratio 1.00), but a re-downloaded held-out sample (October 2026)
+	      yields $\SI{-26287}{spots/h}$ (ratio 1.44), outside the training
+	      CI. We therefore do not claim baseline invariance and treat the
+	      absolute loss as a descriptive quantity.
 	\item \textbf{Dual mechanism:} The frequency dependence and day/night
 	      asymmetry support two distinct physical mechanisms: MUF reduction
 	      (dominating 15\,m) and D-layer absorption via energetic particle
@@ -1016,10 +1027,11 @@ in WSPR spot density, with five principal conclusions:
 
 WSPR is a viable distributed ionospheric sensor for detecting and
 characterising the scale-dependent effects of geomagnetic storms on HF
-propagation. The baseline-invariant absolute loss metric enables robust
-monitoring even as the WSPR network continues to grow, and the scale-dependent
-characterisation provides a quantitative link between geomagnetic indices
-($Kp$, $Dst$) and expected HF propagation degradation.
+propagation. The scale-dependent characterisation provides a quantitative
+link between geomagnetic indices ($Kp$, $Dst$) and expected HF propagation
+degradation; the stability of absolute-loss metrics under continued network
+growth remains an open question, and requires frozen archival snapshots
+for definitive resolution.
 
 
 %=============================================================
