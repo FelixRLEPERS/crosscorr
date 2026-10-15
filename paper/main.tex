@@ -140,10 +140,12 @@ In this paper, we address these gaps with five contributions:
 	\item An independent replication on a 3-month held-out period
 	      (January--March 2026) that confirms both the primary effect and its
 	      scale-dependence;
-	\item The discovery of baseline-invariant absolute spot loss: the number of
-	      lost spots per hour is constant across periods despite
-	      $\SI{+38}{\percent}$ network growth, implying a structurally constrained population of
-	      vulnerable paths;
+	\item A test of absolute-loss stability under network growth: the
+	      training-period absolute spot loss on 40\,m was initially
+	      matched by a held-out snapshot, but an updated held-out
+	      download yields a larger loss outside the training CI. We
+	      therefore do not claim invariance and treat the absolute loss
+	      as a descriptive quantity;
 	\item A day/night asymmetry consistent with intermittent auroral and
 	      polar cap absorption during storms.
 \end{enumerate}
@@ -714,15 +716,13 @@ were not prevalent in this particular 3-month interval.
 \begin{figure}[t]
 	\centering
 	\includegraphics[width=0.85\textwidth]{figures/fig5_baseline_invariance.png}
-	\caption{Baseline-invariant absolute spot loss. Comparison of the absolute
+	\caption{Absolute spot loss across periods. Comparison of the absolute
 		WSPR spot loss during storms between the training (18-month) and
-		held-out (3-month) periods for all three bands. On 40\,m, the
-		absolute loss is consistent with invariance within wide 95\% CIs
-		(training $\SI{-18285}{spots/h}$, held-out $\SI{-18304}{spots/h}$,
-		ratio = 1.00; block CI $[\SI{-23807}{spots/h},\,
-		\SI{-12930}{spots/h}]$), despite $\SI{+38}{\percent}$ network
-		growth, indicating a structurally constrained population of
-		vulnerable propagation paths.}
+		held-out (3-month) periods for all three bands. The training-period
+		40\,m estimate ($\SI{-18285}{spots/h}$) was initially matched by a
+		held-out snapshot ($\SI{-18304}{spots/h}$); an updated download
+		(2026-10-13) yields $\SI{-26287}{spots/h}$ (ratio 1.44), outside
+		the training CI, so invariance is not claimed.}
 	\label{fig:baseline}
 \end{figure}
 
