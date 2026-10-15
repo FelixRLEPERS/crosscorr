@@ -49,8 +49,8 @@
 	($\sim\SI{-18}{\percent}$) to $Kp \ge 6$ ($\SI{-42.8}{\percent}$), consistent
 	with non-linear ionospheric response to geomagnetic forcing. This gradient
 	replicates on an independent held-out period (January--March 2026): at
-	$Kp = 6\text{--}7$, training and held-out drops are within
-	\SIrange{89}{95}{\percent} of each other.
+	$Kp = 6\text{--}7$, the held-out drops are 0.89--1.05$\times$ the
+	training drops.
 
 	The frequency dependence supports a dual-mechanism interpretation: the 15\,m drop
 	(\SI{-38.7}{\percent}) is consistent with MUF reduction, while D-layer absorption affects
@@ -213,7 +213,7 @@ The $Kp$ index is obtained from GFZ Potsdam's real-time JSON API
 (https://kp.gfz-potsdam.de). $Kp$ is a 3-hourly planetary index on a
 quasi-logarithmic scale from 0 to 9, derived from 13 subauroral magnetometer
 stations. The mean $Kp$ over the training period is 2.29, with a maximum
-of 8.7 (multiple events). Across the 18 months, 198 raw 3-hourly $Kp$
+of 8.7 (multiple events). Across the 18 months, 66 raw 3-hourly $Kp$
 intervals reach $Kp \ge 5$, distributed across 76 storm days. Grouped
 into episodes separated by more than 12~h (scripts/storm\_episodes.py),
 these intervals form 58 storm episodes, so the effective number of
@@ -371,10 +371,12 @@ Six robustness checks were performed:
 	\item \textbf{Independent events:} The 198 storm hours derive from 76 storm days,
 	      grouping into 58 episodes separated by more than 12~h, across 18 months
 	      and covering all four seasons. This is not a single-event result.
-	\item \textbf{Absolute magnitude:} The $\SI{-37}{\percent}$ absolute drop at
-	      $Kp \ge 5$ is within the literature range of $\SIrange{30}{60}{\percent}$
+	\item \textbf{Absolute magnitude:} The observed spot-density drops
+	      (\SI{-27.7}{\percent} on 20\,m, \SI{-27.2}{\percent} on 40\,m,
+	      \SI{-38.7}{\percent} on 15\,m) at $Kp \ge 5$ fall within the
+	      lower part of the literature range of $\SIrange{30}{60}{\percent}$
 	      MUF reduction for moderate storms \citep{frissell2016,themens2021}.
-	      It is not a blackout.
+	      This is not a blackout.
 	\item \textbf{Per-transmitter normalisation:} $\text{spots\_per\_tx}$
 	      residual drops by $\SI{-31.8}{}$ at $Kp \ge 5$ versus $+4.0$ at
 	      $Kp < 3$. The effect survives controlling for $n_{\text{tx}}$.
@@ -438,7 +440,10 @@ threshold selecting more disturbed conditions.
 \begin{table}[h]
 	\centering
 	\caption{Dst-based confirmation: $Dst < \SI{-50}{nT}$ versus
-		$Dst > \SI{-20}{nT}$.}
+		$Dst > \SI{-20}{nT}$. $N_{\text{Dst}}$ is the total number of
+		matched hours per band ($N_{\text{storm}} = 471$ at
+		$Dst < \SI{-50}{nT}$, $N_{\text{quiet}} = 8\,811$ at
+		$Dst > \SI{-20}{nT}$).}
 	\label{tab:dst}
 	\begin{tabular}{lrrl}
 		\toprule
@@ -462,7 +467,8 @@ the binned analysis by $Kp$ for the training period.
 	\centering
 	\includegraphics[width=\textwidth]{figures/fig2_scale_dependence.png}
 	\caption{Scale-dependent WSPR spot reduction: binned residual analysis
-		for the 20\,m band (18-month training period). Spot residuals
+		for the three HF bands (20\,m, 40\,m, 15\,m; 18-month training
+		period). Spot residuals
 		(relative to monthly-hourly-daily baseline) are shown as a
 		function of $Kp$ bin. The monotonic gradient from quiet ($Kp<3$) to
 		storm ($Kp\ge5$) confirms the scale-dependent response.}
@@ -678,8 +684,8 @@ $\SIrange{17}{38}{\percent}$ between the two periods), not a weaker physical
 effect. In absolute terms, the spot loss is comparable (Section~\ref{sec:invariant}).
 
 Critically, when matched by storm strength, the scale-dependence replicates:
-at $Kp = 6\text{--}7$, the training and held-out drops converge to within
-$\SIrange{89}{95}{\percent}$ of each other (Table~\ref{tab:scale_rep}).
+at $Kp = 6\text{--}7$, the training and held-out drops agree to within a
+factor of 0.89--1.05 (Table~\ref{tab:scale_rep}).
 
 \begin{table}[h]
 	\centering
@@ -729,8 +735,8 @@ drops between the training and held-out periods.
 	\setlength{\tabcolsep}{5pt}
 	\caption{Baseline invariance: absolute spot loss (units: spots/h).
 		Training point estimates with 95\% block bootstrap CI
-		(24\,h blocks, 1000 resamples, seed 42); held-out CI from
-		live wspr.live download 2026-10-13.\protect\footnotemark{}}
+		(24\,h blocks, 1000 resamples, seed 42); held-out CI shown for
+		40\,m only, from live wspr.live download 2026-10-13.\protect\footnotemark{}}
 	\label{tab:baseline}
 	\begin{tabular}{lrrrc}
 		\toprule
@@ -838,7 +844,7 @@ The practical implication is that $Kp \ge 6$ is required for substantial HF
 disruption on the mid-bands (20\,m and 40\,m), while lower $Kp = 5\text{--}6$
 produces only modest $\sim\SI{-18}{\percent}$ reductions. For severe disruption
 exceeding $\SI{50}{\percent}$ loss, $Kp \ge 7$ is needed---a threshold reached
-in only 38 hours (2.3\%) of the 18-month training period.
+in only 38 hours (0.87\%) of the 18-month training period.
 
 \subsection{Baseline invariance and practical monitoring}
 
@@ -947,8 +953,8 @@ as exploratory tooling, not as validated analytical instruments.
 	      that within-block stationarity holds and that the block size (24\,h)
 	      exceeds the autocorrelation timescale. Storms lasting more than
 	      24\,h may violate this assumption.
-	\item \textbf{Storm-slot independence:} The 198 $Kp \ge 5$ 3-hourly
-	      slots are not statistically independent observations. Grouping
+	\item \textbf{Storm-slot independence:} The 198 $Kp \ge 5$
+	      hours are not statistically independent observations. Grouping
 	      them into episodes separated by more than 12~h yields 58 distinct
 	      storm episodes (scripts/storm\_episodes.py), so the effective
 	      number of independent storm events is $N_{\text{eff}} \approx 58$,
@@ -993,8 +999,8 @@ in WSPR spot density, with five principal conclusions:
 	      ($p < 0.05$ in 7/9 comparisons).
 	\item \textbf{Independent replication:} All three bands replicate on a
 	      held-out period (January--March 2026, all $p \le 0.014$).
-	      Scale-dependence replicates when matched by $Kp$ bin: training and
-	      held-out drops are within $\SIrange{89}{95}{\percent}$ at
+	      Scale-dependence replicates when matched by $Kp$ bin: the
+	      held-out drops are 0.89--1.05$\times$ the training drops at
 	      $Kp = 6\text{--}7$.
 	\item \textbf{Baseline invariance:} The absolute spot loss on 40\,m is
 	      consistent with invariance between training and held-out
