@@ -290,6 +290,23 @@ because the correlation between day\_of\_week and $Kp$ is
 $r = -0.0087$ (essentially zero), satisfying the condition that a precision
 variable must be uncorrelated with the predictor.
 
+Because each month--hour--day-of-week cell contains only 4 to 5
+matched epochs (mean occupancy 4.3 epochs per cell), the in-sample
+cell mean contains the observation itself, which shrinks residual
+variance by a factor $1 - 1/4.3 \approx 23\%$ relative to an
+out-of-sample baseline. The shrinkage applies equally to the
+observed and the permuted residual series in the block permutation
+test (both are computed from the same residualised data), so it
+does not inflate the type-I error of the test; it does, however,
+attenuate residual-scale contrasts by roughly 20\% relative to the
+raw (unmodelled) storm--quiet difference: the residual $\Delta$ of
+Section~3.3 is 0.97 (20\,m), 0.81 (40\,m), and 0.84 (15\,m) times
+the raw difference. The percentage drops reported in
+Table~\ref{tab:main} and Table~\ref{tab:scale} use the raw
+difference normalised by the quiet-time mean
+(Eq.~\eqref{eq:drop} below) and are therefore unaffected by this
+attenuation.
+
 \subsection{Binned analysis}
 
 We group residual spot counts into $Kp$ bins: $Kp < 3$ (quiet),
@@ -298,6 +315,18 @@ $5 \le Kp < 6$ (minor storm), $6 \le Kp < 7$ (moderate storm),
 $Kp \ge 7$ (strong storm). For each bin we compute the mean residual,
 standard deviation, and 95\% confidence intervals via block bootstrap \citep{efron1993}
 (block = 24 epochs = 72\,h, \SI{1000}{resamples}).
+
+All percentage drops reported in this paper are defined on the raw
+spot values, not on the residuals:
+
+\begin{equation}
+	\text{drop}_{\text{bin}}(\%) = 100 \times
+	\frac{\operatorname{mean}(\text{spots} \mid \text{bin}) -
+	\operatorname{mean}(\text{spots} \mid Kp < 3)}
+	{\operatorname{mean}(\text{spots} \mid Kp < 3)}
+	\label{eq:drop}
+\end{equation}
+
 
 We also consider the aggregate bins $Kp \ge 5$ (all storms) and
 $Kp \ge 6$ (major storms). The quiet reference is $Kp < 3$, and the
@@ -445,7 +474,11 @@ reduction on all three HF bands.
 	\centering
 	\caption{Primary result: WSPR spot reduction during $Kp \ge 5$ storms
 		(18 months, April 2024 -- September 2025). $N$ in 3-h $Kp$
-		epochs.}
+		epochs. Drop (\%) follows Eq.~\eqref{eq:drop} (raw spot values);
+		$\Delta$ is the raw quiet-minus-storm difference (absolute loss,
+		same quantity as the training column of Table~\ref{tab:baseline});
+		$p$-values come from the residual-based block permutation test of
+		Section~3.3.}
 	\label{tab:main}
 	\begin{tabular}{lrrrlr}
 		\toprule
@@ -496,15 +529,16 @@ threshold selecting more disturbed conditions.
 
 A novel finding of this study is that the WSPR response scales non-linearly
 with storm intensity. Figure~\ref{fig:scale} and Table~\ref{tab:scale} present
-the binned analysis by $Kp$ for the training period.
+the binned analysis by $Kp$ for the training period, using the raw-value
+definition of Eq.~\eqref{eq:drop}.
 
 \begin{figure}[t]
 	\centering
 	\includegraphics[width=\textwidth]{figures/fig2_scale_dependence.png}
-	\caption{Scale-dependent WSPR spot reduction: binned residual analysis
+	\caption{Scale-dependent WSPR spot reduction: binned analysis
 		for the three HF bands (20\,m, 40\,m, 15\,m; 18-month training
-		period). Spot residuals
-		(relative to monthly-hourly-daily baseline) are shown as a
+		period). Spot reduction
+		(raw values, Eq.~\eqref{eq:drop}) is shown as a
 		function of $Kp$ bin. The monotonic gradient from quiet ($Kp<3$) to
 		storm ($Kp\ge5$) confirms the scale-dependent response.}
 	\label{fig:scale}
@@ -512,8 +546,8 @@ the binned analysis by $Kp$ for the training period.
 
 \begin{table}[h]
 	\centering
-	\caption{Scale-dependence: residual spot drop (\%) by $Kp$ bin for 20\,m and 40\,m
-		(training period).}
+	\caption{Scale-dependence: spot drop (\%) by $Kp$ bin for 20\,m and 40\,m
+		(training period, raw spot values, Eq.~\eqref{eq:drop}).}
 	\label{tab:scale}
 	\begin{tabular}{lll}
 		\toprule
@@ -545,7 +579,9 @@ physical effect and not a binning artefact.
 \begin{table}[h]
 	\centering
 	\caption{Pairwise permutation test between $Kp$ bins (training period).
-		$\Delta$ in spots/h (residual). The Significant column is nominal;
+		$\Delta$ in spots/h is the difference of mean residuals between the
+		two bins (a separate quantity from the raw $\Delta$ of
+		Table~\ref{tab:main}). The Significant column is nominal;
 		after Benjamini--Hochberg correction across the nine tests, 5 are
 		significant at $\alpha = 0.05$ ($p_{\text{FDR}}$ of the four
 		exceptions: 0.058, 0.058, 0.097, 0.855).}
