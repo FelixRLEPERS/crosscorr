@@ -52,7 +52,7 @@
 	The frequency dependence supports a dual-mechanism interpretation: the 15\,m drop
 	(\SI{-38.7}{\percent}) is consistent with MUF reduction, while D-layer absorption affects
 	20\,m/40\,m (\SI{-27.7}{\percent}/\SI{-27.2}{\percent}). The day/night asymmetry
-	(40\,m drop stronger at night in 9/10 training months) is consistent with
+	(40\,m drop stronger at night in 8/8 training months) is consistent with
 	intermittent auroral and polar cap absorption.
 
 	The training-period absolute spot loss on 40\,m ($\SI{-18285}{spots/h}$)
@@ -664,7 +664,7 @@ simultaneously:
 	      geographic path and solar conditions). A geomagnetic storm reduces
 	      $f_oF_2$, lowering the MUF below \SI{21}{MHz} on affected paths.
 	      During peak daylight hours (12--18 UTC), the 15\,m drop reaches
-	      \SI{-48.3}{\percent}, confirming MUF as the primary daytime
+	      \SI{-48.9}{\percent}, confirming MUF as the primary daytime
 	      constraint.
 	\item \textbf{D-layer absorption (20\,m / 40\,m bands):} Both bands
 	      operate well below typical MUF, so their primary sensitivity is to
@@ -697,24 +697,24 @@ cycle (Table~\ref{tab:daynight}).
 		bootstrap resampling (\SI{1000}{resamples});
 		$N_{\text{storm}} / N_{\text{quiet}}$ as indicated.
 		All-hours rows are the block permutation result
-		(observed, no CI). Day and night rows cover 158 of the 198 storm
-		epochs and 2\,254 of the 3\,035 quiet epochs; the remainder fall
+		(observed, no CI). Day and night rows cover 111 of the 198 storm
+		epochs and 1\,466 of the 3\,035 quiet epochs; the remainder fall
 		outside the 12--18 and 0--6 UTC windows.}
 	\label{tab:daynight}
 	\begin{tabular}{llrrl}
 		\toprule
 		Band & Period & Drop (\%) & 95\% CI & $N_{\text{storm}}/N_{\text{quiet}}$ \\
 		\midrule
-		20\,m & Day    & $\SI{-28.4}{\percent}$ & [$\SI{-34.4}{\percent}$, $\SI{-22.8}{\percent}$] & 82/1107  \\
-		20\,m & Night  & $\SI{-27.9}{\percent}$ & [$\SI{-36.4}{\percent}$, $\SI{-20.4}{\percent}$] & 76/1147  \\
+		20\,m & Day    & $\SI{-28.7}{\percent}$ & [$\SI{-36.4}{\percent}$, $\SI{-21.7}{\percent}$] & 53/732  \\
+		20\,m & Night  & $\SI{-24.8}{\percent}$ & [$\SI{-33.9}{\percent}$, $\SI{-16.8}{\percent}$] & 58/734  \\
 		20\,m & All    & $\SI{-27.7}{\percent}$ & --- & 198/3035 \\
 		\midrule
-		40\,m & Day    & $\SI{-19.4}{\percent}$ & [$\SI{-25.0}{\percent}$, $\SI{-13.8}{\percent}$] & 82/1107  \\
-		40\,m & Night  & $\SI{-32.2}{\percent}$ & [$\SI{-37.4}{\percent}$, $\SI{-27.8}{\percent}$] & 76/1147  \\
+		40\,m & Day    & $\SI{-20.7}{\percent}$ & [$\SI{-28.2}{\percent}$, $\SI{-13.7}{\percent}$] & 53/732  \\
+		40\,m & Night  & $\SI{-30.2}{\percent}$ & [$\SI{-36.4}{\percent}$, $\SI{-24.6}{\percent}$] & 58/734  \\
 		40\,m & All    & $\SI{-27.2}{\percent}$ & --- & 198/3035 \\
 		\midrule
-		15\,m & Day    & $\SI{-48.3}{\percent}$ & [$\SI{-55.5}{\percent}$, $\SI{-40.8}{\percent}$] & 82/1107  \\
-		15\,m & Night  & $\SI{-16.3}{\percent}$ & [$\SI{-30.2}{\percent}$, $\SI{-0.4}{\percent}$]  & 76/1147  \\
+		15\,m & Day    & $\SI{-48.9}{\percent}$ & [$\SI{-58.1}{\percent}$, $\SI{-39.6}{\percent}$] & 53/732  \\
+		15\,m & Night  & $\SI{-18.7}{\percent}$ & [$\SI{-34.4}{\percent}$, $\SI{-4.4}{\percent}$]  & 58/734  \\
 		15\,m & All    & $\SI{-38.7}{\percent}$ & --- & 198/3035 \\
 		\bottomrule
 	\end{tabular}
@@ -723,8 +723,8 @@ cycle (Table~\ref{tab:daynight}).
 \textbf{Daytime} (12--18 UTC): MUF is high and 40\,m is far below it.
 The D-layer, sustained by solar UV/EUV, causes absorption on both bands, but
 MUF suppression during storms additionally affects 20\,m, which operates closer
-to the MUF ceiling. Result: 20\,m drops more ($\SI{-28.4}{\percent}$) than
-40\,m ($\SI{-19.4}{\percent}$).
+to the MUF ceiling. Result: 20\,m drops more ($\SI{-28.7}{\percent}$) than
+40\,m ($\SI{-20.7}{\percent}$).
 
 \textbf{Nighttime} (0--6 UTC): The solar-driven D-layer disappears within
 minutes of sunset (electron density falls to $\sim 10^3$\,cm$^{-3}$). However,
@@ -734,12 +734,12 @@ D-region independently of solar radiation: auroral absorption from
 cap absorption (PCA) from \SIrange{1}{30}{MeV} solar protons \citep{reid1974}.
 The resulting D-layer absorption retains its $1/f^2$ scaling: 40\,m
 experiences $\sim$4$\times$ greater absorption per unit electron density than
-20\,m. Result: 40\,m drops more ($\SI{-32.2}{\percent}$) than 20\,m
-($\SI{-27.9}{\percent}$).
+20\,m. Result: 40\,m drops more ($\SI{-30.2}{\percent}$) than 20\,m
+($\SI{-24.8}{\percent}$).
 
 The 15\,m nighttime effect is weak and its 95\% CI
-narrowly excludes zero ($\SI{-16.3}{\percent}$, CI
-[$\SI{-30.2}{\percent}$, $\SI{-0.4}{\percent}$]),
+excludes zero ($\SI{-18.7}{\percent}$, CI
+[$\SI{-34.4}{\percent}$, $\SI{-4.4}{\percent}$]),
 consistent with the solar-driven D-layer being largely
 absent at night.
 
@@ -752,17 +752,19 @@ hypothesis, not a problem for it.
 	\centering
 	\includegraphics[width=\textwidth]{figures/fig4_day_night_asymmetry.png}
 	\caption{Day/night asymmetry of the WSPR storm response. Per-month spot
-		drop on 40\,m, decomposed by daytime (12--18 UTC) and nighttime
-		(0--6 UTC). Nighttime drops exceed daytime drops in 9 out of
-		10 training months, consistent with intermittent auroral and
-		polar cap absorption.}
+		drop on 40\,m, decomposed by daytime (12--18 UTC, epochs 12/15)
+		and nighttime (0--6 UTC, epochs 0/3). Nighttime drops exceed
+		daytime drops in 8 of 8 training months with adequate storm
+		data ($\ge$3 storm epochs per window), consistent with
+		intermittent auroral and polar cap absorption.}
 	\label{fig:daynight}
 \end{figure}
 
-A per-month analysis of the training period shows 40\,m night $>$ day in 9 out
-of 10 months with adequate storm data, consistent with the intermittent nature
-of particle precipitation: the mechanism requires specific storm morphologies
-that are not present in every event.
+A per-month analysis of the training period shows 40\,m night $>$ day in all
+8 months meeting the $\ge$3-epoch criterion ($\ge$3 storm epochs in each
+day/night window), consistent with the intermittent nature of particle
+precipitation: the mechanism requires specific storm morphologies that are
+not present in every event.
 
 \subsection{Independent replication}
 

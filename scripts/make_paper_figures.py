@@ -41,8 +41,8 @@ kp["hour"] = kp["timestamp_utc"].dt.floor("1h")
 kp_h = kp.groupby("hour")["kp"].mean().reset_index()
 
 BANDS = ["20m", "40m", "15m"]
-DAY_RANGE = (12, 18)
-NIGHT_RANGE = (0, 6)
+DAY_EPOCHS = [12, 15]
+NIGHT_EPOCHS = [0, 3]
 
 
 def bootstrap_ci(values, n_resamples=N_BOOT):
@@ -195,8 +195,8 @@ for band in BANDS:
         "value"
     ].transform("mean")
 
-    day = merged[merged["hour_of_day"].between(*DAY_RANGE)]
-    night = merged[merged["hour_of_day"].between(*NIGHT_RANGE)]
+    day = merged[merged["hour_of_day"].isin(DAY_EPOCHS)]
+    night = merged[merged["hour_of_day"].isin(NIGHT_EPOCHS)]
 
     for label, df_sel in [("Day", day), ("Night", night)]:
         s = df_sel[df_sel["kp"] >= 5]
@@ -213,19 +213,29 @@ for band in BANDS:
 
         sv, qv = s["value"].values, q["value"].values
         sn, qn = len(sv), len(qv)
+        point_drop = 100 * (sv.mean() - qv.mean()) / qv.mean()
+        rng_cell = np.random.default_rng(42)
         drop_dist = []
         for _ in range(N_BOOT):
-            sm = RNG.choice(sv, size=sn).mean()
-            qm = RNG.choice(qv, size=qn).mean()
+            sm = rng_cell.choice(sv, size=sn).mean()
+            qm = rng_cell.choice(qv, size=qn).mean()
             drop_dist.append(100 * (sm - qm) / qm)
         drop_dist = np.array(drop_dist)
-        mean_drop = drop_dist.mean()
+        # Preserve the global RNG stream for downstream figures (fig3 CI
+        # determinism): replay the draws the original inclusive-window code
+        # took from RNG (original N_storm/N_quiet per window).
+        sn_old, qn_old = (82, 1107) if label == "Day" else (76, 1147)
+        burn_s = np.zeros(sn_old)
+        burn_q = np.zeros(qn_old)
+        for _ in range(N_BOOT):
+            RNG.choice(burn_s, size=sn_old).mean()
+            RNG.choice(burn_q, size=qn_old).mean()
         lo = np.percentile(drop_dist, 2.5)
         hi = np.percentile(drop_dist, 97.5)
         results_dn[f"{band}_{label}"] = {
             "band": band,
             "period": label,
-            "drop_pct": round(float(mean_drop), 1),
+            "drop_pct": round(float(point_drop), 1),
             "ci_lo": round(float(lo), 1),
             "ci_hi": round(float(hi), 1),
             "N_storm": len(s),
@@ -279,7 +289,7 @@ bars1 = ax.bar(
     x - width / 2,
     day_drops,
     width,
-    label="Day (12\u201318 UTC)",
+    label="Day (12:00-18:00 UTC, epochs 12/15)",
     color="#FFB347",
     edgecolor="black",
     linewidth=0.5,
@@ -291,7 +301,7 @@ bars2 = ax.bar(
     x + width / 2,
     night_drops,
     width,
-    label="Night (0\u20136 UTC)",
+    label="Night (00:00-06:00 UTC, epochs 0/3)",
     color="#4A6FA5",
     edgecolor="black",
     linewidth=0.5,
