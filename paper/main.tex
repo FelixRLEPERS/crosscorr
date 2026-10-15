@@ -537,13 +537,18 @@ The scale-dependence is confirmed by pairwise block permutation tests between
 adjacent $Kp$ bins (Table~\ref{tab:pairwise}). With the exception of the highest $Kp$ bin ($Kp \geq 7$) for 15\,m
 and 20\,m, where saturation and reduced sample size limit statistical
 power, adjacent bins are
-significantly different at $p < 0.05$, confirming that the gradient is a real
+significantly different at nominal $p < 0.05$; 5 of the 9 pairwise
+comparisons survive Benjamini--Hochberg correction
+(Table~\ref{tab:pairwise}), confirming that the gradient is a real
 physical effect and not a binning artefact.
 
 \begin{table}[h]
 	\centering
 	\caption{Pairwise permutation test between $Kp$ bins (training period).
-		$\Delta$ in spots/h (residual).}
+		$\Delta$ in spots/h (residual). The Significant column is nominal;
+		after Benjamini--Hochberg correction across the nine tests, 5 are
+		significant at $\alpha = 0.05$ ($p_{\text{FDR}}$ of the four
+		exceptions: 0.058, 0.058, 0.097, 0.855).}
 	\label{tab:pairwise}
 	\begin{tabular}{llrrl}
 		\toprule
@@ -1054,7 +1059,8 @@ in WSPR spot density, with five principal conclusions:
 	      storm intensity: $\sim\SI{-18}{\percent}$ at $Kp = 5\text{--}6$,
 	      $\sim\SI{-34}{\percent}$ at $Kp = 6\text{--}7$, and $\sim\SI{-53}{\percent}$
 	      at $Kp \ge 7$. Pairwise tests confirm this is a real physical gradient
-	      ($p < 0.05$ in 7/9 comparisons).
+	      (5 of 9 pairwise comparisons survive Benjamini--Hochberg
+	      correction at $\alpha = 0.05$).
 	\item \textbf{Independent replication:} On a held-out period
 	      (January--March 2026, updated live-database pull), the primary
 	      effect replicates on 20\,m and 40\,m ($p < 10^{-3}$); on 15\,m
