@@ -452,16 +452,9 @@ $p = 2 \times 10^{-5}$ (no permuted statistic exceeded the observed value in \SI
 
 \subsection{Robustness checks}
 
-Six robustness checks were performed:
+Four robustness checks were performed:
 
 \begin{enumerate}
-	\item \textbf{Transmitter artifact:} Could a reduction in active
-	      transmitters during storms (operators switching off stations) explain
-	      the effect? We compute residuals for $\text{spots} / n_{\text{tx}}$.
-	      The normalised residual correlates with $Kp$ at $\rho = -0.21$,
-	      stronger than the raw spot residual ($\rho = -0.13$, computed over
-	      all epochs including unsettled $Kp = 3$--4). The effect is
-	      \emph{not} driven by fewer transmitters.
 	\item \textbf{Independent events:} The 198 storm epochs derive from 76 storm days,
 	      grouping into 58 episodes separated by more than 12~h, across 18 months
 	      and covering all four seasons. This is not a single-event result.
@@ -471,9 +464,6 @@ Six robustness checks were performed:
 	      lower part of the literature range of $\SIrange{30}{60}{\percent}$
 	      MUF reduction for moderate storms \citep{davies1990}.
 	      This is not a blackout.
-	\item \textbf{Per-transmitter normalisation:} $\text{spots\_per\_tx}$
-	      residual (in spots per transmitter per hour) drops by $-31.8$ at
-	      $Kp \ge 5$ versus $+4.0$ at $Kp < 3$. The effect survives controlling for $n_{\text{tx}}$.
 	\item \textbf{Index-independence:} Both $Kp$ and $Dst$, derived from
 	      independent magnetometer networks, confirm the effect at
 	      $p = 2 \times 10^{-5}$ on all three bands.
@@ -533,8 +523,12 @@ for all).
 
 The $Dst$-based analysis confirms the result independently (Table~\ref{tab:dst}).
 With 2.4$\times$ more storm hours ($N = 471$ for $Dst < \SI{-50}{nT}$),
-the effect sizes are larger on 20\,m and 40\,m, consistent with the stronger
-threshold selecting more disturbed conditions.
+the effect sizes are larger on 20\,m ($\Delta = -22\,081$ versus
+$-20\,421$ for $Kp$), smaller on 40\,m ($-15\,038$ versus $-18\,285$),
+and comparable on 15\,m ($-5\,143$ versus $-5\,178$). The
+$Dst < \SI{-50}{nT}$ threshold selects a different subset of storm
+conditions than $Kp \ge 5$, which reduces the effective amplitude of the
+40\,m response relative to $Kp$-based selection.
 
 \begin{table}[h]
 	\centering
@@ -1158,7 +1152,7 @@ in WSPR spot density, with five principal conclusions:
 	      \SI{-27.7}{\percent} (20\,m), \SI{-27.2}{\percent} (40\,m), and
 	      \SI{-38.7}{\percent} (15\,m), all significant at $p = 2 \times 10^{-5}$
 	      (block permutation, \SI{50000}{iterations}). The effect is confirmed
-	      by the independent $Dst$ index and survives all six robustness checks.
+	      by the independent $Dst$ index and survives all four robustness checks.
 	\item \textbf{Scale-dependence:} The reduction grows non-linearly with
 	      storm intensity: $\sim\SI{-18}{\percent}$ at $Kp = 5\text{--}6$,
 	      $\sim\SI{-34}{\percent}$ at $Kp = 6\text{--}7$, and $\sim\SI{-53}{\percent}$
