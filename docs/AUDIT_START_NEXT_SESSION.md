@@ -1,27 +1,32 @@
 # Audit — Start of Next Session
 
-Generated: 2026-10-15 (end of session 12)
+Generated: 2026-10-15 (end of session 13)
 For: next chat session (MiMo or human)
 Purpose: operational snapshot — read this first.
 
 ## 1. Where we are (state at generation)
 
 - **Branch:** main
-- **HEAD:** `d32bf52` — paper: fix corruption -- repair broken \ref
-  macros in sec 2 intro. (Session 12: batches 11-20 + 2 fixes;
-  ALL external-audit-round-4 blockers, majors and minors closed.)
-- **origin/main:** in sync after session-12 push
-- **Project version:** 1.2.0 (pyproject.toml = "1.2.0"; CITATION.cff
-  = "1.2.0", date-released 2026-10-15)
+- **HEAD:** `e3f3272` — docs(releases): v1.3.0 release notes
+  (+ this AUDIT_START update commits next; see `git log`).
+  (Session 12: batches 11-20, ALL audit-round-4 items closed.
+  Session 13: C1 residual x2, date audit, Zenodo staging,
+  release notes.)
+- **origin/main:** in sync after session-13 push
+- **Project version:** 1.3.0 prepared — release notes at
+  docs/releases/v1.3.0.md; pyproject.toml / CITATION.cff still
+  say 1.2.0 (deliberately untouched; user bumps them when cutting
+  tag v1.3.0 manually)
 - **Zenodo concept DOI:** `10.5281/zenodo.23285958` (**active**)
 - **Zenodo version DOI (v1.2.0):** `10.5281/zenodo.23394340`
+  (v1.3.0 version DOI — pending manual release)
 - **GitHub Release:** v1.2.0 (latest)
 - **Latest tag:** `v1.2.0` @`df843b6` (annotated)
 - **Title (v1.2.0):** 'Scale-dependent WSPR response to geomagnetic
   storms: frequency dependence and network-size effects on absolute
   loss'
 - **PDF:** paper/main.pdf — 25 pages, pdflatex+bibtex clean,
-  21 references, 7 tables + provenance table, 5 figures,
+  21 references, 10 tables (incl. provenance), 5 figures,
   \linenumbers active, Plain Language Summary present.
 - **Test files:** 32 (288 passed, `pytest -m "not slow"`,
   session 12 re-run)
@@ -29,12 +34,14 @@ Purpose: operational snapshot — read this first.
 - **ruff:** clean on project code (crosscorr_lib/scripts/tests);
   15 ruff errors live only in untracked tmp_*.py session scripts.
 
-## 2. What was done in session 12 (2026-10-15, external audit round 4)
+## 2. What was done in sessions 12–13 (2026-10-15, external audit round 4)
 
-Closed ALL 3 blockers + all major + all minor items from external
-audit round 4. Commits `f84a3b2..d32bf52` (batches 11-20 + 2 fixes).
-Every fix = its own two-phase tmp_fix_*.py (verify -> apply) and
-its own commit, per AGENTS.md lessons.
+Session 12 closed ALL 3 blockers + all major + all minor items
+from external audit round 4. Commits `f84a3b2..d32bf52` (batches
+11-20 + 2 fixes). Every fix = its own two-phase tmp_fix_*.py
+(verify -> apply) and its own commit, per AGENTS.md lessons.
+Session 13 added the residual cleanups and v1.3.0 prep (see
+"Session 13" block at the end of this section).
 
 ### Phase 0 — reconnaissance (read-only scripts, results below)
 
@@ -123,37 +130,61 @@ its own commit, per AGENTS.md lessons.
   \ref in sec 2 intro (CR before 'ef'); restored both Table refs.
   Lesson recorded in AGENTS.md candidates (see §5).
 
+### Session 13 — 2026-10-15 (C1 residuals + v1.3.0 prep)
+
+- `3f38bc2` — paper: C1 residual `N = 720 hours` -> `epochs` in
+  sec 5.5 item 10 (held-out series is 3-hourly; unit leftover from
+  the C1 fix). Two-phase tmp_fix_final.py.
+- `5751740` — paper: same residual in sec 4.6 ('sample for 40m'),
+  separate script + commit per stop-condition (file-wide sweep
+  found exactly this one other occurrence; no '648 hours' left).
+- `974c3b7` — chore: .gitignore `zenodo_v1.3.0/` (upload staging).
+- Zenodo staging created (NOT uploaded — manual user step):
+  `zenodo_v1.3.0/` = 3 held-out parquets + summary JSON +
+  audit/FINDING_HELDOUT_LIVE copy + README.md (60 KB total).
+- Table 2 provenance dates AUDITED against file mtimes — all six
+  dates match (WSPR/Kp/Dst 7-8 Oct, archived 8 Oct, live 15 Oct);
+  no changes needed, no stop-condition triggered.
+- `e3f3272` — docs(releases): v1.3.0 release notes
+  (docs/releases/v1.3.0.md).
+- PDF rebuilt (pdflatex x2): clean, 25 pages.
+
 ## 3. Open loops (what is NOT closed)
 
-- **Zenodo live-cache upload** — held-out per-band parquet caches
-  (results/heldout_3band_{20m,40m,15m}_2026-10-15.parquet +
-  heldout_3band_2026-10-15.json) are gitignored; user was asked
-  whether to archive them to Zenodo as a separate file (manual
-  web step). NOT YET DONE.
-- **v1.3.0 release** — not cut. Paper is submit-ready modulo
-  endorsement; consider a release after user review of the PDF.
+Technical paper/release work is CLOSED (audit round 4 fully
+addressed; v1.3.0 release notes prepared). Remaining are external
+and manual steps only:
+
+- **Zenodo live-cache upload (manual, user)** — staging ready at
+  `zenodo_v1.3.0/` (3 held-out parquets + JSON + audit finding +
+  README, 60 KB). User uploads to Zenodo; afterwards optionally
+  add the file reference to the paper's Data Availability and cut
+  a GitHub Release.
+- **tag v1.3.0 (manual, user)** — release notes ready; user cuts
+  the tag (bump pyproject.toml / CITATION.cff to 1.3.0 as part of
+  the cut — deliberately NOT done by the agent).
 - **arXiv endorsement** — Frissell follow-up 2026-10-28; HamSCI
   mailing list as second channel.
 - **2FA on GitHub** — deadline 25 Nov 2026.
 - **Legacy Zenodo concept** `23283375` — still contains retracted
   claim; options: deprecate or annotate.
-- **H-2** (style sweep outside code dirs), **D/E/J/K/L** — deferred
-  to Space Weather.
-- **LOO baseline** — sign-flipping leave-one-out residual baseline
-  observed in M4 recon (degenerate with clustered storms in
-  4-5-obs cells); not reported; revisit if a reviewer asks.
+- **Deferred to Space Weather** (unchanged): H-2 style sweep,
+  D (SEA), E (recovery phase), J (more bands), K (foF2), L.
 
 ## 4. Ready for next session
 
 - audit/BACKLOG_2026-10-12_v11.md (canonical findings)
 - docs/HANDOFF_2026-10-11.md (structure + policy)
 - docs/AUDIT_START_NEXT_SESSION.md (this file)
+- docs/releases/v1.3.0.md (release notes, prepared)
 - AGENTS.md (model rules, pre-commit, lessons §)
-- paper/main.tex (manuscript, references v1.2.0; 21 bib keys)
+- paper/main.tex (manuscript, Code Availability pinned to v1.2.0
+  until v1.3.0 tag is cut; 21 bib keys)
 - scripts/perm_test_18mo_3band.py
 - scripts/make_paper_figures.py (fig5 band_abs = live values)
 - results/heldout_3band_2026-10-15.json (live held-out cache)
-- paper/main.pdf (25 pages, rebuilt clean in session 12)
+- zenodo_v1.3.0/ (upload staging, gitignored)
+- paper/main.pdf (25 pages, rebuilt clean in session 13)
 
 ## 5. What NOT to do (anti-patterns)
 
@@ -192,21 +223,27 @@ configured).
 ## 7. Recommended next tasks (in order)
 
 1. **User review of paper/main.pdf** (25 pages) — all audit-4
-   blockers closed; look at Table 9, fig5, PLS, Key Points.
-2. **Zenodo live-cache decision** (open loop §3) — upload the
-   three held-out parquets + JSON as a versioned supplement,
-   update Data Availability if done.
-3. **arXiv submission** once endorsement arrives:
+   blockers closed; look at Tables 8/10, fig5, PLS, Key Points.
+2. **Zenodo live-cache upload (manual, user)** — staging ready at
+   `zenodo_v1.3.0/` (see §3); after upload, optionally reference
+   the file in the paper's Data Availability.
+3. **Cut tag v1.3.0 (manual, user)** — release notes ready at
+   docs/releases/v1.3.0.md; bump pyproject.toml / CITATION.cff to
+   1.3.0 as part of the cut, then GitHub Release (Zenodo mints the
+   version DOI via webhook).
+4. **arXiv submission** once endorsement arrives:
    rebuild PDF, verify author list/affiliations (now 'Russia',
    no placeholder), upload, choose categories, record arXiv ID.
-4. **Space Weather prep** (D/E/J/K/L) if endorsement is slow.
+5. **Space Weather prep** (D/E/J/K/L) if endorsement is slow.
 
 ## 9. Quick reference — where things live
 
     audit/BACKLOG_2026-10-12_v11.md    — findings tracker
     docs/HANDOFF_2026-10-11.md         — structure + policy
     docs/AUDIT_START_NEXT_SESSION.md   — this file
+    docs/releases/v1.3.0.md            — release notes (prepared)
     docs/DELTA_2026-10-14.md           — session 7-11 journal
+    zenodo_v1.3.0/                     — upload staging (gitignored)
     audit/REVIEWER2_FULL_AUDIT.txt     — external audit round 4
     audit/FINDING_HELDOUT_LIVE_2026-10-13.md — HELDOUT-LIVE finding
     audit/NUMBERS_MAP_2026-10-15.md    — numbers map (session 10)
@@ -228,10 +265,10 @@ configured).
 ## Metadata
 
 - Generated by: MiMo via OpenCode
-- Generated at: 2026-10-15 (session 12 tail)
-- Source HEAD: d32bf52 (corruption repair)
+- Generated at: 2026-10-15 (session 13 tail)
+- Source HEAD: `e3f3272` (v1.3.0 release notes; this update is the
+  next commit — see `git log --oneline -5`)
 - Sources read: git log, AGENTS.md, DELTA_2026-10-14.md,
   REVIEWER2_FULL_AUDIT.txt (round 4, via chat prompt),
   paper/main.tex, paper/references.bib, results JSONs,
-  tmp_verify_T4_T5.py / tmp_verify_heldout_live.py /
-  tmp_verify_M4_sensitivity.py outputs (session 12).
+  tmp_verify_* outputs (session 12), file mtimes (session 13).
