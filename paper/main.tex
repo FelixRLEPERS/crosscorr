@@ -340,17 +340,17 @@ first-order autoregressive process:
 	\label{eq:ess}
 \end{equation}
 
-where $\rho_1$ is the lag-1 autocorrelation of the residual series. For 20\,m,
-$N = 482$ matched hours and $\rho_1 \approx 0.83$, yielding
-ESS $\approx 82$. This factor-of-6 reduction from raw to effective sample size
-underscores the importance of the block permutation approach: a naive
-permutation test (treating each hour as independent) would produce
-anti-conservative $p$-values. This ESS estimate applies to the full
-matched series (20\,m, $N = 482$); it is not computed on the storm
-subsample alone, where clustering further reduces the effective number
-of independent observations, and the block permutation test with its
-24\,h block structure accounts for within-storm autocorrelation
-directly.
+where $\rho_1$ is the lag-1 autocorrelation of the residual series. On the
+18-month matched series ($N = 4\,349$ hours per band), $\rho_1$ ranges
+from 0.69 (40\,m) to 0.75 (20\,m), yielding ESS of 610 (20\,m),
+793 (40\,m), and 743 (15\,m) hours. This factor-of-5 to factor-of-7
+reduction from raw to effective sample size underscores the importance
+of the block permutation approach: a naive permutation test (treating
+each hour as independent) would produce anti-conservative $p$-values.
+The ESS values are not computed on the storm subsample alone, where
+clustering further reduces the effective number of independent
+observations; the block permutation test with its 24\,h block structure
+accounts for within-storm autocorrelation directly.
 
 \subsection{Multiple testing correction}
 
