@@ -21,7 +21,8 @@
 ## Main result
 
 > **WSPR radio propagation drops during geomagnetic storms, with a
-> scale-dependent effect and baseline-invariant absolute loss.**
+> scale-dependent effect; absolute-loss stability under network
+> growth is not established for the live wspr.live database.**
 
 | Kp bin | 20m (14 MHz) | 40m (7 MHz) | 15m (21 MHz) |
 |--------|-------------|-------------|--------------|
@@ -43,9 +44,11 @@ Preprint: [DOI: 10.5281/zenodo.23285958](https://doi.org/10.5281/zenodo.23285958
    not previously characterised for WSPR.
 2. **Frequency dependence:** 15m (−39%) > 20m (−28%) ≈ 40m (−27%) —
    two competing mechanisms (MUF drop + D-layer absorption).
-3. **Baseline-invariance:** 40m loses ~18 300 spots/h identically in
-   training and held-out, despite +38% network growth — the effect
-   is physically real, not an artifact.
+3. **Database mutability (cautionary):** an initial training-vs-held-out
+   match on 40m (~18 300 spots/h in both) did not survive a fresh
+   wspr.live download: ratio 1.44, outside the training CI. Absolute
+   loss is reported as a descriptive quantity; frozen snapshots are
+   required for metric-stability claims.
 4. **Day/night asymmetry:** 40m night > day in 9/10 months (auroral/PCA
    absorption), but intermittent — not every storm activates it.
 5. **Independent replication:** Primary hypothesis replicates on held-out
@@ -218,9 +221,11 @@ Ionospheric disturbances caused by geomagnetic storms change its
 propagation. Quantifying this on open data is a citizen-science
 problem.
 
-**Novel contribution:** Scale-dependent WSPR response to Kp, baseline-invariant
-absolute loss, frequency-dependent signature (two regimes) across 18 months,
-confirmed by two independent geomagnetic indices and replicated on held-out data.
+**Novel contribution:** Scale-dependent WSPR response to Kp, frequency-dependent
+signature (two regimes) across 18 months, confirmed by two independent
+geomagnetic indices and replicated on held-out data (20m/40m; 15m
+marginal). A cautionary result on citizen-science database mutability
+is reported as methodological contribution.
 
 **Scientific rigor:**
 - Max-statistic null — p-value accounts for lag scanning
@@ -250,7 +255,7 @@ confirmed by two independent geomagnetic indices and replicated on held-out data
 - [x] **Real data: WSPR spots drop during geomagnetic storms** (scale-dependent, −18% to −59%)
 - [x] Confirmed by Kp AND Dst, all 4 seasons
 - [x] Independent replication on held-out period (Jan–Mar 2026)
-- [x] Baseline-invariant absolute loss (40m: −18 300 spots/h in both periods)
+- [x] Absolute-loss stability not confirmed under live wspr.live re-download (40m ratio 1.44, outside training CI)
 - [x] MFDFA spectra across all detectors
 - [x] Independent audit passed (external LLM)
 
@@ -315,7 +320,7 @@ If you use this work, please cite:
 @misc{crosscorr2026,
   author       = {Petrov, Alexey and Petrov, Makar},
   title        = {Scale-dependent WSPR response to geomagnetic storms:
-                  frequency dependence and baseline-invariant absolute loss},
+                  frequency dependence and network-size effects on absolute loss},
   year         = {2026},
   publisher    = {Zenodo},
   doi          = {10.5281/zenodo.23285958},
