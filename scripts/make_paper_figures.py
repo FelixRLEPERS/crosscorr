@@ -345,9 +345,9 @@ print(f"[OK] {path_fig4} ({path_fig4.stat().st_size} bytes)")
 
 
 # ═════════════════════════════════════════════════════════════════════
-#  FIGURE 5: Baseline-Invariant Absolute Loss with error bars
+#  FIGURE 5: Absolute Spot Loss Across Periods with error bars
 # ═════════════════════════════════════════════════════════════════════
-print("\n=== Figure 5: Baseline-invariant absolute loss ===")
+print("\n=== Figure 5: Absolute spot loss across periods ===")
 
 band_abs = {
     "20m": {"train": 20421, "heldout": 15793, "ratio": 0.77, "growth": 17},
@@ -426,20 +426,20 @@ ax.set_xticklabels(
 )
 ax.set_ylabel("Absolute spot loss (spots/hour)", fontsize=12)
 ax.set_title(
-    "Baseline-Invariant Absolute Spot Loss\n"
-    "40m loss unchanged despite 38% network growth\n"
+    "Absolute Spot Loss Across Periods\n"
+    "40m loss grows with network (ratio 1.44, outside training CI)\n"
     "(with 95% bootstrap CI on training)",
     fontsize=12,
     fontweight="bold",
 )
-ax.legend(fontsize=10, loc="upper right")
+ax.legend(fontsize=10, loc="upper left", framealpha=0.95)
 ax.grid(axis="y", alpha=0.3)
-ax.set_ylim(bottom=0, top=24000)
+ax.set_ylim(bottom=0, top=30000)
 
 ax.annotate(
-    "40m: ratio 1.00\n(wide CIs)",
-    xy=(1.0, 18304),
-    xytext=(0.5, 22000),
+    "40m: ratio 1.44\n(below training CI)",
+    xy=(1.0, 26287),
+    xytext=(0.5, 28500),
     fontsize=10,
     fontweight="bold",
     color="#2A9D8F",
