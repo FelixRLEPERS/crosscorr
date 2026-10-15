@@ -24,7 +24,7 @@
 
 \begin{keypoints}
 	\item WSPR spot density drops \SIrange{27}{39}{\percent} during
-	$Kp \ge 5$ storms on all three HF bands ($p < 2 \times 10^{-5}$)
+	$Kp \ge 5$ storms on all three HF bands ($p = 2 \times 10^{-5}$)
 	\item The effect is scale-dependent: $Kp = 5\text{--}6 \rightarrow
 		\SI{-18}{\percent}$, $Kp \ge 6 \rightarrow \SI{-42.8}{\percent}$,
 	with the primary drop replicated on 20\,m and 40\,m in a held-out period
@@ -42,8 +42,8 @@
 	covering 18 months (April 2024 -- September 2025, 39\,456 WSPR hours,
 	198 storm hours), we find significant storm-induced spot reductions on all three
 	bands: 20\,m: \SI{-27.7}{\percent}, 40\,m: \SI{-27.2}{\percent},
-	15\,m: \SI{-38.7}{\percent} (block permutation $p < 2 \times 10^{-5}$ for all,
-	\SI{50000}{iterations}, block = 24\,h).
+	15\,m: \SI{-38.7}{\percent} (block permutation $p = 2 \times 10^{-5}$ for all,
+	\SI{50000}{iterations}, block = 24 epochs = 72\,h).
 
 	The effect is scale-dependent: the drop nearly doubles from $Kp = 5\text{--}6$
 	($\sim\SI{-18}{\percent}$) to $Kp \ge 6$ ($\SI{-42.8}{\percent}$), consistent
@@ -276,7 +276,7 @@ $3 \le Kp < 4$ (unsettled), $4 \le Kp < 5$ (active),
 $5 \le Kp < 6$ (minor storm), $6 \le Kp < 7$ (moderate storm),
 $Kp \ge 7$ (strong storm). For each bin we compute the mean residual,
 standard deviation, and 95\% confidence intervals via block bootstrap
-(block = 24\,h, \SI{1000}{resamples}).
+(block = 24 epochs = 72\,h, \SI{1000}{resamples}).
 
 We also consider the aggregate bins $Kp \ge 5$ (all storms) and
 $Kp \ge 6$ (major storms). The quiet reference is $Kp < 3$, and the
@@ -294,16 +294,22 @@ autocorrelation, we use a block permutation procedure
 	      $\Delta = \operatorname{mean}(\text{residual} \mid Kp \ge 5)
 		      - \operatorname{mean}(\text{residual} \mid Kp < 3)$.
 	\item \textbf{Blocking:} The time series is divided into non-overlapping
-	      24-hour blocks. Each block is treated as an exchangeable unit,
+	      blocks of 24 consecutive 3\,h epochs (i.e. 72\,h = three full
+	      diurnal cycles). Each block is treated as an exchangeable unit,
 	      preserving the within-block temporal structure.
-	\item \textbf{Permutation:} The 24\,h blocks of the residual series are shuffled at the
-	      block level (via a random permutation of block indices): for
-	      each of $N_{\text{perm}} = 50\,000$ iterations, the residual
-	      blocks are re-ordered while the $Kp$ labels remain fixed at
-	      their original positions, and the test statistic
-	      $\Delta_{\text{perm}}$ is recomputed. This is statistically
-	      equivalent to shuffling the $Kp$ labels, since only the
-	      pairing between residual blocks and $Kp$ labels matters.
+	\item \textbf{Permutation:} The 24-epoch (72\,h) blocks of the residual
+	      series are shuffled at the block level (via a random permutation
+	      of block indices): for each of $N_{\text{perm}} = 50\,000$
+	      iterations, the residual blocks are re-ordered while the $Kp$
+	      sequence is held at its observed positions, and the test
+	      statistic $\Delta_{\text{perm}}$ is recomputed. This tests
+	      H$_0$: the residual series is independent of the observed
+	      temporal sequence of geomagnetic activity. We deliberately do
+	      not permute the $Kp$ labels: geomagnetic activity is not
+	      exchangeable in time (solar-cycle, seasonal, and 27-day
+	      recurrence structure), so permuting labels would test a null
+	      that is physically false and would inflate the type-I error
+	      rate.
 	\item \textbf{p-value:}
 	      \begin{equation}
 		      p = \frac{1 + \sum_{i=1}^{N_{\text{perm}}}
@@ -317,11 +323,13 @@ We apply the add-one (Davison-Hinkley) correction shown in
 Eq.~\eqref{eq:perm-p}, which yields a minimum resolvable
 p-value of $2 \times 10^{-5}$ at \SI{50000}{iterations}.
 
-While a 24-hour block size may occasionally split multi-day storm events,
-this approach is conservative. It strictly preserves the diurnal baseline
-structure (the dominant source of variance in WSPR spot counts) under
-permutation, ensuring that the null distribution accurately reflects the
-natural daily cycle of the network.
+The block length of 24 epochs spans exactly 72\,h (three full diurnal
+cycles), which strictly preserves the dominant diurnal variance
+structure of WSPR spot counts under permutation and encloses the
+majority of storm episodes (mean duration $\approx 10$\,h; 58 episodes,
+Section~2.2). The test is therefore conservative with respect to
+within-storm autocorrelation: the block size exceeds the duration of
+all but the longest episodes.
 
 The same procedure is applied independently to $Dst$ ($Dst < -50$\,nT versus
 $Dst > -20$\,nT) and to pairwise comparisons between adjacent $Kp$ bins for the
@@ -351,7 +359,7 @@ of the block permutation approach: a naive permutation test (treating
 each hour as independent) would produce anti-conservative $p$-values.
 The ESS values are not computed on the storm subsample alone, where
 clustering further reduces the effective number of independent
-observations; the block permutation test with its 24\,h block structure
+observations; the block permutation test with its 24-epoch (72\,h) block structure
 accounts for within-storm autocorrelation directly.
 
 \subsection{Multiple testing correction}
@@ -359,7 +367,7 @@ accounts for within-storm autocorrelation directly.
 We apply the Benjamini--Hochberg (BH) false discovery rate (FDR) correction
 \citep{benjamini1995} to the 6 primary statistical tests (3 bands $\times$
 \{$Kp$, $Dst$\}) at $\alpha = 0.05$. All six tests have raw
-$p < 2 \times 10^{-5}$ (no permuted statistic exceeded the observed value in \SI{50000}{iterations}), yielding all $p_{\text{FDR}} < 2 \times 10^{-5}$.
+$p = 2 \times 10^{-5}$ (no permuted statistic exceeded the observed value in \SI{50000}{iterations}), yielding all $p_{\text{FDR}} = 2 \times 10^{-5}$.
 
 \subsection{Robustness checks}
 
@@ -386,7 +394,7 @@ Six robustness checks were performed:
 	      $Kp < 3$. The effect survives controlling for $n_{\text{tx}}$.
 	\item \textbf{Index-independence:} Both $Kp$ and $Dst$, derived from
 	      independent magnetometer networks, confirm the effect at
-	      $p < 2 \times 10^{-5}$ on all three bands.
+	      $p = 2 \times 10^{-5}$ on all three bands.
 	\item \textbf{Day-of-week confounder:} As noted in Section~3.1, the
 	      correlation between day\_of\_week and $Kp$ is $r = -0.0087$.
 \end{enumerate}
@@ -421,19 +429,19 @@ reduction on all three HF bands.
 		Band      & $N_{\text{storm}}$ & $N_{\text{quiet}}$ &
 		Drop (\%) & $\Delta$ (spots/h) & $p$-value (block)                                                            \\
 		\midrule
-		20\,m     & 198                & 3\,035             & $\SI{-27.7}{\percent}$ & $\SI{-20421}{spots/h}$ & $< 2 \times 10^{-5}$ \\
-		40\,m     & 198                & 3\,035             & $\SI{-27.2}{\percent}$ & $\SI{-18285}{spots/h}$ & $< 2 \times 10^{-5}$ \\
-		15\,m     & 198                & 3\,035             & $\SI{-38.7}{\percent}$ & $\SI{-5178}{spots/h}$ & $< 2 \times 10^{-5}$ \\
+		20\,m     & 198                & 3\,035             & $\SI{-27.7}{\percent}$ & $\SI{-20421}{spots/h}$ & $= 2 \times 10^{-5}$ \\
+		40\,m     & 198                & 3\,035             & $\SI{-27.2}{\percent}$ & $\SI{-18285}{spots/h}$ & $= 2 \times 10^{-5}$ \\
+		15\,m     & 198                & 3\,035             & $\SI{-38.7}{\percent}$ & $\SI{-5178}{spots/h}$ & $= 2 \times 10^{-5}$ \\
 		\bottomrule
 	\end{tabular}
 \end{table}
 
 All three bands show a highly significant reduction in spot density during
 $Kp \ge 5$ conditions (block permutation, \SI{50000}{iterations},
-block = 24\,h). The effect is strongest on 15\,m (\SI{-38.7}{\percent})
+block = 24 epochs = 72\,h). The effect is strongest on 15\,m (\SI{-38.7}{\percent})
 and nearly identical on 20\,m and 40\,m ($\SI{-27.7}{\percent}$ and
 $\SI{-27.2}{\percent}$, respectively). All results remain significant after
-Benjamini--Hochberg FDR correction across 6 tests ($p_{\text{FDR}} < 2 \times 10^{-5}$
+Benjamini--Hochberg FDR correction across 6 tests ($p_{\text{FDR}} = 2 \times 10^{-5}$
 for all).
 
 The $Dst$-based analysis confirms the result independently (Table~\ref{tab:dst}).
@@ -454,9 +462,9 @@ threshold selecting more disturbed conditions.
 		Band  & $N_{\text{Dst}}$  & $\Delta_{\text{observed}}$ (spots/h)
 		      & $p$-value (block)                                                    \\
 		\midrule
-		20\,m & 12\,508           & $-22\,081$                           & $< 2 \times 10^{-5}$ \\
-		40\,m & 12\,508           & $-15\,038$                           & $< 2 \times 10^{-5}$ \\
-		15\,m & 12\,508           & $-5\,143$                            & $< 2 \times 10^{-5}$ \\
+		20\,m & 12\,508           & $-22\,081$                           & $= 2 \times 10^{-5}$ \\
+		40\,m & 12\,508           & $-15\,038$                           & $= 2 \times 10^{-5}$ \\
+		15\,m & 12\,508           & $-5\,143$                            & $= 2 \times 10^{-5}$ \\
 		\bottomrule
 	\end{tabular}
 \end{table}
@@ -749,7 +757,7 @@ the training and held-out periods.
 	\setlength{\tabcolsep}{5pt}
 	\caption{Absolute spot loss across periods (units: spots/h).
 		Training point estimates with 95\% block bootstrap CI
-		(24\,h blocks, 1000 resamples, seed 42); held-out CI shown for
+		(24-epoch blocks = 72\,h, 1000 resamples, seed 42); held-out CI shown for
 		40\,m only, from live wspr.live download 2026-10-13. The updated
 		held-out 40\,m value ($\SI{-26287}{spots/h}$, ratio 1.44) lies
 		outside the training CI; invariance is therefore not claimed.\protect\footnotemark{}}
@@ -971,15 +979,18 @@ as exploratory tooling, not as validated analytical instruments.
 	      are used. Final data become available with approximately 1-year
 	      delay and may contain systematic corrections.
 	\item \textbf{Statistical assumptions:} The block permutation test assumes
-	      that within-block stationarity holds and that the block size (24\,h)
-	      exceeds the autocorrelation timescale. Storms lasting more than
-	      24\,h may violate this assumption.
+	      that within-block stationarity holds and that the block size
+	      (24 epochs = 72\,h) exceeds the autocorrelation timescale. At
+	      72\,h, the block spans three full diurnal cycles and encloses
+	      the majority of storm episodes (mean duration $\approx 10$\,h);
+	      only exceptionally long episodes (>72\,h) could violate the
+	      within-block stationarity assumption.
 	\item \textbf{Storm-slot independence:} The 198 $Kp \ge 5$
 	      hours are not statistically independent observations. Grouping
 	      them into episodes separated by more than 12~h yields 58 distinct
 	      storm episodes (scripts/storm\_episodes.py), so the effective
 	      number of independent storm events is $N_{\text{eff}} \approx 58$,
-	      not 198. The block permutation test with a 24~h block size partially
+	      not 198. The block permutation test with a 24-epoch (72~h) block size partially
 	      accounts for this serial dependence, but the effective sample size
 	      is smaller than the nominal storm-slot count suggests.
 	\item \textbf{Archive vs live database revision.} Held-out numbers
@@ -1012,7 +1023,7 @@ in WSPR spot density, with five principal conclusions:
 \begin{enumerate}
 	\item \textbf{Primary effect:} Storm-induced spot reduction is
 	      \SI{-27.7}{\percent} (20\,m), \SI{-27.2}{\percent} (40\,m), and
-	      \SI{-38.7}{\percent} (15\,m), all significant at $p < 2 \times 10^{-5}$
+	      \SI{-38.7}{\percent} (15\,m), all significant at $p = 2 \times 10^{-5}$
 	      (block permutation, \SI{50000}{iterations}). The effect is confirmed
 	      by the independent $Dst$ index and survives all six robustness checks.
 	\item \textbf{Scale-dependence:} The reduction grows non-linearly with
