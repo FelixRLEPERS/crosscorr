@@ -266,7 +266,7 @@ The $Kp$ index is obtained from GFZ Potsdam's real-time JSON API
 (https://kp.gfz-potsdam.de). $Kp$ is a 3-hourly planetary index on a
 quasi-logarithmic scale from 0 to 9, derived from 13 subauroral magnetometer
 stations. The mean $Kp$ over the training period is 2.29, with a maximum
-of 8.7 (multiple events). Across the 18 months, 198 3-hourly $Kp$
+of 9.0 (multiple events at 8.7 and above). Across the 18 months, 198 3-hourly $Kp$
 epochs reach $Kp \ge 5$ (= 594 storm hours), distributed across 76
 storm days. Grouped into episodes separated by more than 12~h
 (scripts/storm\_episodes.py), these epochs form 58 storm episodes, so
@@ -405,14 +405,14 @@ p-value of $2 \times 10^{-5}$ at \SI{50000}{iterations}.
 The block length of 24 epochs spans exactly 72\,h (three full diurnal
 cycles), which strictly preserves the dominant diurnal variance
 structure of WSPR spot counts under permutation and encloses the
-majority of storm episodes (mean duration $\approx 10$\,h; 58 episodes,
+majority of storm episodes (mean duration $\approx 9$\,h; 58 episodes,
 Section~2.2). The test is therefore conservative with respect to
 within-storm autocorrelation: the block size exceeds the duration of
 all but the longest episodes.
 
 The same procedure is applied independently to $Dst$ ($Dst < -50$\,nT versus
-$Dst > -20$\,nT) and to pairwise comparisons between adjacent $Kp$ bins for the
-scale-dependence analysis.
+$Dst > -20$\,nT) and to pairwise comparisons between $Kp$ bins (all 9
+combinations) for the scale-dependence analysis.
 
 The primary hypothesis test intentionally excludes unsettled conditions
 ($3 \leq Kp < 5$, $N = 1\,116$ epochs) to maximise the statistical
@@ -496,7 +496,7 @@ reduction on all three HF bands.
 	\caption{Primary result: WSPR spot reduction during $Kp \ge 5$ storms
 		(18 months, April 2024 -- September 2025). $N$ in 3-h $Kp$
 		epochs. Drop (\%) follows Eq.~\eqref{eq:drop} (raw spot values);
-		$\Delta$ is the raw quiet-minus-storm difference (absolute loss,
+		$\Delta$ is the raw storm-minus-quiet difference (absolute loss,
 		same quantity as the training column of Table~\ref{tab:baseline});
 		$p$-values come from the residual-based block permutation test of
 		Section~3.3.}
@@ -537,7 +537,9 @@ conditions than $Kp \ge 5$, which reduces the effective amplitude of the
 		matched hours per band ($N_{\text{storm}} = 471$ at
 		$Dst < \SI{-50}{nT}$, $N_{\text{quiet}} = 8\,811$ at
 		$Dst > \SI{-20}{nT}$). The remaining 3\,226 matched hours with
-		$-50 \le Dst \le -20$\,nT are excluded from this comparison.}
+		$-50 \le Dst \le -20$\,nT are excluded from this comparison.
+		$\Delta$ is the difference of mean residuals (month $\times$ hour
+		baseline model, without the day-of-week term).}
 	\label{tab:dst}
 	\begin{tabular}{lrrl}
 		\toprule
@@ -563,10 +565,11 @@ definition of Eq.~\eqref{eq:drop}.
 	\includegraphics[width=\textwidth]{figures/fig2_scale_dependence.png}
 	\caption{Scale-dependent WSPR spot reduction: binned analysis
 		for the three HF bands (20\,m, 40\,m, 15\,m; 18-month training
-		period). Spot reduction
-		(raw values, Eq.~\eqref{eq:drop}) is shown as a
-		function of $Kp$ bin. The monotonic gradient from quiet ($Kp<3$) to
-		storm ($Kp\ge5$) confirms the scale-dependent response.}
+		period). Spot reduction (raw values, Eq.~\eqref{eq:drop}) is shown
+		for the three storm bins ($Kp$ 5--6, 6--7, $\ge$7); the quiet
+		reference ($Kp<3$) is the zero level of the bars, not a plotted bin.
+		The monotonic gradient across storm bins confirms the scale-dependent
+		response.}
 	\label{fig:scale}
 \end{figure}
 
@@ -577,7 +580,7 @@ definition of Eq.~\eqref{eq:drop}.
 	\label{tab:scale}
 	\begin{tabular}{lll}
 		\toprule
-		$Kp$ bin & 20\,m residual drop (\%) & 40\,m residual drop (\%) \\
+		$Kp$ bin & 20\,m drop (\%) & 40\,m drop (\%) \\
 		\midrule
 		5--6     & $\SI{-18.3}{\percent}$ & $\SI{-16.9}{\percent}$ \\
 		6--7     & $\SI{-33.6}{\percent}$ & $\SI{-34.4}{\percent}$ \\
@@ -594,7 +597,7 @@ for 20\,m and 40\,m. At $Kp \ge 7$, the reduction reaches
 levels ($\SI{100}{\percent}$ loss).
 
 The scale-dependence is confirmed by pairwise block permutation tests between
-adjacent $Kp$ bins (Table~\ref{tab:pairwise}). With the exception of the highest $Kp$ bin ($Kp \geq 7$) for 15\,m
+$Kp$ bins (all 9 combinations; Table~\ref{tab:pairwise}). With the exception of the highest $Kp$ bin ($Kp \geq 7$) for 15\,m
 and 20\,m, where saturation and reduced sample size limit statistical
 power, adjacent bins are
 significantly different at nominal $p < 0.05$; 5 of the 9 pairwise
@@ -880,8 +883,10 @@ the training and held-out periods.
 	\setlength{\tabcolsep}{5pt}
 	\caption{Absolute spot loss across periods (units: spots/h).
 		Training and held-out point estimates with 95\% block bootstrap CI
-		(24-epoch blocks = 72\,h, 1000 resamples, seed 42), from a live
-		\texttt{wspr.live} download on 2026-10-15. The updated
+		(24-epoch blocks = 72\,h, 1000 resamples, seed 42): training CI from
+		the 2026-10-13 live run (identical to the frozen-parquet recompute),
+		held-out values and CI from the live \texttt{wspr.live} download on
+		2026-10-15. The updated
 		held-out 40\,m value ($\SI{-26287}{spots/h}$, ratio 1.44) lies
 		outside the training CI; invariance is therefore not claimed.\protect\footnotemark{}}
 	\label{tab:baseline}
@@ -897,7 +902,7 @@ the training and held-out periods.
 \end{table}
 \footnotetext{Held-out values and CIs from live \texttt{wspr.live} download 2026-10-15; see \texttt{audit/FINDING\_HELDOUT\_LIVE\_2026-10-13.md}.}
 
-The initial training-period point estimate for 40\,m
+{\sloppy The initial training-period point estimate for 40\,m
 ($\SI{-18285}{spots/h}$; block bootstrap 95\% CI
 $[\SI{-23807}{spots/h},\, \SI{-12930}{spots/h}]$) and the first
 held-out snapshot ($\SI{-18304}{spots/h}$) were consistent with a
@@ -905,7 +910,7 @@ constant absolute loss despite a $\SI{+35}{\percent}$ increase in the
 quiet-time baseline from network growth. We initially read this as
 evidence that storm-vulnerable propagation paths form a structurally
 constrained population that is not enlarged by adding stations within
-already-covered regions.
+already-covered regions.\par}
 
 However, the held-out period is served by the live \texttt{wspr.live}
 database, which is continuously updated as operators upload delayed
@@ -1109,7 +1114,7 @@ detected and decomposed using WSPR as a distributed sensor.
 	      that within-block stationarity holds and that the block size
 	      (24 epochs = 72\,h) exceeds the autocorrelation timescale. At
 	      72\,h, the block spans three full diurnal cycles and encloses
-	      the majority of storm episodes (mean duration $\approx 10$\,h);
+	      the majority of storm episodes (mean duration $\approx 9$\,h);
 	      only exceptionally long episodes (>72\,h) could violate the
 	      within-block stationarity assumption.
 	\item \textbf{Storm-slot independence:} The 198 $Kp \ge 5$
@@ -1149,11 +1154,11 @@ that geomagnetic storms ($Kp \ge 5$) cause statistically significant reductions
 in WSPR spot density, with five principal conclusions:
 
 \begin{enumerate}
-	\item \textbf{Primary effect:} Storm-induced spot reduction is
+	\item \textbf{Primary effect:} {\sloppy Storm-induced spot reduction is
 	      \SI{-27.7}{\percent} (20\,m), \SI{-27.2}{\percent} (40\,m), and
 	      \SI{-38.7}{\percent} (15\,m), all significant at $p = 2 \times 10^{-5}$
 	      (block permutation, \SI{50000}{iterations}). The effect is confirmed
-	      by the independent $Dst$ index and survives all four robustness checks.
+	      by the independent $Dst$ index and survives all four robustness checks.\par}
 	\item \textbf{Scale-dependence:} The reduction grows non-linearly with
 	      storm intensity: $\sim\SI{-18}{\percent}$ at $Kp = 5\text{--}6$,
 	      $\sim\SI{-34}{\percent}$ at $Kp = 6\text{--}7$, and $\sim\SI{-53}{\percent}$
