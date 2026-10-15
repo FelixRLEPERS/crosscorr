@@ -351,7 +351,7 @@ print("\n=== Figure 5: Baseline-invariant absolute loss ===")
 
 band_abs = {
     "20m": {"train": 20421, "heldout": 15793, "ratio": 0.77, "growth": 17},
-    "40m": {"train": 18285, "heldout": 18304, "ratio": 1.00, "growth": 38},
+    "40m": {"train": 18285, "heldout": 26287, "ratio": 1.44, "growth": 38},
     "15m": {"train": 5178, "heldout": 2181, "ratio": 0.42, "growth": 25},
 }
 
