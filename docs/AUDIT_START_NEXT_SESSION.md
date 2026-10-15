@@ -349,22 +349,18 @@ configured).
 
 ## 7. Recommended next tasks (in order)
 
-1. **User review of audit-5 full fix pass** — Phases A (blockers,
-   `73ac6a4..332ef5b`), maketitle (`976ffa6`), B (`d9a824d..ee4563f`),
-   C (`2f3a230`) are ALL committed and pushed: check PDF pages 1
-   (title block + Abstract), 4 (Table 1), 9-11 (Tables 3-6, §3.6),
-   13-14 (Table 7/8), 16-17 (Table 10 caption), 26 (ref tail).
-   Remaining from audit-5: m4 (Fig 4/5 uncited), m5/m8/m12 (skipped,
-   see §3). If satisfied -> re-run external audit #5 deltas or submit.
-2. **Push session-14 commits** (user confirms; credential.helper ready).
-3. **Zenodo live-cache upload (manual, user)** — staging ready at
-   `zenodo_v1.3.0/` (see §3).
-4. **arXiv submission** once endorsement arrives:
-   rebuild PDF, verify author list/affiliations (now 'Russia',
-   no placeholder), upload, choose categories, record arXiv ID.
-   Consider cutting v1.3.1 (Phase B/C fixes) instead of pointing
-   arXiv v1 at the pre-audit-5 tag.
-5. **Space Weather prep** (D/E/J/K/L) if endorsement is slow.
+1. **HamSCI Science teleconference — 5 November 2026, 16:00 ET.**
+   Gary Mikitin (gmkmitinfa8a@gmail.com) invited us on 14 Oct.
+   Prepare a ~10-minute presentation and reply to Gary's letter
+   (draft in chat, dated 5 November).
+2. **Frissell follow-up — 28 October** if still no answer.
+3. **arXiv submission** once an endorsement arrives (Frissell or
+   HamSCI channel): rebuild PDF, verify authors/affiliation
+   ('Independent researchers, Russia'), upload, choose categories,
+   record arXiv ID.
+4. **Space Weather submission** — after arXiv.
+5. **Optional: GitHub release assets for v1.3.1** — attach the
+   3 held-out parquets + JSON from `zenodo_v1.3.0/`.
 
 ## 9. Quick reference — where things live
 
