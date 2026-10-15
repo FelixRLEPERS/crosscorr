@@ -1,39 +1,41 @@
 # Audit — Start of Next Session
 
-Generated: 2026-10-15 (end of session 13)
+Generated: 2026-10-15 (end of session 14)
 For: next chat session (MiMo or human)
 Purpose: operational snapshot — read this first.
 
 ## 1. Where we are (state at generation)
 
 - **Branch:** main
-- **HEAD:** `1add3b9` — paper: fix provenance table Overfull (69pt)
-  in storage column (+ this AUDIT_START update commits next; see
-  `git log`).
-  (Session 12: batches 11-20, ALL audit-round-4 items closed.
-  Session 13: C1 residual x2, date audit, Zenodo staging,
-  release notes.)
-- **origin/main:** in sync after session-13 push
-- **Project version:** 1.3.0 prepared — release notes at
-  docs/releases/v1.3.0.md; pyproject.toml / CITATION.cff still
-  say 1.2.0 (deliberately untouched; user bumps them when cutting
-  tag v1.3.0 manually)
+- **HEAD:** `332ef5b` — paper: fix sec 4.1 Dst claim; remove
+  non-reproducible ntx checks (six -> four)
+  (+ this AUDIT_START update commits next; see `git log`).
+  (Session 12: batches 11-20, audit round 4. Session 13: C1
+  residuals, v1.3.0 prep. Session 14: audit round 5 Phase A —
+  3 blockers, see §2.)
+- **origin/main:** session-13 push in sync; session-14 commits
+  NOT pushed yet (user confirms first)
+- **Project version:** 1.3.0 — pyproject.toml / CITATION.cff
+  bumped (commit `329bf94`)
 - **Zenodo concept DOI:** `10.5281/zenodo.23285958` (**active**)
-- **Zenodo version DOI (v1.2.0):** `10.5281/zenodo.23394340`
-  (v1.3.0 version DOI — pending manual release)
-- **GitHub Release:** v1.2.0 (latest)
-- **Latest tag:** `v1.2.0` @`df843b6` (annotated)
-- **Title (v1.2.0):** 'Scale-dependent WSPR response to geomagnetic
+- **Zenodo version DOI (v1.3.0):** `10.5281/zenodo.23399017`
+  (v1.2.0 was 23394340)
+- **GitHub Release:** v1.3.0 presumed (verify manually — release
+  commits `329bf94`, `766d8ba` present)
+- **Latest tag:** `v1.3.0` @`329bf94` (HEAD = v1.3.0-4-g332ef5b)
+- **Title (v1.3.0):** 'Scale-dependent WSPR response to geomagnetic
   storms: frequency dependence and network-size effects on absolute
   loss'
-- **PDF:** paper/main.pdf — 25 pages, pdflatex+bibtex clean,
-  21 references, 10 tables (incl. provenance), 5 figures,
-  \linenumbers active, Plain Language Summary present.
+- **PDF:** paper/main.pdf — 25 pages, pdflatex+bibtex clean
+  (rebuilt session 14 after Phase A), 21 references, 10 tables,
+  5 figures, \linenumbers active, Plain Language Summary present.
 - **Test files:** 32 (288 passed, `pytest -m "not slow"`,
-  session 12 re-run)
+  session 14 re-run — unchanged baseline)
 - **CI:** ci.yml (only workflow); green on latest pushed HEAD
-- **ruff:** clean on project code (crosscorr_lib/scripts/tests);
-  15 ruff errors live only in untracked tmp_*.py session scripts.
+- **ruff:** clean on project code incl. session-14 new scripts
+  (diag_*, recompute_heldout_residual, make_paper_figures,
+  replication_2026); ruff errors live only in untracked
+  tmp_*.py session scripts.
 
 ## 2. What was done in sessions 12–13 (2026-10-15, external audit round 4)
 
@@ -154,20 +156,118 @@ Session 13 added the residual cleanups and v1.3.0 prep (see
 - PDF rebuilt (pdflatex x2): clean, 25 pages, 0 errors,
   0 undefined refs, 8 cosmetic Overfull (<=18pt).
 
+### Session 14 — 2026-10-15 (external audit round 5, Phase A — 3 blockers)
+
+External audit #5 (MiMo-as-Reviewer-2, full text in chat) found 3 blockers
++ 6 serious + 14 minor. User decisions after Phase 0 diagnostics:
+**B2 = (ii) narrow windows, B3 = (ii) residual recompute, ntx checks = (i)
+delete; strategy = all three subphases in one run.**
+
+Phase 0 (read-only, decision gate — scripts kept in scripts/):
+- `diag_heldout_pval.py`: Table 8 p-values reproduce EXACTLY only under
+  RAW-value block permutation (6.8e-4 / 6.8e-4 / 0.258 = JSON); under the
+  §3.3 residual method: **2e-5 / 2e-4 / 8e-5 — 15m SIGNIFICANT**
+  (3/50 000 exceedances). Audit-B3 hypothesis confirmed.
+- `diag_daynight_windows.py`: `between(12,18)`/`between(0,6)` select
+  epochs {12,15,18}/{0,3,6} = 12–21 / 0–9 UTC; caption remainder 25% vs
+  the ~50% implied by literal 6-h windows proves the mismatch.
+- `diag_ntx_presence.py`: NO ntx field/code ever existed in git history
+  (`git log -S spots_per_tx -- "*.py"` empty); only 71 sampled
+  timestamps carry meta.tx; -31.8/+4.0/rho=-0.21 exist only as prose
+  (docs/first_result.md:210,217).
+
+Commits:
+- `73ac6a4` **A1 (B3)**: `scripts/recompute_heldout_residual.py` ->
+  `results/heldout_resid_2026-10-15.json` (verify gate: p match Phase 0
+  exactly). Table 8: all three p-values -> 2e-5 / 2e-4 / 8e-5, caption
+  adds 'Drop% raw (Eq. 3); p from residual block permutation (§3.3)'.
+  Narrative rewritten: Abstract ('all three bands, including 15m
+  (p<1e-3)'), KP2 ('all three bands held-out'), Intro #3, §4.5 (exact
+  p's + raw-CI-vs-residual-p clarification: 15m Table-10 CI still
+  crosses zero — DISCLOSED, not hidden), ordering paragraph, §5.5 item 2,
+  Conclusion #3. Removed: 'p=0.26', 'does not reach significance',
+  'reduced storm-hour count', 'for this band' (m10), 'negative sign'.
+- `867af34` **A2 (B2)**: `make_paper_figures.py` fig4 ->
+  `isin([12,15])`/`isin([0,3])`, legend 'epochs 12/15 / 0/3'; fig4
+  drop_pct switched to POINT estimate + local seed-42 per cell
+  (deterministic — first regen produced RNG-dependent bootstrap means
+  deviating up to 0.9pp from expected); RNG **burn block** (old sizes
+  82/1107, 76/1147) preserves global stream -> **fig1/2/3/5 verified
+  byte-identical, only fig4 changed**. Table 7 = -28.7/-24.8 (20m),
+  -20.7/-30.2 (40m), -48.9/-18.7 (15m) with CI, N 53/732 & 58/734;
+  caption 111/1466 (arithmetic now consistent: ~50% outside windows);
+  9/10 -> **8/8** (Abstract, Fig4 caption, §4.4, >=3-epoch criterion);
+  §4.3 daytime 15m -48.9; 'narrowly excludes' -> 'excludes'.
+- `332ef5b` **A3 (B1 + ntx)**: §4.1 Dst claim corrected (larger on 20m
+  -22081 vs -20421; smaller on 40m -15038 vs -18285; comparable 15m
+  -5143 vs -5178 + selection caveat); §3.6 checks 1&4 deleted,
+  'Six' -> 'Four' (intro + Conclusion #1); zero ntx remnants.
+- Disclosed plan deviation: `scripts/replication_2026.py` day/night
+  windows -> isin (same bug class in the planned 6-month replication
+  tool) — found by the final grep gate.
+
+Builds: pdflatex x2 after each subphase — 0 errors, 0 undefined refs,
+25 pages, warnings = 4x 'h' float (baseline only). Tests: 288 passed.
+
+Session-14 gotchas (record for future fixers):
+- Two-phase pre-check counters must match reality: 'transmitter' x5
+  (incl. Per-transmitter + hyphens), '9 out of' split across a
+  newline — pre-check FAILED **before** write (correct behaviour).
+- In tmp_fix_A1_narrative a POST-assert ran before write_bytes ->
+  no partial write; fix the assert, rerun, all clean. Assert-before-
+  write is a feature, not a bug — do not 'fix' by reordering.
+- Never assume a figure's byte-identity after an upstream RNG change:
+  verify md5; if it fails, prefer deterministic point-estimate labels +
+  explicit stream burn over accepting silent drift.
+
 ## 3. Open loops (what is NOT closed)
 
-Technical paper/release work is CLOSED (audit round 4 fully
-addressed; v1.3.0 release notes prepared). Remaining are external
-and manual steps only:
+Session 14 closed audit round 5 **Phase A only** (3 blockers + ntx
+checks). **Phase B (serious) and Phase C (minors) are NOT closed** —
+awaiting user go-ahead:
+
+**Phase B (audit-5 serious, in planned order):**
+- B-1 §2.1 held-out baselines: 86 355 / 92 694 / 16 784 are NOT
+  reproducible (live parquets: **84 096 / 90 653 / 16 393**, growth
+  +14.1/+35.1/+22.5%). Tables 8/10 use the live values. Decide
+  replacement + the '38 % network growth' wording (Abstract + §4.6).
+- B-2 themens2021 = 'An updated model of the auroral D-region' but
+  intro/§5.4 describe it as an foF2/MUF storm model -> reword/remove.
+- B-3 §3.6 check 2 (Davies 30–60 % MUF): unverifiable range,
+  27.2/27.7 < 30 ('lower part of range' false), category mismatch
+  (spot% vs MUF%) -> reword or drop.
+- B-5 §3.1 diurnal example (8×, 16 000 @06 vs 127 000 @15) not
+  reproducible from unified.parquet (inherited from
+  docs/first_result.md) -> use real ranges (1.3–5.6×) or drop numbers.
+- B-6 Table 1: Kp '~5 500' vs actual 5 069 epochs in stated period
+  (5 912 rows in file); held-out WSPR '~5 850' unverifiable locally.
+- (B-4 = ntx checks — CLOSED this session, commit `332ef5b`.)
+
+**Phase C (minors):** m1 Table 5 header 'residual drop' (values are
+raw); m2 Table 3 caption 'quiet-minus-storm' sign wording; m3 Table 4
+Δ-scale disclosure (month×hour residual, no dow); m4 Figures 1/4/5
+never \ref'd in text; m5 stale `results/perm_test_18mo_3band_fdr.json`
+(5000 iters, p_raw=0.0 — substance re-verified at 50k); m6 'adjacent'
+wording (3/9 pairwise rows are non-adjacent); m7 §2.2 Kp 'max 8.7' ->
+9.0 (G5 May-2024 present); m8 §2.2 Dst '42 storm events' unreproducible
+(48@12h, 41@24h, 61 days, 96 runs); m9 'mean duration ≈10 h' -> 9.0 h;
+m11 Fig2 caption 'quiet (Kp<3)' (fig shows only storm bins); m13
+Overfull boxes (4 cosmetic, ≤20pt); m14 Table 10 caption provenance
+(training CI from 2026-10-13 run; equals frozen-parquet recompute).
+(m10 = 'for this band' — CLOSED by A1.)
+
+Carried-over external/manual items:
 
 - **Zenodo live-cache upload (manual, user)** — staging ready at
   `zenodo_v1.3.0/` (3 held-out parquets + JSON + audit finding +
-  README, 60 KB). User uploads to Zenodo; afterwards optionally
-  add the file reference to the paper's Data Availability and cut
-  a GitHub Release.
-- **tag v1.3.0 (manual, user)** — release notes ready; user cuts
-  the tag (bump pyproject.toml / CITATION.cff to 1.3.0 as part of
-  the cut — deliberately NOT done by the agent).
+  README, 60 KB). Status as of session 14: NOT uploaded by agent
+  (verify with user). Optionally add the file reference to the
+  paper's Data Availability after upload.
+- ~~tag v1.3.0~~ — **DONE**: `v1.3.0` @`329bf94`, version DOI
+  23399017, version files bumped to 1.3.0. Note: audit-5 Phase A
+  commits (`73ac6a4..332ef5b`) sit AFTER the tag — paper fixes are
+  untagged; user decides whether to cut v1.3.1 after Phase B/C
+  (explicit instruction: do NOT cut a new tag without confirmation).
 - **arXiv endorsement** — Frissell follow-up 2026-10-28; HamSCI
   mailing list as second channel.
 - **2FA on GitHub** — deadline 25 Nov 2026.
@@ -183,13 +283,18 @@ and manual steps only:
 - docs/AUDIT_START_NEXT_SESSION.md (this file)
 - docs/releases/v1.3.0.md (release notes, prepared)
 - AGENTS.md (model rules, pre-commit, lessons §)
-- paper/main.tex (manuscript, Code Availability pinned to v1.2.0
-  until v1.3.0 tag is cut; 21 bib keys)
+- paper/main.tex (manuscript; Code Availability = tag v1.3.0 +
+  DOI 23399017; 21 bib keys; audit-5 Phase A applied)
 - scripts/perm_test_18mo_3band.py
-- scripts/make_paper_figures.py (fig5 band_abs = live values)
+- scripts/make_paper_figures.py (fig4 narrow windows + point
+  estimates + RNG burn; fig5 band_abs = live values)
+- scripts/recompute_heldout_residual.py (Table 8 p-value source)
+- scripts/diag_heldout_pval.py / diag_daynight_windows.py /
+  diag_ntx_presence.py (audit-5 Phase 0 diagnostics)
 - results/heldout_3band_2026-10-15.json (live held-out cache)
+- results/heldout_resid_2026-10-15.json (residual p-values, gitignored)
 - zenodo_v1.3.0/ (upload staging, gitignored)
-- paper/main.pdf (25 pages, rebuilt clean in session 13)
+- paper/main.pdf (25 pages, rebuilt clean after Phase A)
 
 ## 5. What NOT to do (anti-patterns)
 
@@ -227,18 +332,19 @@ configured).
 
 ## 7. Recommended next tasks (in order)
 
-1. **User review of paper/main.pdf** (25 pages) — all audit-4
-   blockers closed; look at Tables 8/10, fig5, PLS, Key Points.
-2. **Zenodo live-cache upload (manual, user)** — staging ready at
-   `zenodo_v1.3.0/` (see §3); after upload, optionally reference
-   the file in the paper's Data Availability.
-3. **Cut tag v1.3.0 (manual, user)** — release notes ready at
-   docs/releases/v1.3.0.md; bump pyproject.toml / CITATION.cff to
-   1.3.0 as part of the cut, then GitHub Release (Zenodo mints the
-   version DOI via webhook).
+1. **User review of audit-5 Phase A** (commits `73ac6a4`, `867af34`,
+   `332ef5b` + this docs commit): PDF pages 1 (Abstract/15m), 13
+   (Table 7 narrow windows), 14 (Table 8 residual p's) — then go/no-go
+   for **Phase B** (B-1 baselines, B-2 themens, B-3 Davies, B-5 diurnal,
+   B-6 Table 1) and Phase C minors.
+2. **Push session-14 commits** (user confirms; credential.helper ready).
+3. **Zenodo live-cache upload (manual, user)** — staging ready at
+   `zenodo_v1.3.0/` (see §3).
 4. **arXiv submission** once endorsement arrives:
    rebuild PDF, verify author list/affiliations (now 'Russia',
    no placeholder), upload, choose categories, record arXiv ID.
+   Consider cutting v1.3.1 (Phase B/C fixes) instead of pointing
+   arXiv v1 at the pre-audit-5 tag.
 5. **Space Weather prep** (D/E/J/K/L) if endorsement is slow.
 
 ## 9. Quick reference — where things live
@@ -270,10 +376,9 @@ configured).
 ## Metadata
 
 - Generated by: MiMo via OpenCode
-- Generated at: 2026-10-15 (session 13 tail)
-- Source HEAD: `1add3b9` (provenance Overfull fix; this update is the
+- Generated at: 2026-10-15 (session 14 tail)
+- Source HEAD: `332ef5b` (audit-5 Phase A final; this update is the
   next commit — see `git log --oneline -6`)
-- Sources read: git log, AGENTS.md, DELTA_2026-10-14.md,
-  REVIEWER2_FULL_AUDIT.txt (round 4, via chat prompt),
-  paper/main.tex, paper/references.bib, results JSONs,
-  tmp_verify_* outputs (session 12), file mtimes (session 13).
+- Sources read: git log/tags, AGENTS.md, paper/main.tex,
+  paper/references.bib, results JSONs, Phase-0 diagnostic outputs,
+  docs/first_result.md (provenance checks).

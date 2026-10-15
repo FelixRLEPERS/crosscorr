@@ -147,9 +147,9 @@ def main():
     for band in ["20m", "40m", "15m"]:
         sub = wspr[wspr["band"] == band].copy()
         merged = pd.merge(sub, kp_h, left_on="hour_bin", right_on="hour", how="inner")
-        peak = merged[merged["hour_of_day"].between(12, 18)]
-        night = merged[merged["hour_of_day"].between(0, 6)]
-        for period, df_sel in [("Day 12-18h", peak), ("Night 0-6h", night)]:
+        peak = merged[merged["hour_of_day"].isin([12, 15])]
+        night = merged[merged["hour_of_day"].isin([0, 3])]
+        for period, df_sel in [("Day 12-18h (12/15)", peak), ("Night 0-6h (0/3)", night)]:
             s = df_sel[df_sel["kp"] >= 5]
             q = df_sel[df_sel["kp"] < 3]
             if len(s) >= 3 and len(q) >= 10:
