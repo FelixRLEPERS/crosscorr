@@ -1,34 +1,34 @@
 # Audit — Start of Next Session
 
-Generated: 2026-10-15 (end of session 14)
+Generated: 2026-10-15 (end of session 15)
 For: next chat session (MiMo or human)
 Purpose: operational snapshot — read this first.
 
 ## 1. Where we are (state at generation)
 
 - **Branch:** main
-- **HEAD:** `332ef5b` — paper: fix sec 4.1 Dst claim; remove
-  non-reproducible ntx checks (six -> four)
-  (+ this AUDIT_START update commits next; see `git log`).
-  (Session 12: batches 11-20, audit round 4. Session 13: C1
-  residuals, v1.3.0 prep. Session 14: audit round 5 Phase A —
-  3 blockers, see §2.)
-- **origin/main:** session-13 push in sync; session-14 commits
-  NOT pushed yet (user confirms first)
-- **Project version:** 1.3.0 — pyproject.toml / CITATION.cff
-  bumped (commit `329bf94`)
+- **HEAD:** `3b891a0` — release: v1.3.1 -- use version DOI 23402384
+  (this AUDIT_START update commits next; see `git log`).
+  (Sessions 12-13: audit round 4 + v1.3.0. Session 14: audit round 5
+  Phases A/B/C + maketitle. Session 15: m4 close-out + v1.3.1
+  release — see §2.)
+- **origin/main:** `3b891a0` (synced after session 15 push)
+- **Project version:** 1.3.1 — pyproject.toml / CITATION.cff bumped
+  (commit `a59a09c`)
 - **Zenodo concept DOI:** `10.5281/zenodo.23285958` (**active**)
-- **Zenodo version DOI (v1.3.0):** `10.5281/zenodo.23399017`
-  (v1.2.0 was 23394340)
-- **GitHub Release:** v1.3.0 presumed (verify manually — release
-  commits `329bf94`, `766d8ba` present)
-- **Latest tag:** `v1.3.0` @`329bf94` (HEAD = v1.3.0-4-g332ef5b)
-- **Title (v1.3.0):** 'Scale-dependent WSPR response to geomagnetic
+- **Zenodo version DOI (v1.3.1):** `10.5281/zenodo.23402384`
+  (v1.3.0 was 23399017; v1.2.0 was 23394340)
+- **GitHub Release:** v1.3.1 (latest)
+- **Latest tag:** `v1.3.1` @`a59a09c` (annotated `d1f721a`;
+  HEAD = v1.3.1-1-g3b891a0)
+- **Title:** 'Scale-dependent WSPR response to geomagnetic
   storms: frequency dependence and network-size effects on absolute
   loss'
 - **PDF:** paper/main.pdf — 26 pages, pdflatex+bibtex clean
-  (rebuilt session 14 after Phase C), 21 references, 10 tables,
-  5 figures, \linenumbers active, Plain Language Summary present.
+  (rebuilt session 15 after the DOI patch), title block present
+  (`\maketitle`), 0 undefined refs, 21 references, 10 tables,
+  5 figures (all cited from text), \linenumbers active,
+  Plain Language Summary present.
 - **Test files:** 32 (288 passed, `pytest -m "not slow"`,
   session 14 re-run — unchanged baseline)
 - **CI:** ci.yml (only workflow); green on latest pushed HEAD
@@ -220,78 +220,78 @@ Session-14 gotchas (record for future fixers):
   verify md5; if it fails, prefer deterministic point-estimate labels +
   explicit stream burn over accepting silent drift.
 
+### Session 15 — 2026-10-15 (audit-5 wrap-up + v1.3.1 release)
+
+Closed the remaining audit-5 items and cut the patch release:
+
+- `4ccf68b` **m4**: Figure 4 cited in §4.4 first sentence
+  (`The day/night decomposition (Figure~\ref{fig:daynight})`), Figure 5
+  in §4.6 (`point estimate for 40 m (Figure~\ref{fig:baseline}; ...)`)
+  — **all 5 figures now have in-text refs**.
+- `a59a09c` **v1.3.1 prep**: pyproject/CITATION -> 1.3.1, CITATION doi
+  temporarily -> concept 23285958, paper tag pin -> v1.3.1.
+  (Gotcha: pyproject/CITATION are **CRLF** — first fixer run failed
+  Phase-1 guard before any write; guard relaxed to main.tex-only +
+  substring replacements that preserve native endings; diff stayed
+  1/1 + 2/2 + 1/1, no EOL churn.)
+- **Manual (user):** annotated tag `v1.3.1` @`a59a09c` (`d1f721a`),
+  GitHub Release v1.3.1, Zenodo auto-version -> **version DOI
+  10.5281/zenodo.23402384**.
+- `3b891a0` **DOI patch**: CITATION doi -> 23402384; Code Availability
+  rewritten (tag v1.3.1 archived at ...23402384, concept 23285958 as
+  resolver, v1.3.0 DOI kept as history, v1.2.0 DOI dropped; Data
+  Availability concept-DOI line untouched).
+
+**Audit round 5 FULLY CLOSED** — 3 blockers + maketitle + 5 serious +
+14 minor:
+- **Blockers:** B1 §4.1 Dst per-band claim (`332ef5b`); B2 day/night
+  windows -> literal narrow 12-18/0-6 UTC (`867af34`); B3 held-out ->
+  residual permutation of §3.3, **15m now significant (p = 8e-5)**
+  (`73ac6a4` — Abstract/KP/§4.5/§5.5/Conclusion #3 rewritten).
+- **maketitle** (`976ffa6`): title block had been missing from EVERY
+  PDF build in project history (class defines `\maketitle`, main.tex
+  never called it — caught only by session-14 final page-1 check);
+  same commit removed the cls `\correspondingauthor` bug (dangling
+  superscript, lost footnote) — email moved to Acknowledgments.
+- **Serious (Phase B):** B-1 baselines -> live 84 096/90 653/16 393
+  (+14/+35/+22 %, Abstract & §4.6 38 % -> 35 %; `d9a824d`); B-2
+  themens2021 = D-region model, not foF2/MUF (`f682358`); B-3 Davies
+  30–60 % category error softened (`1ea0567`); B-4 diurnal 8× ->
+  ~2–6× + Fig 1 cited (`4faf50c`); B-5 Table 1 Kp 5 069 (`ee4563f`).
+- **Minor:** Phase C batch `2f3a230` (m1 Table 5 header 'residual
+  drop'->'drop'; m2 Table 3 caption storm-minus-quiet; m3 Table 4
+  delta-scale disclosure; m6 'adjacent'->'all 9 combinations'; m7 Kp
+  max 9.0; m9 duration ~9 h; m11 Fig 2 storm-bins caption; m13 scoped
+  \sloppy, Overfull 8->6; m14 Table 10 CI provenance) + m4 `4ccf68b`
+  (Fig 4/5 cited) + m10 (closed in A1).
+- **Skipped as stale/informal (do not re-litigate):**
+  - **m5** stale FDR JSON (`results/perm_test_18mo_3band_fdr.json`:
+    n_iter=5000, p_raw=0.0 without add-one, no-dow Kp deltas —
+    substance re-verified at 50k: all six p = 2e-5);
+  - **m8** Dst "42 storm events" unreproducible (gap>12h = 48,
+    gap>24h = 41, runs = 96, days = 61 — no rule yields 42);
+  - **m12** informal month threshold (">=3 storm epochs per window"
+    now stated in the Fig 4 caption after A2).
+- PDF: 26 pages (Phase C captions pushed ~4 lines of the reference
+  tail onto page 26). Tests: 288 passed (session 14).
+
 ## 3. Open loops (what is NOT closed)
 
-Session 14 closed audit round 5 **Phase A only** (3 blockers + ntx
-checks). **Phase B (serious) and Phase C (minors) are NOT closed** —
-awaiting user go-ahead:
+All audit-round-5 technical items are CLOSED (sessions 14–15 — full
+fix log in the Session 14 / Session 15 blocks of §2, including the
+skipped-as-stale m5/m8/m12 decisions).
 
-**Phase B (audit-5 serious, in planned order):**
-- B-1 §2.1 held-out baselines: 86 355 / 92 694 / 16 784 are NOT
-  reproducible (live parquets: **84 096 / 90 653 / 16 393**, growth
-  +14.1/+35.1/+22.5%). Tables 8/10 use the live values. Decide
-  replacement + the '38 % network growth' wording (Abstract + §4.6).
-- B-2 themens2021 = 'An updated model of the auroral D-region' but
-  intro/§5.4 describe it as an foF2/MUF storm model -> reword/remove.
-- B-3 §3.6 check 2 (Davies 30–60 % MUF): unverifiable range,
-  27.2/27.7 < 30 ('lower part of range' false), category mismatch
-  (spot% vs MUF%) -> reword or drop.
-- B-5 §3.1 diurnal example (8×, 16 000 @06 vs 127 000 @15) not
-  reproducible from unified.parquet (inherited from
-  docs/first_result.md) -> use real ranges (1.3–5.6×) or drop numbers.
-- B-6 Table 1: Kp '~5 500' vs actual 5 069 epochs in stated period
-  (5 912 rows in file); held-out WSPR '~5 850' unverifiable locally.
-- (B-4 = ntx checks — CLOSED this session, commit `332ef5b`.)
+Remaining external items:
 
-**Phase C (minors) — DONE (commit `2f3a230`, session 14):** m1 Table 5
-header 'residual drop' -> 'drop' (values are raw); m2 Table 3 caption
-'storm-minus-quiet'; m3 Table 4 caption discloses delta scale (month x
-hour residual, no dow); m6 'adjacent' -> 'Kp bins (all 9 combinations)'
-(sec 3.3 + sec 4.2); m7 Kp maximum 8.7 -> 9.0; m9 mean episode duration
-~10 h -> ~9 h (both spots); m11 Fig 2 caption = storm bins only, quiet =
-zero level; m13 scoped {\sloppy ... \par} killed the 19.9pt/17.9pt
-Overfull (8 -> 6, remaining <=10pt cosmetic; +2 Underfull, invisible);
-m14 Table 10 caption: training CI from 2026-10-13 live run (identical to
-frozen-parquet recompute), held-out from live 2026-10-15.
-
-Phase C **skipped by user decision (open, do not re-litigate):**
-- m5: `results/perm_test_18mo_3band_fdr.json` is a STALE artifact
-  (n_iter=5000, p_raw=0.0 without add-one, Kp deltas on no-dow model).
-  Substance re-verified at 50k (all six p=2e-5); the JSON itself is
-  misleading — either regenerate from scripts/ or leave with this note.
-- m8: §2.2 Dst '42 storm events' unreproducible: gap>12h -> 48,
-  gap>24h -> 41, contiguous runs -> 96, distinct days -> 61; no rule
-  yields 42 (source likely a pre-freeze Dst vintage).
-- m12: 'adequate storm data' month threshold informal (>=3 storm epochs
-  per window now stated in the Fig 4 caption after A2; original claim
-  from docs/first_result.md, code not preserved).
-
-Still open from audit-5 minor list: **m4** — Fig 1 now cited (B-4), but
-Figure 4 and Figure 5 have NO in-text \\ref (AGU wants all figures
-cited; one-sentence fix each). m10 closed by A1.
-
-PDF note: 25 -> **26 pages** after Phase C (caption additions pushed ~4
-lines of references over; page 26 = tail of bibliography only).
-
-Carried-over external/manual items:
-
-- **Zenodo live-cache upload (manual, user)** — staging ready at
-  `zenodo_v1.3.0/` (3 held-out parquets + JSON + audit finding +
-  README, 60 KB). Status as of session 14: NOT uploaded by agent
-  (verify with user). Optionally add the file reference to the
-  paper's Data Availability after upload.
-- ~~tag v1.3.0~~ — **DONE**: `v1.3.0` @`329bf94`, version DOI
-  23399017, version files bumped to 1.3.0. Note: audit-5 Phase A
-  commits (`73ac6a4..332ef5b`) sit AFTER the tag — paper fixes are
-  untagged; user decides whether to cut v1.3.1 after Phase B/C
-  (explicit instruction: do NOT cut a new tag without confirmation).
-- **arXiv endorsement** — Frissell follow-up 2026-10-28; HamSCI
-  mailing list as second channel.
+- **arXiv submission** — endorsement: Frissell follow-up 2026-10-28;
+  HamSCI telecon 2026-11-05 (Gary Mikitin invited). On acceptance:
+  rebuild PDF, verify authors/affiliation, record arXiv ID.
 - **2FA on GitHub** — deadline 25 Nov 2026.
-- **Legacy Zenodo concept** `23283375` — still contains retracted
+- **Legacy Zenodo concept** `23283375` — still contains the retracted
   claim; options: deprecate or annotate.
-- **Deferred to Space Weather** (unchanged): H-2 style sweep,
-  D (SEA), E (recovery phase), J (more bands), K (foF2), L.
+- **Deferred to Space Weather revision** (unchanged backlog): H-2
+  style sweep, D (SEA), E (recovery phase), J (more bands), K (foF2),
+  L.
 
 ## 4. Ready for next session
 
@@ -300,8 +300,8 @@ Carried-over external/manual items:
 - docs/AUDIT_START_NEXT_SESSION.md (this file)
 - docs/releases/v1.3.0.md (release notes, prepared)
 - AGENTS.md (model rules, pre-commit, lessons §)
-- paper/main.tex (manuscript; Code Availability = tag v1.3.0 +
-  DOI 23399017; 21 bib keys; audit-5 Phase A applied)
+- paper/main.tex (manuscript; Code Availability = tag v1.3.1 +
+  version DOI 23402384; 21 bib keys; audit-5 full pass applied)
 - scripts/perm_test_18mo_3band.py
 - scripts/make_paper_figures.py (fig4 narrow windows + point
   estimates + RNG burn; fig5 band_abs = live values)
@@ -395,9 +395,8 @@ configured).
 ## Metadata
 
 - Generated by: MiMo via OpenCode
-- Generated at: 2026-10-15 (session 14 tail)
-- Source HEAD: `332ef5b` (audit-5 Phase A final; this update is the
+- Generated at: 2026-10-15 (session 15 tail, after `3b891a0`)
+- Source HEAD: `3b891a0` (v1.3.1 DOI patch; this update is the
   next commit — see `git log --oneline -6`)
-- Sources read: git log/tags, AGENTS.md, paper/main.tex,
-  paper/references.bib, results JSONs, Phase-0 diagnostic outputs,
-  docs/first_result.md (provenance checks).
+- Sources read: git log/tags, paper/main.tex, CITATION.cff,
+  pyproject.toml, Phase-0 diagnostics, results JSONs.
