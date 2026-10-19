@@ -84,3 +84,23 @@ scripts/test_wspr_query.py
 
 # Zenodo upload staging (manual upload by user; never commit)
 zenodo_v1.3.0/
+
+# --- Housekeeping 2026-10-19: temporary work files -------------------
+tmp_*.py
+tmp_*.txt
+media/
+aep_backup_*/
+scripts/diag_*.py
+
+# --- LaTeX build artifacts in presentations --------------------------
+docs/presentations/**/*.aux
+docs/presentations/**/*.log
+docs/presentations/**/*.nav
+docs/presentations/**/*.out
+docs/presentations/**/*.snm
+docs/presentations/**/*.toc
+docs/presentations/**/*.vrb
+docs/presentations/**/*.spl
+docs/presentations/**/*.fls
+docs/presentations/**/*.fdb_latexmk
+docs/presentations/**/*.synctex.gz
