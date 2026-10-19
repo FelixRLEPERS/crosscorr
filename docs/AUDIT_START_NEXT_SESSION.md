@@ -396,3 +396,17 @@ configured).
   next commit — see `git log --oneline -6`)
 - Sources read: git log/tags, paper/main.tex, CITATION.cff,
   pyproject.toml, Phase-0 diagnostics, results JSONs.
+
+## Session 17 — 2026-10-19 (audit-2026-10-19 closure)
+
+Full audit from third-party model (AUDIT_2026-10-19_scientific.md) verified by MiMo and closed:
+- 🔴 B1 (§5.3 contradiction) — fixed in `7b1ad48`
+- 🔴 B10 (Fig 2/4 CI inversion) — fixed in `7b1ad48`
+- 🔴 B5 (Dst 50k p-value) — artifact generated `results/perm_test_dst_50k.json`, text unchanged
+- 🔴 B7 ("42 events") — removed in `7b1ad48`
+- 🟡 B6 (Dst block size) — clarified in `fe2adac`
+- 🟡 B2-B4 (Keypoints/Abstract 15m caveat) — softened in `fe2adac`
+- 🟡 B9 (Makefile) — removed in `fe2adac`
+- M4/M5 (`speaker_notes.md`) — fixed in `fe2adac`
+- All presentation materials synced.
+- Remaining open: only deferred Space Weather backlog items (SEA, foF2, etc.).

@@ -1,0 +1,41 @@
+{
+  "20m": {
+    "N_total": 720,
+    "N_storm": 47,
+    "N_quiet": 439,
+    "point": 22481.9,
+    "ci_lo": 2937.9,
+    "ci_hi": 35044.2,
+    "drop_pct": -26.73,
+    "p_value": 0.0006799864002719945,
+    "n_perm_valid": 50000,
+    "period": "2026-01-01..2026-04-01",
+    "source": "wspr.live live download 2026-10-15"
+  },
+  "40m": {
+    "N_total": 720,
+    "N_storm": 47,
+    "N_quiet": 439,
+    "point": 26287.1,
+    "ci_lo": 12471.5,
+    "ci_hi": 37143.8,
+    "drop_pct": -29.0,
+    "p_value": 0.0006799864002719945,
+    "n_perm_valid": 50000,
+    "period": "2026-01-01..2026-04-01",
+    "source": "wspr.live live download 2026-10-15"
+  },
+  "15m": {
+    "N_total": 720,
+    "N_storm": 47,
+    "N_quiet": 439,
+    "point": 3627.1,
+    "ci_lo": -3738.0,
+    "ci_hi": 7171.5,
+    "drop_pct": -22.13,
+    "p_value": 0.25783484330313394,
+    "n_perm_valid": 50000,
+    "period": "2026-01-01..2026-04-01",
+    "source": "wspr.live live download 2026-10-15"
+  }
+}

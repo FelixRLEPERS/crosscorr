@@ -45,6 +45,11 @@ opencode.json
 results/*
 !results/*.txt
 !results/*.csv
+!results/perm_test_18mo_3band.json
+!results/perm_test_dst_50k.json
+!results/heldout_resid_2026-10-15.json
+!results/heldout_3band_2026-10-15.json
+!results/fig4_day_night.json
 #audit/
 bench.log
 aep/

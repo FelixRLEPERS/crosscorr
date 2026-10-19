@@ -1,0 +1,56 @@
+{
+  "20m_Day": {
+    "band": "20m",
+    "period": "Day",
+    "drop_pct": -28.7,
+    "ci_lo": -36.4,
+    "ci_hi": -21.7,
+    "N_storm": 53,
+    "N_quiet": 732
+  },
+  "20m_Night": {
+    "band": "20m",
+    "period": "Night",
+    "drop_pct": -24.8,
+    "ci_lo": -33.9,
+    "ci_hi": -16.8,
+    "N_storm": 58,
+    "N_quiet": 734
+  },
+  "40m_Day": {
+    "band": "40m",
+    "period": "Day",
+    "drop_pct": -20.7,
+    "ci_lo": -28.2,
+    "ci_hi": -13.7,
+    "N_storm": 53,
+    "N_quiet": 732
+  },
+  "40m_Night": {
+    "band": "40m",
+    "period": "Night",
+    "drop_pct": -30.2,
+    "ci_lo": -36.4,
+    "ci_hi": -24.6,
+    "N_storm": 58,
+    "N_quiet": 734
+  },
+  "15m_Day": {
+    "band": "15m",
+    "period": "Day",
+    "drop_pct": -48.9,
+    "ci_lo": -58.1,
+    "ci_hi": -39.6,
+    "N_storm": 53,
+    "N_quiet": 732
+  },
+  "15m_Night": {
+    "band": "15m",
+    "period": "Night",
+    "drop_pct": -18.7,
+    "ci_lo": -34.4,
+    "ci_hi": -4.4,
+    "N_storm": 58,
+    "N_quiet": 734
+  }
+}

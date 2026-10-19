@@ -1,0 +1,61 @@
+{
+  "config": {
+    "n_iter": 50000,
+    "block_size": 24,
+    "block_size_note": "24 hourly steps = 24 h (one diurnal cycle) for the hourly Dst series",
+    "sensitivity_block_size": 72,
+    "sensitivity_block_note": "72 hourly steps = 72 h",
+    "add_one": true,
+    "seed": 42,
+    "residual_model": "value - mean(month, hour_of_day)",
+    "storm": "Dst < -50 nT",
+    "quiet": "Dst > -20 nT",
+    "period": "2024-04-01 .. 2025-09-30",
+    "generated": "2026-10-19; replication of tmp_audit5_stats.py section 3 (audit round 5)",
+    "backs": "Dst p = 2e-5 claims (Table 5, Section 4.3, Section 3.4)"
+  },
+  "tests": [
+    {
+      "band": "20m",
+      "delta": -22081.40104954182,
+      "p_raw": 1.999960000799984e-05,
+      "exceedances": 0,
+      "N_storm": 471,
+      "N_quiet": 8811,
+      "N_total": 12508,
+      "sensitivity_block_72": {
+        "delta": -22081.40104954182,
+        "p_raw": 1.999960000799984e-05,
+        "exceedances": 0
+      }
+    },
+    {
+      "band": "40m",
+      "delta": -15038.180483995888,
+      "p_raw": 1.999960000799984e-05,
+      "exceedances": 0,
+      "N_storm": 471,
+      "N_quiet": 8811,
+      "N_total": 12508,
+      "sensitivity_block_72": {
+        "delta": -15038.180483995888,
+        "p_raw": 1.999960000799984e-05,
+        "exceedances": 0
+      }
+    },
+    {
+      "band": "15m",
+      "delta": -5142.600477009402,
+      "p_raw": 1.999960000799984e-05,
+      "exceedances": 0,
+      "N_storm": 471,
+      "N_quiet": 8811,
+      "N_total": 12508,
+      "sensitivity_block_72": {
+        "delta": -5142.600477009402,
+        "p_raw": 1.999960000799984e-05,
+        "exceedances": 0
+      }
+    }
+  ]
+}

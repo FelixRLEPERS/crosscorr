@@ -11,18 +11,24 @@ RU — смысл и подводные камни. Все числа — из p
 Spot counts are non-Gaussian, autocorrelated, and heteroscedastic —
 a GLM would force distributional assumptions we cannot validate at
 hourly resolution. The block permutation test makes almost no
-assumptions: we shuffle storm labels in blocks of seventy-two hours —
-three full diurnal cycles, longer than the mean storm duration of
-about nine hours — which preserves the autocorrelation structure
-under the null. For secondary questions we also residualise first —
-month, hour-of-week — and permute the residuals; that combination is
-what our held-out p-values use.
+assumptions: we compute residuals against a month, hour-of-day,
+day-of-week baseline, then shuffle blocks of twenty-four consecutive
+three-hour epochs (seventy-two hours — three full diurnal cycles,
+longer than the mean storm duration of about nine hours) of the
+residual series, while the observed Kp sequence stays fixed.
+Shuffling residuals rather than storm labels preserves the
+autocorrelation structure under the null without pretending that
+geomagnetic activity is exchangeable in time. The held-out p-values
+come from the same residual block permutation procedure.
 
 ### RU
-Ключевая мысль: пермутация не требует нормальности. Блок 72 ч
-намеренно длиннее типичной бури (~9 ч), чтобы сохранить
-автокорреляцию. Если спросят "а что, GLM нельзя?" — можно, но с
-теми же блоковыми поправками; пермутация просто честнее.
+Ключевая мысль: пермутация не требует нормальности, и тасуем мы
+блоки остатков, а не метки Kp — геомагнитная активность физически
+не перемешивается во времени. Остатки считаются от baseline
+month × hour-of-day × day-of-week. Блок 72 ч намеренно длиннее
+типичной бури (~9 ч), чтобы сохранить автокорреляцию. Если
+спросят "а что, GLM нельзя?" — можно, но с теми же блоковыми
+поправками; пермутация просто честнее.
 
 ---
 

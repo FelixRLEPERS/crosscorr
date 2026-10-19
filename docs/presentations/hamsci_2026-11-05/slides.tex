@@ -87,7 +87,7 @@
     \item Per band: 4\,349 epochs --- \alert{198 storm} ($Kp\ge5$)
       vs 3\,035 quiet ($Kp<3$)
     \item \alert{Block permutation test}: 50\,000 iterations,
-      block $=$ 24 epochs $=$ 72\,h; Benjamini--Yekutieli FDR
+      block $=$ 24 epochs $=$ 72\,h; Benjamini--Hochberg FDR
     \item Confirmed independently with $Dst<-50$\,nT (Kyoto, provisional)
   \end{itemize}
 \end{frame}
@@ -169,7 +169,8 @@
   \end{center}
   \vskip0.2cm
   \begin{itemize}
-    \item Primary effect replicates on \alert{all three bands} at $p<10^{-3}$
+    \item Primary effect replicates on \alert{all three bands} under the
+      residual permutation test ($p<10^{-3}$; 15\,m raw CI includes zero)
     \item Scale-dependence at $Kp$ 6--7 agrees with training:
       held-out/training ratios $1.01$--$1.12$
     \item Purpose: confirm direction and magnitude on independent data ---
