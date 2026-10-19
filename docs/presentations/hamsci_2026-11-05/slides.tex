@@ -1,0 +1,253 @@
+\documentclass[aspectratio=169,10pt]{beamer}
+
+%% CrossCorr -- HamSCI Science Telecon, 5 November 2026
+%% Dark theme, palette from aep/CC_Data.js (PALETTE).
+%% Every number is verified against paper/main.tex (v1.3.1) by
+%% tmp_fix_pres_1_slides.py (Phase 1 anchors).
+
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{helvet}
+\renewcommand{\familydefault}{\sfdefault}
+
+\definecolor{ccbg}{HTML}{060911}
+\definecolor{cccyan}{HTML}{5CE1DB}
+\definecolor{cctext}{HTML}{F1F5FB}
+\definecolor{ccdim}{HTML}{828BA0}
+\definecolor{ccwarn}{HTML}{FFBF4C}
+
+\usetheme{default}
+\mode<presentation>{
+  \setbeamercolor{background canvas}{bg=ccbg}
+  \setbeamercolor{normal text}{fg=cctext,bg=ccbg}
+  \setbeamercolor{alerted text}{fg=cccyan}
+  \setbeamercolor{structure}{fg=cccyan}
+  \setbeamercolor{frametitle}{fg=cccyan,bg=ccbg}
+  \setbeamercolor{title}{fg=cctext}
+  \setbeamercolor{subtitle}{fg=ccdim}
+  \setbeamercolor{institute}{fg=ccdim}
+  \setbeamercolor{date}{fg=ccdim}
+  \setbeamercolor{itemize item}{fg=cccyan}
+  \setbeamercolor{itemize subitem}{fg=ccdim}
+  \setbeamercolor{enumerate item}{fg=cccyan}
+  \setbeamercolor{page number in head/foot}{fg=ccdim}
+  \setbeamerfont{frametitle}{series=\bfseries,size=\large}
+  \setbeamerfont{title}{series=\bfseries,size=\Large}
+  \setbeamertemplate{navigation symbols}{}
+  \setbeamertemplate{itemize items}[circle]
+  \setbeamertemplate{footline}{\hskip1em\usebeamertemplate{page number in head/foot}\hfil}
+}
+
+%% AE stills: drop figures/ae_network.png / figures/ae_links.png
+%% (exported from After Effects) -- until then a visible placeholder
+%% keeps the build green.
+\newcommand{\aestill}[2]{%
+  \IfFileExists{figures/#1.png}%
+    {\includegraphics[width=#2,keepaspectratio]{figures/#1.png}}%
+    {\fbox{\parbox[c][0.22\textheight][c]{0.40\textwidth}{%
+      \centering\textcolor{ccdim}{\small AE still not exported}\\[2pt]
+      \scriptsize\texttt{\detokenize{figures/#1.png}}}}}%
+}
+
+\title{Scale-dependent WSPR response to geomagnetic storms}
+\subtitle{Frequency dependence and network-size effects on absolute loss}
+\author{Alexey Petrov \and Makar Petrov}
+\institute{Independent researchers, Russia}
+\date{HamSCI Science Telecon --- 5 November 2026}
+
+\begin{document}
+
+%% ------------------------------------------------------------------ 1
+\begin{frame}[plain]
+  \titlepage
+  \vfill
+  \begin{center}
+    \small\textcolor{ccdim}{M.\ Petrov --- co-author, not presenting
+      \quad$\cdot$\quad Version DOI: 10.5281/zenodo.23402384}
+  \end{center}
+  \vskip0.3cm
+  \begin{center}
+    \aestill{ae_network}{0.55\textwidth}
+  \end{center}
+\end{frame}
+
+%% ------------------------------------------------------------------ 2
+\begin{frame}{Why WSPR?}
+  \begin{columns}[T]
+    \column{0.54\textwidth}
+    \begin{itemize}
+      \item WSPR (Weak Signal Propagation Reporter): low-rate digital
+        mode used by amateur radio operators worldwide
+      \item Every received spot is an opportunistic probe of one HF
+        propagation path
+      \item Public database: who heard whom, when, on which band
+      \item Global, continuous, free --- a \alert{distributed
+        ionospheric sensor}
+      \item Question: does storm activity suppress HF propagation,
+        as seen in spot counts?
+    \end{itemize}
+    \column{0.44\textwidth}
+      \aestill{ae_links}{\textwidth}
+  \end{columns}
+\end{frame}
+
+%% ------------------------------------------------------------------ 3
+\begin{frame}{Data and method}
+  \begin{center}
+    \includegraphics[width=0.70\textwidth,keepaspectratio]{figures/fig1_kp_timeseries.png}
+  \end{center}
+  \vskip-0.2cm
+  \begin{itemize}
+    \item \alert{18 months}, Apr 2024 --- Sep 2025; three bands:
+      20\,m, 40\,m, 15\,m
+    \item 39\,456 WSPR hours across the three bands; hourly counts merged
+      3-hourly with the GFZ Potsdam $Kp$ index
+    \item Per band: 4\,349 epochs --- \alert{198 storm} ($Kp\ge5$)
+      vs 3\,035 quiet ($Kp<3$)
+    \item \alert{Block permutation test}: 50\,000 iterations,
+      block $=$ 24 epochs $=$ 72\,h; Benjamini--Yekutieli FDR
+    \item Confirmed independently with $Dst<-50$\,nT (Kyoto, provisional)
+  \end{itemize}
+\end{frame}
+
+%% ------------------------------------------------------------------ 4
+\begin{frame}{Result 1 --- frequency dependence and scale dependence}
+  \begin{columns}[T]
+    \column{0.44\textwidth}
+      \centering
+      \includegraphics[width=\textwidth,keepaspectratio]{figures/fig3_frequency_dependence_pointest.png}\\
+      {\small\textcolor{ccdim}{Spot reduction per band}}
+    \column{0.54\textwidth}
+      \centering
+      \includegraphics[width=\textwidth,keepaspectratio]{figures/fig2_scale_dependence.png}\\
+      {\small\textcolor{ccdim}{Reduction vs storm intensity ($Kp$ bins)}}
+  \end{columns}
+  \vskip0.25cm
+  \begin{itemize}
+    \item All three bands: \alert{20\,m $-27.7\,\%$},
+      \alert{40\,m $-27.2\,\%$}, \alert{15\,m $-38.7\,\%$};
+      each $p=2\times10^{-5}$
+    \item Non-linear gradient: $\sim-18\,\%$ ($Kp$ 5--6)
+      $\to$ $\sim-34\,\%$ ($Kp$ 6--7) $\to$ $\sim-53\,\%$ ($Kp\ge7$)
+    \item Pattern \emph{consistent with} two mechanisms: MUF reduction
+      (15\,m) and D-region absorption (20/40\,m)
+  \end{itemize}
+\end{frame}
+
+%% ------------------------------------------------------------------ 5
+\begin{frame}{Result 2 --- day/night asymmetry}
+  \begin{center}
+    \includegraphics[width=0.58\textwidth,keepaspectratio]{figures/fig4_day_night_asymmetry.png}
+  \end{center}
+  \vskip-0.15cm
+  \begin{itemize}
+    \item Day (12--18 UTC): 15\,m $-48.9\,\%$ $>$ 20\,m $-28.7\,\%$
+      $>$ 40\,m $-20.7\,\%$
+    \item Night (0--6 UTC): \alert{40\,m $-30.2\,\%$} $>$ 20\,m $-24.8\,\%$
+      $>$ 15\,m $-18.7\,\%$
+    \item Nighttime excess on 40\,m: auroral / polar-cap absorption,
+      scaling as $1/f^2$
+  \end{itemize}
+  \vskip0.1cm
+  {\small\textcolor{ccdim}{Training period. In the 3-month held-out window
+  the day/night contrast is directionally consistent but not independently
+  resolved (47 storm epochs).}}
+\end{frame}
+
+%% ------------------------------------------------------------------ 6
+\begin{frame}{Result 3 --- absolute loss on 40\,m: invariance?}
+  \begin{center}
+    \includegraphics[width=0.48\textwidth,keepaspectratio]{figures/fig5_baseline_invariance.png}
+  \end{center}
+  \vskip-0.15cm
+  \begin{itemize}
+    \item Training: $-18\,285$ spots/h, 95\% CI $[-23\,807,\ -12\,930]$
+    \item Initial held-out snapshot: $-18\,304$ spots/h
+      $\Rightarrow$ ratio $1.00$
+    \item Live re-download (15 Oct 2026): $-26\,287$ spots/h,
+      CI $[-37\,144,\ -12\,472]$ $\Rightarrow$ \alert{ratio $1.44$}
+    \item WSPR network grew $+35\,\%$ (40\,m quiet baseline) over the gap
+    \item \alert{Baseline invariance suggestive but not established};
+      absolute loss reported as descriptive
+  \end{itemize}
+\end{frame}
+
+%% ------------------------------------------------------------------ 7
+\begin{frame}{Held-out replication --- Jan--Mar 2026}
+  \begin{center}
+  \begin{tabular}{lrrrl}
+    \toprule
+    Band & $N_{\mathrm{tot}}$ & $N_{\mathrm{storm}}$ & Spot reduction & $p$-value \\
+    \midrule
+    20\,m & 720 & 47 & $-26.7\,\%$ & $2\times10^{-5}$ \\
+    40\,m & 720 & 47 & $-29.0\,\%$ & $2\times10^{-4}$ \\
+    15\,m & 720 & 47 & $-22.1\,\%$ & $8\times10^{-5}$ \\
+    \bottomrule
+  \end{tabular}
+  \end{center}
+  \vskip0.2cm
+  \begin{itemize}
+    \item Primary effect replicates on \alert{all three bands} at $p<10^{-3}$
+    \item Scale-dependence at $Kp$ 6--7 agrees with training:
+      held-out/training ratios $1.01$--$1.12$
+    \item Purpose: confirm direction and magnitude on independent data ---
+      not to discover new effects
+  \end{itemize}
+\end{frame}
+
+%% ------------------------------------------------------------------ 8
+\begin{frame}{Limitations}
+  \begin{itemize}
+    \item 18 months in a solar-maximum phase --- not a solar-cycle study
+    \item Held-out power: 47 storm epochs; secondary effects
+      (day/night asymmetry) not independently re-tested
+    \item 15\,m held-out raw 95\% CI still includes zero
+      (residual-based $p$ is significant)
+    \item Global spot counts mask regional structure ---
+      per-path (great-circle) geometry deferred to future work
+    \item F10.7 only monthly; SIDs not separated; possible summer
+      sporadic-E contamination on 15\,m
+    \item 198 storm epochs $\approx$ 58 independent episodes
+      ($N_{\mathrm{eff}}$); Dst is provisional
+  \end{itemize}
+\end{frame}
+
+%% ------------------------------------------------------------------ 9
+\begin{frame}{Conclusions}
+  \begin{enumerate}
+    \item Storms ($Kp\ge5$) cut WSPR spot density by $27$--$39\,\%$
+      on all three bands ($p=2\times10^{-5}$)
+    \item The effect is \alert{scale-dependent}: $\sim-18\,\%$ at $Kp$ 5--6,
+      $\sim-34\,\%$ at $Kp$ 6--7, $\sim-53\,\%$ at $Kp\ge7$
+    \item It \alert{replicates} on the held-out Jan--Mar 2026 window
+      (all three bands, $p\le2\times10^{-4}$)
+    \item Absolute-loss stability under network growth is
+      \alert{not established} (ratio $1.44$)
+    \item Dual mechanism (training): MUF reduction (15\,m) and
+      D-region absorption (20/40\,m)
+  \end{enumerate}
+  \vskip0.3cm
+  \begin{center}
+    WSPR is a viable \alert{distributed ionospheric sensor} for
+    storm-driven HF degradation.
+  \end{center}
+\end{frame}
+
+%% ------------------------------------------------------------------ 10
+\begin{frame}[plain]{}
+  \vfill
+  \begin{center}
+    {\Huge\bfseries Questions?}\\[0.7cm]
+    {\large\textcolor{ccdim}{Thank you for listening.}}\\[0.9cm]
+    {\small
+      Paper (v1.3.1): \texttt{10.5281/zenodo.23402384}\\[4pt]
+      Concept DOI: \texttt{10.5281/zenodo.23285958}\\[4pt]
+      Code: \texttt{github.com/FelixRLEPERS/crosscorr}\\[4pt]
+      M.\ Petrov --- co-author, not presenting}
+  \end{center}
+  \vfill
+\end{frame}
+
+\end{document}
