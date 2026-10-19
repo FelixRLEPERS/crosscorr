@@ -51,13 +51,14 @@ in our list; the path-level analysis is our next paper".
 
 ### EN
 Percentage drops are normalized by the quiet-time baseline, making
-them stable as the network grows. Absolute loss is not stable
-because it scales with the network size: our own re-download showed
-the loss ratio rising to one point four four between training and
-re-pulled held-out, outside the training confidence interval, with
-thirty-five percent network growth in between. We report both, but
-percentage drops are the better monitoring metric; absolute loss
-should be treated as descriptive and re-validated periodically.
+them stable as the network grows. Absolute loss is not strictly
+invariant. The updated held-out point estimate (ratio 1.44) is larger
+than the training estimate, but the held-out CI overlaps the training
+CI. It is broadly consistent with proportional scaling with the
+growing network (+35% baseline), but not a formal test of equality.
+Percentage drops remain the more stable metric. We report both;
+absolute loss should be treated as descriptive and re-validated
+periodically.
 
 ### RU
 Это тот случай, когда наша же "неудачная" находка — наш актив.
@@ -142,7 +143,7 @@ Dst — независимая проверка; результат устойч
 ### EN
 Potentially yes. Normalised WSPR spot density could serve as a
 near-real-time proxy for storm-driven HF degradation, complementing
-riometers. The caveat from our invariance result: percentage drops
+riometers. The caveat from our absolute-loss scaling result: percentage drops
 are normalized by the quiet-time baseline and remain stable as the
 network grows, whereas absolute deviations scale with network size.
 An operational system should therefore track the quiet baseline
@@ -176,7 +177,7 @@ throughput" — это конкретика, которая звучит убе�
 ### EN
 Because spot counts are an integral measure of a propagation path,
 not a direct sounding of the D-region or the MUF. What we show is
-that the joint pattern — frequency ordering, day/night crossover,
+that the joint pattern — frequency ordering, UT-window crossover,
 non-linear Kp gradient — matches the predicted signature of MUF
 reduction plus D-region absorption, and does not match the
 alternatives we considered. Establishing causation needs direct
@@ -196,10 +197,11 @@ collaboration we would welcome.
 - 4 349 epochs per band; 198 storm (Kp ≥ 5) vs 3 035 quiet.
 - Drops: −27.7 / −27.2 / −38.7 % (20/40/15 m), all p = 2e-5.
 - Scale: ~−18 % (Kp 5–6), ~−34 % (Kp 6–7), ~−53 % (Kp ≥ 7).
-- Day 12–18 UTC / Night 0–6 UTC: 15 m −48.9 / −18.7; 40 m −20.7 / −30.2.
+- UT-day 12–18 UTC / UT-night 0–6 UTC: 15 m −48.9 / −18.7; 40 m −20.7 / −30.2.
 - Absolute 40 m: train −18 285 [−23 807, −12 930];
   initial held-out −18 304 (ratio 1.00);
-  re-pull −26 287 [−37 144, −12 472] (ratio 1.44); network +35 %.
+  re-pull −26 287 [−37 144, −12 472] (ratio 1.44, 95% CI [0.65, 2.33]);
+  expected ~1.35 from +35 % network growth.
 - Held-out Jan–Mar 2026: N_storm = 47; −26.7 / −29.0 / −22.1 %;
   p = 2e-5 / 2e-4 / 8e-5.
 - 198 storm epochs ≈ 58 independent episodes (N_eff).
