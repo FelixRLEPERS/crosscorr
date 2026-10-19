@@ -63,7 +63,7 @@ which one hundred ninety-eight are storm epochs — Kp of five or
 higher — and just over three thousand are quiet epochs, Kp below
 three. Our primary statistic is a block permutation test: fifty
 thousand iterations, a block of seventy-two hours — three full
-diurnal cycles — with Benjamini–Yekutieli false-discovery control.
+diurnal cycles — with Benjamini–Hochberg false-discovery control.
 As a robustness check we repeated the whole analysis with the Dst
 index from Kyoto.
 
@@ -85,7 +85,7 @@ seven point two on forty meters, and thirty-eight point seven on
 fifteen meters. All three are significant at two times ten to the
 minus five — the resolution floor of our permutation test. The right
 panel shows the second part of the story: the effect is not linear
-in storm intensity. At Kp five to six the drop is about eighteen
+in storm intensity. At Kp five to six the drop is approximately 18
 percent; at Kp six to seven, thirty-four; at Kp seven and above,
 fifty-three. So severity matters, and it matters more than a linear
 dose-response would suggest. The frequency ordering — fifteen meters
@@ -165,7 +165,9 @@ independent held-out window, January to March 2026, we have forty-
 seven storm epochs per band. The drops are minus twenty-six point
 seven percent on twenty meters, minus twenty-nine point zero on
 forty meters, and minus twenty-two point one on fifteen meters.
-All three are significant — at or below ten to the minus four.
+All three are significant under the residual permutation test — at or
+below two times ten to the minus four; on fifteen meters the raw
+confidence interval still includes zero.
 And when we match by storm strength — the Kp six to seven bin —
 the held-out drops agree with the training values to within one to
 twelve percent. We use this window strictly as a confirmation set:
@@ -210,7 +212,8 @@ spot density by twenty-seven to thirty-nine percent on all three
 bands, at two times ten to the minus five. Two: the effect is
 scale-dependent — minus eighteen, minus thirty-four, minus fifty-
 three percent as Kp increases. Three: it replicates on the held-out
-window on all three bands. Four: absolute-loss stability under
+window on all three bands, under the residual permutation test. Four:
+absolute-loss stability under
 network growth is not established — ratio one point four four.
 Five: the pattern is consistent with two mechanisms — MUF reduction
 on fifteen meters and D-region absorption on twenty and forty.
