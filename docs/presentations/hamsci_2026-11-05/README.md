@@ -34,8 +34,8 @@ paper/figures/. Динамических кадров и видео в деке 
 
 ## Происхождение чисел и фигур
 
-Все числа слайдов сверены якорями по paper/main.tex (v1.3.1)
-скриптом tmp_fix_pres_1_slides.py (Phase 1: 63 чека, все пройдены).
+Все числа слайдов сверены якорями по paper/main.tex (v1.3.1) —
+63 автоматические проверки, все пройдены.
 Копии фигур сделаны байтовыми, md5 совпадает с paper/figures/.
 
 Палитра слайдов: aep/CC_Data.js → PALETTE
@@ -43,7 +43,10 @@ paper/figures/. Динамических кадров и видео в деке 
 
 ## Регенерация
 
-    python tmp_fix_pres_1_slides.py   # slides.tex + копии figures/
+Для пересборки достаточно запустить pdflatex дважды из папки
+docs/presentations/hamsci_2026-11-05/ (или использовать
+tmp_fix_pres_2_build.py, если он есть локально).
+
     python tmp_fix_pres_2_build.py    # slides.pdf (pdflatex x2 + лог)
     python tmp_fix_pres_3_notes.py    # speaker_notes / Q_and_A / README
 
