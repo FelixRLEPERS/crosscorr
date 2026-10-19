@@ -44,14 +44,14 @@ in our list; the path-level analysis is our next paper".
 ## Q3. Is absolute loss (spots per hour) a meaningful metric?
 
 ### EN
-We think yes — it is more physical than a percentage, because a
-percentage depends on the network size in the denominator. But our
-own re-download showed it is not stable: ratio one point four four
-between training and re-pulled held-out, outside the training
-confidence interval, with thirty-five percent network growth in
-between. So we report absolute loss as descriptive, and we argue
-that operational use should re-validate it periodically rather than
-assume a constant baseline.
+Percentage drops are normalized by the quiet-time baseline, making
+them stable as the network grows. Absolute loss is not stable
+because it scales with the network size: our own re-download showed
+the loss ratio rising to one point four four between training and
+re-pulled held-out, outside the training confidence interval, with
+thirty-five percent network growth in between. We report both, but
+percentage drops are the better monitoring metric; absolute loss
+should be treated as descriptive and re-validated periodically.
 
 ### RU
 Это тот случай, когда наша же "неудачная" находка — наш актив.
@@ -136,10 +136,12 @@ Dst — независимая проверка; результат устойч
 ### EN
 Potentially yes. Normalised WSPR spot density could serve as a
 near-real-time proxy for storm-driven HF degradation, complementing
-riometers. The caveat from our invariance result: percentage-based
-triggers would misfire as the network grows, so an operational
-system should track the quiet baseline continuously and use
-absolute deviations, re-validated periodically.
+riometers. The caveat from our invariance result: percentage drops
+are normalized by the quiet-time baseline and remain stable as the
+network grows, whereas absolute deviations scale with network size.
+An operational system should therefore track the quiet baseline
+continuously, use the normalized (percentage) response as the
+primary trigger, and re-validate absolute levels periodically.
 
 ### RU
 Это мостик к HamSCI-практике. Тон приглашающий: "we would welcome

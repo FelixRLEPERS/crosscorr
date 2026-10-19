@@ -143,10 +143,11 @@ and the loss came out minus twenty-six thousand two hundred
 eighty-seven: ratio one point four four, outside the training
 confidence interval. In the meantime the network had grown by
 thirty-five percent. We therefore do not claim baseline invariance.
-The honest statement is: percentage metrics are network-dependent,
-absolute loss is more physical but must be re-validated; we report
-it as a descriptive quantity. This slide is deliberately in our
-paper's key points — we prefer to state the correction ourselves.
+The honest statement is: percentage drops are network-independent and
+stable, while absolute loss scales with the network and should not be
+assumed stable; we report it as a descriptive quantity. This slide is
+deliberately in our paper's key points — we prefer to state the
+correction ourselves.
 
 ### RU (перевод и подсказки)
 Это самый "взрослый" слайд — история об ошибке, которую мы поймали

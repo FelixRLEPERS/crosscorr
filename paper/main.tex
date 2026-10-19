@@ -279,10 +279,11 @@ derived from four low-latitude magnetometer stations. It provides finer
 temporal resolution than $Kp$ (hourly versus 3-hourly) and serves as an
 independent storm proxy. The provisional data cover all 18 months of the
 training period (mean $Dst = \SI{-11.5}{nT}$, minimum
-$Dst = \SI{-96}{nT}$). A total of 471 hours satisfy $Dst < \SI{-50}{nT}$,
-yielding 2.4$\times$ more storm samples
-(471 vs 198) and 2.9$\times$ larger total sample size
-(12\,508 vs 4\,349) than the $Kp$-based analysis.
+$Dst = \SI{-96}{nT}$). A total of 471 hours satisfy $Dst < \SI{-50}{nT}$.
+This selection covers fewer storm hours than the $Kp$-based selection
+(471 versus 594 hours, i.e.\ 198 three-hour epochs) but provides a
+larger matched sample at the finer hourly resolution (12\,508 hourly
+values versus 4\,349 three-hour epochs).
 
 The F10.7 solar radio flux (NOAA SWPC) was considered as a covariate, but
 only monthly means are available via the SWPC API, which is too coarse for
@@ -522,7 +523,7 @@ Benjamini--Hochberg FDR correction across 6 tests ($p_{\text{FDR}} = 2 \times 10
 for all).
 
 The $Dst$-based analysis confirms the result independently (Table~\ref{tab:dst}).
-With 2.4$\times$ more storm hours ($N = 471$ for $Dst < \SI{-50}{nT}$),
+With $N = 471$ storm hours at hourly resolution ($Dst < \SI{-50}{nT}$),
 the effect sizes are larger on 20\,m ($\Delta = -22\,081$ versus
 $-20\,421$ for $Kp$), smaller on 40\,m ($-15\,038$ versus $-18\,285$),
 and comparable on 15\,m ($-5\,143$ versus $-5\,178$). The
