@@ -102,28 +102,32 @@ D-region absorption.
 
 ---
 
-## Slide 5 — Result 2: day/night asymmetry (~1:10)
+## Slide 5 — Result 2: UT-window asymmetry (~1:10)
 
 ### EN (say this)
 We then asked whether the time of day matters. We split storm epochs
-into daytime — twelve to eighteen UTC — and nighttime — zero to six
-UTC. During the day, fifteen meters drops almost half: minus forty-
-eight point nine percent; at night its effect shrinks to minus
-eighteen. Forty meters shows the opposite: at night it drops minus
-thirty, more than the minus twenty-one of daytime. This crossover is
-the fingerprint of two different physical mechanisms. The solar
-D-layer, which causes absorption during the day, disappears minutes
-after sunset; what remains at night is absorption from energetic
-particle precipitation — auroral and polar-cap — which scales as
-one over f squared, so it hurts forty meters more than twenty. One
-caveat we state explicitly: this asymmetry is a training-period
-result; the three-month held-out window has too few storms to test
-it independently.
+into UT-day — twelve to eighteen UTC — and UT-night — zero to six
+UTC. In the UT-day window, fifteen meters drops almost half: minus
+forty-eight point nine percent; in the UT-night window its effect
+shrinks to minus eighteen. Forty meters shows the opposite: in the
+UT-night window it drops minus thirty, more than the minus twenty-
+one of the UT-day window. This crossover is the fingerprint of two
+different physical mechanisms. The solar D-layer, which causes
+absorption in UT-day hours, disappears minutes after sunset; what
+remains in the UT-night window is absorption from energetic particle
+precipitation — auroral and polar-cap — which scales as one over f
+squared, so it hurts forty meters more than twenty. Two caveats we
+state explicitly: these are UT windows, not simultaneous local
+day and night for a global network; and this asymmetry is a
+training-period result — the three-month held-out window has too
+few storms to test it independently.
 
 ### RU (перевод и подсказки)
-"Кроссовер" — ключевое слово: днём 15 м хуже всего, ночью — 40 м.
+"Кроссовер" — ключевое слово: в UT-день 15 м хуже всего, в UT-ночь — 40 м.
 Объяснить "one over f squared" жестом: поглощение сильнее на низких
-частотах. Обязательно произнести caveat про held-out — иначе вопрос
+частотах. Обязательно произнести оба caveat: (1) это UT-окна, а не
+одновременные локальные день/ночь в глобальной сети; (2) это результат
+тренировочного периода — held-out его не проверяет. Иначе вопрос
 "а насколько это устойчиво?" придётся отвечать без подготовки.
 
 ---
@@ -140,20 +144,22 @@ a ratio of one point zero zero. That was an attractive result. But
 the wspr.live database keeps growing as operators upload logs with
 a lag. So we re-downloaded the same three months in October 2026 —
 and the loss came out minus twenty-six thousand two hundred
-eighty-seven: ratio one point four four, outside the training
-confidence interval. In the meantime the network had grown by
-thirty-five percent. We therefore do not claim baseline invariance.
-The honest statement is: percentage drops are network-independent and
-stable, while absolute loss scales with the network and should not be
-assumed stable; we report it as a descriptive quantity. This slide is
-deliberately in our paper's key points — we prefer to state the
-correction ourselves.
+eighty-seven: ratio one point four four, with a wide bootstrap
+interval from zero point six five to two point three three. That
+interval is wide enough to include both perfect invariance and
+proportional scaling. But the network had grown by thirty-five
+percent in the meantime, and if the percentage drop stayed constant
+we would expect a ratio of about one point three five — close to
+where our point estimate sits. The honest summary: absolute loss
+scales roughly with the network, while percentage drops remain the
+more stable metric. This slide is deliberately in our paper's key
+points — we prefer to state the correction ourselves.
 
 ### RU (перевод и подсказки)
 Это самый "взрослый" слайд — история об ошибке, которую мы поймали
 и честно показали. Не извиняться, а говорить уверенно: наука так и
 работает. Подчеркнуть: "we report it ourselves" — доверие аудитории
-растёт. Numbers: 18 285 / 18 304 / 26 287 / ratio 1.44 / +35%.
+растёт. Numbers: 18 285 / 18 304 / 26 287 / ratio 1.44 (CI 0.65–2.33) / expected 1.35 / +35%.
 
 ---
 
@@ -188,12 +194,15 @@ new effects.
 Our limitations are honest and we list them in the paper. Eighteen
 months is not a climatology — the window sits in a solar-maximum
 phase. The held-out period has only forty-seven storm epochs, so
-secondary effects like the day/night asymmetry are not independently
+secondary effects like the UT-window asymmetry are not independently
 tested there; on fifteen meters the raw confidence interval still
 includes zero, even though the residual-based permutation test is
 significant. We aggregate globally, which masks regional structure —
 polar paths versus mid-latitude paths — and per-path geometry is
-future work. F10.7 enters only as monthly means. And the one hundred
+future work. Our UT windows are not simultaneous local day and night
+across a global network; also, the spot counts conflate propagation
+with station activity — we cannot normalise by active transmitters.
+F10.7 enters only as monthly means. And the one hundred
 ninety-eight storm epochs are not independent: grouped into episodes
 they amount to about fifty-eight distinct events.
 
@@ -211,10 +220,12 @@ To conclude, in five sentences. One: geomagnetic storms cut WSPR
 spot density by twenty-seven to thirty-nine percent on all three
 bands, at two times ten to the minus five. Two: the effect is
 scale-dependent — minus eighteen, minus thirty-four, minus fifty-
-three percent as Kp increases. Three: it replicates on the held-out
-window on all three bands, under the residual permutation test. Four:
-absolute-loss stability under
-network growth is not established — ratio one point four four.
+three percent as Kp increases. Three: it replicates in direction on the
+held-out window on all three bands, under the residual permutation
+test. Four: absolute loss scales roughly with network growth — ratio
+one point four four, close to the one point three five expected from
+the thirty-five percent baseline growth; percentage drops remain the
+more stable metric.
 Five: the pattern is consistent with two mechanisms — MUF reduction
 on fifteen meters and D-region absorption on twenty and forty.
 Bottom line: WSPR is a viable distributed ionospheric sensor for

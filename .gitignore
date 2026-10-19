@@ -50,6 +50,11 @@ results/*
 !results/heldout_resid_2026-10-15.json
 !results/heldout_3band_2026-10-15.json
 !results/fig4_day_night.json
+!results/abs_loss_ratio_ci.json
+!results/verify_15m_bins_2026-10-19.json
+!results/heldout_3band_15m_2026-10-15.parquet
+!results/heldout_3band_20m_2026-10-15.parquet
+!results/heldout_3band_40m_2026-10-15.parquet
 #audit/
 bench.log
 aep/

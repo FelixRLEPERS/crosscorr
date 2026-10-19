@@ -1,0 +1,101 @@
+{
+  "method": {
+    "block_epochs": 24,
+    "block_hours": 72,
+    "n_resamples": 1000,
+    "seed": 42,
+    "rng": "fresh default_rng(42) per series (reproduces Table 10 component CIs)",
+    "resampling": "training and held-out independent; ratio formed per iteration index",
+    "training_source": "data/processed/unified.parquet (3-hourly Kp epochs)",
+    "heldout_source": "results/heldout_3band_<band>_2026-10-15.parquet"
+  },
+  "bands": {
+    "20m": {
+      "training": {
+        "point": 20420.7,
+        "ci95": [
+          14544.4,
+          26834.3
+        ],
+        "n_epochs": 4349
+      },
+      "heldout": {
+        "point": 22481.9,
+        "ci95": [
+          2937.9,
+          35044.2
+        ],
+        "n_epochs": 720
+      },
+      "quiet_mean_training": 73717.8,
+      "quiet_mean_heldout": 84095.7,
+      "expected_ratio_from_quiet_growth": 1.1408,
+      "ratio": {
+        "point": 1.1009,
+        "ci95": [
+          0.1764,
+          1.9363
+        ],
+        "n_valid_resamples": 1000
+      }
+    },
+    "40m": {
+      "training": {
+        "point": 18284.5,
+        "ci95": [
+          12929.9,
+          23806.7
+        ],
+        "n_epochs": 4349
+      },
+      "heldout": {
+        "point": 26287.1,
+        "ci95": [
+          12471.5,
+          37143.8
+        ],
+        "n_epochs": 720
+      },
+      "quiet_mean_training": 67104.8,
+      "quiet_mean_heldout": 90652.9,
+      "expected_ratio_from_quiet_growth": 1.3509,
+      "ratio": {
+        "point": 1.4377,
+        "ci95": [
+          0.6498,
+          2.3336
+        ],
+        "n_valid_resamples": 1000
+      }
+    },
+    "15m": {
+      "training": {
+        "point": 5177.9,
+        "ci95": [
+          3683.6,
+          6671.3
+        ],
+        "n_epochs": 4349
+      },
+      "heldout": {
+        "point": 3627.1,
+        "ci95": [
+          -3738.0,
+          7171.5
+        ],
+        "n_epochs": 720
+      },
+      "quiet_mean_training": 13385.5,
+      "quiet_mean_heldout": 16392.6,
+      "expected_ratio_from_quiet_growth": 1.2247,
+      "ratio": {
+        "point": 0.7005,
+        "ci95": [
+          0.0467,
+          1.5748
+        ],
+        "n_valid_resamples": 1000
+      }
+    }
+  }
+}

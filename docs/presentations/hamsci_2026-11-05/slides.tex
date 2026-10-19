@@ -117,23 +117,23 @@
 \end{frame}
 
 %% ------------------------------------------------------------------ 5
-\begin{frame}{Result 2 --- day/night asymmetry}
+\begin{frame}{Result 2 --- UT-window asymmetry}
   \begin{center}
     \includegraphics[width=0.58\textwidth,keepaspectratio]{figures/fig4_day_night_asymmetry.png}
   \end{center}
   \vskip-0.15cm
   \begin{itemize}
-    \item Day (12--18 UTC): 15\,m $-48.9\,\%$ $>$ 20\,m $-28.7\,\%$
+    \item UT-day (12--18 UTC): 15\,m $-48.9\,\%$ $>$ 20\,m $-28.7\,\%$
       $>$ 40\,m $-20.7\,\%$
-    \item Night (0--6 UTC): \alert{40\,m $-30.2\,\%$} $>$ 20\,m $-24.8\,\%$
+    \item UT-night (0--6 UTC): \alert{40\,m $-30.2\,\%$} $>$ 20\,m $-24.8\,\%$
       $>$ 15\,m $-18.7\,\%$
-    \item Nighttime excess on 40\,m: auroral / polar-cap absorption,
+    \item UT-night excess on 40\,m: auroral / polar-cap absorption,
       scaling as $1/f^2$
   \end{itemize}
   \vskip0.1cm
-  {\small\textcolor{ccdim}{Training period. In the 3-month held-out window
-  the day/night contrast is directionally consistent but not independently
-  resolved (47 storm epochs).}}
+  {\small\textcolor{ccdim}{Training period. The UT-window asymmetry is based
+  on training data; the held-out window does not independently resolve
+  this (47 storm epochs).}}
 \end{frame}
 
 %% ------------------------------------------------------------------ 6
@@ -141,16 +141,18 @@
   \begin{center}
     \includegraphics[width=0.48\textwidth,keepaspectratio]{figures/fig5_baseline_invariance.png}
   \end{center}
-  \vskip-0.15cm
+  \vskip-0.35cm
   \begin{itemize}
     \item Training: $-18\,285$ spots/h, 95\% CI $[-23\,807,\ -12\,930]$
     \item Initial held-out snapshot: $-18\,304$ spots/h
       $\Rightarrow$ ratio $1.00$
     \item Live re-download (15 Oct 2026): $-26\,287$ spots/h,
       CI $[-37\,144,\ -12\,472]$ $\Rightarrow$ \alert{ratio $1.44$}
-    \item WSPR network grew $+35\,\%$ (40\,m quiet baseline) over the gap
-    \item \alert{Baseline invariance suggestive but not established};
-      absolute loss reported as descriptive
+      (95\% CI $[0.65,\ 2.33]$)
+    \item Network grew $+35\,\%$ (40\,m quiet baseline); expected ratio
+      $\approx 1.35$ under proportional scaling
+    \item \alert{Absolute loss scales roughly with the network};
+      percentage drops remain the more stable metric
   \end{itemize}
 \end{frame}
 
@@ -169,8 +171,9 @@
   \end{center}
   \vskip0.2cm
   \begin{itemize}
-    \item Primary effect replicates on \alert{all three bands} under the
-      residual permutation test ($p<10^{-3}$; 15\,m raw CI includes zero)
+    \item Primary effect replicates in direction on \alert{all three bands}
+      under the residual permutation test
+      ($p<10^{-3}$; 15\,m raw CI includes zero)
     \item Scale-dependence at $Kp$ 6--7 agrees with training:
       held-out/training ratios $1.01$--$1.12$
     \item Purpose: confirm direction and magnitude on independent data ---
@@ -183,11 +186,15 @@
   \begin{itemize}
     \item 18 months in a solar-maximum phase --- not a solar-cycle study
     \item Held-out power: 47 storm epochs; secondary effects
-      (day/night asymmetry) not independently re-tested
+      (UT-window asymmetry) not independently re-tested
     \item 15\,m held-out raw 95\% CI still includes zero
       (residual-based $p$ is significant)
+    \item UT windows (12--18 / 0--6 UTC) are not local day/night
+      for a global network
     \item Global spot counts mask regional structure ---
       per-path (great-circle) geometry deferred to future work
+    \item Spot counts conflate propagation with station activity
+      (no active-transmitter normalisation)
     \item F10.7 only monthly; SIDs not separated; possible summer
       sporadic-E contamination on 15\,m
     \item 198 storm epochs $\approx$ 58 independent episodes
@@ -202,10 +209,11 @@
       on all three bands ($p=2\times10^{-5}$)
     \item The effect is \alert{scale-dependent}: $\sim-18\,\%$ at $Kp$ 5--6,
       $\sim-34\,\%$ at $Kp$ 6--7, $\sim-53\,\%$ at $Kp\ge7$
-    \item It \alert{replicates} on the held-out Jan--Mar 2026 window
+    \item It \alert{replicates in direction} on the held-out Jan--Mar 2026 window
       (all three bands, $p\le2\times10^{-4}$)
-    \item Absolute-loss stability under network growth is
-      \alert{not established} (ratio $1.44$)
+    \item Absolute loss \alert{scales roughly with network growth}
+      (ratio $1.44$, 95\% CI $[0.65, 2.33]$); percentage drops remain
+      the more stable metric
     \item Dual mechanism (training): MUF reduction (15\,m) and
       D-region absorption (20/40\,m)
   \end{enumerate}

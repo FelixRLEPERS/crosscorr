@@ -1,0 +1,111 @@
+{
+  "20m": {
+    "quiet_mean": 73717.8,
+    "Kp 5-6": {
+      "N": 122,
+      "drop_pct": -18.3,
+      "ci_lo": -23.71,
+      "ci_hi": -12.67
+    },
+    "Kp 6-7": {
+      "N": 38,
+      "drop_pct": -33.57,
+      "ci_lo": -40.71,
+      "ci_hi": -26.61
+    },
+    "Kp >=6": {
+      "N": 76,
+      "drop_pct": -42.8,
+      "ci_lo": -49.28,
+      "ci_hi": -35.92
+    },
+    "Kp >=7": {
+      "N": 38,
+      "drop_pct": -52.02,
+      "ci_lo": -61.47,
+      "ci_hi": -40.96
+    }
+  },
+  "40m": {
+    "quiet_mean": 67104.8,
+    "Kp 5-6": {
+      "N": 122,
+      "drop_pct": -16.92,
+      "ci_lo": -21.06,
+      "ci_hi": -12.87
+    },
+    "Kp 6-7": {
+      "N": 38,
+      "drop_pct": -34.43,
+      "ci_lo": -40.54,
+      "ci_hi": -27.48
+    },
+    "Kp >=6": {
+      "N": 76,
+      "drop_pct": -43.83,
+      "ci_lo": -49.34,
+      "ci_hi": -37.68
+    },
+    "Kp >=7": {
+      "N": 38,
+      "drop_pct": -53.22,
+      "ci_lo": -62.14,
+      "ci_hi": -43.91
+    }
+  },
+  "15m": {
+    "quiet_mean": 13385.5,
+    "Kp 5-6": {
+      "N": 122,
+      "drop_pct": -28.64,
+      "ci_lo": -37.27,
+      "ci_hi": -19.98
+    },
+    "Kp 6-7": {
+      "N": 38,
+      "drop_pct": -50.69,
+      "ci_lo": -60.57,
+      "ci_hi": -40.9
+    },
+    "Kp >=6": {
+      "N": 76,
+      "drop_pct": -54.8,
+      "ci_lo": -62.61,
+      "ci_hi": -46.32
+    },
+    "Kp >=7": {
+      "N": 38,
+      "drop_pct": -58.9,
+      "ci_lo": -71.09,
+      "ci_hi": -44.54
+    }
+  },
+  "_meta": {
+    "source": "data/processed/unified.parquet",
+    "period": "2024-04-01 .. 2025-09-30",
+    "bootstrap": {
+      "n_resamples": 1000,
+      "seed": 42,
+      "type": "iid storm/quiet epoch resampling"
+    },
+    "expected_15m": {
+      "Kp 5-6": {
+        "drop_pct": -28.6,
+        "N": 122
+      },
+      "Kp 6-7": {
+        "drop_pct": -50.7,
+        "N": 38
+      },
+      "Kp >=6": {
+        "drop_pct": -54.8,
+        "N": 76
+      },
+      "Kp >=7": {
+        "drop_pct": -58.9,
+        "N": 38
+      }
+    },
+    "verified_ok": true
+  }
+}

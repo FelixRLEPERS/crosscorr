@@ -31,7 +31,7 @@
 	\SI{-28.6}{\percent} to \SI{-54.8}{\percent}); directionally replicated on
 	all three bands held-out (primary effect significant; 15\,m CI includes
 	zero on raw counts)
-	\item Absolute spot loss on 40\,m is not stable under network growth: re-download yields ratio 1.44, outside CI; invariance not established
+	\item Absolute spot loss on 40\,m scales roughly with the growing network size: observed ratio 1.44 (95\% CI [0.65, 2.33]) versus the $\approx$1.35 expected from the $\SI{+35}{\percent}$ quiet-baseline growth; percentage drops remain the more stable metric
 \end{keypoints}
 
 \begin{abstract}
@@ -49,25 +49,25 @@
 	($\sim\SI{-18}{\percent}$) to $Kp \ge 6$ ($\sim\SI{-43}{\percent}$) on
 	20/40\,m (15\,m: \SI{-28.6}{\percent} to \SI{-54.8}{\percent}), consistent
 	with non-linear ionospheric response to geomagnetic forcing. The primary
-	effect replicates on an independent held-out period (January--March 2026,
+	effect replicates in direction on an independent held-out period (January--March 2026,
 	updated live-database pull) on all three bands, including 15\,m
 	(residual block permutation $p < 10^{-3}$; its raw 95\% CI includes
 	zero).
 
 	The frequency dependence supports a dual-mechanism interpretation: the 15\,m drop
 	(\SI{-38.7}{\percent}) is consistent with MUF reduction, while D-layer absorption affects
-	20\,m/40\,m (\SI{-27.7}{\percent}/\SI{-27.2}{\percent}). The day/night asymmetry
-	(40\,m drop stronger at night across the 8 months with sufficient data) is consistent with
+	20\,m/40\,m (\SI{-27.7}{\percent}/\SI{-27.2}{\percent}). The UT-window asymmetry
+	(40\,m drop stronger in the 0--6 UTC window across the 8 months with sufficient data) is consistent with
 	intermittent auroral and polar cap absorption.
 
 	The training-period absolute spot loss on 40\,m ($\SI{-18285}{spots/h}$)
 	was initially matched by a held-out snapshot ($\SI{-18304}{spots/h}$),
-	consistent with network-size invariance within wide confidence
-	intervals despite $\SI{+35}{\percent}$ network growth. However, a
-	re-downloaded held-out sample (October 2026) yields a larger absolute
-	loss ($\SI{-26287}{spots/h}$, ratio 1.44), below the training CI. We
-	therefore report the training-period invariance as suggestive but not
-	established, and base all held-out absolute-loss values on the updated download.
+	but a re-downloaded held-out sample (October 2026) yields a larger
+	absolute loss ($\SI{-26287}{spots/h}$; ratio 1.44, 95\% CI [0.65, 2.33]),
+	consistent with absolute loss scaling roughly with the
+	$\SI{+35}{\percent}$ quiet-baseline growth ($\approx$1.35 expected).
+	Percentage drops remain the more stable metric. All held-out
+	absolute-loss values are based on the updated download.
 	We conclude that WSPR can serve as a distributed ionospheric sensor for
 	detecting and characterising the scale-dependent effects of geomagnetic
 	storms on HF propagation.
@@ -84,10 +84,11 @@ successfully reported signals falls by 27--39 percent, and that the
 reduction grows sharply with storm intensity. The pattern repeats in an
 independent three-month period. Stronger effects on the highest band
 point to storm-driven reductions of the maximum usable frequency, while
-the nighttime effect on the lowest band points to particle-driven
+the effect in the 0--6 UTC window on the lowest band points to particle-driven
 absorption. Because the network keeps growing, the absolute number of
-lost signals is not stable across periods, whereas percentage drops
-remain a usable monitoring metric. Volunteer radio data can therefore
+lost signals grows roughly in proportion with the network, whereas
+percentage drops remain the more stable monitoring metric. Volunteer
+radio data can therefore
 serve as a low-cost, globally distributed sensor of space-weather
 effects on radio propagation.
 
@@ -154,20 +155,21 @@ In this paper, we address these gaps with five contributions:
 	\item An 18-month, 3-band (20\,m, 40\,m, 15\,m) analysis of WSPR spot
 	      density during geomagnetic storms, using both $Kp$ and $Dst$ indices
 	      as independent storm proxies;
-	\item The first characterisation of a scale-dependent effect: the spot
+	\item To our knowledge, the first characterisation of a scale-dependent effect: the spot
 	      reduction grows non-linearly with $Kp$, from
 	      $\sim\SI{-18}{\percent}$ at $Kp = 5\text{--}6$ to $\sim\SI{-53}{\percent}$
 	      at $Kp \ge 7$;
 	\item An independent replication on a 3-month held-out period
 	      (January--March 2026) that confirms the primary effect on
 	      all three bands;
-	\item A test of absolute-loss stability under network growth: the
-	      training-period absolute spot loss on 40\,m was initially
-	      matched by a held-out snapshot, but an updated held-out
-	      download yields a larger loss outside the training CI. We
-	      therefore do not claim invariance and treat the absolute loss
-	      as a descriptive quantity;
-	\item A day/night asymmetry consistent with intermittent auroral and
+	\item A test of absolute-loss scaling under network growth: the
+	      updated held-out download gives a 40\,m loss ratio of 1.44
+	      (95\% CI [0.65, 2.33]), close to the $\approx$1.35 expected from
+	      the $\SI{+35}{\percent}$ quiet-baseline growth; we therefore
+	      treat the absolute loss as a descriptive quantity that scales
+	      roughly with the network, while percentage drops remain the more
+	      stable metric;
+	\item A UT-window asymmetry consistent with intermittent auroral and
 	      polar cap absorption during storms.
 \end{enumerate}
 
@@ -181,7 +183,7 @@ download dates and freeze status are listed in Table~\ref{tab:provenance}.
 
 \begin{table}[h]
 	\centering
-	\caption{Data sources and coverage.}
+	\caption{Data sources and coverage.\protect\footnotemark{}}
 	\label{tab:data}
 	\begin{tabularx}{\textwidth}{@{}l >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X r@{}}
 		\toprule
@@ -192,11 +194,12 @@ download dates and freeze status are listed in Table~\ref{tab:provenance}.
 		                       &                           &                   & Jan 2026 -- Mar 2026 & $\sim$5\,850  \\
 		GFZ Potsdam            & $Kp$ index                & 3\,h
 		                       & Apr 2024 -- Mar 2026      & 5\,069                                                   \\
-		WDC Kyoto              & $Dst$ index (provisional) & 1\,h
-		                       & Apr 2024 -- Sep 2025      & 12\,508                                                  \\
+		WDC Kyoto & $Dst$ index (provisional) & 1\,h
+		& Apr 2024 -- Sep 2025 & 12\,508 \\
 		\bottomrule
 	\end{tabularx}
 \end{table}
+\footnotetext{The January--March 2026 WSPR row refers to the archived October 2026 snapshot; the live re-download of 2026-10-15 used in this paper provides complete 3-hourly coverage (720 matched epochs per band, $N_{\text{storm}} = 47$).}
 
 
 \begin{table}[h]
@@ -245,8 +248,10 @@ three bands from the wspr.live ClickHouse mirror; the boundaries were
 not selected a priori and no data were discarded to achieve a target
 period length. We merge hourly WSPR counts with the native 3-hourly
 $Kp$ series by an inner join on the exact $Kp$ epoch timestamps,
-without forward-filling; the analysis series is therefore 3-hourly.
-This yields 4\,349 matched epochs per band ($\approx$13\,047\,h of
+without forward-filling: each analysis epoch carries the single
+hourly WSPR count at the $Kp$ timestamp (no 3-h averaging), and the
+series has a 3-h cadence. This yields 4\,349 matched epochs per band
+($\approx$13\,047\,h of
 coverage), of which 198 epochs satisfy $Kp \ge 5$ (the storm
 threshold, equivalent to 594\,h). The quiet-time baseline ($Kp < 3$)
 comprises 3\,035 epochs and exhibits mean spot counts of 73\,718
@@ -412,10 +417,10 @@ p-value of $2 \times 10^{-5}$ at \SI{50000}{iterations}.
 For the 3-hourly $Kp$ series, the block length of 24 epochs spans
 exactly 72\,h (three full diurnal cycles), which strictly preserves the
 dominant diurnal variance structure of WSPR spot counts under
-permutation and encloses the majority of storm episodes (mean duration
+permutation and encloses the majority of storm episodes (mean span
 $\approx 9$\,h; 58 episodes, Section~2.2). The test is therefore
 conservative with respect to within-storm autocorrelation: the block
-size exceeds the duration of all but the longest episodes.
+size exceeds the span of all episodes (longest span: 63\,h).
 
 The same procedure is applied independently to $Dst$ ($Dst < -50$\,nT versus
 $Dst > -20$\,nT) and to pairwise comparisons between $Kp$ bins (all 9
@@ -458,6 +463,11 @@ We apply the Benjamini--Hochberg (BH) false discovery rate (FDR) correction
 \citep{benjamini1995} to the 6 primary statistical tests (3 bands $\times$
 \{$Kp$, $Dst$\}) at $\alpha = 0.05$. All six tests have raw
 $p = 2 \times 10^{-5}$ (no permuted statistic exceeded the observed value in \SI{50000}{iterations}), yielding all $p_{\text{FDR}} = 2 \times 10^{-5}$.
+
+Confirmatory hypotheses were limited to the six primary band--index
+tests and the nine pairwise $Kp$-bin comparisons. The UT-window
+asymmetry, per-month patterns, and absolute-loss ratios were
+exploratory.
 
 \subsection{Robustness checks}
 
@@ -509,7 +519,7 @@ reduction on all three HF bands.
 		$\Delta$ is the raw storm-minus-quiet difference (absolute loss,
 		same quantity as the training column of Table~\ref{tab:baseline});
 		$p$-values come from the residual-based block permutation test of
-		Section~3.3.}
+		Section~3.3 (minimum resolvable $p$; zero exceedances).}
 	\label{tab:main}
 	\begin{tabular}{lrrrlr}
 		\toprule
@@ -531,14 +541,11 @@ $\SI{-27.2}{\percent}$, respectively). All results remain significant after
 Benjamini--Hochberg FDR correction across 6 tests ($p_{\text{FDR}} = 2 \times 10^{-5}$
 for all).
 
-The $Dst$-based analysis confirms the result independently (Table~\ref{tab:dst}).
-With $N = 471$ storm hours at hourly resolution ($Dst < \SI{-50}{nT}$),
-the effect sizes are larger on 20\,m ($\Delta = -22\,081$ versus
-$-20\,421$ for $Kp$), smaller on 40\,m ($-15\,038$ versus $-18\,285$),
-and comparable on 15\,m ($-5\,143$ versus $-5\,178$). The
-$Dst < \SI{-50}{nT}$ threshold selects a different subset of storm
-conditions than $Kp \ge 5$, which reduces the effective amplitude of the
-40\,m response relative to $Kp$-based selection.
+The $Dst$-based analysis confirms the result independently (Table~\ref{tab:dst});
+however, because Table~\ref{tab:dst} reports residual differences without the
+day-of-week term, its $\Delta$ values are not directly comparable to the raw
+$Kp$ deltas in Table~\ref{tab:main}. The confirmation rests on the sign and
+significance of the effect.
 
 \begin{table}[h]
 	\centering
@@ -549,7 +556,8 @@ conditions than $Kp \ge 5$, which reduces the effective amplitude of the
 		$Dst > \SI{-20}{nT}$). The remaining 3\,226 matched hours with
 		$-50 \le Dst \le -20$\,nT are excluded from this comparison.
 		$\Delta$ is the difference of mean residuals (month $\times$ hour
-		baseline model, without the day-of-week term).}
+		baseline model, without the day-of-week term (minimum resolvable
+		$p$; zero exceedances).}
 	\label{tab:dst}
 	\begin{tabular}{lrrl}
 		\toprule
@@ -585,17 +593,20 @@ definition of Eq.~\eqref{eq:drop}.
 
 \begin{table}[h]
 	\centering
-	\caption{Scale-dependence: spot drop (\%) by $Kp$ bin for 20\,m and 40\,m
-		(training period, raw spot values, Eq.~\eqref{eq:drop}).}
+	\caption{Scale-dependence: spot drop (\%) by $Kp$ bin for all three
+		bands (training period, raw spot values, Eq.~\eqref{eq:drop}); $N$
+		is the number of storm epochs in the bin (shared across bands), and
+		the 95\% CI applies to the 15\,m drop (bootstrap resampling,
+		\SI{1000}{resamples}, seed 42).}
 	\label{tab:scale}
-	\begin{tabular}{lll}
+	\begin{tabular}{llllll}
 		\toprule
-		$Kp$ bin & 20\,m drop (\%) & 40\,m drop (\%) \\
+		$Kp$ bin & $N$ & 20\,m drop (\%) & 40\,m drop (\%) & 15\,m drop (\%) & 15\,m 95\% CI \\
 		\midrule
-		5--6     & $\SI{-18.3}{\percent}$ & $\SI{-16.9}{\percent}$ \\
-		6--7     & $\SI{-33.6}{\percent}$ & $\SI{-34.4}{\percent}$ \\
-		$\ge 6$  & $\SI{-42.8}{\percent}$ & $\SI{-43.8}{\percent}$ \\
-		$\ge 7$  & $\SI{-52.0}{\percent}$ & $\SI{-53.2}{\percent}$ \\
+		5--6     & 122 & $\SI{-18.3}{\percent}$ & $\SI{-16.9}{\percent}$ & $\SI{-28.6}{\percent}$ & [$\SI{-37.3}{\percent}$, $\SI{-20.0}{\percent}$] \\
+		6--7     & 38  & $\SI{-33.6}{\percent}$ & $\SI{-34.4}{\percent}$ & $\SI{-50.7}{\percent}$ & [$\SI{-60.6}{\percent}$, $\SI{-40.9}{\percent}$] \\
+		$\ge 6$  & 76  & $\SI{-42.8}{\percent}$ & $\SI{-43.8}{\percent}$ & $\SI{-54.8}{\percent}$ & [$\SI{-62.6}{\percent}$, $\SI{-46.3}{\percent}$] \\
+		$\ge 7$  & 38  & $\SI{-52.0}{\percent}$ & $\SI{-53.2}{\percent}$ & $\SI{-58.9}{\percent}$ & [$\SI{-71.1}{\percent}$, $\SI{-44.5}{\percent}$] \\
 		\bottomrule
 	\end{tabular}
 \end{table}
@@ -667,11 +678,11 @@ simultaneously:
 
 \begin{enumerate}
 	\item \textbf{MUF reduction (15\,m band):} At 21\,MHz, WSPR operates
-	      near the typical daytime MUF (\SIrange{14}{28}{MHz} depending on
+	      near the typical UT-day MUF (\SIrange{14}{28}{MHz} depending on
 	      geographic path and solar conditions). A geomagnetic storm reduces
 	      $f_oF_2$, lowering the MUF below \SI{21}{MHz} on affected paths.
-	      During peak daylight hours (12--18 UTC), the 15\,m drop reaches
-	      \SI{-48.9}{\percent}, confirming MUF as the primary daytime
+	      During the 12--18 UTC window, the 15\,m drop reaches
+	      \SI{-48.9}{\percent}, confirming MUF as the primary UT-day
 	      constraint.
 	\item \textbf{D-layer absorption (20\,m / 40\,m bands):} Both bands
 	      operate well below typical MUF, so their primary sensitivity is to
@@ -690,22 +701,22 @@ establish, the indicated mechanisms; direct separation of MUF
 versus absorption effects requires SNR or phase analysis beyond
 the scope of this study.
 
-\subsection{Day/night asymmetry}
+\subsection{UT-window asymmetry}
 \label{sec:daynight}
 
-The day/night decomposition (Figure~\ref{fig:daynight}) reveals that the
+The UT-window decomposition (Figure~\ref{fig:daynight}) reveals that the
 near-equality of 20\,m and 40\,m
 total drops results from two mechanisms that act in opposition across the diurnal
 cycle (Table~\ref{tab:daynight}).
 
 \begin{table}[h]
 	\centering
-	\caption{Day/night decomposition of the spot drop
+	\caption{UT-window decomposition of the spot drop
 		(training period). Point estimates and 95\% CI from
 		bootstrap resampling (\SI{1000}{resamples});
 		$N_{\text{storm}} / N_{\text{quiet}}$ as indicated.
 		All-hours rows are the block permutation result
-		(observed, no CI). Day and night rows cover 111 of the 198 storm
+		(observed, no CI). The UT-day and UT-night rows cover 111 of the 198 storm
 		epochs and 1\,466 of the 3\,035 quiet epochs; the remainder fall
 		outside the 12--18 and 0--6 UTC windows.}
 	\label{tab:daynight}
@@ -713,28 +724,28 @@ cycle (Table~\ref{tab:daynight}).
 		\toprule
 		Band & Period & Drop (\%) & 95\% CI & $N_{\text{storm}}/N_{\text{quiet}}$ \\
 		\midrule
-		20\,m & Day    & $\SI{-28.7}{\percent}$ & [$\SI{-36.4}{\percent}$, $\SI{-21.7}{\percent}$] & 53/732  \\
-		20\,m & Night  & $\SI{-24.8}{\percent}$ & [$\SI{-33.9}{\percent}$, $\SI{-16.8}{\percent}$] & 58/734  \\
+		20\,m & UT-day    & $\SI{-28.7}{\percent}$ & [$\SI{-36.4}{\percent}$, $\SI{-21.7}{\percent}$] & 53/732  \\
+		20\,m & UT-night  & $\SI{-24.8}{\percent}$ & [$\SI{-33.9}{\percent}$, $\SI{-16.8}{\percent}$] & 58/734  \\
 		20\,m & All    & $\SI{-27.7}{\percent}$ & --- & 198/3035 \\
 		\midrule
-		40\,m & Day    & $\SI{-20.7}{\percent}$ & [$\SI{-28.2}{\percent}$, $\SI{-13.7}{\percent}$] & 53/732  \\
-		40\,m & Night  & $\SI{-30.2}{\percent}$ & [$\SI{-36.4}{\percent}$, $\SI{-24.6}{\percent}$] & 58/734  \\
+		40\,m & UT-day    & $\SI{-20.7}{\percent}$ & [$\SI{-28.2}{\percent}$, $\SI{-13.7}{\percent}$] & 53/732  \\
+		40\,m & UT-night  & $\SI{-30.2}{\percent}$ & [$\SI{-36.4}{\percent}$, $\SI{-24.6}{\percent}$] & 58/734  \\
 		40\,m & All    & $\SI{-27.2}{\percent}$ & --- & 198/3035 \\
 		\midrule
-		15\,m & Day    & $\SI{-48.9}{\percent}$ & [$\SI{-58.1}{\percent}$, $\SI{-39.6}{\percent}$] & 53/732  \\
-		15\,m & Night  & $\SI{-18.7}{\percent}$ & [$\SI{-34.4}{\percent}$, $\SI{-4.4}{\percent}$]  & 58/734  \\
+		15\,m & UT-day    & $\SI{-48.9}{\percent}$ & [$\SI{-58.1}{\percent}$, $\SI{-39.6}{\percent}$] & 53/732  \\
+		15\,m & UT-night  & $\SI{-18.7}{\percent}$ & [$\SI{-34.4}{\percent}$, $\SI{-4.4}{\percent}$]  & 58/734  \\
 		15\,m & All    & $\SI{-38.7}{\percent}$ & --- & 198/3035 \\
 		\bottomrule
 	\end{tabular}
 \end{table}
 
-\textbf{Daytime} (12--18 UTC): MUF is high and 40\,m is far below it.
+\textbf{UT-day} (12--18 UTC): MUF is high and 40\,m is far below it.
 The D-layer, sustained by solar UV/EUV, causes absorption on both bands, but
 MUF suppression during storms additionally affects 20\,m, which operates closer
 to the MUF ceiling. Result: 20\,m drops more ($\SI{-28.7}{\percent}$) than
 40\,m ($\SI{-20.7}{\percent}$).
 
-\textbf{Nighttime} (0--6 UTC): The solar-driven D-layer disappears within
+\textbf{UT-night} (0--6 UTC): The solar-driven D-layer disappears within
 minutes of sunset (electron density falls to $\sim 10^3$\,cm$^{-3}$). However,
 during geomagnetic storms, energetic particle precipitation re-ionises the
 D-region independently of solar radiation: auroral absorption from
@@ -745,32 +756,39 @@ experiences $\sim$4$\times$ greater absorption per unit electron density than
 20\,m. Result: 40\,m drops more ($\SI{-30.2}{\percent}$) than 20\,m
 ($\SI{-24.8}{\percent}$).
 
-The 15\,m nighttime effect is weak and its 95\% CI
-excludes zero ($\SI{-18.7}{\percent}$, CI
+The 15\,m UT-night effect is smaller and less certain than the
+UT-day effect ($\SI{-18.7}{\percent}$, 95\% CI
 [$\SI{-34.4}{\percent}$, $\SI{-4.4}{\percent}$]),
 consistent with the solar-driven D-layer being largely
-absent at night.
+absent in the 0--6 UTC window.
 
-Integrated over 24 hours, the daytime MUF penalty on 20\,m is compensated by
-the stronger nighttime auroral/PCA absorption on 40\,m, producing the observed
+Integrated over 24 hours, the UT-day MUF penalty on 20\,m is compensated by
+the stronger UT-night auroral/PCA absorption on 40\,m, producing the observed
 near-equality of total drops. This is a prediction of the dual-mechanism
 hypothesis, not a problem for it.
+
+Because WSPR is a global network, the 12--18 UTC and 0--6 UTC windows
+do not correspond to simultaneous local day and night. They should
+therefore be interpreted as UT-sector composites. A definitive
+day/night attribution requires local solar time or path-integrated
+solar illumination.
+
 
 \begin{figure}[t]
 	\centering
 	\includegraphics[width=\textwidth]{figures/fig4_day_night_asymmetry.png}
-	\caption{Day/night asymmetry of the WSPR storm response. Per-month spot
-		drop on 40\,m, decomposed by daytime (12--18 UTC, epochs 12/15)
-		and nighttime (0--6 UTC, epochs 0/3). Nighttime drops exceed
-		daytime drops across the 8 training months with sufficient storm
+	\caption{UT-window asymmetry of the WSPR storm response. Per-month spot
+		drop on 40\,m, decomposed by UT-day (12--18 UTC, epochs 12/15)
+		and UT-night (0--6 UTC, epochs 0/3). UT-night drops exceed
+		UT-day drops across the 8 training months with sufficient storm
 		data ($\ge$3 storm epochs per window), consistent with
 		intermittent auroral and polar cap absorption.}
 	\label{fig:daynight}
 \end{figure}
 
-A per-month analysis of the training period shows 40\,m night $>$ day across the 8 months
+A per-month analysis of the training period shows 40\,m UT-night $>$ UT-day across the 8 months
 with sufficient data meeting the $\ge$3-epoch criterion ($\ge$3 storm epochs in each
-day/night window), consistent with the intermittent nature of particle
+UT window), consistent with the intermittent nature of particle
 precipitation: the mechanism requires specific storm morphologies that are
 not present in every event.
 
@@ -839,9 +857,9 @@ per band in the held-out period.
 	\end{tabular}
 \end{table}
 
-The frequency dependence and day/night asymmetry do not independently replicate
+The frequency dependence and UT-window asymmetry do not independently replicate
 in the 3-month held-out window, which is expected: frequency dependence requires
-larger storm samples to separate the two mechanisms, and day/night asymmetry
+larger storm samples to separate the two mechanisms, and UT-window asymmetry
 requires specific storm morphologies (energetic particle precipitation) that
 were not prevalent in this particular 3-month interval.
 
@@ -858,7 +876,7 @@ Table~\ref{tab:baseline} includes zero), so the ordering of the point
 estimates is poorly constrained. Second,
 seasonal composition: the training period spans all four seasons,
 whereas January--March contains only late-winter and early-spring
-storms, with a different daytime-MUF climatology and shorter days.
+storms, with a different UT-day MUF climatology and shorter days.
 Third, sporadic-E: a fraction of summer 15\,m training spots arrives
 via Es rather than F-layer propagation (Section~5.5), so the training
 and held-out 15\,m samples are not strictly comparable, and the
@@ -878,8 +896,10 @@ requires a longer replication window spanning multiple seasons.
 		held-out (3-month) periods for all three bands. The training-period
 		40\,m estimate ($\SI{-18285}{spots/h}$) was initially matched by a
 		held-out snapshot ($\SI{-18304}{spots/h}$); an updated download
-		(2026-10-15) yields $\SI{-26287}{spots/h}$ (ratio 1.44), outside
-		the training CI, so invariance is not claimed.}
+		(2026-10-15) yields $\SI{-26287}{spots/h}$ (ratio 1.44, 95\% CI
+		[0.65, 2.33]), consistent with absolute loss scaling roughly with
+		the $\SI{+35}{\percent}$ quiet-baseline growth ($\approx$1.35
+		expected); percentage drops remain the more stable metric.}
 	\label{fig:baseline}
 \end{figure}
 
@@ -898,8 +918,12 @@ the training and held-out periods.
 		the 2026-10-13 live run (identical to the frozen-parquet recompute),
 		held-out values and CI from the live \texttt{wspr.live} download on
 		2026-10-15. The updated
-		held-out 40\,m value ($\SI{-26287}{spots/h}$, ratio 1.44) lies
-		outside the training CI; invariance is therefore not claimed.\protect\footnotemark{}}
+		held-out 40\,m value ($\SI{-26287}{spots/h}$, ratio 1.44, 95\% CI
+		[0.65, 2.33]) lies outside the training point CI, but its own CI
+		overlaps it; the point estimate is consistent with absolute loss
+		scaling with the $\SI{+35}{\percent}$ quiet-baseline growth
+		($\approx$1.35 expected), and percentage drops remain the more
+		stable metric.\protect\footnotemark{}}
 	\label{tab:baseline}
 	\begin{tabular}{lrrrc}
 		\toprule
@@ -911,7 +935,7 @@ the training and held-out periods.
 		\bottomrule
 	\end{tabular}
 \end{table}
-\footnotetext{Held-out values and CIs from live \texttt{wspr.live} download 2026-10-15; see \texttt{audit/FINDING\_HELDOUT\_LIVE\_2026-10-13.md}.}
+\footnotetext{Held-out values and CIs from live \texttt{wspr.live} download 2026-10-15; ratio CI from \texttt{scripts/abs\_loss\_ratio\_ci.py} (block bootstrap, 24-epoch blocks, 1000 resamples, seed 42); see \texttt{audit/FINDING\_HELDOUT\_LIVE\_2026-10-13.md}.}
 
 {\sloppy The initial training-period point estimate for 40\,m
 (Figure~\ref{fig:baseline}; $\SI{-18285}{spots/h}$; block bootstrap 95\% CI
@@ -931,26 +955,31 @@ with $N_{\text{total}} = 648$, $N_{\text{storm}} = 38$ in the archived
 snapshot), and an absolute loss of $\SI{-26287}{spots/h}$ (block
 bootstrap 95\% CI $[-\SI{37144}{spots/h},\, -\SI{12472}{spots/h}]$),
 which lies \emph{below} the lower bound of the training CI. The
-held-out / training ratio under the extended data is 1.44, not 1.00.
+held-out / training ratio under the extended data is 1.44 (95\% bootstrap CI [0.65, 2.33]), not 1.00.
 
 We therefore do not claim baseline invariance as an established result.
-The training-period observation remains internally consistent, but the
-extended held-out data indicate that the absolute loss is not stable
-at the level suggested by the initial snapshot. Two explanations are
-possible and cannot be separated with the present data: (i) the
-absolute loss genuinely increases with network size and storm-driven
-coverage, or (ii) the archived held-out snapshot was biased low by the
-delayed-upload effect in the \texttt{wspr.live} database. Distinguishing
-these would require a frozen data snapshot at analysis time, which was
-not preserved for the original held-out period.
+Two explanations remain possible and cannot be fully separated with the
+present data: (i) the absolute loss grows with network size and
+storm-driven coverage, or (ii) the archived held-out snapshot was
+biased low by the delayed-upload effect in the \texttt{wspr.live}
+database. The updated data favour a quantitative form of (i) ---
+proportional scaling: the observed ratio 1.44 is close to the
+$\approx$1.35 expected if the percentage drop were constant while the
+quiet-time baseline grew by $\SI{+35}{\percent}$, and this expected
+value lies inside the wide bootstrap ratio CI [0.65, 2.33] (which
+also includes unity, so strict invariance cannot be excluded either).
+We therefore treat the absolute loss as a descriptive quantity that
+scales roughly with the network, and note that percentage drops
+remain the more stable metric for cross-period comparisons.
+Distinguishing (i) from (ii) would require a frozen data snapshot at
+analysis time, which was not preserved for the original held-out period.
 
 The training-period point estimates differ across bands
 (40\,m: $\SI{-18285}{spots/h}$; 20\,m: $\SI{-20421}{spots/h}$;
-15\,m: $\SI{-5178}{spots/h}$), and the held-out / training ratios
-(0.70 to 1.44) are not consistent with a single universal
-network-size-invariant absolute-loss metric. We report these absolute
-values as descriptive quantities rather than as evidence of a
-network-size invariant metric.
+15\,m: $\SI{-5178}{spots/h}$); the held-out / training ratios
+(0.70--1.44) are imprecise and span both unity and proportional
+scaling, so we report the absolute values as descriptive quantities
+rather than as a network-size-invariant metric.
 
 
 %=============================================================
@@ -982,9 +1011,9 @@ $\sim$4$\times$ stronger per unit electron density.
 
 The near-equality of 20\,m and 40\,m total drops is not a contradiction of
 the $1/f^2$ absorption scaling, but rather a consequence of the fact that MUF
-suppression additionally penalises 20\,m during daytime, while particle-driven
-D-layer absorption additionally penalises 40\,m during nighttime. The
-day/night decomposition (Section~\ref{sec:daynight}) demonstrates that both
+suppression additionally penalises 20\,m during UT-day, while particle-driven
+D-layer absorption additionally penalises 40\,m during UT-night. The
+UT-window decomposition (Section~\ref{sec:daynight}) indicates that both
 mechanisms operate simultaneously and are visible when the data are separated
 by time of day.
 
@@ -1025,11 +1054,13 @@ The absolute-loss comparison across training and held-out periods (Section~\ref{
 	      proportionally. Absolute spot loss per hour, in contrast, scales
 	      with the network and should not be assumed stable across periods
 	      without periodic re-validation (see next item).
-	\item \textbf{Metric stability caveat:} The apparent 40\,m invariance
-	      in the initial snapshot did not survive an updated held-out
-	      download (ratio = 1.44), so absolute loss per hour should not be
-	      assumed stable over multi-year network growth without periodic
-	      re-validation.
+	\item \textbf{Metric stability caveat:} The updated held-out download
+	      gives a 40\,m ratio of 1.44 (95\% CI [0.65, 2.33]) versus the
+	      $\approx$1.35 expected from the $\SI{+35}{\percent}$
+	      quiet-baseline growth, so absolute loss per hour scales roughly
+	      with the network. Percentage drops remain the more stable metric,
+	      and absolute loss should be re-validated periodically over
+	      multi-year network growth.
 	\item \textbf{Real-time monitoring:} WSPR spot density, normalised by the
 	      quiet-time baseline, could serve as a near-real-time proxy for
 	      storm-induced HF propagation degradation, complementing existing
@@ -1065,7 +1096,7 @@ detected and decomposed using WSPR as a distributed sensor.
 	      sample of 3 months contains $N = 47$ storm epochs
 	      ($Kp \ge 5$), compared to $N = 198$ epochs in the training period.
 	      This limits statistical power for secondary effects such as the
-	      day/night asymmetry. Specifically, the $+4.9\%$ anomaly for
+	      UT-window asymmetry. Specifically, the $+4.9\%$ anomaly for
 	      15\,m at $Kp = 5\text{--}6$ in the held-out period ($N = 25$
 	      epochs in this bin, live re-download) is attributed to the small
 	      window and wide sampling uncertainty, whereas the
@@ -1115,6 +1146,12 @@ detected and decomposed using WSPR as a distributed sensor.
 	      Summer 15\,m observations may be partially contaminated by
 	      sporadic-E propagation \citep{whitehead1989}; however, the storm effect is present in all
 	      seasons, including winter when Es is absent. No corresponding F10.7 analysis was performed for the held-out period, as only a single monthly data point (January 2026) is available.
+	\item \textbf{Station activity:} The reported reductions are reductions
+	      in \emph{reported} WSPR spots: the number of active transmitters,
+	      receivers, and unique paths, and operator upload behaviour, are not
+	      normalised out. A pure propagation-mode attribution would require
+	      normalisation by active-station counts, which is not available from
+	      the aggregated queries used here.
 	\item \textbf{Band coverage:} Only three WSPR bands are analysed. Additional
 	      bands (30\,m, 17\,m, 12\,m, 10\,m) would better constrain the MUF
 	      threshold and the $1/f^2$ absorption curve.
@@ -1124,10 +1161,9 @@ detected and decomposed using WSPR as a distributed sensor.
 	\item \textbf{Statistical assumptions:} The block permutation test assumes
 	      that within-block stationarity holds and that the block size
 	      (24 epochs = 72\,h) exceeds the autocorrelation timescale. At
-	      72\,h, the block spans three full diurnal cycles and encloses
-	      the majority of storm episodes (mean duration $\approx 9$\,h);
-	      only exceptionally long episodes (>72\,h) could violate the
-	      within-block stationarity assumption.
+	      72\,h, the block spans three full diurnal cycles and exceeds
+	      the span of every storm episode (mean span $\approx 9$\,h,
+	      longest 63\,h).
 	\item \textbf{Storm-slot independence:} The 198 $Kp \ge 5$
 	      epochs are not statistically independent observations. Grouping
 	      them into episodes separated by more than 12~h yields 58 distinct
@@ -1145,14 +1181,21 @@ detected and decomposed using WSPR as a distributed sensor.
 	      absolute loss of
 	      $\SI{-26287}{spots/h}$ (block bootstrap 95\% CI
 	      $[-\SI{37144}{spots/h},\, -\SI{12472}{spots/h}]$), below
-	      the lower bound of the training CI, invalidating the
-	      baseline-invariance reading. Training-period numbers remain
+	      the lower bound of the training point CI. The held-out / training
+	      ratio is 1.44 with a wide bootstrap 95\% CI
+	      $[0.65,\, 2.33]$; the held-out CI overlaps the training CI, and
+	      the ratio CI includes both unity and the expected-scaling value,
+	      so these point comparisons are not formal tests of equality.
+	      Training-period numbers remain
 	      reproducible exactly (three bands, $\Delta = 0$ versus the original
-	      analysis), since that period is fully mature. We therefore report the
-	      training-period invariance observation as suggestive but not
-	      established, and treat the absolute loss as a descriptive
-	      quantity. Archival reproduction is available at the v1.1.0
-	      release tag.
+	      analysis), since that period is fully mature. We therefore treat
+	      the absolute loss as a descriptive quantity that scales roughly
+	      with the network (observed ratio 1.44 versus $\approx$1.35
+	      expected from the $\SI{+35}{\percent}$ quiet-baseline growth),
+	      and note that percentage drops remain the more stable metric.
+	      Archival reproduction of the initial snapshot-based numbers is
+	      available at the v1.1.0 release tag; the present manuscript uses
+	      the live re-download (tag v1.3.1).
 \end{enumerate}
 
 
@@ -1178,21 +1221,24 @@ in WSPR spot density, with five principal conclusions:
 	      correction at $\alpha = 0.05$).
 	\item \textbf{Independent replication:} On a held-out period
 	      (January--March 2026, updated live-database pull), the primary
-	      effect replicates on all three bands under the residual block
+	      effect replicates in direction on all three bands under the residual block
 	      permutation test ($p < 10^{-3}$; the 15\,m raw 95\% CI includes
 	      zero).
-	\item \textbf{Absolute-loss stability not established:} The training
+	\item \textbf{Absolute loss scales with the network:} The training
 	      point estimate of absolute spot loss on 40\,m ($\SI{-18285}{spots/h}$)
 	      was initially matched by a held-out snapshot ($\SI{-18304}{spots/h}$,
 	      ratio 1.00), but a re-downloaded held-out sample (October 2026)
-	      yields $\SI{-26287}{spots/h}$ (ratio 1.44), outside the training
-	      CI. We therefore do not claim baseline invariance and treat the
-	      absolute loss as a descriptive quantity.
+	      yields $\SI{-26287}{spots/h}$ (ratio 1.44, 95\% CI [0.65, 2.33]),
+	      consistent with the $\approx$1.35 expected from the
+	      $\SI{+35}{\percent}$ quiet-baseline growth. We therefore treat
+	      the absolute loss as a descriptive quantity that scales roughly
+	      with the network, while percentage drops remain the more stable
+	      metric.
 	\item \textbf{Dual mechanism (training period; seasonal replication
-	      pending):} The frequency dependence and day/night
+	      pending):} The frequency dependence and UT-window
 	      asymmetry support two distinct physical mechanisms: MUF reduction
 	      (dominating 15\,m) and D-layer absorption via energetic particle
-	      precipitation (dominating 20\,m/40\,m, with nighttime enhancement on
+	      precipitation (dominating 20\,m/40\,m, with UT-night enhancement on
 	      40\,m).
 \end{enumerate}
 
@@ -1200,7 +1246,7 @@ WSPR is a viable distributed ionospheric sensor for detecting and
 characterising the scale-dependent effects of geomagnetic storms on HF
 propagation. The scale-dependent characterisation provides a quantitative
 link between geomagnetic indices ($Kp$, $Dst$) and expected HF propagation
-degradation; the stability of absolute-loss metrics under continued network
+degradation; the scaling of absolute-loss metrics under continued network
 growth remains an open question, and requires frozen archival snapshots
 for definitive resolution.
 
