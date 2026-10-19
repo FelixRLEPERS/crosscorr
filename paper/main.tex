@@ -279,8 +279,8 @@ derived from four low-latitude magnetometer stations. It provides finer
 temporal resolution than $Kp$ (hourly versus 3-hourly) and serves as an
 independent storm proxy. The provisional data cover all 18 months of the
 training period (mean $Dst = \SI{-11.5}{nT}$, minimum
-$Dst = \SI{-96}{nT}$). A total of 471 hours satisfy $Dst < \SI{-50}{nT}$
-across 42 storm events, yielding 2.4$\times$ more storm samples
+$Dst = \SI{-96}{nT}$). A total of 471 hours satisfy $Dst < \SI{-50}{nT}$,
+yielding 2.4$\times$ more storm samples
 (471 vs 198) and 2.9$\times$ larger total sample size
 (12\,508 vs 4\,349) than the $Kp$-based analysis.
 
@@ -1009,12 +1009,12 @@ in only 38 epochs (114\,h, 0.87\%) of the 18-month training period.
 The absolute-loss comparison across training and held-out periods (Section~\ref{sec:invariant}) has direct implications for operational HF propagation monitoring:
 
 \begin{enumerate}
-	\item \textbf{Percentage metrics are network-dependent:} Percentage-based
-	      metrics are unstable when the denominator (network size) changes
-	      over time. Absolute spot loss per hour is a physically meaningful
-	      alternative that is more directly interpretable as a propagation
-	      quantity, though its stability across periods should not be assumed
-	      without validation (see next item).
+	\item \textbf{Percentage metrics are network-independent:} Percentage-based
+	      metrics remain relatively stable when the network size changes
+	      over time, because both numerator and denominator scale
+	      proportionally. Absolute spot loss per hour, in contrast, scales
+	      with the network and should not be assumed stable across periods
+	      without periodic re-validation (see next item).
 	\item \textbf{Metric stability caveat:} The apparent 40\,m invariance
 	      in the initial snapshot did not survive an updated held-out
 	      download (ratio = 1.44), so absolute loss per hour should not be

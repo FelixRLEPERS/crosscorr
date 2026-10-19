@@ -103,13 +103,17 @@ for i, band in enumerate(BANDS):
             sm = RNG.choice(s_vals, size=sn).mean()
             drop_dist.append(100 * (sm - qm) / qm)
         drop_dist = np.array(drop_dist)
-        cis_lo.append(abs(-np.percentile(drop_dist, 2.5)))
-        cis_hi.append(abs(-np.percentile(drop_dist, 97.5)))
+        # drop_dist holds negative values (storm - quiet): the 2.5th
+        # percentile is the most negative bound, i.e. the LARGER-magnitude
+        # (upper) CI limit.
+        cis_lo.append(abs(-np.percentile(drop_dist, 97.5)))
+        cis_hi.append(abs(-np.percentile(drop_dist, 2.5)))
         ns.append(len(vals))
 
     x = np.arange(len(Kp_BINS_LABELS))
     yerr = [np.array(drops) - np.array(cis_lo), np.array(cis_hi) - np.array(drops)]
-    yerr = np.clip(yerr, 0, None)
+    if (np.asarray(yerr) < 0).any():
+        raise ValueError("Negative CI half-width in Figure 2; check cis_lo/cis_hi ordering")
 
     bars = axes[i].bar(
         x,
@@ -255,22 +259,24 @@ print("  [OK] results/fig4_day_night.json")
 fig, ax = plt.subplots(figsize=(10, 6))
 x = np.arange(len(BANDS))
 width = 0.35
+# ci_lo is the more negative bound (larger magnitude), ci_hi is closer to
+# zero; map magnitudes to the [lower, upper] error-bar components.
 day_drops = [abs(results_dn[f"{b}_Day"]["drop_pct"]) for b in BANDS]
 day_lo = [
-    abs(results_dn[f"{b}_Day"]["ci_lo"]) if results_dn[f"{b}_Day"]["ci_lo"] != 0 else 0
+    abs(results_dn[f"{b}_Day"]["ci_hi"]) if results_dn[f"{b}_Day"]["ci_hi"] != 0 else 0
     for b in BANDS
 ]
 day_hi = [
-    abs(results_dn[f"{b}_Day"]["ci_hi"]) if results_dn[f"{b}_Day"]["ci_hi"] != 0 else 0
+    abs(results_dn[f"{b}_Day"]["ci_lo"]) if results_dn[f"{b}_Day"]["ci_lo"] != 0 else 0
     for b in BANDS
 ]
 night_drops = [abs(results_dn[f"{b}_Night"]["drop_pct"]) for b in BANDS]
 night_lo = [
-    abs(results_dn[f"{b}_Night"]["ci_lo"]) if results_dn[f"{b}_Night"]["ci_lo"] != 0 else 0
+    abs(results_dn[f"{b}_Night"]["ci_hi"]) if results_dn[f"{b}_Night"]["ci_hi"] != 0 else 0
     for b in BANDS
 ]
 night_hi = [
-    abs(results_dn[f"{b}_Night"]["ci_hi"]) if results_dn[f"{b}_Night"]["ci_hi"] != 0 else 0
+    abs(results_dn[f"{b}_Night"]["ci_lo"]) if results_dn[f"{b}_Night"]["ci_lo"] != 0 else 0
     for b in BANDS
 ]
 
@@ -282,8 +288,8 @@ night_yerr = [
     [night_drops[i] - night_lo[i] for i in range(3)],
     [night_hi[i] - night_drops[i] for i in range(3)],
 ]
-day_yerr = np.clip(day_yerr, 0, None)
-night_yerr = np.clip(night_yerr, 0, None)
+if (np.asarray(day_yerr) < 0).any() or (np.asarray(night_yerr) < 0).any():
+    raise ValueError("Negative CI half-width in Figure 4; check ci_lo/ci_hi ordering")
 
 bars1 = ax.bar(
     x - width / 2,
