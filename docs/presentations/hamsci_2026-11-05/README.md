@@ -11,7 +11,7 @@ geomagnetic storms". Докладчик: Alexey Petrov; соавтор: Makar Pe
 - speaker_notes.md — дословный текст выступления: EN (что говорить) +
   RU (перевод и подсказки), по слайдам, с таймингом
 - Q_and_A.md — 10 ответов на типичные вопросы (EN-ответ + RU-смысл)
-- figures/ — копии фигур статьи (fig1–fig5, байт-в-байт из paper/figures)
+- figures/ — статичные фигуры из paper/figures/ (fig1, fig2, fig4, fig5 и fig3_frequency_dependence_pointest)
 
 ## Сборка PDF
 
@@ -26,35 +26,11 @@ geomagnetic storms". Докладчик: Alexey Petrov; соавтор: Makar Pe
 Скрипт сам проверяет slides.log на ошибки (строки "!", file:line,
 Undefined Reference/Citation) и на число страниц (должно быть 10).
 
-## Как добавить кадры из After Effects (PNG)
+## Фигуры
 
-Слайды 1 и 2 содержат слоты под статичные кадры AE:
-
-- figures/ae_network.png — кадр композиции CC_Network (напр. t = 8 с)
-- figures/ae_links.png — кадр композиции CC_Links (напр. t = 10 с)
-
-Пока файлов нет, LaTeX показывает безобидный плейсхолдер ("AE still
-not exported") — дека собирается и без них.
-
-Экспорт из After Effects:
-
-1. Открыть проект с композициями CC_* (см. aep/README_VIZ.md).
-2. Открыть CC_Network, поставить плейхед на ~8-й секунде.
-3. Composition → Add to Render Queue.
-4. Output Module → формат PNG Sequence (или "Save Frame As → PNG"
-   из меню композиции — быстрее для одного кадра).
-5. Переименовать нужный кадр в ae_network.png и положить в figures/.
-6. Повторить для CC_Links (t ≈ 10 с) → ae_links.png.
-7. Пересобрать: pdflatex дважды.
-
-Альтернатива через ffmpeg из уже отрендеренного MP4:
-
-    ffmpeg -i cc_network.mp4 -ss 00:00:08 -frames:v 1 figures/ae_network.png
-    ffmpeg -i cc_links.mp4 -ss 00:00:10 -frames:v 1 figures/ae_links.png
-
-Видео в PDF НЕ встраиваем (ненадёжно при screen-share). Если хочется
-показать анимацию — открыть MP4 отдельным окном плеера после слайда 2
-или в Q&A (CC_Main, 70 с).
+Все фигуры статичные и лежат в figures/ — побайтовые копии из
+paper/figures/. Динамических кадров и видео в деке нет; слайды 1 и 2
+текстовые.
 
 ## Происхождение чисел и фигур
 
