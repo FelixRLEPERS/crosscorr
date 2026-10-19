@@ -40,17 +40,6 @@
   \setbeamertemplate{footline}{\hskip1em\usebeamertemplate{page number in head/foot}\hfil}
 }
 
-%% AE stills: drop figures/ae_network.png / figures/ae_links.png
-%% (exported from After Effects) -- until then a visible placeholder
-%% keeps the build green.
-\newcommand{\aestill}[2]{%
-  \IfFileExists{figures/#1.png}%
-    {\includegraphics[width=#2,keepaspectratio]{figures/#1.png}}%
-    {\fbox{\parbox[c][0.22\textheight][c]{0.40\textwidth}{%
-      \centering\textcolor{ccdim}{\small AE still not exported}\\[2pt]
-      \scriptsize\texttt{\detokenize{figures/#1.png}}}}}%
-}
-
 \title{Scale-dependent WSPR response to geomagnetic storms}
 \subtitle{Frequency dependence and network-size effects on absolute loss}
 \author{Alexey Petrov \and Makar Petrov}
@@ -66,10 +55,6 @@
   \begin{center}
     \small\textcolor{ccdim}{M.\ Petrov --- co-author, not presenting
       \quad$\cdot$\quad Version DOI: 10.5281/zenodo.23402384}
-  \end{center}
-  \vskip0.3cm
-  \begin{center}
-    \aestill{ae_network}{0.55\textwidth}
   \end{center}
 \end{frame}
 
@@ -89,7 +74,8 @@
         as seen in spot counts?
     \end{itemize}
     \column{0.44\textwidth}
-      \aestill{ae_links}{\textwidth}
+      \centering
+      \includegraphics[width=\linewidth,keepaspectratio]{figures/fig1_kp_timeseries.png}
   \end{columns}
 \end{frame}
 
