@@ -410,3 +410,7 @@ Full audit from third-party model (AUDIT_2026-10-19_scientific.md) verified by M
 - M4/M5 (`speaker_notes.md`) — fixed in `fe2adac`
 - All presentation materials synced.
 - Remaining open: only deferred Space Weather backlog items (SEA, foF2, etc.).
+
+## Release v1.4.0 (pending)
+Подготовлен релиз v1.4.0. Включает: Round 3 & 4 audit fixes, adjusted drops, ratio CIs, parquet publication, UT-window terminology.
+Next step: create GitHub Release, get Zenodo DOI, update `paper/main.tex` Code Availability.
