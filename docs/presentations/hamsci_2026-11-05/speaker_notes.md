@@ -5,6 +5,16 @@ Speaker: Alexey Petrov. Total speaking time: ~9–10 minutes.
 Each slide block: EN — what to say (approximate wording),
 RU — перевод и подсказки по подаче.
 
+## Number policy — raw vs adjusted
+
+**Main talk: raw drops.** Slides show raw values only: training
+−27.7 / −27.2 / −38.7 %; held-out −26.7 / −29.0 / −22.1 %.
+**Adjusted values are backup, not headline.** If someone asks about
+confounders: “We also computed adjusted drops accounting for
+month/hour/DOW, which are -33.6% / -27.1% / -39.8% — the effect holds
+strongly.” Held-out adjusted: −19.1 / −21.2 / −23.4 % (CIs exclude
+zero; directional, smaller than training). Full detail: Q&A Q1, Q5, Q11.
+
 ---
 
 ## Slide 1 — Title (~0:30)
@@ -83,16 +93,11 @@ This is the headline result. During storm epochs the raw spot density
 drops by twenty-seven point seven percent on twenty meters, twenty-
 seven point two on forty meters, and thirty-eight point seven on
 fifteen meters. All three are significant at two times ten to the
-minus five — the resolution floor of our permutation test. Because
-storm epochs cluster in June 2025 and at 00 UTC, we also fit a
-negative-binomial model with month, UT-hour and day-of-week controls:
-the adjusted drops are thirty-three point six, twenty-seven point one
-and thirty-nine point eight percent, with intervals excluding zero.
-So the raw twenty-meter number is conservative, and forty meters is
-essentially unchanged. The right panel shows the second part of the
-story: the effect is not linear in storm intensity. At Kp five to six
-the drop is approximately 18 percent; at Kp six to seven,
-thirty-four; at Kp seven and above, fifty-three. The trend is
+minus five — the resolution floor of our permutation test. The right
+panel shows the second part of the story: the effect is not linear in
+storm intensity. At Kp five to six the drop is approximately 18
+percent; at Kp six to seven, thirty-four; at Kp seven and above,
+fifty-three. The trend is
 significant on all three bands, but the highest bin has only twelve
 independent episodes, so we do not overclaim the last step. The
 frequency ordering — fifteen meters hit hardest — is what we would
@@ -105,6 +110,12 @@ meters are consistent with D-region absorption.
 процента. Показывать пальцем на левую панель, потом на правую.
 Формулировку "consistent with" держать в уме: mechanisms мы не
 доказали, а показали совместимость (см. слайд Q&A).
+
+### Backup — if asked about confounders
+“We also computed adjusted drops accounting for month/hour/DOW,
+which are -33.6% / -27.1% / -39.8% — the effect holds strongly.”
+The raw 20 m number is conservative; 40 m is essentially unchanged;
+15 m moves only slightly. Keep these off the slide.
 
 ---
 
@@ -181,11 +192,7 @@ seven percent on twenty meters, minus twenty-nine point zero on
 forty meters, and minus twenty-two point one on fifteen meters.
 All three are significant under the residual permutation test — at or
 below two times ten to the minus four; on fifteen meters the raw
-confidence interval still includes zero. After covariate adjustment
-the held-out drops are nineteen point one, twenty-one point two and
-twenty-three point four percent — all intervals exclude zero, but the
-values are smaller than in training, so this is a directional
-replication rather than an exact one. And when we match by storm
+confidence interval still includes zero. And when we match by storm
 strength — the Kp six to seven bin — the held-out drops agree with
 the training values to within one to twelve percent, though that
 comparison rests on only ten storm epochs per band. We use this
@@ -197,6 +204,12 @@ direction and approximate magnitude, not to discover new effects.
 зачитывать каждую строку, выделить только: "all three significant".
 Фраза "confirmation set, not a discovery set" — запомнить и повторить
 дословно, она отсекает вопрос о p-hacking.
+
+### Backup — if asked about confounders
+Adjusted held-out drops: −19.1 / −21.2 / −23.4 %; all CIs exclude
+zero, but they are smaller than training — directional, not exact.
+The training-period adjusted quote is in the number policy above and
+in Q&A Q11.
 
 ---
 
@@ -234,11 +247,10 @@ boundaries of our claim". Это разоружает заранее.
 ### EN (say this)
 To conclude, in five sentences. One: geomagnetic storms cut WSPR
 spot density by twenty-seven to thirty-nine percent on all three
-bands, at or below two times ten to the minus five; adjusted drops
-span twenty-seven to forty percent. Two: the effect follows a
-scale-dependent pattern — minus eighteen, minus thirty-four, minus
-fifty-three percent as Kp increases; the trend is significant, but the
-highest bin is sparse. Three: it replicates in direction on the
+bands, at or below two times ten to the minus five. Two: the effect
+follows a scale-dependent pattern — minus eighteen, minus thirty-four,
+minus fifty-three percent as Kp increases; the trend is significant,
+but the highest bin is sparse. Three: it replicates in direction on the
 held-out window on all three bands, under the residual permutation
 test. Four: absolute loss is compatible with proportional network
 growth — ratio one point four four, close to the one point three five

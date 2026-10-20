@@ -4,6 +4,15 @@
 RU — смысл и подводные камни. Все числа — из paper/main.tex (round-3
 revision).
 
+## Number policy — raw vs adjusted
+
+Main talk and slides use **raw** drops: training −27.7 / −27.2 / −38.7 %;
+held-out −26.7 / −29.0 / −22.1 %. If asked about confounders:
+“We also computed adjusted drops accounting for month/hour/DOW,
+which are -33.6% / -27.1% / -39.8% — the effect holds strongly.”
+Held-out adjusted: −19.1 / −21.2 / −23.4 % (CIs exclude zero;
+directional, smaller than training). See Q1, Q5, Q11.
+
 ---
 
 ## Q1. Why a block permutation test, and how does the GLM fit in?
@@ -99,7 +108,10 @@ method as in training — gives p equals eight times ten to the minus
 five, significant. The CI is wide because there are only forty-seven
 storm epochs and fifteen meters has the smallest effect size and the
 noisiest baseline. We state both numbers side by side in the paper
-rather than choosing the flattering one.
+rather than choosing the flattering one. For completeness: after
+month/hour/DOW adjustment the held-out drops are −19.1 / −21.2 /
+−23.4 %, all CIs exclude zero; they are smaller than training, which
+is why we call the replication directional rather than exact.
 
 ### RU
 Не путать: CI — на сырых значениях, p — на резидах. Оба числа в
@@ -238,7 +250,8 @@ adjusted values and treat the raw 20 m number as conservative.
   expected ~1.35 from +35 % network growth.
 - Held-out Jan–Mar 2026: N_storm = 47, N_quiet = 439;
   raw −26.7 / −29.0 / −22.1 %; adjusted −19.1 / −21.2 / −23.4 %;
-  p ≤ 2e-5 / 2e-4 / 8e-5.
+  p ≤ 2e-5 / 2e-4 / 8e-5. Raw 95% CIs: 20 m [−41.5, −3.4],
+  40 m [−40.8, −14.0], 15 m [−42.5, 22.8] %.
 - 198 storm epochs ≈ 58 independent episodes (N_eff).
 - DOIs: version 10.5281/zenodo.23402384, concept 10.5281/zenodo.23285958.
 - Code: github.com/FelixRLEPERS/crosscorr (core tag v1.3.1;

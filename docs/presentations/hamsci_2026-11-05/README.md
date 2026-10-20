@@ -10,7 +10,7 @@ geomagnetic storms". Докладчик: Alexey Petrov; соавтор: Makar Pe
 - slides.pdf — собранная дека, 10 слайдов, 16:9
 - speaker_notes.md — дословный текст выступления: EN (что говорить) +
   RU (перевод и подсказки), по слайдам, с таймингом
-- Q_and_A.md — 10 ответов на типичные вопросы (EN-ответ + RU-смысл)
+- Q_and_A.md — 11 ответов на типичные вопросы (EN-ответ + RU-смысл)
 - figures/ — статичные фигуры из paper/figures/ (fig1, fig2, fig4, fig5 и fig3_frequency_dependence_pointest)
 
 ## Сборка PDF
@@ -34,9 +34,10 @@ paper/figures/. Динамических кадров и видео в деке 
 
 ## Происхождение чисел и фигур
 
-Все числа слайдов сверены с paper/main.tex (round-3 revision:
-raw + adjusted drops, SNR and distance checks). Q&A содержит 11 ответов.
-Копии фигур сделаны байтовыми, md5 совпадает с paper/figures/.
+Все числа слайдов сверены с paper/main.tex (round-3 revision):
+на экране — raw drops, adjusted-проверки только в speaker_notes и Q&A.
+Q&A содержит 11 ответов. Копии фигур сделаны байтовыми, md5 совпадает
+с paper/figures/.
 
 Палитра слайдов: aep/CC_Data.js → PALETTE
 (фон #060911, акцент #5CE1DB, текст #F1F5FB, приглушение #828BA0).
