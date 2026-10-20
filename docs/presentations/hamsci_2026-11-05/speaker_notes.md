@@ -79,20 +79,26 @@ index from Kyoto.
 ## Slide 4 — Result 1: frequency and scale dependence (~1:20)
 
 ### EN (say this)
-This is the headline result. During storm epochs the spot density
+This is the headline result. During storm epochs the raw spot density
 drops by twenty-seven point seven percent on twenty meters, twenty-
 seven point two on forty meters, and thirty-eight point seven on
 fifteen meters. All three are significant at two times ten to the
-minus five — the resolution floor of our permutation test. The right
-panel shows the second part of the story: the effect is not linear
-in storm intensity. At Kp five to six the drop is approximately 18
-percent; at Kp six to seven, thirty-four; at Kp seven and above,
-fifty-three. So severity matters, and it matters more than a linear
-dose-response would suggest. The frequency ordering — fifteen meters
-hit hardest — is what we would expect if storm-time MUF reduction
-pushes the highest band below its normal propagation ceiling; the
-similar drops on twenty and forty meters are consistent with
-D-region absorption.
+minus five — the resolution floor of our permutation test. Because
+storm epochs cluster in June 2025 and at 00 UTC, we also fit a
+negative-binomial model with month, UT-hour and day-of-week controls:
+the adjusted drops are thirty-three point six, twenty-seven point one
+and thirty-nine point eight percent, with intervals excluding zero.
+So the raw twenty-meter number is conservative, and forty meters is
+essentially unchanged. The right panel shows the second part of the
+story: the effect is not linear in storm intensity. At Kp five to six
+the drop is approximately 18 percent; at Kp six to seven,
+thirty-four; at Kp seven and above, fifty-three. The trend is
+significant on all three bands, but the highest bin has only twelve
+independent episodes, so we do not overclaim the last step. The
+frequency ordering — fifteen meters hit hardest — is what we would
+expect if storm-time MUF reduction pushes the highest band below its
+normal propagation ceiling; the similar drops on twenty and forty
+meters are consistent with D-region absorption.
 
 ### RU (перевод и подсказки)
 Это главный слайд — говорить медленно, сделать паузу после каждого
@@ -150,10 +156,12 @@ interval is wide enough to include both perfect invariance and
 proportional scaling. But the network had grown by thirty-five
 percent in the meantime, and if the percentage drop stayed constant
 we would expect a ratio of about one point three five — close to
-where our point estimate sits. The honest summary: absolute loss
-scales roughly with the network, while percentage drops remain the
-more stable metric. This slide is deliberately in our paper's key
-points — we prefer to state the correction ourselves.
+where our point estimate sits. The honest summary: the data are
+compatible with proportional scaling, but the interval also includes
+invariance, so absolute loss is not conclusively established;
+percentage drops remain the more stable metric. This slide is
+deliberately in our paper's key points — we prefer to state the
+correction ourselves.
 
 ### RU (перевод и подсказки)
 Это самый "взрослый" слайд — история об ошибке, которую мы поймали
@@ -173,12 +181,16 @@ seven percent on twenty meters, minus twenty-nine point zero on
 forty meters, and minus twenty-two point one on fifteen meters.
 All three are significant under the residual permutation test — at or
 below two times ten to the minus four; on fifteen meters the raw
-confidence interval still includes zero.
-And when we match by storm strength — the Kp six to seven bin —
-the held-out drops agree with the training values to within one to
-twelve percent. We use this window strictly as a confirmation set:
-its purpose is to confirm direction and magnitude, not to discover
-new effects.
+confidence interval still includes zero. After covariate adjustment
+the held-out drops are nineteen point one, twenty-one point two and
+twenty-three point four percent — all intervals exclude zero, but the
+values are smaller than in training, so this is a directional
+replication rather than an exact one. And when we match by storm
+strength — the Kp six to seven bin — the held-out drops agree with
+the training values to within one to twelve percent, though that
+comparison rests on only ten storm epochs per band. We use this
+window strictly as a confirmation set: its purpose is to confirm
+direction and approximate magnitude, not to discover new effects.
 
 ### RU (перевод и подсказки)
 Кратко и уверенно. Таблица на экране говорит сама за себя — не
@@ -197,14 +209,18 @@ phase. The held-out period has only forty-seven storm epochs, so
 secondary effects like the UT-window asymmetry are not independently
 tested there; on fifteen meters the raw confidence interval still
 includes zero, even though the residual-based permutation test is
-significant. We aggregate globally, which masks regional structure —
-polar paths versus mid-latitude paths — and per-path geometry is
-future work. Our UT windows are not simultaneous local day and night
-across a global network; also, the spot counts conflate propagation
-with station activity — we cannot normalise by active transmitters.
-F10.7 enters only as monthly means. And the one hundred
-ninety-eight storm epochs are not independent: grouped into episodes
-they amount to about fifty-eight distinct events.
+significant. We now add a coarse distance-binned check: the strongest
+drop is on five to ten thousand kilometre paths, but these bins do not
+resolve latitude, local solar time, or individual paths. We also
+checked the signal-to-noise ratio of decoded spots: it changes by less
+than half a decibel during storms, so the count loss is dominated by
+marginal paths falling below the decoding threshold, not by uniform
+degradation. The UT windows are not simultaneous local day and night
+across a global network; the spot counts conflate propagation with
+station activity, since we cannot normalise by active transmitters.
+F10.7 enters only as monthly means. And the one hundred ninety-eight
+storm epochs are not independent: grouped into episodes they amount
+to about fifty-eight distinct events.
 
 ### RU (перевод и подсказки)
 Говорить спокойно и коротко: список оговорок не читать весь —
@@ -218,13 +234,16 @@ boundaries of our claim". Это разоружает заранее.
 ### EN (say this)
 To conclude, in five sentences. One: geomagnetic storms cut WSPR
 spot density by twenty-seven to thirty-nine percent on all three
-bands, at two times ten to the minus five. Two: the effect is
-scale-dependent — minus eighteen, minus thirty-four, minus fifty-
-three percent as Kp increases. Three: it replicates in direction on the
+bands, at or below two times ten to the minus five; adjusted drops
+span twenty-seven to forty percent. Two: the effect follows a
+scale-dependent pattern — minus eighteen, minus thirty-four, minus
+fifty-three percent as Kp increases; the trend is significant, but the
+highest bin is sparse. Three: it replicates in direction on the
 held-out window on all three bands, under the residual permutation
-test. Four: absolute loss scales roughly with network growth — ratio
-one point four four, close to the one point three five expected from
-the thirty-five percent baseline growth; percentage drops remain the
+test. Four: absolute loss is compatible with proportional network
+growth — ratio one point four four, close to the one point three five
+expected from the thirty-five percent baseline growth — but the
+interval also includes invariance, so percentage drops remain the
 more stable metric.
 Five: the pattern is consistent with two mechanisms — MUF reduction
 on fifteen meters and D-region absorption on twenty and forty.
@@ -259,13 +278,13 @@ there are code questions, he can type answers there.
 | 1 | 0:30 | 0:30 |
 | 2 | 1:00 | 1:30 |
 | 3 | 1:10 | 2:40 |
-| 4 | 1:20 | 4:00 |
-| 5 | 1:10 | 5:10 |
-| 6 | 1:30 | 6:40 |
-| 7 | 1:00 | 7:40 |
-| 8 | 1:00 | 8:40 |
-| 9 | 1:00 | 9:40 |
-| 10 | 0:20 | 10:00 |
+| 4 | 1:35 | 4:15 |
+| 5 | 1:10 | 5:25 |
+| 6 | 1:30 | 6:55 |
+| 7 | 1:05 | 8:00 |
+| 8 | 1:10 | 9:10 |
+| 9 | 1:00 | 10:10 |
+| 10 | 0:20 | 10:30 |
 
 Запас на паузы и переходы: ~30–60 с. Если время давят — сократить
 слайд 8 до трёх пунктов и слайд 2 до 40 секунд.

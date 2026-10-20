@@ -1,0 +1,195 @@
+{
+  "method": {
+    "source": "wspr.live ClickHouse, 14-day chunks, 2026-10-20",
+    "distance_bins_km": [
+      "0-2000",
+      "2000-5000",
+      "5000-10000",
+      ">10000"
+    ],
+    "state": "storm Kp>=5, quiet Kp<3",
+    "bootstrap": "24-epoch block bootstrap, 1000 resamples, seed 42"
+  },
+  "bands": {
+    "15m": {
+      "bins": {
+        "0-2000": {
+          "N_epochs": 4349,
+          "N_storm": 198,
+          "N_quiet": 3035,
+          "mean_spots_storm": 3235.0656565656564,
+          "mean_spots_quiet": 5029.123228995058,
+          "drop_pct": -35.67336672296849,
+          "ci95_block": [
+            -46.39599328515549,
+            -23.00041843684049
+          ],
+          "share_of_storm_spots": 0.39414635046826735,
+          "share_of_quiet_spots": 0.3757106486848382
+        },
+        "2000-5000": {
+          "N_epochs": 4349,
+          "N_storm": 198,
+          "N_quiet": 3035,
+          "mean_spots_storm": 3614.4747474747473,
+          "mean_spots_quiet": 5517.7047775947285,
+          "drop_pct": -34.493147184102064,
+          "ci95_block": [
+            -49.035543196946605,
+            -16.770785851450675
+          ],
+          "share_of_storm_spots": 0.44037190642036994,
+          "share_of_quiet_spots": 0.41221110456977106
+        },
+        "5000-10000": {
+          "N_epochs": 4349,
+          "N_storm": 198,
+          "N_quiet": 3035,
+          "mean_spots_storm": 1087.7474747474748,
+          "mean_spots_quiet": 2474.612191103789,
+          "drop_pct": -56.043719550969705,
+          "ci95_block": [
+            -67.73082500174151,
+            -44.927223688544416
+          ],
+          "share_of_storm_spots": 0.1325264284923145,
+          "share_of_quiet_spots": 0.1848708232486079
+        },
+        ">10000": {
+          "N_epochs": 4349,
+          "N_storm": 198,
+          "N_quiet": 3035,
+          "mean_spots_storm": 270.489898989899,
+          "mean_spots_quiet": 364.18846787479407,
+          "drop_pct": -25.72804389761954,
+          "ci95_block": [
+            -43.03139460460336,
+            -9.670476112525673
+          ],
+          "share_of_storm_spots": 0.03295531461904821,
+          "share_of_quiet_spots": 0.027207423496782786
+        }
+      }
+    },
+    "20m": {
+      "bins": {
+        "0-2000": {
+          "N_epochs": 4349,
+          "N_storm": 198,
+          "N_quiet": 3035,
+          "mean_spots_storm": 34396.343434343435,
+          "mean_spots_quiet": 44917.94003294893,
+          "drop_pct": -23.42404079725723,
+          "ci95_block": [
+            -32.704781955065265,
+            -14.222828539096623
+          ],
+          "share_of_storm_spots": 0.6453656555855052,
+          "share_of_quiet_spots": 0.6093202605871101
+        },
+        "2000-5000": {
+          "N_epochs": 4349,
+          "N_storm": 198,
+          "N_quiet": 3035,
+          "mean_spots_storm": 13971.348484848484,
+          "mean_spots_quiet": 17737.397034596375,
+          "drop_pct": -21.232250382636767,
+          "ci95_block": [
+            -32.46916726082109,
+            -11.32940392434937
+          ],
+          "share_of_storm_spots": 0.2621391570749069,
+          "share_of_quiet_spots": 0.24061110939926048
+        },
+        "5000-10000": {
+          "N_epochs": 4349,
+          "N_storm": 198,
+          "N_quiet": 3035,
+          "mean_spots_storm": 3389.0757575757575,
+          "mean_spots_quiet": 8638.333113673805,
+          "drop_pct": -60.767017050880845,
+          "ci95_block": [
+            -68.87242540459349,
+            -51.416501952430906
+          ],
+          "share_of_storm_spots": 0.06358795382688825,
+          "share_of_quiet_spots": 0.11718060489864428
+        },
+        ">10000": {
+          "N_epochs": 4349,
+          "N_storm": 198,
+          "N_quiet": 3035,
+          "mean_spots_storm": 1540.6818181818182,
+          "mean_spots_quiet": 2424.4431630971994,
+          "drop_pct": -36.45213706665682,
+          "ci95_block": [
+            -46.85525009332111,
+            -27.450131278171053
+          ],
+          "share_of_storm_spots": 0.028907233512699596,
+          "share_of_quiet_spots": 0.03288802511498518
+        }
+      }
+    },
+    "40m": {
+      "bins": {
+        "0-2000": {
+          "N_epochs": 4349,
+          "N_storm": 198,
+          "N_quiet": 3035,
+          "mean_spots_storm": 41995.59595959596,
+          "mean_spots_quiet": 55121.73574958814,
+          "drop_pct": -23.813001552822577,
+          "ci95_block": [
+            -32.220126360315156,
+            -16.0585786865824
+          ],
+          "share_of_storm_spots": 0.8602027109158199,
+          "share_of_quiet_spots": 0.8214228224711164
+        },
+        "2000-5000": {
+          "N_epochs": 4349,
+          "N_storm": 198,
+          "N_quiet": 3035,
+          "mean_spots_storm": 5121.222222222223,
+          "mean_spots_quiet": 8420.579901153213,
+          "drop_pct": -39.18207199101736,
+          "ci95_block": [
+            -50.380902418014315,
+            -27.65785457801936
+          ],
+          "share_of_storm_spots": 0.10489883851145325,
+          "share_of_quiet_spots": 0.1254832855893967
+        },
+        "5000-10000": {
+          "N_epochs": 4349,
+          "N_storm": 198,
+          "N_quiet": 3035,
+          "mean_spots_storm": 1447.29797979798,
+          "mean_spots_quiet": 3110.5970345963756,
+          "drop_pct": -53.47201956084363,
+          "ci95_block": [
+            -65.09088001514779,
+            -40.30162380544289
+          ],
+          "share_of_storm_spots": 0.029645242966024325,
+          "share_of_quiet_spots": 0.04635404457029514
+        },
+        ">10000": {
+          "N_epochs": 4348,
+          "N_storm": 197,
+          "N_quiet": 3035,
+          "mean_spots_storm": 257.7664974619289,
+          "mean_spots_quiet": 452.2787479406919,
+          "drop_pct": -43.007161261592096,
+          "ci95_block": [
+            -55.67509716383754,
+            -29.514872701091026
+          ],
+          "share_of_storm_spots": 0.005253207606702547,
+          "share_of_quiet_spots": 0.006739847369191774
+        }
+      }
+    }
+  }
+}

@@ -9,12 +9,15 @@ by the human authors.
 | Model | Role | Access |
 |-------|------|--------|
 | DeepSeek V4 Pro | Code generation, analysis scripts | Polza.ai |
+| DeepSeek V4.1 Flash | Code generation, sensitivity analyses, internal audit support | OpenCode |
 | Bonsai 2 27B (Ternary) | Local development, quick tasks | Local (RTX 3080 Ti) |
 | Qwen 3.8 27B | Independent audit | Local (Bionic) |
 
 ## Scope of assistance
 
 - **Code generation**: statistical scripts, data pipeline, tests
+- **Uncertainty analyses**: bootstrap CIs, covariate adjustment,
+  episode-level robustness, sensitivity checks
 - **Documentation**: README, data pipeline docs, audit reports
 - **Analysis review**: independent audit of methodology and results
 

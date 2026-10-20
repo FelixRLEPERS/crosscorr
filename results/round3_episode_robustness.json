@@ -1,0 +1,253 @@
+{
+  "method": {
+    "block": 24,
+    "n_perm": 20000,
+    "n_boot": 2000,
+    "seed": 42
+  },
+  "bands": {
+    "20m": {
+      "episodes_total": 58,
+      "counts": {
+        "5-6": {
+          "N_epochs": 122,
+          "N_episodes": 54
+        },
+        "6-7": {
+          "N_epochs": 38,
+          "N_episodes": 22
+        },
+        "7+": {
+          "N_epochs": 38,
+          "N_episodes": 12
+        }
+      },
+      "pairwise_episodes": {
+        "5-6 vs 6-7": {
+          "n_episodes_a": 54,
+          "n_episodes_b": 22,
+          "n_shared": 18
+        },
+        "5-6 vs 7+": {
+          "n_episodes_a": 54,
+          "n_episodes_b": 12,
+          "n_shared": 9
+        },
+        "6-7 vs 7+": {
+          "n_episodes_a": 22,
+          "n_episodes_b": 12,
+          "n_shared": 11
+        }
+      },
+      "trend": {
+        "slope_spots_per_bin": -7507.414035087718,
+        "p_block_perm": 0.0007999600019999,
+        "n_perm": 20000
+      },
+      "episode_trend": {
+        "n_episodes": 58,
+        "spearman_rho": -0.27678454123093826,
+        "p_perm": 0.03639818009099545,
+        "episodes_by_max_kp": {
+          "5-6": 35,
+          "6-7": 11,
+          "7+": 12
+        }
+      },
+      "leave_one_episode_out": {
+        "5-6": {
+          "min": -19.244838343598513,
+          "max": -17.20920395095593,
+          "range": 2.0356343926425815
+        },
+        "6-7": {
+          "min": -35.79188220717703,
+          "max": -31.895867772755413,
+          "range": 3.8960144344216197
+        },
+        "7+": {
+          "min": -54.41280121530789,
+          "max": -43.22122724259432,
+          "range": 11.19157397271357
+        }
+      },
+      "ordering_preserved_fraction": 1.0,
+      "cluster_bootstrap_ci95": {
+        "5-6": [
+          -23.31287408723947,
+          -13.567446376733537
+        ],
+        "6-7": [
+          -40.422801063453,
+          -26.80149035011737
+        ],
+        "7+": [
+          -60.50229106951717,
+          -34.14347300411317
+        ]
+      }
+    },
+    "40m": {
+      "episodes_total": 58,
+      "counts": {
+        "5-6": {
+          "N_epochs": 122,
+          "N_episodes": 54
+        },
+        "6-7": {
+          "N_epochs": 38,
+          "N_episodes": 22
+        },
+        "7+": {
+          "N_epochs": 38,
+          "N_episodes": 12
+        }
+      },
+      "pairwise_episodes": {
+        "5-6 vs 6-7": {
+          "n_episodes_a": 54,
+          "n_episodes_b": 22,
+          "n_shared": 18
+        },
+        "5-6 vs 7+": {
+          "n_episodes_a": 54,
+          "n_episodes_b": 12,
+          "n_shared": 9
+        },
+        "6-7 vs 7+": {
+          "n_episodes_a": 22,
+          "n_episodes_b": 12,
+          "n_shared": 11
+        }
+      },
+      "trend": {
+        "slope_spots_per_bin": -6206.778581871345,
+        "p_block_perm": 9.99950002499875e-05,
+        "n_perm": 20000
+      },
+      "episode_trend": {
+        "n_episodes": 58,
+        "spearman_rho": -0.24412072082192196,
+        "p_perm": 0.06379681015949203,
+        "episodes_by_max_kp": {
+          "5-6": 35,
+          "6-7": 11,
+          "7+": 12
+        }
+      },
+      "leave_one_episode_out": {
+        "5-6": {
+          "min": -17.858055852517186,
+          "max": -16.07271708754772,
+          "range": 1.7853387649694668
+        },
+        "6-7": {
+          "min": -35.954894184621985,
+          "max": -32.50767722448876,
+          "range": 3.4472169601332254
+        },
+        "7+": {
+          "min": -57.524704224530154,
+          "max": -43.907844645683674,
+          "range": 13.61685957884648
+        }
+      },
+      "ordering_preserved_fraction": 1.0,
+      "cluster_bootstrap_ci95": {
+        "5-6": [
+          -20.787586828426445,
+          -12.961060366845933
+        ],
+        "6-7": [
+          -39.65159332230235,
+          -29.31749749276264
+        ],
+        "7+": [
+          -63.717156068675166,
+          -31.49433716082549
+        ]
+      }
+    },
+    "15m": {
+      "episodes_total": 58,
+      "counts": {
+        "5-6": {
+          "N_epochs": 122,
+          "N_episodes": 54
+        },
+        "6-7": {
+          "N_epochs": 38,
+          "N_episodes": 22
+        },
+        "7+": {
+          "N_epochs": 38,
+          "N_episodes": 12
+        }
+      },
+      "pairwise_episodes": {
+        "5-6 vs 6-7": {
+          "n_episodes_a": 54,
+          "n_episodes_b": 22,
+          "n_shared": 18
+        },
+        "5-6 vs 7+": {
+          "n_episodes_a": 54,
+          "n_episodes_b": 12,
+          "n_shared": 9
+        },
+        "6-7 vs 7+": {
+          "n_episodes_a": 22,
+          "n_episodes_b": 12,
+          "n_shared": 11
+        }
+      },
+      "trend": {
+        "slope_spots_per_bin": -1343.2207236842103,
+        "p_block_perm": 0.019799010049497526,
+        "n_perm": 20000
+      },
+      "episode_trend": {
+        "n_episodes": 58,
+        "spearman_rho": -0.2700770709463743,
+        "p_perm": 0.041997900104994754,
+        "episodes_by_max_kp": {
+          "5-6": 35,
+          "6-7": 11,
+          "7+": 12
+        }
+      },
+      "leave_one_episode_out": {
+        "5-6": {
+          "min": -31.834170423309406,
+          "max": -27.06782697327911,
+          "range": 4.766343450030295
+        },
+        "6-7": {
+          "min": -53.55166025571714,
+          "max": -48.05830430842534,
+          "range": 5.493355947291796
+        },
+        "7+": {
+          "min": -64.4402022180251,
+          "max": -50.53186567910072,
+          "range": 13.908336538924388
+        }
+      },
+      "ordering_preserved_fraction": 1.0,
+      "cluster_bootstrap_ci95": {
+        "5-6": [
+          -36.93026913151599,
+          -20.322277628906136
+        ],
+        "6-7": [
+          -60.100438883720805,
+          -41.02563139128626
+        ],
+        "7+": [
+          -70.6664621309236,
+          -38.26696584777584
+        ]
+      }
+    }
+  }
+}

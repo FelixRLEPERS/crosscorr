@@ -1,0 +1,185 @@
+{
+  "generated_utc": "2026-10-20T06:48:59.956133+00:00",
+  "git_commit": "f9d7e5c4a65acec09de62adfb94ca6d606797c21",
+  "git_status_porcelain": "A  audit/AUDIT_2026-10-19_scientific.md\nAM audit/AUDIT_2026-10-20_review_round3.md\nMM docs/AI_ASSISTANCE.md\nM  docs/presentations/hamsci_2026-11-05/Q_and_A.md\nM  docs/presentations/hamsci_2026-11-05/README.md\nM  docs/presentations/hamsci_2026-11-05/slides.pdf\nM  docs/presentations/hamsci_2026-11-05/slides.tex\nM  docs/presentations/hamsci_2026-11-05/speaker_notes.md\nM  paper/main.tex\nA  results/path_distance_analysis.json\nA  results/provenance_manifest_2026-10-20.json\nA  results/round3_effect_sizes.json\nA  results/round3_episode_robustness.json\nA  results/round3_merge_sensitivity.json\nAM results/snr_analysis.json\nA  scripts/path_distance_analysis.py\nAM scripts/provenance_manifest.py\nAM scripts/round3_effect_sizes.py\nAM scripts/round3_episode_robustness.py\nAM scripts/round3_merge_sensitivity.py\nAM scripts/snr_analysis_3band.py",
+  "training_window": [
+    "2024-04-01",
+    "2025-10-01"
+  ],
+  "heldout_window": [
+    "2026-01-01",
+    "2026-04-01"
+  ],
+  "datasets": [
+    {
+      "path": "data/processed/unified.parquet",
+      "sha256": "0a746f033c7492243d88874968a271f2020fa7631eb7dae75b1f0449d6cfadc2",
+      "bytes": 1703727,
+      "rows": 84402,
+      "columns": [
+        "timestamp_utc",
+        "detector_id",
+        "detector_type",
+        "value",
+        "residual",
+        "residual_method",
+        "unit",
+        "quality_flag",
+        "meta"
+      ],
+      "first_timestamp": "2024-04-01 00:00:00+00:00",
+      "last_timestamp": "2026-09-15 00:00:00+00:00"
+    },
+    {
+      "path": "results/heldout_3band_15m_2026-10-15.parquet",
+      "sha256": "253fa93dd6b3014d0ea5a51038e15281504952a6a3922be9ba4e6b1d1ac01c95",
+      "bytes": 14022,
+      "rows": 720,
+      "columns": [
+        "hour",
+        "value",
+        "kp",
+        "state"
+      ],
+      "first_hour": "2026-01-01 00:00:00+00:00",
+      "last_hour": "2026-03-31 21:00:00+00:00"
+    },
+    {
+      "path": "results/heldout_3band_20m_2026-10-15.parquet",
+      "sha256": "834a915d18e49d8de93e43cebfa0f5664c1f0e7918daf1f625da73af67af097e",
+      "bytes": 14343,
+      "rows": 720,
+      "columns": [
+        "hour",
+        "value",
+        "kp",
+        "state"
+      ],
+      "first_hour": "2026-01-01 00:00:00+00:00",
+      "last_hour": "2026-03-31 21:00:00+00:00"
+    },
+    {
+      "path": "results/heldout_3band_40m_2026-10-15.parquet",
+      "sha256": "568320388f41e600eae80fd281fb1b58c31e3e6ec4c93712d21697518e0794d7",
+      "bytes": 14225,
+      "rows": 720,
+      "columns": [
+        "hour",
+        "value",
+        "kp",
+        "state"
+      ],
+      "first_hour": "2026-01-01 00:00:00+00:00",
+      "last_hour": "2026-03-31 21:00:00+00:00"
+    },
+    {
+      "path": "results/snr_hourly_3band_2024-2025_2026-10-20.parquet",
+      "sha256": "72c0753ef705af2bffcae01a4650d4c8ed10712834948ef9ae91cdb3aeae5a76",
+      "bytes": 1044766,
+      "rows": 39456,
+      "columns": [
+        "band",
+        "hour",
+        "spots",
+        "mean_snr",
+        "n_low",
+        "n_verylow"
+      ],
+      "first_hour": "2024-04-01 00:00:00+00:00",
+      "last_hour": "2025-09-30 23:00:00+00:00"
+    },
+    {
+      "path": "results/path_distance_hourly_2024-2025_2026-10-20.parquet",
+      "sha256": "dd1a4330c4c10f5fd81d0d3afef749f407f58294dacdbdd1cc7f2f6e8f10d398",
+      "bytes": 816776,
+      "rows": 157823,
+      "columns": [
+        "band",
+        "hour",
+        "dbin",
+        "spots"
+      ],
+      "first_hour": "2024-04-01 00:00:00+00:00",
+      "last_hour": "2025-09-30 23:00:00+00:00"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "results/perm_test_18mo_3band.json",
+      "sha256": "f48fe62cee3ffade83f08653fc889e5ad9eda7712d407a8039fd060de3da14d3",
+      "bytes": 2252
+    },
+    {
+      "path": "results/heldout_resid_2026-10-15.json",
+      "sha256": "13249e5784ad9de121d5f84a4e6bba623ae3cec92c154e39edb576528be2193a",
+      "bytes": 875
+    },
+    {
+      "path": "results/abs_loss_ratio_ci.json",
+      "sha256": "6b3d40667bd5175a8f0800cad6665e95bb58b80dd3881d3b07ea43a77e731512",
+      "bytes": 2293
+    },
+    {
+      "path": "results/round3_effect_sizes.json",
+      "sha256": "440044db25f275346aa6a4b7ca764ac508fb80247a207ae9e03399f4fda214a5",
+      "bytes": 40712
+    },
+    {
+      "path": "results/round3_episode_robustness.json",
+      "sha256": "6226ea5db2d48924fc6a914da0219e910fe3f7bac041c1e5151f98a0c00d28ea",
+      "bytes": 6096
+    },
+    {
+      "path": "results/round3_merge_sensitivity.json",
+      "sha256": "29cde1ea9f3225fe091b5241b0c2b0a45c3be7252ee39b04554f00adcb6fe272",
+      "bytes": 5657
+    },
+    {
+      "path": "results/snr_analysis.json",
+      "sha256": "5b259c7662f50092c5ecfaa9d5e83bf666f42eb389efdbdd13fc381782bfd3fe",
+      "bytes": 4225
+    },
+    {
+      "path": "results/path_distance_analysis.json",
+      "sha256": "4c14ae8455c30613fd4ef93d590318a6fcab15f2d40fb6d91ecf60e7c7e63850",
+      "bytes": 6238
+    }
+  ],
+  "scripts": [
+    {
+      "path": "scripts/round3_effect_sizes.py",
+      "sha256": "ffd3e472265ecf44f7a727a5b291f14a589b28d6e87bf1d84b8187b989159df3",
+      "bytes": 15755
+    },
+    {
+      "path": "scripts/round3_episode_robustness.py",
+      "sha256": "1393acb194f7ae8e9784acdaf8e072c418e69ff0ad477f257bcd01d46d9a708e",
+      "bytes": 8502
+    },
+    {
+      "path": "scripts/round3_merge_sensitivity.py",
+      "sha256": "b7f00d5dd460a196c63a1fc0632f755cd74c915776f0025e825da2e7ca779096",
+      "bytes": 7242
+    },
+    {
+      "path": "scripts/snr_analysis_3band.py",
+      "sha256": "fcc008ccdbf4d5779c2a93e8ca3e9f06a0d7d415204c474b27481d1525cdca44",
+      "bytes": 11022
+    },
+    {
+      "path": "scripts/path_distance_analysis.py",
+      "sha256": "e84fc206b488ecb7f288ca5c362090d581c31ec2ac61041dd02a85d22eb2ed8e",
+      "bytes": 6290
+    },
+    {
+      "path": "scripts/provenance_manifest.py",
+      "sha256": "25b1a07219de12e2d3f93db5690eea6b26a22ed90f45fa6c039847f7fafea238",
+      "bytes": 4413
+    }
+  ],
+  "notes": {
+    "unified": "Built from wspr.live hourly aggregates, GFZ Kp and WDC Kyoto provisional Dst; frozen after the 2026-10-07/08 download.",
+    "heldout": "Published frozen extracts of the live wspr.live re-download of 2026-10-15 (720 3-h epochs per band).",
+    "snr": "Hourly mean SNR pulled from wspr.live on 2026-10-20 (14-day chunks) for the training window."
+  }
+}

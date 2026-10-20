@@ -41,7 +41,8 @@
 }
 
 \title{Scale-dependent WSPR response to geomagnetic storms}
-\subtitle{Frequency dependence and network-size effects on absolute loss}
+\subtitle{Frequency dependence and exploratory period-to-period scaling of
+absolute loss}
 \author{Alexey Petrov \and Makar Petrov}
 \institute{Independent researchers, Russia}
 \date{HamSCI Science Telecon --- 5 November 2026}
@@ -78,7 +79,7 @@
   \begin{center}
     \includegraphics[width=0.70\textwidth,keepaspectratio]{figures/fig1_kp_timeseries.png}
   \end{center}
-  \vskip-0.2cm
+  \vskip-0.3cm
   \begin{itemize}
     \item \alert{18 months}, Apr 2024 --- Sep 2025; three bands:
       20\,m, 40\,m, 15\,m
@@ -104,13 +105,17 @@
       \includegraphics[width=\textwidth,keepaspectratio]{figures/fig2_scale_dependence.png}\\
       {\small\textcolor{ccdim}{Reduction vs storm intensity ($Kp$ bins)}}
   \end{columns}
-  \vskip0.25cm
+  \vskip0.1cm
   \begin{itemize}
-    \item All three bands: \alert{20\,m $-27.7\,\%$},
+    \item Raw drops: \alert{20\,m $-27.7\,\%$},
       \alert{40\,m $-27.2\,\%$}, \alert{15\,m $-38.7\,\%$};
-      each $p=2\times10^{-5}$
-    \item Non-linear gradient: $\sim-18\,\%$ ($Kp$ 5--6)
-      $\to$ $\sim-34\,\%$ ($Kp$ 6--7) $\to$ $\sim-53\,\%$ ($Kp\ge7$)
+      each $p\le2\times10^{-5}$
+    \item Covariate-adjusted (month, UT hour, DOW):
+      20\,m $-33.6\,\%$, 40\,m $-27.1\,\%$, 15\,m $-39.8\,\%$;
+      CIs exclude zero
+    \item Gradient: $\sim-18\,\%$ ($Kp$ 5--6)
+      $\to$ $\sim-34\,\%$ ($Kp$ 6--7) $\to$ $\sim-53\,\%$ ($Kp\ge7$);
+      significant trend, highest bin sparse (12 episodes)
     \item Pattern \emph{consistent with} two mechanisms: MUF reduction
       (15\,m) and D-region absorption (20/40\,m)
   \end{itemize}
@@ -151,33 +156,35 @@
       (95\% CI $[0.65,\ 2.33]$)
     \item Network grew $+35\,\%$ (40\,m quiet baseline); expected ratio
       $\approx 1.35$ under proportional scaling
-    \item \alert{Absolute loss scales roughly with the network};
-      percentage drops remain the more stable metric
+    \item Ratio CI also includes $1$: \alert{compatible with proportional
+      scaling, but not conclusively established}; percentage drops remain
+      the more stable metric
   \end{itemize}
 \end{frame}
 
 %% ------------------------------------------------------------------ 7
 \begin{frame}{Held-out replication --- Jan--Mar 2026}
   \begin{center}
+  \small
   \begin{tabular}{lrrrl}
     \toprule
-    Band & $N_{\mathrm{tot}}$ & $N_{\mathrm{storm}}$ & Spot reduction & $p$-value \\
+    Band & $N_{\mathrm{tot}}$ & $N_{\mathrm{storm}}$ & Raw reduction & $p$-value \\
     \midrule
-    20\,m & 720 & 47 & $-26.7\,\%$ & $2\times10^{-5}$ \\
-    40\,m & 720 & 47 & $-29.0\,\%$ & $2\times10^{-4}$ \\
-    15\,m & 720 & 47 & $-22.1\,\%$ & $8\times10^{-5}$ \\
+    20\,m & 720 & 47 & $-26.7\,\%$ [$-41.5$, $-3.4$] & $\le2\times10^{-5}$ \\
+    40\,m & 720 & 47 & $-29.0\,\%$ [$-40.8$, $-14.0$] & $2\times10^{-4}$ \\
+    15\,m & 720 & 47 & $-22.1\,\%$ [$-42.5$, $22.8$] & $8\times10^{-5}$ \\
     \bottomrule
   \end{tabular}
   \end{center}
-  \vskip0.2cm
+  \vskip0.1cm
   \begin{itemize}
     \item Primary effect replicates in direction on \alert{all three bands}
       under the residual permutation test
-      ($p<10^{-3}$; 15\,m raw CI includes zero)
-    \item Scale-dependence at $Kp$ 6--7 agrees with training:
-      held-out/training ratios $1.01$--$1.12$
-    \item Purpose: confirm direction and magnitude on independent data ---
-      not to discover new effects
+      ($p\le2\times10^{-4}$; 15\,m raw CI includes zero)
+    \item Adjusted drops: $-19.1$, $-21.2$, $-23.4\,\%$; all CIs exclude
+      zero, but smaller than training --- directional, not exact
+    \item Scale-dependence at $Kp$ 6--7 agrees within factors $1.01$--$1.12$
+      (only 10 storm epochs per band: directional check)
   \end{itemize}
 \end{frame}
 
@@ -191,14 +198,16 @@
       (residual-based $p$ is significant)
     \item UT windows (12--18 / 0--6 UTC) are not local day/night
       for a global network
-    \item Global spot counts mask regional structure ---
-      per-path (great-circle) geometry deferred to future work
+    \item Distance bins: strongest loss on 5--10\,000\,km paths;
+      no latitude or local-time resolution yet
     \item Spot counts conflate propagation with station activity
       (no active-transmitter normalisation)
-    \item F10.7 only monthly; SIDs not separated; possible summer
-      sporadic-E contamination on 15\,m
+    \item F10.7 only monthly; SIDs not separated; 15\,m effect is present
+      in all seasons and not driven by summer sporadic-$E$
     \item 198 storm epochs $\approx$ 58 independent episodes
       ($N_{\mathrm{eff}}$); Dst is provisional
+    \item Decoded-spot SNR changes by $<0.5$\,dB: the loss is mainly
+      marginal paths dropping below the decoding threshold
   \end{itemize}
 \end{frame}
 
@@ -206,16 +215,17 @@
 \begin{frame}{Conclusions}
   \begin{enumerate}
     \item Storms ($Kp\ge5$) cut WSPR spot density by $27$--$39\,\%$
-      on all three bands ($p=2\times10^{-5}$)
-    \item The effect is \alert{scale-dependent}: $\sim-18\,\%$ at $Kp$ 5--6,
-      $\sim-34\,\%$ at $Kp$ 6--7, $\sim-53\,\%$ at $Kp\ge7$
+      raw ($p\le2\times10^{-5}$); adjusted drops $27$--$40\,\%$
+    \item The scale-dependent pattern: $\sim-18\,\%$ at $Kp$ 5--6,
+      $\sim-34\,\%$ at $Kp$ 6--7, $\sim-53\,\%$ at $Kp\ge7$;
+      trend significant, highest bin sparse
     \item It \alert{replicates in direction} on the held-out Jan--Mar 2026 window
       (all three bands, $p\le2\times10^{-4}$)
-    \item Absolute loss \alert{scales roughly with network growth}
-      (ratio $1.44$, 95\% CI $[0.65, 2.33]$); percentage drops remain
-      the more stable metric
-    \item Dual mechanism (training): MUF reduction (15\,m) and
-      D-region absorption (20/40\,m)
+    \item Absolute loss is \alert{compatible with network-related scaling}
+      (ratio $1.44$, 95\% CI $[0.65, 2.33]$), but not conclusively
+      established; percentage drops remain the more stable metric
+    \item Frequency/UT pattern is \emph{consistent with} a dual mechanism:
+      MUF reduction (15\,m) and D-region absorption (20/40\,m)
   \end{enumerate}
   \vskip0.3cm
   \begin{center}

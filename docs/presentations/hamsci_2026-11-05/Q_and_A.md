@@ -1,49 +1,50 @@
 # Q&A — HamSCI Science Telecon, 5 November 2026
 
-Ответы на 10 типичных вопросов. EN — как ответить вслух,
-RU — смысл и подводные камни. Все числа — из paper/main.tex (v1.3.1).
+Ответы на 11 типичных вопросов. EN — как ответить вслух,
+RU — смысл и подводные камни. Все числа — из paper/main.tex (round-3
+revision).
 
 ---
 
-## Q1. Why a block permutation test instead of a GLM?
+## Q1. Why a block permutation test, and how does the GLM fit in?
 
 ### EN
-Spot counts are non-Gaussian, autocorrelated, and heteroscedastic —
-a GLM would force distributional assumptions we cannot validate at
-hourly resolution. The block permutation test makes almost no
-assumptions: we compute residuals against a month, hour-of-day,
-day-of-week baseline, then shuffle blocks of twenty-four consecutive
-three-hour epochs (seventy-two hours — three full diurnal cycles,
-longer than the mean storm duration of about nine hours) of the
-residual series, while the observed Kp sequence stays fixed.
-Shuffling residuals rather than storm labels preserves the
-autocorrelation structure under the null without pretending that
-geomagnetic activity is exchangeable in time. The held-out p-values
-come from the same residual block permutation procedure.
+We use both, for different purposes. The block permutation test is the
+primary inference: it makes almost no distributional assumptions and
+shuffles 72-hour blocks of residuals against a month, hour-of-day,
+day-of-week baseline while the observed Kp sequence stays fixed.
+The negative-binomial GLM with month, UT-hour and day-of-week fixed
+effects estimates covariate-adjusted drops and episode-clustered
+confidence intervals; it is not the primary test. The two agree in
+sign and significance. For 20 m the adjusted drop is larger because
+storm epochs are over-represented at 00 UTC and in June 2025, when the
+20 m quiet baseline is higher than average. So the permutation p-value
+is the confirmatory test, and the GLM quantifies the effect after
+removing the observed imbalance.
 
 ### RU
-Ключевая мысль: пермутация не требует нормальности, и тасуем мы
-блоки остатков, а не метки Kp — геомагнитная активность физически
-не перемешивается во времени. Остатки считаются от baseline
-month × hour-of-day × day-of-week. Блок 72 ч намеренно длиннее
-типичной бури (~9 ч), чтобы сохранить автокорреляцию. Если
-спросят "а что, GLM нельзя?" — можно, но с теми же блоковыми
-поправками; пермутация просто честнее.
+Ключевая мысль: пермутация — основной тест, GLM — оценка эффекта
+с поправкой на дисбаланс. Раньше в ответе было "GLM не нужен";
+теперь он есть, поэтому нельзя говорить, что мы его отвергаем.
+Подчеркнуть: оба метода дают тот же знак и значимость; для 20 м
+adjusted сильнее из-за июня 2025 и 00 UTC.
 
 ---
 
 ## Q2. Why not spatially stratified analysis — by path or region?
 
 ### EN
-Aggregating globally is a deliberate first-pass choice, and it is
-our main limitation. Polar-cap paths and mid-latitude paths respond
-differently — we say so in the paper. The next step is per-path
-analysis using great-circle geometry; that work is planned but not
-in this study.
+Aggregating globally was the first pass and remains a limitation. In
+this revision we add a coarse distance-binned analysis (0–2 000,
+2 000–5 000, 5 000–10 000, above 10 000 km). The strongest drop is on
+5 000–10 000 km paths on all three bands, but these bins are a proxy:
+they do not resolve latitude, local solar time, or individual
+transmitter–receiver paths. Full path-level geometry is the next step.
 
 ### RU
-Не оправдываться. Отвечать: "yes, that is limitation number four
-in our list; the path-level analysis is our next paper".
+Не оправдываться. Отвечать: "global aggregation — first pass; now we
+have distance bins as a first step; latitude/LST/path geometry is next".
+Не говорить, что per-path анализа нет совсем — он есть, но грубый.
 
 ---
 
@@ -56,9 +57,10 @@ invariant. The updated held-out point estimate (ratio 1.44) is larger
 than the training estimate, but the held-out CI overlaps the training
 CI. It is broadly consistent with proportional scaling with the
 growing network (+35% baseline), but not a formal test of equality.
-Percentage drops remain the more stable metric. We report both;
-absolute loss should be treated as descriptive and re-validated
-periodically.
+The ratio interval also includes unity, so invariance cannot be
+excluded either. Percentage drops remain the more stable metric. We
+report both; absolute loss should be treated as descriptive and
+re-validated periodically.
 
 ### RU
 Это тот случай, когда наша же "неудачная" находка — наш актив.
@@ -109,12 +111,12 @@ rather than choosing the flattering one.
 
 ### EN
 Summer fifteen-meter spots can be partially sporadic-E propagation,
-and we flag that in the limitations. Two observations argue against
-Es as the driver: the storm effect is present in every season,
-including winter when Es is largely absent; and the direction of
-the Es bias for storm versus quiet epochs cannot be determined from
-spot counts alone, so it cannot manufacture a consistent
-thirty-eight percent reduction across eighteen months.
+and we flag that in the limitations. We now have a seasonal check:
+the 15 m drop is present in every season (−45.7 % DJF, −32.9 % MAM,
+−33.4 % JJA, −44.2 % SON), and excluding all summer epochs leaves
+−41.3 % (95 % CI [−48.7, −33.1]). So summer Es cannot manufacture
+the effect. The DJF estimate rests on only 14 storm epochs, so the
+seasonal numbers are descriptive.
 
 ### RU
 Слабое место, но защищаемое: эффект есть и зимой. Не уходить в
@@ -143,9 +145,9 @@ Dst — независимая проверка; результат устойч
 ### EN
 Potentially yes. Normalised WSPR spot density could serve as a
 near-real-time proxy for storm-driven HF degradation, complementing
-riometers. The caveat from our absolute-loss scaling result: percentage drops
+riometers. The caveat from our absolute-loss result: percentage drops
 are normalized by the quiet-time baseline and remain stable as the
-network grows, whereas absolute deviations scale with network size.
+network grows, whereas absolute deviations may scale with network size.
 An operational system should therefore track the quiet baseline
 continuously, use the normalized (percentage) response as the
 primary trigger, and re-validate absolute levels periodically.
@@ -159,12 +161,12 @@ a working group on this".
 ## Q9. What is next?
 
 ### EN
-Three things. First, the six-month held-out replication — we are
-limited by wspr.live download throughput, not by analysis. Second,
-per-path analysis with great-circle geometry to separate polar from
-mid-latitude response. Third, more bands — thirty, seventeen, twelve
-meters — to pin down the MUF-threshold shape. And of course, journal
-submission after the arXiv endorsement arrives.
+Three things. First, a longer held-out window — we are limited by
+wspr.live download throughput, not by analysis. Second, per-path
+analysis with transmitter/receiver coordinates and local solar time;
+the distance bins are a first step. Third, more bands — thirty,
+seventeen, twelve meters — to pin down the MUF-threshold shape. And
+of course, journal submission after the arXiv endorsement arrives.
 
 ### RU
 Коротко, по пунктам. Не обещать сроков, кроме "limited by download
@@ -178,11 +180,13 @@ throughput" — это конкретика, которая звучит убе�
 Because spot counts are an integral measure of a propagation path,
 not a direct sounding of the D-region or the MUF. What we show is
 that the joint pattern — frequency ordering, UT-window crossover,
-non-linear Kp gradient — matches the predicted signature of MUF
-reduction plus D-region absorption, and does not match the
-alternatives we considered. Establishing causation needs direct
-ionosonde and absorption measurements on the same paths; that is a
-collaboration we would welcome.
+non-linear Kp gradient — is more consistent with MUF reduction plus
+D-region absorption than with the alternatives we considered. The
+survivor-SNR near-invariance adds that the count loss is dominated by
+marginal paths disappearing, not by uniform degradation. But this is
+not a unique signature: establishing causation needs direct ionosonde
+and absorption measurements on the same paths; that is a collaboration
+we would welcome.
 
 ### RU
 Классическая научная скромность — и она правильная. Фраза-ключ:
@@ -191,19 +195,51 @@ collaboration we would welcome.
 
 ---
 
+## Q11. Why is the adjusted 20 m drop larger than the raw one?
+
+### EN
+Because storm epochs are not evenly distributed over the 18 months.
+June 2025 contributes 16.7 % of the storm sample but only 4.6 % of the
+quiet sample, and the 00 UTC hour contributes 17.7 % versus 11.6 %.
+The 20 m quiet baseline is higher in June and at 00 UTC, so the raw
+storm-minus-quiet comparison understates the effect. The
+negative-binomial model with month, UT-hour and day-of-week controls
+raises the 20 m estimate from −27.7 % to −33.6 %. The 40 m estimate is
+essentially unchanged (−27.2 % to −27.1 %), and 15 m moves only
+slightly (−38.7 % to −39.8 %). That is why we report both raw and
+adjusted values and treat the raw 20 m number as conservative.
+
+### RU
+Это ответ на самый вероятный вопрос после доклада: "почему цифры
+разные?". Не прятать: показать дисбаланс (июнь 2025, 00 UTC) и
+объяснить, что adjusted — не "лучшая" цифра, а оценка после
+контроля. Для 40 м разницы нет — это хороший знак устойчивости.
+
+---
+
 ## Backup facts (если спросят цифры)
 
 - Training: 18 months (Apr 2024 – Sep 2025), 39 456 WSPR hours.
 - 4 349 epochs per band; 198 storm (Kp ≥ 5) vs 3 035 quiet.
-- Drops: −27.7 / −27.2 / −38.7 % (20/40/15 m), all p = 2e-5.
-- Scale: ~−18 % (Kp 5–6), ~−34 % (Kp 6–7), ~−53 % (Kp ≥ 7).
-- UT-day 12–18 UTC / UT-night 0–6 UTC: 15 m −48.9 / −18.7; 40 m −20.7 / −30.2.
+- Raw drops: −27.7 / −27.2 / −38.7 % (20/40/15 m), all p ≤ 2e-5.
+- Adjusted drops: −33.6 [−39.9, −26.7] / −27.1 [−33.2, −20.5] /
+  −39.8 [−46.8, −31.8] %.
+- Scale: ~−18 % (Kp 5–6), ~−34 % (Kp 6–7), ~−53 % (Kp ≥ 7);
+  trend p = 8e-4 / ≤2e-4 / 0.020; highest bin = 38 epochs, 12 episodes.
+- UT-day 12–18 UTC / UT-night 0–6 UTC: 15 m −48.9 / −18.7;
+  40 m −20.7 / −30.2.
+- SNR of decoded spots, adjusted storm−quiet: +0.25 [0.11, 0.38] dB
+  (15 m), −0.22 [−0.36, −0.07] (20 m), −0.41 [−0.56, −0.26] (40 m).
+- Distance-resolved drop, 5–10 Mm bin: −60.8 / −53.5 / −56.0 %
+  (20/40/15 m); long-path bins are 3–13 % of storm spots.
 - Absolute 40 m: train −18 285 [−23 807, −12 930];
   initial held-out −18 304 (ratio 1.00);
   re-pull −26 287 [−37 144, −12 472] (ratio 1.44, 95% CI [0.65, 2.33]);
   expected ~1.35 from +35 % network growth.
-- Held-out Jan–Mar 2026: N_storm = 47; −26.7 / −29.0 / −22.1 %;
-  p = 2e-5 / 2e-4 / 8e-5.
+- Held-out Jan–Mar 2026: N_storm = 47, N_quiet = 439;
+  raw −26.7 / −29.0 / −22.1 %; adjusted −19.1 / −21.2 / −23.4 %;
+  p ≤ 2e-5 / 2e-4 / 8e-5.
 - 198 storm epochs ≈ 58 independent episodes (N_eff).
 - DOIs: version 10.5281/zenodo.23402384, concept 10.5281/zenodo.23285958.
-- Code: github.com/FelixRLEPERS/crosscorr (tag v1.3.1).
+- Code: github.com/FelixRLEPERS/crosscorr (core tag v1.3.1;
+  round-3 scripts at the revision accompanying the manuscript).

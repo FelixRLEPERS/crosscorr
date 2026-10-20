@@ -1,0 +1,133 @@
+{
+  "method": {
+    "training_source": "wspr.live ClickHouse, 14-day chunks, 2026-10-20",
+    "heldout_source": "data/raw/wspr_hourly/wspr_2026_*.json (mean_snr)",
+    "weighting": "spot-count-weighted hourly mean SNR",
+    "bootstrap": "24-epoch (72 h) block bootstrap, 1000 resamples, seed 42",
+    "state": "storm Kp>=5, quiet Kp<3"
+  },
+  "training": {
+    "label": "training",
+    "bands": {
+      "15m": {
+        "N_epochs": 4349,
+        "N_storm": 198,
+        "N_quiet": 3035,
+        "mean_snr_storm": -16.270326248815486,
+        "mean_snr_quiet": -16.254719420122143,
+        "frac_below_minus20_storm": 0.39135705231549284,
+        "frac_below_minus20_quiet": 0.3860470189290277,
+        "frac_below_minus24_storm": 0.18386046740588502,
+        "frac_below_minus24_quiet": 0.18023884230211443,
+        "diff_storm_minus_quiet": -0.015606828693343289,
+        "diff_ci95": [
+          -0.28930067610298177,
+          0.29688854075609244
+        ],
+        "diff_adjusted": 0.24770896703153927,
+        "diff_adjusted_ci95": [
+          0.11255039522554766,
+          0.3828675388375309
+        ]
+      },
+      "20m": {
+        "N_epochs": 4349,
+        "N_storm": 198,
+        "N_quiet": 3035,
+        "mean_snr_storm": -15.403071763719813,
+        "mean_snr_quiet": -15.020385486056119,
+        "frac_below_minus20_storm": 0.3269839224212882,
+        "frac_below_minus20_quiet": 0.30867158183231075,
+        "frac_below_minus24_storm": 0.14033125507266014,
+        "frac_below_minus24_quiet": 0.12839075483736137,
+        "diff_storm_minus_quiet": -0.38268627766369434,
+        "diff_ci95": [
+          -0.8158665893891607,
+          0.046735130035268725
+        ],
+        "diff_adjusted": -0.21705554264075966,
+        "diff_adjusted_ci95": [
+          -0.3623989706435676,
+          -0.07171211463795174
+        ]
+      },
+      "40m": {
+        "N_epochs": 4349,
+        "N_storm": 198,
+        "N_quiet": 3035,
+        "mean_snr_storm": -14.59518624938253,
+        "mean_snr_quiet": -14.170372821826918,
+        "frac_below_minus20_storm": 0.2892188724431605,
+        "frac_below_minus20_quiet": 0.2764411443901084,
+        "frac_below_minus24_storm": 0.11994806793582977,
+        "frac_below_minus24_quiet": 0.11419865447572695,
+        "diff_storm_minus_quiet": -0.4248134275556126,
+        "diff_ci95": [
+          -0.862710973300993,
+          -0.029704717887145595
+        ],
+        "diff_adjusted": -0.41015558277815284,
+        "diff_adjusted_ci95": [
+          -0.5619110751085746,
+          -0.25840009044773105
+        ]
+      }
+    }
+  },
+  "heldout": {
+    "label": "heldout",
+    "bands": {
+      "15m": {
+        "N_epochs": 128,
+        "N_storm": 6,
+        "N_quiet": 78,
+        "mean_snr_storm": -15.604601472776528,
+        "mean_snr_quiet": -16.08597445600757,
+        "diff_storm_minus_quiet": 0.48137298323104183,
+        "diff_ci95": [
+          0.4092704364896864,
+          1.0773521596388953
+        ],
+        "diff_adjusted": 0.26055712019403043,
+        "diff_adjusted_ci95": [
+          -0.15178166088811246,
+          0.6728959012761733
+        ]
+      },
+      "20m": {
+        "N_epochs": 136,
+        "N_storm": 7,
+        "N_quiet": 78,
+        "mean_snr_storm": -14.136906193435692,
+        "mean_snr_quiet": -14.168571897832978,
+        "diff_storm_minus_quiet": 0.031665704397285666,
+        "diff_ci95": [
+          -0.17636673422021687,
+          0.5334863318786454
+        ],
+        "diff_adjusted": -0.02135544552272936,
+        "diff_adjusted_ci95": [
+          -0.5359942985340339,
+          0.49328340748857513
+        ]
+      },
+      "40m": {
+        "N_epochs": 128,
+        "N_storm": 6,
+        "N_quiet": 78,
+        "mean_snr_storm": -13.612731319680949,
+        "mean_snr_quiet": -14.472294096624323,
+        "diff_storm_minus_quiet": 0.859562776943374,
+        "diff_ci95": [
+          -0.3720978400102588,
+          1.1417604548653344
+        ],
+        "diff_adjusted": -0.24171791665877748,
+        "diff_adjusted_ci95": [
+          -0.8450724833894507,
+          0.3616366500718957
+        ]
+      }
+    }
+  }
+}
