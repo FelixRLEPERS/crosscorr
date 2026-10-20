@@ -75,7 +75,8 @@ three. Our primary statistic is a block permutation test: fifty
 thousand iterations, a block of seventy-two hours — three full
 diurnal cycles — with Benjamini–Hochberg false-discovery control.
 As a robustness check we repeated the whole analysis with the Dst
-index from Kyoto.
+index from Kyoto. It confirms the sign and significance; the Dst
+magnitudes are not directly comparable to the Kp raw deltas.
 
 ### RU (перевод и подсказки)
 Не зачитывать все числа подряд — это убивает внимание. Говорить
@@ -97,9 +98,10 @@ minus five — the resolution floor of our permutation test. The right
 panel shows the second part of the story: the effect is not linear in
 storm intensity. At Kp five to six the drop is approximately 18
 percent; at Kp six to seven, thirty-four; at Kp seven and above,
-fifty-three. The trend is
-significant on all three bands, but the highest bin has only twelve
-independent episodes, so we do not overclaim the last step. The
+fifty-three. The trend is significant on all three bands, but the
+highest bin has only twelve independent episodes, and not all pairwise
+contrasts survive false-discovery control, so we do not overclaim the
+last step. The
 frequency ordering — fifteen meters hit hardest — is what we would
 expect if storm-time MUF reduction pushes the highest band below its
 normal propagation ceiling; the similar drops on twenty and forty
@@ -119,7 +121,7 @@ The raw 20 m number is conservative; 40 m is essentially unchanged;
 
 ---
 
-## Slide 5 — Result 2: UT-window asymmetry (~1:10)
+## Slide 5 — Exploratory result 2: UT-sector asymmetry (~1:10)
 
 ### EN (say this)
 We then asked whether the time of day matters. We split storm epochs
@@ -128,12 +130,12 @@ UTC. In the UT-day window, fifteen meters drops almost half: minus
 forty-eight point nine percent; in the UT-night window its effect
 shrinks to minus eighteen. Forty meters shows the opposite: in the
 UT-night window it drops minus thirty, more than the minus twenty-
-one of the UT-day window. This crossover is the fingerprint of two
+one of the UT-day window. This crossover is consistent with two
 different physical mechanisms. The solar D-layer, which causes
 absorption in UT-day hours, disappears minutes after sunset; what
-remains in the UT-night window is absorption from energetic particle
-precipitation — auroral and polar-cap — which scales as one over f
-squared, so it hurts forty meters more than twenty. Two caveats we
+remains in the UT-night window is consistent with absorption from
+energetic particle precipitation — auroral and polar-cap — which
+scales as one over f squared, so it hurts forty meters more than twenty. Two caveats we
 state explicitly: these are UT windows, not simultaneous local
 day and night for a global network; and this asymmetry is a
 training-period result — the three-month held-out window has too
@@ -149,7 +151,7 @@ few storms to test it independently.
 
 ---
 
-## Slide 6 — Result 3: absolute loss on 40 m (~1:30)
+## Slide 6 — Result 3: absolute loss on 40 m (scaling unresolved) (~1:30)
 
 ### EN (say this)
 The third question: is the absolute loss — spots per hour — a stable
@@ -192,8 +194,10 @@ seven percent on twenty meters, minus twenty-nine point zero on
 forty meters, and minus twenty-two point one on fifteen meters.
 All three are significant under the residual permutation test — at or
 below two times ten to the minus four; on fifteen meters the raw
-confidence interval still includes zero. And when we match by storm
-strength — the Kp six to seven bin — the held-out drops agree with
+confidence interval still includes zero. The frequency ordering,
+however, does not replicate: here fifteen meters is the smallest raw
+drop. And when we match by storm strength — the Kp six to seven bin —
+the held-out drops agree with
 the training values to within one to twelve percent, though that
 comparison rests on only ten storm epochs per band. We use this
 window strictly as a confirmation set: its purpose is to confirm
@@ -250,7 +254,8 @@ spot density by twenty-seven to thirty-nine percent on all three
 bands, at or below two times ten to the minus five. Two: the effect
 follows a scale-dependent pattern — minus eighteen, minus thirty-four,
 minus fifty-three percent as Kp increases; the trend is significant,
-but the highest bin is sparse. Three: it replicates in direction on the
+but the highest bin is sparse and not all pairwise contrasts are
+resolved. Three: the primary effect replicates in direction on the
 held-out window on all three bands, under the residual permutation
 test. Four: absolute loss is compatible with proportional network
 growth — ratio one point four four, close to the one point three five
@@ -258,7 +263,8 @@ expected from the thirty-five percent baseline growth — but the
 interval also includes invariance, so percentage drops remain the
 more stable metric.
 Five: the pattern is consistent with two mechanisms — MUF reduction
-on fifteen meters and D-region absorption on twenty and forty.
+on fifteen meters and D-region absorption on twenty and forty; this
+attribution remains hypothesis-generating, not uniquely established.
 Bottom line: WSPR is a viable distributed ionospheric sensor for
 storm-driven HF degradation — and we think HamSCI can use it.
 

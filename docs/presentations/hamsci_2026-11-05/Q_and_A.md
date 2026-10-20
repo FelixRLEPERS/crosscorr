@@ -111,7 +111,10 @@ noisiest baseline. We state both numbers side by side in the paper
 rather than choosing the flattering one. For completeness: after
 month/hour/DOW adjustment the held-out drops are −19.1 / −21.2 /
 −23.4 %, all CIs exclude zero; they are smaller than training, which
-is why we call the replication directional rather than exact.
+is why we call the replication directional rather than exact. The raw
+frequency ordering also inverts in this window: 15 m is the smallest
+drop, so only the primary effect — not the training ordering —
+replicates in direction.
 
 ### RU
 Не путать: CI — на сырых значениях, p — на резидах. Оба числа в

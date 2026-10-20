@@ -89,7 +89,7 @@ absolute loss}
       vs 3\,035 quiet ($Kp<3$)
     \item \alert{Block permutation test}: 50\,000 iterations,
       block $=$ 24 epochs $=$ 72\,h; Benjamini--Hochberg FDR
-    \item Confirmed independently with $Dst<-50$\,nT (Kyoto, provisional)
+    \item Dst check (Kyoto): same sign and significance; magnitudes not comparable
   \end{itemize}
 \end{frame}
 
@@ -110,37 +110,37 @@ absolute loss}
     \item Raw drops: \alert{20\,m $-27.7\,\%$},
       \alert{40\,m $-27.2\,\%$}, \alert{15\,m $-38.7\,\%$};
       each $p\le2\times10^{-5}$
-    \item Gradient: stronger with $Kp$ (see right panel); trend
-      significant, highest bin sparse (12 episodes)
+    \item Gradient: stronger with $Kp$; trend significant, highest bin
+      sparse (12 episodes), not all pairwise contrasts resolved
     \item Pattern \emph{consistent with} two mechanisms: MUF reduction
       (15\,m) and D-region absorption (20/40\,m)
   \end{itemize}
 \end{frame}
 
 %% ------------------------------------------------------------------ 5
-\begin{frame}{Result 2 --- UT-window asymmetry}
+\begin{frame}{Exploratory result 2 --- UT-sector asymmetry}
   \begin{center}
     \includegraphics[width=0.58\textwidth,keepaspectratio]{figures/fig4_day_night_asymmetry.png}
   \end{center}
   \vskip-0.15cm
   \begin{itemize}
-    \item UT-day (12--18 UTC): 15\,m $-48.9\,\%$ $>$ 20\,m $-28.7\,\%$
-      $>$ 40\,m $-20.7\,\%$
-    \item UT-night (0--6 UTC): \alert{40\,m $-30.2\,\%$} $>$ 20\,m $-24.8\,\%$
-      $>$ 15\,m $-18.7\,\%$
-    \item UT-night excess on 40\,m: auroral / polar-cap absorption,
-      scaling as $1/f^2$
+    \item UT-day (12--18 UTC), largest drop first:
+      15\,m $-48.9\,\%$, 20\,m $-28.7\,\%$, 40\,m $-20.7\,\%$
+    \item UT-night (0--6 UTC), largest drop first:
+      \alert{40\,m $-30.2\,\%$}, 20\,m $-24.8\,\%$, 15\,m $-18.7\,\%$
+    \item UT-night excess on 40\,m: consistent with auroral /
+      polar-cap absorption, scaling as $1/f^2$
   \end{itemize}
   \vskip0.1cm
-  {\small\textcolor{ccdim}{Training period. The UT-window asymmetry is based
-  on training data; the held-out window does not independently resolve
-  this (47 storm epochs).}}
+  {\small\textcolor{ccdim}{Training-period exploratory composite; UTC sectors
+  are not local day/night. The held-out window does not independently
+  resolve this (47 storm epochs).}}
 \end{frame}
 
 %% ------------------------------------------------------------------ 6
-\begin{frame}{Result 3 --- absolute loss on 40\,m: invariance?}
+\begin{frame}{Result 3 --- absolute loss on 40\,m: scaling unresolved}
   \begin{center}
-    \includegraphics[width=0.48\textwidth,keepaspectratio]{figures/fig5_baseline_invariance.png}
+    \includegraphics[width=0.46\textwidth,keepaspectratio]{figures/fig5_baseline_invariance.png}
   \end{center}
   \vskip-0.35cm
   \begin{itemize}
@@ -178,6 +178,8 @@ absolute loss}
     \item Primary effect replicates in direction on \alert{all three bands}
       under the residual permutation test
       ($p\le2\times10^{-4}$; 15\,m raw 95\% CI includes zero)
+    \item Frequency ordering does \emph{not} replicate: 15\,m is the
+      smallest raw drop here
     \item Scale-dependence at $Kp$ 6--7 agrees within factors $1.01$--$1.12$
       (only 10 storm epochs per band: directional check)
   \end{itemize}
@@ -213,14 +215,16 @@ absolute loss}
       raw ($p\le2\times10^{-5}$)
     \item The scale-dependent pattern: $\sim-18\,\%$ at $Kp$ 5--6,
       $\sim-34\,\%$ at $Kp$ 6--7, $\sim-53\,\%$ at $Kp\ge7$;
-      trend significant, highest bin sparse
-    \item It \alert{replicates in direction} on the held-out Jan--Mar 2026 window
-      (all three bands, $p\le2\times10^{-4}$)
+      trend significant, highest bin sparse, not all pairwise
+      contrasts resolved
+    \item The primary effect \alert{replicates in direction} on the held-out
+      Jan--Mar 2026 window (all three bands, $p\le2\times10^{-4}$)
     \item Absolute loss is \alert{compatible with network-related scaling}
       (ratio $1.44$, 95\% CI $[0.65, 2.33]$), but not conclusively
       established; percentage drops remain the more stable metric
     \item Frequency/UT pattern is \emph{consistent with} a dual mechanism:
-      MUF reduction (15\,m) and D-region absorption (20/40\,m)
+      MUF reduction (15\,m) and D-region absorption (20/40\,m);
+      attribution remains hypothesis-generating
   \end{enumerate}
   \vskip0.3cm
   \begin{center}

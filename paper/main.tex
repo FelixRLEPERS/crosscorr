@@ -77,10 +77,11 @@
 	adjustment the held-out drops are \SIrange{19}{23}{\percent}, smaller than
 	the training values but still excluding zero.
 
-	The frequency dependence and UT-window pattern are consistent with a
-	dual-mechanism interpretation: the 15\,m drop (\SI{-38.7}{\percent}) is
-	compatible with MUF reduction, while D-layer absorption affects
-	20\,m/40\,m (\SI{-27.7}{\percent}/\SI{-27.2}{\percent}). The UT-window
+	The frequency dependence and the exploratory UT-window pattern are
+	consistent with a dual-mechanism interpretation: the 15\,m drop
+	(\SI{-38.7}{\percent}) is compatible with MUF reduction, while
+	D-layer absorption affects 20\,m/40\,m
+	(\SI{-27.7}{\percent}/\SI{-27.2}{\percent}). The UT-window
 	asymmetry (40\,m drop stronger in the 0--6 UTC window across the 8 months
 	with sufficient data) is consistent with intermittent auroral and polar
 	cap absorption. However, aggregate spot counts cannot uniquely separate
@@ -405,9 +406,10 @@ and Appendix~\ref{app:sensitivity}.
 	\caption{Covariate balance between storm ($Kp \ge 5$) and quiet
 		($Kp < 3$) epochs in the training period. $\Delta$ is the
 		largest absolute difference in share between the two samples;
-		the $\chi^2$ test uses the full contingency table. The month
-		imbalance is driven by June 2025 and by 00 UTC; the day-of-week
-		imbalance is not significant.}
+		the $\chi^2$ test uses the full contingency table. UTC hour denotes
+		the eight 3-hourly $Kp$ sectors present in the matched series
+		(00, 03, \ldots, 21 UTC). The month imbalance is driven by June 2025
+		and by 00 UTC; the day-of-week imbalance is not significant.}
 	\label{tab:balance}
 	\begin{tabular}{lrrrr}
 		\toprule
@@ -544,7 +546,9 @@ $p \le 2 \times 10^{-5}$ (no permuted statistic exceeded the observed value in \
 Confirmatory hypotheses were limited to the six primary band--index
 tests and the nine pairwise $Kp$-bin comparisons. The UT-window
 asymmetry, per-month patterns, and absolute-loss ratios were
-exploratory.
+exploratory. The three $Kp$-bin trend tests are secondary, supportive
+analyses and were not included in the primary BH family; their nominal
+$p$-values are reported alongside the effect sizes.
 
 \subsection{Robustness checks}
 
@@ -695,7 +699,10 @@ definition of Eq.~\eqref{eq:drop}.
 		for the three storm bins ($Kp$ 5--6, 6--7, $\ge$7); the quiet
 		reference ($Kp<3$) is the zero level of the bars, not a plotted bin.
 		The gradient across storm bins is consistent with a scale-dependent
-		response; the highest-$Kp$ bin is sparse (12 independent episodes).}
+		response; the highest-$Kp$ bin is sparse (12 independent episodes).
+		Error bars are 95\% iid bootstrap intervals; episode-clustered
+		intervals are wider and are reported in Appendix
+		Table~\ref{tab:episode}.}
 	\label{fig:scale}
 \end{figure}
 
@@ -1038,8 +1045,10 @@ in the held-out window they are \SI{-22.1}{\percent} (15\,m),
 \SI{-26.7}{\percent} (20\,m), and \SI{-29.0}{\percent} (40\,m)
 (Table~\ref{tab:heldout}). After covariate adjustment the held-out ordering
 becomes \SI{-23.4}{\percent} (15\,m), \SI{-21.2}{\percent} (40\,m) and
-\SI{-19.1}{\percent} (20\,m), which is closer to the training ordering
-(15 $>$ 20 $>$ 40\,m), although the confidence intervals overlap broadly.
+\SI{-19.1}{\percent} (20\,m). This restores 15\,m as the most affected
+band, unlike the raw held-out ordering, but the 20\,m/40\,m order remains
+reversed relative to the training adjusted ordering (15 $>$ 20 $>$ 40\,m);
+the confidence intervals overlap broadly.
 Three factors can account for the raw inversion
 without contradicting the dual-mechanism interpretation. First,
 statistical power: only 47 storm epochs are available, and the 15\,m
@@ -1133,8 +1142,10 @@ sample for 40\,m ($N = 720$ epochs, $N_{\text{storm}} = 47$, compared
 with $N_{\text{total}} = 648$, $N_{\text{storm}} = 38$ in the archived
 snapshot), and an absolute loss of $\SI{-26287}{spots/h}$ (block
 bootstrap 95\% CI $[-\SI{37144}{spots/h},\, -\SI{12472}{spots/h}]$),
-which lies \emph{below} the lower bound of the training CI. The
-held-out / training ratio under the extended data is 1.44 (95\% bootstrap CI [0.65, 2.33]), not 1.00.
+which lies \emph{below} the lower bound of the training CI. This is a
+point comparison: the training and held-out CIs overlap, so it is not a
+formal test of equality. The held-out / training ratio under the
+extended data is 1.44 (95\% bootstrap CI [0.65, 2.33]), not 1.00.
 
 We therefore do not claim baseline invariance as an established result.
 Two explanations remain possible and cannot be fully separated with the
@@ -1439,6 +1450,11 @@ establishing a unique mechanism attribution.
 	      the 15\,m $6\text{--}7$ vs $\ge 7$ contrast is unresolved
 	      ($p = 0.855$). The gradient should be treated as suggestive at the
 	      highest $Kp$.
+	\item \textbf{Frequency ordering:} The raw held-out ordering inverts:
+	      15\,m is the smallest drop (\SI{-22.1}{\percent}) and 40\,m the
+	      largest (\SI{-29.0}{\percent}). After adjustment 15\,m is again the
+	      most affected band, but the 20\,m/40\,m order remains reversed
+	      relative to training, and the confidence intervals overlap broadly.
 \end{enumerate}
 
 
