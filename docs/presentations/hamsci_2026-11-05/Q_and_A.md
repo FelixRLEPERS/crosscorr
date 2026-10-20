@@ -239,8 +239,9 @@ adjusted values and treat the raw 20 m number as conservative.
 - Raw drops: −27.7 / −27.2 / −38.7 % (20/40/15 m), all p ≤ 2e-5.
 - Adjusted drops: −33.6 [−39.9, −26.7] / −27.1 [−33.2, −20.5] /
   −39.8 [−46.8, −31.8] %.
-- Scale: ~−18 % (Kp 5–6), ~−34 % (Kp 6–7), ~−53 % (Kp ≥ 7);
-  trend p = 8e-4 / ≤2e-4 / 0.020; highest bin = 38 epochs, 12 episodes.
+- Scale (20/40 m): ~−18 % (Kp 5–6), ~−34 % (Kp 6–7), ~−53 % (Kp ≥ 7);
+  15 m: −28.6 / −50.7 / −58.9 %; trend p = 8e-4 / ≤2e-4 / 0.020;
+  highest bin = 38 epochs, 12 episodes.
 - UT-day 12–18 UTC / UT-night 0–6 UTC: 15 m −48.9 / −18.7;
   40 m −20.7 / −30.2.
 - SNR of decoded spots, adjusted storm−quiet: +0.25 [0.11, 0.38] dB

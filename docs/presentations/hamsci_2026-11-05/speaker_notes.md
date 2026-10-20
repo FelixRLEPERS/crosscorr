@@ -98,10 +98,11 @@ minus five — the resolution floor of our permutation test. The right
 panel shows the second part of the story: the effect is not linear in
 storm intensity. At Kp five to six the drop is approximately 18
 percent; at Kp six to seven, thirty-four; at Kp seven and above,
-fifty-three. The trend is significant on all three bands, but the
-highest bin has only twelve independent episodes, and not all pairwise
-contrasts survive false-discovery control, so we do not overclaim the
-last step. The
+fifty-three. On fifteen meters the first bin is already about
+minus twenty-nine percent, so its gradient is shallower. The trend is
+significant on all three bands, but the highest bin has only twelve
+independent episodes, and not all pairwise contrasts survive
+false-discovery control, so we do not overclaim the last step. The
 frequency ordering — fifteen meters hit hardest — is what we would
 expect if storm-time MUF reduction pushes the highest band below its
 normal propagation ceiling; the similar drops on twenty and forty
