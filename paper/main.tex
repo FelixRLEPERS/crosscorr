@@ -24,22 +24,24 @@
 \linenumbers
 \maketitle
 \begin{keypoints}
-	\item WSPR spot counts drop \SIrange{27}{39}{\percent} during
-	$Kp \ge 5$ storms on all three HF bands (block permutation
-	$p \le 2 \times 10^{-5}$); covariate-adjusted drops span
-	\SIrange{27}{40}{\percent}
+	\item On the training set, WSPR spot counts drop \SIrange{27}{39}{\percent}
+	during $Kp \ge 5$ storms on all three HF bands (block permutation
+	$p \le 2 \times 10^{-5}$); covariate-adjusted drops are
+	\SIrange{27}{40}{\percent}. On the held-out set, adjusted drops are
+	\SIrange{19}{23}{\percent}
 	\item The response shows a scale-dependent pattern: at Kp 5--6
 	$\sim$\SI{-18}{\percent}, at Kp $\ge$ 6 $\sim$\SI{-43}{\percent}
 	(20/40\,m; 15\,m: \SI{-28.6}{\percent} to \SI{-54.8}{\percent}).
-	The gradient is significant as a trend, but the highest-Kp bins are
-	sparse and not every adjacent-bin comparison is resolved. The primary
-	effect replicates in direction on all three bands held-out
-	(residual test $p \le 2 \times 10^{-4}$; 15\,m raw CI includes zero)
-	\item Absolute spot loss on 40\,m is compatible with scaling in
-	proportion to the $\SI{+35}{\percent}$ quiet-baseline growth
-	(ratio 1.44, 95\% CI [0.65, 2.33], versus $\approx$1.35 expected),
-	but the interval also includes invariance; percentage drops remain
-	the more stable metric
+	A monotonic gradient is observed; the trend test is significant for
+	20\,m and 15\,m, but marginal for 40\,m at the episode level
+	($p = 0.064$). The highest-Kp bins are sparse and not every
+	adjacent-bin comparison is resolved. The primary effect replicates in
+	direction on all three bands in the held-out period (residual test
+	$p \le 2 \times 10^{-4}$; 15\,m raw CI includes zero)
+	\item Absolute spot loss on 40\,m has a ratio of 1.44, a point estimate
+	that exceeds the expected scaling ($\approx$1.35), but the wide
+	confidence interval [0.65, 2.33] is compatible with both proportional
+	growth and invariance; percentage drops remain the more stable metric
 \end{keypoints}
 
 \begin{abstract}
@@ -53,9 +55,9 @@
 	15\,m: \SI{-38.7}{\percent} (block permutation $p \le 2 \times 10^{-5}$
 	for all, \SI{50000}{iterations}, block = 24 epochs = 72\,h).
 	Because storm epochs are not evenly distributed across months and UTC
-	hours, we also estimate covariate-adjusted drops with a negative-binomial
-	model (month, UTC-hour and day-of-week fixed effects, episode-clustered
-	errors): 20\,m \SI{-33.6}{\percent} (95\% CI
+	hours, we also estimate covariate-adjusted drops on the training set
+	with a negative-binomial model (month, UTC-hour and day-of-week fixed
+	effects, episode-clustered errors): 20\,m \SI{-33.6}{\percent} (95\% CI
 	[\SI{-39.9}{\percent}, \SI{-26.7}{\percent}]), 40\,m
 	\SI{-27.1}{\percent} ([\SI{-33.2}{\percent}, \SI{-20.5}{\percent}]), and
 	15\,m \SI{-39.8}{\percent} ([\SI{-46.8}{\percent}, \SI{-31.8}{\percent}]).
@@ -68,13 +70,14 @@
 	\SI{-54.8}{\percent}), consistent with a non-linear ionospheric response
 	to geomagnetic forcing. A block-permutation trend test is significant on
 	all three bands ($p \le 0.02$), but the highest-$Kp$ bins are sparse
-	(38 epochs from 12 episodes) and the episode-level trend is marginal for
-	40\,m; the gradient is well supported as a trend but not resolved at the
-	highest $Kp$. The primary effect replicates in direction on an independent
+	(38 epochs from 12 episodes). A monotonic gradient is observed; the
+	trend test is significant for 20\,m and 15\,m, but marginal for 40\,m
+	at the episode level ($p = 0.064$), so the gradient is not resolved at
+	the highest $Kp$. The primary effect replicates in direction on an independent
 	held-out period (January--March 2026, updated live-database pull) on all
 	three bands, including 15\,m (residual block permutation
-	$p \le 2 \times 10^{-4}$; its raw 95\% CI includes zero). After covariate
-	adjustment the held-out drops are \SIrange{19}{23}{\percent}, smaller than
+	$p \le 2 \times 10^{-4}$; its raw 95\% CI includes zero). On the held-out
+	set, covariate-adjusted drops are \SIrange{19}{23}{\percent}, smaller than
 	the training values but still excluding zero.
 
 	The frequency dependence and the exploratory UT-window pattern are
@@ -92,11 +95,10 @@
 	The training-period absolute spot loss on 40\,m ($\SI{-18285}{spots/h}$)
 	was initially matched by a held-out snapshot ($\SI{-18304}{spots/h}$),
 	but a re-downloaded held-out sample (October 2026) yields a larger
-	absolute loss ($\SI{-26287}{spots/h}$; ratio 1.44, 95\% CI [0.65, 2.33]),
-	compatible with scaling in proportion to the
-	$\SI{+35}{\percent}$ quiet-baseline growth ($\approx$1.35 expected),
-	although the interval also permits approximate invariance. Percentage
-	drops remain the more stable metric. All held-out
+	absolute loss ($\SI{-26287}{spots/h}$; ratio 1.44, a point estimate that
+	exceeds the expected scaling of $\approx$1.35, but the wide confidence
+	interval [0.65, 2.33] is compatible with both proportional growth and
+	invariance). Percentage drops remain the more stable metric. All held-out
 	absolute-loss values are based on the updated download.
 	These results suggest that WSPR can serve as a distributed ionospheric
 	sensor for detecting and characterising the scale-dependent effects of
@@ -193,10 +195,11 @@ In this paper, we address these gaps with five contributions:
 	      (January--March 2026) that tests the primary effect on
 	      all three bands;
 	\item A test of absolute-loss scaling under network growth: the
-	      updated held-out download gives a 40\,m loss ratio of 1.44
-	      (95\% CI [0.65, 2.33]), close to the $\approx$1.35 expected from
-	      the $\SI{+35}{\percent}$ quiet-baseline growth; the interval also
-	      includes invariance, so we treat the absolute loss as compatible
+	      updated held-out download gives a 40\,m loss ratio of 1.44, a point
+	      estimate that exceeds the expected scaling ($\approx$1.35) from
+	      the $\SI{+35}{\percent}$ quiet-baseline growth, but the wide
+	      95\% CI [0.65, 2.33] is compatible with both proportional growth
+	      and invariance; we therefore treat the absolute loss as compatible
 	      with network-related scaling but not conclusively established,
 	      while percentage drops remain the more stable metric;
 	\item A UT-window asymmetry consistent with intermittent auroral and
@@ -1078,9 +1081,10 @@ requires a longer replication window spanning multiple seasons.
 		40\,m estimate ($\SI{-18285}{spots/h}$) was initially matched by a
 		held-out snapshot ($\SI{-18304}{spots/h}$); an updated download
 		(2026-10-15) yields $\SI{-26287}{spots/h}$ (ratio 1.44, 95\% CI
-		[0.65, 2.33]), consistent with absolute loss scaling roughly with
-		the $\SI{+35}{\percent}$ quiet-baseline growth ($\approx$1.35
-		expected); percentage drops remain the more stable metric.}
+		[0.65, 2.33]); the point estimate exceeds the expected scaling
+		($\approx$1.35) from the $\SI{+35}{\percent}$ quiet-baseline
+		growth, but the wide CI is compatible with both proportional growth
+		and invariance; percentage drops remain the more stable metric.}
 	\label{fig:baseline}
 \end{figure}
 
@@ -1101,9 +1105,10 @@ the training and held-out periods.
 		2026-10-15. The updated
 		held-out 40\,m value ($\SI{-26287}{spots/h}$, ratio 1.44, 95\% CI
 		[0.65, 2.33]) lies outside the training point CI, but its own CI
-		overlaps it; the point estimate is compatible with absolute loss
-		scaling with the $\SI{+35}{\percent}$ quiet-baseline growth
-		($\approx$1.35 expected), although the ratio CI also includes unity.
+		overlaps it. The point estimate 1.44 exceeds the expected scaling
+		($\approx$1.35) from the $\SI{+35}{\percent}$ quiet-baseline
+		growth, but the wide ratio CI is compatible with both proportional
+		growth and invariance.
 		Percentage drops remain the more stable metric.\protect\footnotemark{}}
 	\label{tab:baseline}
 	\begin{tabular}{lccc}
@@ -1153,11 +1158,12 @@ present data: (i) the absolute loss grows with network size and
 storm-driven coverage, or (ii) the archived held-out snapshot was
 biased low by the delayed-upload effect in the \texttt{wspr.live}
 database. The updated data are compatible with a quantitative form of (i) ---
-proportional scaling: the observed ratio 1.44 is close to the
-$\approx$1.35 expected if the percentage drop were constant while the
-quiet-time baseline grew by $\SI{+35}{\percent}$, and this expected
-value lies inside the wide bootstrap ratio CI [0.65, 2.33] (which
-also includes unity, so strict invariance cannot be excluded either).
+proportional scaling: the observed ratio is 1.44, a point estimate that
+exceeds the expected scaling of $\approx$1.35 if the percentage drop
+were constant while the quiet-time baseline grew by
+$\SI{+35}{\percent}$, but the wide bootstrap ratio CI [0.65, 2.33] is
+compatible with both proportional growth and invariance (it also
+includes unity, so strict invariance cannot be excluded either).
 We therefore treat the absolute loss as compatible with network-related
 scaling but not conclusively established, and note that percentage drops
 remain the more stable metric for cross-period comparisons.
@@ -1274,13 +1280,12 @@ The absolute-loss comparison across training and held-out periods (Section~\ref{
 	      scale with the network and should not be assumed stable across
 	      periods without periodic re-validation (see next item).
 	\item \textbf{Metric stability caveat:} The updated held-out download
-	      gives a 40\,m ratio of 1.44 (95\% CI [0.65, 2.33]) versus the
-	      $\approx$1.35 expected from the $\SI{+35}{\percent}$
-	      quiet-baseline growth, so absolute loss per hour is compatible
-	      with proportional scaling, but the interval also includes
-	      invariance. Percentage drops remain the more stable metric, and
-	      absolute loss should be re-validated periodically over multi-year
-	      network growth.
+	      gives a 40\,m ratio of 1.44 (95\% CI [0.65, 2.33]). This point
+	      estimate exceeds the $\approx$1.35 expected from the
+	      $\SI{+35}{\percent}$ quiet-baseline growth, but the wide interval
+	      is compatible with both proportional scaling and invariance.
+	      Percentage drops remain the more stable metric, and absolute loss
+	      should be re-validated periodically over multi-year network growth.
 	\item \textbf{Band-dependent thresholds:} On 20\,m and 40\,m,
 	      $Kp \ge 6$ is required for substantial disruption; on 15\,m,
 	      $Kp = 5\text{--}6$ already produces \SI{-28.6}{\percent}
@@ -1417,10 +1422,10 @@ establishing a unique mechanism attribution.
 	      reproducible exactly (three bands, $\Delta = 0$ versus the original
 	      analysis), since that period is fully mature. We therefore treat
 	      the absolute loss as compatible with network-related scaling but
-	      not conclusively established (observed ratio 1.44 versus
+	      not conclusively established: the point estimate 1.44 exceeds the
 	      $\approx$1.35 expected from the $\SI{+35}{\percent}$ quiet-baseline
-	      growth), and note that percentage drops remain the more stable
-	      metric. Archival reproduction of the initial snapshot-based
+	      growth, but the wide CI is compatible with both proportional growth
+	      and invariance. Percentage drops remain the more stable metric. Archival reproduction of the initial snapshot-based
 	      numbers is available at the v1.1.0 release tag; the present
 	      manuscript uses the live re-download (tag v1.4.0).
 	\item \textbf{Covariate adjustment and model dependence:} Raw drops are
@@ -1499,12 +1504,13 @@ in WSPR spot density, with five principal conclusions:
 	      spot loss on 40\,m ($\SI{-18285}{spots/h}$) was initially matched
 	      by a held-out snapshot ($\SI{-18304}{spots/h}$, ratio 1.00), but a
 	      re-downloaded held-out sample (October 2026) yields
-	      $\SI{-26287}{spots/h}$ (ratio 1.44, 95\% CI [0.65, 2.33]),
-	      compatible with the $\approx$1.35 expected from the
-	      $\SI{+35}{\percent}$ quiet-baseline growth. Because the interval
-	      also includes unity, the absolute loss is compatible with
-	      network-related scaling but not conclusively established;
-	      percentage drops remain the more stable metric.
+	      $\SI{-26287}{spots/h}$ (ratio 1.44, 95\% CI [0.65, 2.33]). This
+	      point estimate exceeds the $\approx$1.35 expected from the
+	      $\SI{+35}{\percent}$ quiet-baseline growth, but the wide interval
+	      is compatible with both proportional growth and invariance; the
+	      absolute loss is therefore compatible with network-related scaling
+	      but not conclusively established. Percentage drops remain the more
+	      stable metric.
 	\item \textbf{Dual mechanism (training period; seasonal replication
 	      pending):} The frequency dependence and UT-window asymmetry are
 	      consistent with two mechanisms: MUF reduction (dominating 15\,m)
