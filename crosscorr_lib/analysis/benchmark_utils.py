@@ -55,9 +55,21 @@ def benchmark(
     Один прогон бенчмарка.
 
     Returns:
-        dict: hit, detected_lag, rho_max, p_value.
+        dict: hit, detected_lag, rho_max, p_value, surrogate_method.
+
+        ``surrogate_method`` — ФАКТИЧЕСКИ использованная нулевая модель
+        (а не запрошенная): ``max_lag_surrogate_pvalue`` не валидирует имя,
+        всё кроме ``iaaft``/``time_shift`` молча берёт phase.
     """
     x, y = synthetic_ar1_pair(n=n, true_lag=true_lag, coupling=coupling, ar=ar, seed=seed)
+
+    # FIX (2026-10-27): null_model_name раньше молча игнорировался и
+    # суррогаты всегда брались из дефолта surrogate_method="phase".
+    # Теперь запрос пробрасывается, а неизвестные имена (например "block"
+    # из CLI power_curve) явно нормализуются в "phase" — как их и
+    # трактует max_lag_surrogate_pvalue (ветка else).
+    known_methods = ("phase", "time_shift", "iaaft")
+    surrogate_method = null_model_name if null_model_name in known_methods else "phase"
 
     t_obs, p_value, detected_lag = max_lag_surrogate_pvalue(
         x,
@@ -65,6 +77,7 @@ def benchmark(
         max_lag=max_lag,
         n_surrogates=n_surrogates,
         seed=seed + 10000,
+        surrogate_method=surrogate_method,
     )
 
     hit = abs(detected_lag - true_lag) <= 1
@@ -74,4 +87,5 @@ def benchmark(
         "detected_lag": int(detected_lag),
         "rho_max": float(t_obs),
         "p_value": float(p_value),
+        "surrogate_method": surrogate_method,
     }

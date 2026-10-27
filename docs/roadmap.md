@@ -146,12 +146,16 @@
 - [x] Шаг 2 (Done, 2026-10-27): тесты для `analysis/distance_analysis.py` и
   `analysis/mantel.py` - покрытие 49% -> 100% и 49% -> 100% соответственно.
   Дополнены `tests/test_distance_analysis.py` и `tests/test_mantel.py` (побочно `benchmark_utils.py` 28% -> 100%).
-- Шаг 3: Тесты для `analysis/stationarity.py` (48% -> >= 80%) и
-  `analysis/mfdfa.py` (46% -> >= 80%).
+- [x] Шаг 3 (Done, 2026-10-27): тесты для `analysis/stationarity.py` (48% -> 100%)
+  и `analysis/mfdfa.py` (46% -> 100%). Новые файлы `tests/test_stationarity.py`
+  (9 тестов: ветка исключения ADF, verbose-вывод, CLI `main()`, guard `__main__`)
+  и `tests/test_mfdfa.py` (5 тестов: CLI `main()` с long-CSV, обработка NaN,
+  константный ряд, guard `__main__`).
 - Шаг 4: Тесты для `crosscorr_lib/safe_exec.py` (17% -> >= 50%, это +19
   операторов) - уже стоит в плане «Ближайший квартал».
-- Шаг 5: Решение по игровым модулям (`quest.py`/`narrator.py`/`ai_narrator.py`):
-  omit в покрытии против новых тестов.
+- [x] Шаг 5 (Done, 2026-10-27): игровые модули `quest.py`/`narrator.py`/
+  `ai_narrator.py` (453 оператора, 0%) исключены из покрытия через секцию
+  `[tool.coverage.run] omit` в `pyproject.toml` (вариант А).
 - Шаг 6: Вынести `mse.py` и `cross_mfdfa.py` в отдельную ветку; закрепить статус
   exploratory для `mutual_info.py`/`transfer_entropy.py` в
   `crosscorr_lib/analysis/README.md` (порог
@@ -191,4 +195,47 @@
   смотрите в отчете сессии: неиспользуемые `null_model_name` и `ar` в
   `benchmark_utils.benchmark()`, NaN-диагональ в `mantel.build_dist_matrix`.
 
-Следующий шаг по плану - Шаг 3 (`analysis/stationarity.py`, `analysis/mfdfa.py`).
+Следующий шаг по плану - Шаг 4 (`safe_exec.py` 17% -> 50%).
+
+---
+
+## Прогресс 2 (Дата: 2026-10-27, фаза исправления багов + Шаги 3 и 5)
+
+Полный прогон `pytest --cov=crosscorr_lib --cov-report=term-missing`:
+
+- **Общее покрытие: 83%** (было 67%; цель 70% перевыполнена, CI-порог 45%
+  превышен с запасом).
+- Операторы: 1753 / 2102 покрыто (1696 / 2549 до этой фазы). Общий знаменатель
+  уменьшился до 2102 после `omit` игровых модулей (-453) и добавления 6 новых
+  операторов в исправляемые модули.
+- Тесты: **349 passed** (было 333, **+16 новых тестов**), 0 упавших.
+- Целевые модули шага 3 (Шаги 1-2 выше без изменений):
+
+  | Модуль | Было (фаза 1) | Стало |
+  |---|---:|---:|
+  | `analysis/stationarity.py` | 48% | **100%** |
+  | `analysis/mfdfa.py` | 46% | **100%** |
+
+### Исправленные баги (ФАЗА 1, явное разрешение пользователя)
+
+| Где | Что исправлено | Чем подтверждено |
+|---|---|---|
+| `analysis/benchmark_utils.py` | `benchmark()` теперь передаёт `surrogate_method=null_model_name` в `max_lag_surrogate_pvalue` (раньше `null_model_name` молча игнорировался, всегда была `phase`) | `test_benchmark_passes_null_model_to_surrogate` |
+| `analysis/benchmark_utils.py` | возвращаемый dict содержит фактически использованную `surrogate_method`; неизвестные имена (например `block` из CLI) нормализуются в `phase` | `test_benchmark_normalizes_unknown_null_model` |
+| `analysis/power_curve.py` | `measure_point()` передаёт `ar` в `benchmark()` (раньше игнорировался); `PowerPoint.null_model` записывает фактически использованную модель, а не запрошенную | `test_measure_point_forwards_ar_and_records_effective_model` |
+| `analysis/mantel.py` | `build_dist_matrix()` заполняет диагональ нулями (`np.fill_diagonal`), как и обещает docstring (раньше оставалась NaN) | `test_build_dist_matrix_haversine_symmetry`, `test_build_dist_matrix_handles_missing_detector` |
+| `analysis/distance_analysis.py` | опечатка в сообщениях об ошибке: «Оначала» -> «Сначала» (2 места; в `mantel.py` опечатки не было) | `test_main_missing_input_files` и др. |
+
+### Важные замечания по багам
+
+- CLI `power_curve.py --null block` по-прежнему принимает значение `block`, но
+  `max_lag_surrogate_pvalue` поддерживает только `phase`/`time_shift`/`iaaft`:
+  теперь это явно нормализуется в `phase` и честно записывается в
+  `PowerPoint.null_model`, а не маскируется. Полноценная block-модель в
+  `surrogate.py` отсутствует - потенциальная задача отдельной сессии.
+- `--cov-fail-under=45` задан **не** в `pyproject.toml` (там не было секции
+  coverage), а в команде шага fast-тестов `.github/workflows/ci.yml` (строка 64).
+  Новая секция `[tool.coverage.run] omit` добавлена в `pyproject.toml`.
+- Инструментальная заметка преждействующая: `--cov=crosscorr_lib.analysis.<module>`
+  в этой среде падает на импорте numpy ("cannot load module more than once per
+  process"); использовать `--cov=crosscorr_lib`.

@@ -171,10 +171,10 @@ def main() -> None:
 
     # 1. Загрузка
     if not args.cc.exists():
-        raise SystemExit(f"{args.cc} не найден. Оначала запустите cross_correlation.py")
+        raise SystemExit(f"{args.cc} не найден. Сначала запустите cross_correlation.py")
     if not args.detectors.exists():
         raise SystemExit(
-            f"{args.detectors} не найден. Оначала запустите scripts/make_synthetic_unified.py"
+            f"{args.detectors} не найден. Сначала запустите scripts/make_synthetic_unified.py"
         )
 
     cc_df = pd.read_csv(args.cc)

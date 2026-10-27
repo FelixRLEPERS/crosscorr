@@ -77,6 +77,16 @@ Issues = "https://github.com/FelixRLEPERS/crosscorr/issues"
 include = ["crosscorr_lib*"]
 exclude = ["tests*", "data*", "scripts*", "docs*"]
 
+[tool.coverage.run]
+# Вариант А из docs/roadmap.md (Шаг 5): игровые модули — не часть
+# библиотечного API (см. audit/STOP_DECISIONS.md, D6), тестами не покрываются
+# и исключаются из расчёта покрытия (453 оператора).
+omit = [
+    "crosscorr_lib/quest.py",
+    "crosscorr_lib/narrator.py",
+    "crosscorr_lib/ai_narrator.py",
+]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]

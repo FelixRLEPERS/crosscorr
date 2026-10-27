@@ -278,8 +278,8 @@ def test_build_dist_matrix_haversine_symmetry():
     assert mat[0, 1] == pytest.approx(mat[1, 0])
     assert mat[0, 2] == pytest.approx(mat[2, 0])
     assert mat[0, 1] < mat[0, 2]  # A-B ближе, чем A-C
-    # диагональ в текущей реализации не заполняется (остаётся NaN) —
-    # mantel_test её не использует (triu k=1), поэтому не проверяем.
+    # FIX (2026-10-27): диагональ теперь 0.0, как и обещает docstring
+    np.testing.assert_array_equal(np.diag(mat), np.zeros(3))
 
 
 def test_build_dist_matrix_missing_coords_stay_nan():
@@ -296,6 +296,8 @@ def test_build_dist_matrix_missing_coords_stay_nan():
 
     assert not np.isnan(mat[0, 1])
     assert np.isnan(mat[0, 2]) and np.isnan(mat[1, 2])
+    # диагональ заполнена нулями независимо от наличия координат
+    np.testing.assert_array_equal(np.diag(mat), np.zeros(3))
 
 
 if __name__ == "__main__":

@@ -85,6 +85,7 @@ def measure_point(
     lags: list[int] = []
     rhos: list[float] = []
     ps: list[float] = []
+    models: list[str] = []
 
     for s in range(n_seeds):
         seed = base_seed + s
@@ -95,17 +96,23 @@ def measure_point(
             max_lag=max_lag,
             n_surrogates=n_surrogates,
             null_model_name=null_model_name,
+            ar=ar,  # FIX (2026-10-27): раньше ar молча игнорировался
             seed=seed,
         )
         hits.append(bool(r["hit"]))
         lags.append(int(r["detected_lag"]))
         rhos.append(float(r["rho_max"]))
         ps.append(float(r["p_value"]))
+        models.append(str(r["surrogate_method"]))
 
     hits_arr = np.asarray(hits, dtype=float)
     lags_arr = np.asarray(lags, dtype=float)
     rhos_arr = np.asarray(rhos, dtype=float)
     ps_arr = np.asarray(ps, dtype=float)
+
+    # Фактически использованная нулевая модель (benchmark нормализует
+    # неизвестные имена в "phase"), а не просто запрошенная.
+    effective_model = models[0] if models else null_model_name
 
     pt = PowerPoint(
         coupling=float(coupling),
@@ -114,7 +121,7 @@ def measure_point(
         true_lag=int(true_lag),
         ar=float(ar),
         max_lag=int(max_lag),
-        null_model=null_model_name,
+        null_model=effective_model,
         n_surrogates=int(n_surrogates),
         power=float(hits_arr.mean()),
         lag_median=float(np.median(lags_arr)),

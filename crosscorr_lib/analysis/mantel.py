@@ -189,4 +189,9 @@ def build_dist_matrix(
             mat[i, j] = d
             mat[j, i] = d
 
+    # FIX (2026-10-27): диагональ оставалась NaN, хотя docstring обещает
+    # нули. mantel_test диагональ не использует (triu k=1), но контракт
+    # модуля должен выполняться.
+    np.fill_diagonal(mat, 0.0)
+
     return mat

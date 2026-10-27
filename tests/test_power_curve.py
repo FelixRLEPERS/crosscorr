@@ -16,6 +16,8 @@ from pathlib import Path
 import numpy as np
 import pytest
 
+import crosscorr_lib.analysis.benchmark_utils as benchmark_utils
+import crosscorr_lib.analysis.power_curve as power_curve_module
 from crosscorr_lib.analysis.power_curve import (
     PowerPoint,
     main,
@@ -104,6 +106,76 @@ def test_measure_point_verbose_prints_progress(capsys):
 
     measure_point(coupling=0.4, n_seeds=1, verbose=False, **FAST)
     assert capsys.readouterr().out == ""
+
+
+# ------------------------------------------------------------------ #
+#      регрессии исправленных багов (отчет сессии 2026-10-27)        #
+# ------------------------------------------------------------------ #
+
+
+def test_benchmark_passes_null_model_to_surrogate(monkeypatch):
+    """FIX: null_model_name пробрасывается в max_lag_surrogate_pvalue."""
+    captured: dict = {}
+
+    def fake_max_lag(x, y, **kwargs):
+        captured.update(kwargs)
+        return 0.5, 0.01, 6
+
+    monkeypatch.setattr(benchmark_utils, "max_lag_surrogate_pvalue", fake_max_lag)
+
+    r = benchmark_utils.benchmark(n=64, true_lag=2, null_model_name="time_shift", seed=1)
+
+    assert captured["surrogate_method"] == "time_shift"
+    assert r["surrogate_method"] == "time_shift"
+
+
+def test_benchmark_normalizes_unknown_null_model(monkeypatch):
+    """Неизвестная модель ("block" из CLI) трактуется как phase — и так записывается."""
+    captured: dict = {}
+
+    def fake_max_lag(x, y, **kwargs):
+        captured.update(kwargs)
+        return 0.5, 0.01, 6
+
+    monkeypatch.setattr(benchmark_utils, "max_lag_surrogate_pvalue", fake_max_lag)
+
+    r = benchmark_utils.benchmark(n=64, true_lag=2, null_model_name="block", seed=1)
+
+    assert captured["surrogate_method"] == "phase"
+    assert r["surrogate_method"] == "phase"
+
+
+def test_measure_point_forwards_ar_and_records_effective_model(monkeypatch):
+    """FIX: ar уходит в benchmark; null_model = фактически использованная модель."""
+    captured: dict = {}
+
+    def fake_benchmark(**kwargs):
+        captured.update(kwargs)
+        return {
+            "hit": True,
+            "detected_lag": 6,
+            "rho_max": 0.5,
+            "p_value": 0.01,
+            "surrogate_method": "phase",
+        }
+
+    monkeypatch.setattr(power_curve_module, "benchmark", fake_benchmark)
+
+    pt = measure_point(
+        coupling=0.3,
+        n_seeds=3,
+        ar=0.42,
+        null_model_name="block",
+        verbose=False,
+        **FAST,
+    )
+
+    assert captured["ar"] == 0.42
+    assert captured["null_model_name"] == "block"
+    assert pt.ar == 0.42
+    assert pt.null_model == "phase"  # запрошен "block", фактически phase
+    assert pt.power == 1.0
+    assert pt.n_hits == 3
 
 
 # ------------------------------------------------------------------ #
