@@ -141,10 +141,11 @@
 
 ## 3. План действий на следующие сессии
 
-- Шаг 1: Тесты для `analysis/power_curve.py` (35% -> >= 75%, ~+111 операторов) -
-  максимальная отдача.
-- Шаг 2: Тесты для пары `analysis/distance_analysis.py` и
-  `analysis/mantel.py` (49% -> >= 75%, ~+101 оператор).
+- [x] Шаг 1 (Done, 2026-10-27): тесты для `analysis/power_curve.py` - покрытие 35% -> 98%.
+  Новый файл `tests/test_power_curve.py` (21 тест).
+- [x] Шаг 2 (Done, 2026-10-27): тесты для `analysis/distance_analysis.py` и
+  `analysis/mantel.py` - покрытие 49% -> 100% и 49% -> 100% соответственно.
+  Дополнены `tests/test_distance_analysis.py` и `tests/test_mantel.py` (побочно `benchmark_utils.py` 28% -> 100%).
 - Шаг 3: Тесты для `analysis/stationarity.py` (48% -> >= 80%) и
   `analysis/mfdfa.py` (46% -> >= 80%).
 - Шаг 4: Тесты для `crosscorr_lib/safe_exec.py` (17% -> >= 50%, это +19
@@ -160,3 +161,34 @@
 
 Шаги 1-2 дают +212 операторов -> ~66% без изменения игровых модулей.
 Шаги 1-4 дают ~+324 оператора -> ~71%, цель 70% достижима без "omit".
+
+---
+
+## Прогресс (Дата: 2026-10-27)
+
+Полный прогон `pytest --cov=crosscorr_lib --cov-report=term`:
+
+- **Общее покрытие: 67%** (было 58%; CI-порог 45% превышен, до цели 70%
+  осталось ~3 процентных пункта).
+- Операторы: 1696 / 2549 покрыто (было 1475 / 2549, **+221 оператор**).
+- Тесты: **333 passed** (было 290, **+43 новых теста**), 0 упавших.
+- Целевые модули шагов 1-2:
+
+  | Модуль | Было | Стало |
+  |---|---:|---:|
+  | `analysis/power_curve.py` | 35% | **98%** |
+  | `analysis/distance_analysis.py` | 49% | **100%** |
+  | `analysis/mantel.py` | 49% | **100%** |
+  | `analysis/benchmark_utils.py` (побочно) | 28% | **100%** |
+
+- Не покрыто в целевых модулях: только ветка ImportError matplotlib в
+  `power_curve.py` (строки 273-276) - недостижима, пока matplotlib установлен.
+- Инструментальная заметка: `--cov=crosscorr_lib.analysis.<module>` в этой
+  среде падает на импорте numpy ("cannot load module more than once per
+  process"); использовать `--cov=crosscorr_lib` и смотреть строки нужных
+  модулей.
+- Найденные, но НЕ исправленные (код не менялся по правилам сессии) огрехи
+  смотрите в отчете сессии: неиспользуемые `null_model_name` и `ar` в
+  `benchmark_utils.benchmark()`, NaN-диагональ в `mantel.build_dist_matrix`.
+
+Следующий шаг по плану - Шаг 3 (`analysis/stationarity.py`, `analysis/mfdfa.py`).
