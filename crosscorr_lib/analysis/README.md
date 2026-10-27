@@ -61,8 +61,8 @@ cross_correlation_pairs_with_max_stat or surrogate_test.
 |---|---|---|
 | mutual_info.py | experimental | MI-1 (ties) |
 | transfer_entropy.py | experimental | MI-1 (depends on MI) |
-| mse.py | experimental | validation pending |
-| cross_mfdfa.py | experimental | XM-1, XM-2 (sign convention) |
+| mse.py | experimental — зарезервирован в ветке `experimental` (удалён из `main`) | validation pending |
+| cross_mfdfa.py | experimental — зарезервирован в ветке `experimental` (удалён из `main`) | XM-1, XM-2 (sign convention) |
 
 Integration criteria (all must be met):
 1. Mathematical validation (analytic reference)
