@@ -144,8 +144,8 @@ X-компонента в нТ, эфемериды — гелиоцентрич�
 | w — окно | внешний эксперимент | `scripts/simulate_snapshots.py` (не в core) |
 | MI | реализовано как standalone utility, не интегрировано в основной pipeline | `analysis/mutual_info.py` |
 | TE | реализовано как standalone utility, не интегрировано в основной pipeline | `analysis/transfer_entropy.py` |
-| MSE | реализовано как standalone utility, не интегрировано в основной pipeline | `analysis/mse.py` |
-| Cross-MFDFA | реализовано как standalone utility, не интегрировано в основной pipeline | `analysis/cross_mfdfa.py` |
+| MSE | standalone utility, не интегрирован в pipeline; **вынесен в ветку `experimental`** (в `main` отсутствует) | `analysis/mse.py` |
+| Cross-MFDFA | standalone utility, не интегрирован в pipeline; **вынесен в ветку `experimental`** (в `main` отсутствует) | `analysis/cross_mfdfa.py` |
 | Null Model | реализовано | phase / IAAFT / block / time-shift |
 | p-value | реализовано | Davison-Hinkley, +1 в числителе и знаменателе |
 | q-value | реализовано | BH / BY, NaN-safe |

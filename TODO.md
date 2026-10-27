@@ -8,7 +8,7 @@
       через CLI / config.yaml (убрать hardcoded '2024-04-01 .. 2025-09-30').
 
 ## SHOULD (в течение недели)
-- [ ] Поднять `--cov-fail-under` с 45 до 70 в CI.
+- [x] Поднять `--cov-fail-under` с 45 до 70 в CI (2026-10-27, `ci.yml:64`).
 - [ ] Добавить spatial analysis (Great Circle path geometry) в Future Work.
 - [ ] Явно признать small N (N_storm=23) в Limitations.
 - [ ] Смягчить формулировку "fixed population of vulnerable paths"
@@ -18,8 +18,11 @@
       auroral/PCA эффект.
 
 ## Технический долг
-- [ ] Вынести experimental-модули (`mutual_info.py`, `transfer_entropy.py`,
-      `mse.py`, `cross_mfdfa.py`) из main branch или довести до production.
+- [ ] Вынести experimental-модули из main branch или довести до production.
+      `mse.py` и `cross_mfdfa.py` — **вынесены в ветку `experimental`**
+      (2026-10-27, в `main` отсутствуют); `mutual_info.py` и
+      `transfer_entropy.py` остаются exploratory в `main` (на них ссылается
+      статья, Limitations).
 - [ ] Добавить docstrings к публичным функциям (проверить покрытие).
 - [ ] Проверить/закрепить версии зависимостей в requirements.lock.
 
