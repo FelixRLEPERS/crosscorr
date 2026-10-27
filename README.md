@@ -11,7 +11,7 @@
   </a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
   <img src="https://img.shields.io/badge/mypy-checked-blue" alt="mypy: strict">
-  <img src="https://img.shields.io/badge/tests-291-green" alt="Tests">
+  <img src="https://img.shields.io/badge/tests-369-green" alt="Tests">
 </p>
 
 <p align="center"><i>A family science project studying ionospheric response to geomagnetic storms using WSPR amateur radio data.</i></p>
@@ -69,7 +69,7 @@ Preprint: [DOI: 10.5281/zenodo.23285958](https://doi.org/10.5281/zenodo.23285958
 | Real-data analysis | ✅ 18 months × 3 bands, p<0.0001 |
 | Statistical core | ✅ Reference-validated (max-stat, FDR, IAAFT) |
 | CI | ✅ Blocking (ruff, mypy, pytest) |
-| Tests | ✅ 291 passed |
+| Tests | ✅ 369 passed |
 | Independent audit | ✅ Qwen 3.8 27B + external LLM audit |
 | Independent replication | ✅ Primary hypothesis + scale-dependence confirmed (Jan–Mar 2026) |
 | Preprint | ✅ Published on Zenodo ([DOI: 10.5281/zenodo.23285958](https://doi.org/10.5281/zenodo.23285958)) |
@@ -185,7 +185,7 @@ crosscorr/
 │   ├── interim/           # intermediate (gitignored)
 │   └── processed/         # unified.parquet (gitignored)
 ├── scripts/               # analysis scripts (EDA, permutation)
-├── tests/                 # pytest suite (291 tests)
+├── tests/                 # pytest suite (369 tests)
 ├── docs/                  # methodology, hypothesis, results, pipeline
 ├── audit/                 # versioned audit reports
 └── results/               # outputs (plots, JSON)
@@ -243,7 +243,7 @@ is reported as methodological contribution.
 - All scripts deterministic (fixed RNG seeds).
 - Every result in `docs/first_result.md` is reproducible with
   the 4 commands in Quick Start.
-- CI validates every commit (ruff, mypy, pytest — 291 tests).
+- CI validates every commit (ruff, mypy, pytest — 369 tests).
 
 ---
 

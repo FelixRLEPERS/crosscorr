@@ -146,7 +146,7 @@ X-компонента в нТ, эфемериды — гелиоцентрич�
 | TE | реализовано как standalone utility, не интегрировано в основной pipeline | `analysis/transfer_entropy.py` |
 | MSE | standalone utility, не интегрирован в pipeline; **вынесен в ветку `experimental`** (в `main` отсутствует) | `analysis/mse.py` |
 | Cross-MFDFA | standalone utility, не интегрирован в pipeline; **вынесен в ветку `experimental`** (в `main` отсутствует) | `analysis/cross_mfdfa.py` |
-| Null Model | реализовано | phase / IAAFT / block / time-shift |
+| Null Model | реализовано | `phase` / `iaaft` / `time_shift` |
 | p-value | реализовано | Davison-Hinkley, +1 в числителе и знаменателе |
 | q-value | реализовано | BH / BY, NaN-safe |
 | effect size | частично | `rho_max` есть, не вынесен как отдельное поле |
@@ -155,6 +155,8 @@ X-компонента в нТ, эфемериды — гелиоцентрич�
 | sensitivity | roadmap | не начато |
 | power | реализовано | `analysis/power_curve.py` |
 | controls | частично | синтетика реализована, реальные — в roadmap |
+
+*(Note: `block` was previously listed as a surrogate method but is not supported by `max_lag_surrogate_pvalue`; the parameter is now correctly propagated as `surrogate_method`)*
 
 ### Что это даёт
 
