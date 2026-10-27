@@ -32,6 +32,10 @@ arithmetic or a spell-checker in writing.
 
 ## Session log
 
+### 2026-10-27 (Paper Update) — Limitations note on high autocorrelation
+
+2026-10-27 (Paper Update): Added a note to the Limitations section in both main.tex and main_ru.tex regarding the drop in statistical power at AR(1) ≈ 0.95, based on the experimental findings from power_curve.py verification.
+
 ### 2026-10-27 (Update) — Power-curve figure check after the `ar` fix
 
 - **Task requested:** regenerate the power-curve figures in `paper/` after
