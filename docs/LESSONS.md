@@ -35,6 +35,8 @@
 
 - **LF→CRLF warnings при `git add`** — ожидаемо на Windows (`core.autocrlf=true`); файлы пишутся в LF, git конвертирует в CRLF при checkout. Не ошибка. Cross-platform fix (`.gitattributes` `* text=auto eol=lf`) — в backlog.
 
+- **PowerShell backtick.** В PS 5.1 обратная кавычка (`) является символом экранирования. При передаче inline-скриптов через `python -c "..."`, содержащих обратные кавычки (например, Markdown-код), PS съедает их, превращая в обратные слэши. Правило: сложные inline-скрипты со спецсимволами запускать только через сохранённый `.py` файл.
+
 ### Git
 
 - **GitHub Desktop не пушит локальные теги автоматически** (опыт
