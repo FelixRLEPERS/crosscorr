@@ -151,20 +151,30 @@
   (9 тестов: ветка исключения ADF, verbose-вывод, CLI `main()`, guard `__main__`)
   и `tests/test_mfdfa.py` (5 тестов: CLI `main()` с long-CSV, обработка NaN,
   константный ряд, guard `__main__`).
-- Шаг 4: Тесты для `crosscorr_lib/safe_exec.py` (17% -> >= 50%, это +19
-  операторов) - уже стоит в плане «Ближайший квартал».
+- [x] Шаг 4 (Done, 2026-10-27): тесты для `crosscorr_lib/safe_exec.py` - покрытие
+  17% -> 98% (цель >= 50% перевыполнена). Новый файл `tests/test_safe_exec.py`
+  (43 теста: AST-проверки имён/атрибутов/импортов, белый список builtins,
+  таймаут, ветки результата `_worker` и `run_code_safe`). Недостижим только
+  fallback `proc.kill()` (строка 177).
 - [x] Шаг 5 (Done, 2026-10-27): игровые модули `quest.py`/`narrator.py`/
   `ai_narrator.py` (453 оператора, 0%) исключены из покрытия через секцию
   `[tool.coverage.run] omit` в `pyproject.toml` (вариант А).
-- Шаг 6: Вынести `mse.py` и `cross_mfdfa.py` в отдельную ветку; закрепить статус
-  exploratory для `mutual_info.py`/`transfer_entropy.py` в
-  `crosscorr_lib/analysis/README.md` (порог
-  `test_analysis_readme_lists_all_modules` - меньше 8 упоминаний).
-- Шаг 7: Повторный `pytest --cov` и подъём `--cov-fail-under` 45 -> 60
-  (пункт «Полгода (3-6 мес)» этого файла).
+- [x] Шаг 6 (Done, 2026-10-27): `mse.py` и `cross_mfdfa.py` вынесены в ветку
+  `experimental` (коммит `547279c`, запушена) и удалены из `main` вместе с их
+  тестами `test_E_mse.py` (9 тестов) и `test_E_cross_mfdfa.py` (14 тестов).
+  Починен `bench/bench_new_modules.py` (убраны импорты и замеры mse/cross_mfdfa),
+  статусы в `crosscorr_lib/analysis/README.md` обновлены. `mutual_info.py` и
+  `transfer_entropy.py` остаются exploratory в `main` - на них ссылается статья.
+- [x] Шаг 7 (Done, 2026-10-27): `--cov-fail-under` в `.github/workflows/ci.yml`
+  поднят с 45 до **70** (порог задан только там; в `pyproject.toml` его нет -
+  старая запись в этом файле об этом была ошибочной). CI-прогон
+  (`-m "not slow"`) даёт 85.23% >= 70 - порог проходит.
 
 Шаги 1-2 дают +212 операторов -> ~66% без изменения игровых модулей.
 Шаги 1-4 дают ~+324 оператора -> ~71%, цель 70% достижима без "omit".
+
+> **Статус: все шаги 1-7 выполнены** (2026-10-27), см. «Прогресс 3» в конце
+> файла. План выше оставлен как исторический.
 
 ---
 
@@ -195,7 +205,8 @@
   смотрите в отчете сессии: неиспользуемые `null_model_name` и `ar` в
   `benchmark_utils.benchmark()`, NaN-диагональ в `mantel.build_dist_matrix`.
 
-Следующий шаг по плану - Шаг 4 (`safe_exec.py` 17% -> 50%).
+Следующий шаг по плану (на тот момент) - Шаг 4 (`safe_exec.py` 17% -> 50%);
+он и Шаги 6-7 выполнены 2026-10-27, см. «Прогресс 3» ниже.
 
 ---
 
@@ -233,9 +244,42 @@
   теперь это явно нормализуется в `phase` и честно записывается в
   `PowerPoint.null_model`, а не маскируется. Полноценная block-модель в
   `surrogate.py` отсутствует - потенциальная задача отдельной сессии.
-- `--cov-fail-under=45` задан **не** в `pyproject.toml` (там не было секции
-  coverage), а в команде шага fast-тестов `.github/workflows/ci.yml` (строка 64).
+- `--cov-fail-under` задан **не** в `pyproject.toml` (там и не было секции
+  coverage), а в команде шага fast-тестов `.github/workflows/ci.yml` (строка 64):
+  было 45, ныне поднято до **70** (Шаг 7, см. «Прогресс 3» ниже).
   Новая секция `[tool.coverage.run] omit` добавлена в `pyproject.toml`.
 - Инструментальная заметка преждействующая: `--cov=crosscorr_lib.analysis.<module>`
   в этой среде падает на импорте numpy ("cannot load module more than once per
   process"); использовать `--cov=crosscorr_lib`.
+
+---
+
+## Прогресс 3 (Дата: 2026-10-27, Шаги 4, 6, 7 — план закрыт)
+
+Полный прогон `pytest --cov=crosscorr_lib --cov-report=term`:
+
+- **Общее покрытие: 85%** (1618 / 1896 операторов) — **цель 70% достигнута**.
+- Тесты: **369 passed** (было 349: +43 новых тестов `safe_exec`, -23 удалённых
+  тестов `mse`/`cross_mfdfa` — счёт сошёлся точно), 0 упавших.
+- Прогон CI (как в `.github/workflows/ci.yml`): `-m "not slow"` ->
+  **367 passed, 85.23% >= 70** — новый порог проходит.
+
+### Что сделано по шагам
+
+| Шаг | Результат |
+|---|---|
+| 4 | `tests/test_safe_exec.py` (43 теста): AST-проверки (имена, атрибуты, импорты), белый список builtins, таймаут, ветки `_worker`/`run_code_safe`. `safe_exec.py` **17% -> 98%** (остался недостижимый `proc.kill()`, стр. 177) |
+| 6 | Ветка **`experimental`** (`547279c`) содержит `mse.py`, `cross_mfdfa.py`, `test_E_mse.py`, `test_E_cross_mfdfa.py` + обновлённые статусы в `crosscorr_lib/analysis/README.md`. Из `main` модули и их 23 теста удалены; `bench/bench_new_modules.py` очищен от их импортов и замеров (остались `mutual_info`/`transfer_entropy`). Удалено 206 операторов |
+| 7 | `.github/workflows/ci.yml` (строка 64): `--cov-fail-under` **45 -> 70**. В `pyproject.toml` этого порога не было — конфликта нет |
+
+### Итог по всем семи шагам roadmap
+
+- Шаги 1-3, 5 (предыдущие сессии) + Шаги 4, 6, 7 (эта сессия) — **выполнены**.
+- Покрытие: 58% -> 67% -> 83% -> **85%**; тесты: 290 -> 333 -> 349 -> **369**.
+- Порог CI поднят 45% -> **70%** и защищает проект от регрессии покрытия.
+- `mutual_info.py` (88%) и `transfer_entropy.py` (95%) остаются exploratory в
+  `main`: на них ссылается статья (Limitations) и `scripts/probe_ksg_ties.py`.
+- Открытые пункты из «Ближайшего квартала»: покрытие `game/` и статус
+  README (не входили в эту сессию).
+- Найденные огрехи `null_model_name`/`ar`/NaN-диагональ/опечатка ИСПРАВЛЕНЫ в
+  «Прогрессе 2» (явное разрешение пользователя).

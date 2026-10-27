@@ -19,8 +19,8 @@ import tracemalloc
 import numpy as np
 import pandas as pd
 
-from crosscorr_lib.analysis.cross_mfdfa import cross_mfdfa
-from crosscorr_lib.analysis.mse import multiscale_entropy
+# mse и cross_mfdfa вынесены в ветку `experimental` (roadmap, шаг 6):
+# импорты и замеры восстановятся после reference-валидации XM-1/XM-2/MI-1.
 from crosscorr_lib.analysis.mutual_info import mutual_information_matrix
 from crosscorr_lib.analysis.transfer_entropy import transfer_entropy_matrix
 
@@ -35,18 +35,14 @@ def make_data() -> pd.DataFrame:
     """10 каналов: 9 случайных + 1 связанный с первым (0.7*x + шум)."""
     rng = np.random.default_rng(SEED)
     channels = {f"ch_{i}": rng.normal(size=N_POINTS) for i in range(1, N_CHANNELS)}
-    channels[f"ch_{N_CHANNELS}"] = (
-        0.7 * channels["ch_1"] + 0.3 * rng.normal(size=N_POINTS)
-    )
+    channels[f"ch_{N_CHANNELS}"] = 0.7 * channels["ch_1"] + 0.3 * rng.normal(size=N_POINTS)
     return pd.DataFrame(channels)
 
 
 _MEASUREMENTS = {
     "mutual_information_matrix": lambda df: mutual_information_matrix(df),
     "transfer_entropy_matrix": lambda df: transfer_entropy_matrix(df),
-    "mse": lambda df: multiscale_entropy(df["ch_1"], scales=range(1, 11)),
-    "cross_mfdfa (ch1, ch2)": lambda df: cross_mfdfa(df["ch_1"], df["ch_2"]),
-    "cross_mfdfa (ch1, ch3)": lambda df: cross_mfdfa(df["ch_1"], df["ch_3"]),
+    # mse / cross_mfdfa -> ветка `experimental` (см. комментарий выше)
 }
 
 
@@ -77,9 +73,7 @@ def _run_measurement(label: str) -> tuple[str, float | None, float | None]:
     """Замер в subprocess с лимитом TIMEOUT_SECONDS."""
     cmd = [sys.executable, "-m", "bench.bench_new_modules", "_runner", label]
     try:
-        proc = subprocess.run(
-            cmd, capture_output=True, text=True, timeout=TIMEOUT_SECONDS
-        )
+        proc = subprocess.run(cmd, capture_output=True, text=True, timeout=TIMEOUT_SECONDS)
     except subprocess.TimeoutExpired:
         print(f"{label}: > {TIMEOUT_SECONDS:.0f} сек (медленно) — замер прерван")
         return label, None, None
@@ -128,10 +122,7 @@ def _build_report(rows: list[tuple[str, float | None, float | None]]) -> str:
 
 def main() -> None:
     sys.stdout.reconfigure(encoding="utf-8")
-    rows = [
-        _run_measurement(label)
-        for label in _MEASUREMENTS
-    ]
+    rows = [_run_measurement(label) for label in _MEASUREMENTS]
 
     print("| Модуль | Время (сек) | Память (МБ) |")
     print("|---|---:|---:|")
