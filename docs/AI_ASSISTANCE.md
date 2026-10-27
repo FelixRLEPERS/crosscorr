@@ -32,6 +32,36 @@ arithmetic or a spell-checker in writing.
 
 ## Session log
 
+### 2026-10-27 (Update) — Power-curve figure check after the `ar` fix
+
+- **Task requested:** regenerate the power-curve figures in `paper/` after
+  the `ar`-propagation fix in `power_curve.py` and review figure captions.
+- **Finding 1: no such figures exist.** `paper/figures/` contains only
+  fig1–fig5 (kp timeseries, scale dependence, frequency dependence,
+  day–night asymmetry, baseline invariance) plus `lstid_pilot_may2024.png`;
+  neither `main.tex` nor `main_ru.tex` includes a power-curve figure, and
+  `git log --all -S "power_curve" -- paper/` shows none ever existed. The
+  only generator is the module CLI (`python -m
+  crosscorr_lib.analysis.power_curve --plot`); no script in `scripts/`
+  produces manuscript figures from it.
+- **Finding 2: the fix does not change default runs.** The CLI `--ar`
+  default (0.85) equals the `benchmark()` default that was used implicitly
+  before the fix. An explicit equivalence check (same seeds, pre- vs
+  post-fix argument paths, `tmp_plots/verify_default_equivalence.py`)
+  returned identical `p_value` and `detected_lag` for every tested
+  coupling (`EQUIVALENT`).
+- **Quick comparison runs** (fast flags: 4–5 couplings, 3–5 seeds,
+  n=400/4000, 20–50 surrogates; output kept in the untracked `tmp_plots/`)
+  show a difference only for non-default `ar`: with `--ar 0.95` the median
+  detected lag shifts from 9 to 14–15 (true lag 6) and power falls from
+  0.20 to 0.00, since `hit` requires `|detected_lag − true_lag| ≤ 1`.
+- **No changes were made to `paper/`:** there are no power-curve figures to
+  regenerate, and no caption mentions `ar=0.85` (the only `0.85` occurrences
+  are `width=0.85\textwidth` and p-values such as 0.8547), so captions need
+  no review. All steps were performed on explicit human instruction; after
+  the requested regeneration turned out to be a no-op, the human author
+  chose this factual reporting variant instead of the pre-drafted text.
+
 ### 2026-10-27 — Bug fixes in `power_curve.py`, expanded test suite, release v1.5.0
 
 - **Fixed a bug in `crosscorr_lib/analysis/power_curve.py`:** `measure_point()`
