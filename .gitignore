@@ -102,6 +102,8 @@ scripts/test_wspr_query.py
 # Zenodo upload staging (manual upload by user; never commit)
 zenodo_v1.3.0/
 zenodo_data/
+# README is committed (6277121) — explicit exception, don't rely on -f
+!zenodo_data/README.md
 
 # --- Housekeeping 2026-10-19: temporary work files -------------------
 tmp_*.py
