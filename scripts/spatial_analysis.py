@@ -239,12 +239,24 @@ def verify(args: argparse.Namespace) -> bool:
             f"AND band IN ({bands}) ORDER BY id LIMIT {args.sample_n}) "
             "FORMAT JSONCompact"
         )
-        try:
-            rows = ch_query(sample_sql, timeout=60)
-            check(True, "API reachability", f"sampled {len(rows)} spots for {t0} (1 h window)")
-        except RuntimeError as exc:
+        if getattr(args, "skip_crosscheck", False):
             rows = []
-            check(False, "API reachability", str(exc))
+            check(
+                True,
+                "API reachability",
+                "SKIPPED (--skip-crosscheck): heavy sample deferred; Phase 2 unaffected",
+            )
+        else:
+            try:
+                rows = ch_query(sample_sql, timeout=60)
+                check(
+                    True,
+                    "API reachability",
+                    f"sampled {len(rows)} spots for {t0} (1 h window)",
+                )
+            except RuntimeError as exc:
+                rows = []
+                check(False, "API reachability", str(exc))
 
         if rows:
             sample = pd.DataFrame(
@@ -670,6 +682,12 @@ def main() -> int:
     )
     parser.add_argument(
         "--sample-hour", type=int, default=0, help="Phase-1 sample window: hour offset from --start"
+    )
+    parser.add_argument(
+        "--skip-crosscheck",
+        action="store_true",
+        help="skip heavy Phase-1 API cross-check (ORDER BY id LIMIT 5000 + radians); "
+        "Phase 2 is unaffected. Use when the public endpoint exceeds budget on the sample.",
     )
     args = parser.parse_args()
 
