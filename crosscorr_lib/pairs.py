@@ -44,6 +44,8 @@ except ImportError:
 
 from scipy.signal import lfilter
 
+from crosscorr_lib.analysis.surrogate import iaaft_surrogate  # noqa: F401
+
 
 def _close_and_unlink(shm: shm_module.SharedMemory) -> None:
     """Release an owner handle and unlink even when close fails."""
@@ -61,7 +63,7 @@ def _make_surrogates(x: np.ndarray, method: str, B: int, seed: int) -> np.ndarra
 
     Args:
         x: 1D array of length T.
-        method: "shuffle" | "phase" | "ar".
+        method: "shuffle" | "phase" | "iaaft" | "ar".
         B: number of surrogates.
         seed: RNG sub-seed.
 
@@ -95,6 +97,12 @@ def _make_surrogates(x: np.ndarray, method: str, B: int, seed: int) -> np.ndarra
             if T % 2 == 0:
                 ph[-1] = 0.0
             out[b] = np.fft.irfft(mag * np.exp(1j * ph), n=T)
+        return out
+
+    if method == "iaaft":
+        out = np.empty((B, T), dtype=np.float64)
+        for b in range(B):
+            out[b] = iaaft_surrogate(x, rng)
         return out
 
     if method == "ar":
@@ -214,7 +222,7 @@ def cross_correlation_pairs_with_max_stat(
     Args:
         wide: DataFrame with shape (T, N), where columns are detectors.
         seed: global RNG seed for reproducibility.
-        method: surrogate generation method ("shuffle" | "phase" | "ar").
+        method: surrogate generation method ("shuffle" | "phase" | "iaaft" | "ar").
         B: number of surrogate replicates per detector.
         n_jobs: number of parallel workers (-1 = all CPUs).
         pair_filter: optional callable(name_a, name_b) → bool to filter pairs.
