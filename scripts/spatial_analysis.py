@@ -141,6 +141,12 @@ def ch_query(sql: str, timeout: int = HTTP_TIMEOUT, retries: int = 3) -> list:
 # --------------------------------------------------------------------------- #
 # Phase 1: verify (read-only, prints ALL problems, gates Phase 2)
 # --------------------------------------------------------------------------- #
+def kp_coverage(kp_hours: pd.DatetimeIndex, start: str, end: str) -> float:
+    """Share of expected 3h Kp epochs present. Single source: Phase 1 + JSON."""
+    want = pd.date_range(start, end, freq="3h", inclusive="left")
+    return len(want.intersection(pd.DatetimeIndex(kp_hours))) / max(len(want), 1)
+
+
 def verify(args: argparse.Namespace) -> bool:
     problems: list[str] = []
 
@@ -195,8 +201,7 @@ def verify(args: argparse.Namespace) -> bool:
         kp_hours = pd.DatetimeIndex(
             kp_win["timestamp_utc"].dt.tz_convert(None).dt.floor("1h")
         ).unique()
-        want = pd.date_range(args.start, args.end, freq="3h", inclusive="left")
-        cover = len(want.intersection(kp_hours)) / max(len(want), 1)
+        cover = kp_coverage(kp_hours, args.start, args.end)
         n_storm = int((kp_win["value"] >= 5).sum())
         n_quiet = int((kp_win["value"] < 3).sum())
         kp_ok = cover > 0.9 and n_storm >= 10
@@ -204,7 +209,7 @@ def verify(args: argparse.Namespace) -> bool:
             kp_ok,
             "Kp coverage",
             f"{args.start}..{args.end}: coverage={cover:.1%}, "
-            f"storm_hours={n_storm}, quiet_hours={n_quiet}",
+            f"storm_epochs={n_storm}, quiet_epochs={n_quiet}",
         )
     else:
         check(False, "unified.parquet", f"missing: {UNIFIED_PATH}")
@@ -520,6 +525,8 @@ def analyze_group(
         "n_epochs": int(len(merged)),
         "n_storm": int(storm.sum()),
         "n_quiet": int(quiet.sum()),
+        "n_storm_spots": int(merged.loc[storm, "value"].sum()),
+        "n_quiet_spots": int(merged.loc[quiet, "value"].sum()),
         "storm_mean": round(storm_mean, 1),
         "quiet_mean": round(quiet_mean, 1),
         "delta_resid": round(obs, 1),
@@ -566,6 +573,8 @@ def run_stats(
                 "n_epochs": 0,
                 "n_storm": 0,
                 "n_quiet": 0,
+                "n_storm_spots": 0,
+                "n_quiet_spots": 0,
                 "storm_mean": None,
                 "quiet_mean": None,
                 "delta_resid": None,
@@ -629,12 +638,16 @@ def apply(args: argparse.Namespace) -> None:
         per_band[band_name] = res
         print_table(res, f"Per-band: {band_name}")
 
+    kp_cov = 100.0 * kp_coverage(kp["hour"], args.start, args.end)
     payload = {
         "generated": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "period": {"start": args.start, "end": args.end},
         "bands": [BAND_IDX.get(b, str(b)) for b in sorted(counts["band"].unique())],
         "source": args.source,
         "n_spots_total": total,
+        "n_storm_epochs": int((kp["kp"] >= 5).sum()),
+        "n_quiet_epochs": int((kp["kp"] < 3).sum()),
+        "kp_coverage_pct": round(kp_cov, 1),
         "params": {
             "block": args.block,
             "n_iter": args.n_iter,
