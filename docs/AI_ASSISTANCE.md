@@ -100,6 +100,28 @@ arithmetic or a spell-checker in writing.
   `python scripts/spatial_analysis.py --source api --skip-crosscheck --apply`
   with `\verb` so that `--` and `_` render literally (2026-10-29,
   explicit human instruction; selective staging, held-out untouched).
+### 2026-10-29 — RU spatial translation synchronized (`paper/main_ru.tex`, sec:spatial/sec:dropnorm)
+
+- **Five RU fragments drafted by the AI assistant and approved by the
+  human author against a terminology checklist**, then inserted into
+  `paper/main_ru.tex`: endpoint disclosure (Data), `sec:dropnorm`
+  subsection (Methods), `sec:spatial` subsection + `tab:spatial` table
+  (Results), implication lead (Discussion), Limitations item.
+- **Critical catch before insertion:** a double negation in the
+  block-sensitivity sentence ("не делает ... неизменной") inverted the
+  meaning of the English "leaves every band x latitude cell unchanged
+  or more significant"; corrected to "оставляет каждую ячейку
+  неизменной или более значимой".
+- **Terminology fixed by the author:** time-normalized drop ->
+  "нормированное по времени снижение"; midpoint-latitude -> "широта
+  середины трассы"; add-one -> "поправка на единицу (add-one)";
+  p-floor -> "нижняя граница $p$"; epoch universe -> "множество эпох
+  общее"; auroral -> "авроральная" (kept).
+- **Grammar fix:** "отобранную час" -> "отобранный час" (2x).
+- **RU-only commit:** `paper/main.tex` (EN) untouched in this commit;
+  labels `sec:spatial`/`sec:dropnorm`/`tab:spatial` are identical across
+  EN/RU files, which is normal (independent documents).
+
 
 ### 2026-10-27 - Extended held-out window (Jan-Jun 2026) prepared for revision; `paper/` untouched
 
