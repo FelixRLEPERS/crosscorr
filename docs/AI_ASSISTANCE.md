@@ -122,6 +122,14 @@ arithmetic or a spell-checker in writing.
   labels `sec:spatial`/`sec:dropnorm`/`tab:spatial` are identical across
   EN/RU files, which is normal (independent documents).
 
+### 2026-10-29 — Data package v10 published on Zenodo
+
+- **Data package v10 published on Zenodo.** Version DOI:
+  10.5281/zenodo.23769556. Concept DOI: 10.5281/zenodo.23285958.
+- **`CITATION.cff`:** the previous DOI
+  10.5281/zenodo.23495246 was replaced with the Concept DOI
+  (author instruction: always cite the concept, not a version).
+
 
 ### 2026-10-27 - Extended held-out window (Jan-Jun 2026) prepared for revision; `paper/` untouched
 
