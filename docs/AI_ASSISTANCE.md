@@ -101,6 +101,79 @@ arithmetic or a spell-checker in writing.
   with `\verb` so that `--` and `_` render literally (2026-10-29,
   explicit human instruction; selective staging, held-out untouched).
 
+### 2026-10-27 - Extended held-out window (Jan-Jun 2026) prepared for revision; `paper/` untouched
+
+- **All steps on explicit human instruction; no commit made (awaiting author's OK).**
+- **New `data/scripts/fetch_heldout_2026h1.py`** (two-phase verify -> apply;
+  CLI `--start/--end/--bands/--apply/--workers/--timeout/--out-dir/--skip-band-check`,
+  no hardcoded dates). Phase 1 is read-only: inventories the union of
+  `data/raw/wspr/` and `data/raw/wspr_hourly/` (the 2026 hourly data actually
+  lives in `wspr_hourly/`, not `wspr/` — deviation from the literal spec;
+  both directories are scanned) and validates band indices via
+  `SELECT DISTINCT band FROM wspr.rx` (15m=21, 20m=14, 40m=7 confirmed).
+  Phase 2 downloads only the missing day-band series from
+  `http://db1.wspr.live/` (ClickHouse `wspr.rx`, GET, `JSONCompact`, retry
+  backoff 5/15/30 s, sha256 sidecars) and normalises both observed JSON
+  shapes (`array[4]` = `[hour, spots, mean_snr, max_dist]`, `array[2]` =
+  `[hour, spots]`, dict rows) into canonical
+  `wspr_hourly_YYYY-MM-DD_<band>.csv`; existing legacy JSON days are read
+  as-is by the builder (no materialisation rewrite).
+- **Fetched the Apr 25/Jun 30 gap: 199 day-band files, ok=199 failed=0
+  (309.7 s)** — 15m Apr 25-Jun 30 = 67 days, 20m and 40m Apr 26-Jun 30 =
+  66 days each; 253 722 bytes total, 24 hourly rows per file. Full
+  Jan 1 - Jun 30 re-verify: 0 missing tasks; canonical CSV count 138 -> 337.
+- **New `scripts/build_heldout_extract.py`** (two-phase; CLI `--start/--end/
+  --suffix/--bands/--apply`): joins hourly spot counts with Kp epochs from
+  `data/raw/space_weather/kp_*.csv` (one hourly count per native 3-h epoch;
+  storm kp>=5 / quiet kp<3 / unsettled excluded) — the exact frozen-extract
+  construction; reads canonical CSV + legacy `wspr_2026_*` JSON. Writes
+  `results/heldout_3band_<band>_2026h1.parquet` (1441 rows; 24 283 / 24 954 /
+  24 770 bytes for 15m / 20m / 40m); the frozen `*_2026-10-15.parquet` files
+  are never overwritten. Refuses to write on coverage gaps or Jan-Mar
+  inconsistency.
+- **Checks passed:** coverage 181/181 days per band, 0 missing/empty days;
+  epochs 1441 per band (expected 1448 — 7 Kp epochs absent upstream in late
+  Jun; the Kp file has 1441 rows and ends 2026-06-30 00:00); Jan-Mar
+  720 epochs, N_storm=47, N_quiet=439 per band (matches frozen); value
+  cross-check vs frozen 2026-10-15 extracts: **720/720 hours exact per
+  band**; Apr-Jun N_storm=23, N_quiet=563, 721 epochs; **Jan-Jun N_storm=70,
+  N_quiet=1002, N_total=1441** (was 47 / 439 / 720).
+- **`scripts/recompute_heldout_residual.py` and `scripts/abs_loss_ratio_ci.py`
+  gained backward-compatible CLI** (`--src-suffix`, `--out`; recompute also
+  `--period`): defaults reproduce the frozen Jan-Mar run, and the Phase-0
+  `EXPECT_P` verification now runs only for `--src-suffix 2026-10-15`.
+  Extended outputs: `results/heldout_resid_2026h1.json`,
+  `results/abs_loss_ratio_ci_2026h1.json`. Frozen JSONs untouched.
+- **Residual p-values (Jan-Jun 2026) vs frozen Jan-Mar** (n_iter=50000,
+  block=24, seed=42 unchanged; obs_resid in parentheses):
+  20m 3.99992e-04 (19/50000 exceed, obs -12827.9) vs 1.99996e-05;
+  40m 7.99984e-05 (3, obs -10128.9) vs 1.99996e-04;
+  15m 4.7599e-03 (237, obs -3098.5) vs 7.99984e-05 — all three remain
+  significant at p<0.01. Raw Drop% Jan-Jun: 20m -22.39, 40m -21.84,
+  15m -9.96 (Jan-Mar: -26.73, -29.0, -22.13).
+- **Absolute-loss ratio (Jan-Jun held-out / Apr-2024..Sep-2025 training):**
+  20m 0.9839 [0.1384, 1.8916] (was 1.1009 [0.1764, 1.9363]); 40m 1.0784
+  [0.4795, 1.9010] (was 1.4377 [0.6498, 2.3336]); 15m 0.2634 [0.0189,
+  0.9830] (was 0.7005 [0.0467, 1.5748]) — the 15m CI now lies entirely
+  below 1 (it crossed 1 in the frozen Jan-Mar run). Held-out point estimate:
+  20m 20093, 40m 19718, 15m 1364 (heldout n_epochs 1441; n_valid=1000).
+  Training series and method (1000 block bootstraps, seed 42) unchanged.
+- **`scripts/provenance_manifest.py` updated:** the dataset/artifact/script
+  lists now include the 3 `*_2026h1.parquet`, both `*_2026h1.json` and the
+  4 held-out pipeline scripts; `heldout_window` is now
+  `["2026-01-01", "2026-07-01"]` with `heldout_window_frozen` retained;
+  new `--out` flag. Run with
+  `--out results/provenance_manifest_2026-10-27.json` — the tracked frozen
+  `results/provenance_manifest_2026-10-20.json` was NOT overwritten.
+- **`.gitignore`:** negation lines added for the 5 new `results/*` artifacts
+  (`heldout_3band_{15m,20m,40m}_2026h1.parquet`,
+  `heldout_resid_2026h1.json`, `abs_loss_ratio_ci_2026h1.json`).
+- **Documentation:** this entry plus `docs/AUDIT_START_NEXT_SESSION.md`
+  record that the extended held-out extract exists but `paper/main.tex` and
+  `paper/main_ru.tex` were NOT updated (revision task for the author).
+- **Verification:** `ruff check .`, `mypy crosscorr_lib` and
+  `pytest -m "not slow"` all pass (367 passed, 2 deselected).
+
 ### 2026-10-27 — Bug fixes in `power_curve.py`, expanded test suite, release v1.5.0
 
 - **Fixed a bug in `crosscorr_lib/analysis/power_curve.py`:** `measure_point()`

@@ -1,0 +1,39 @@
+{
+  "config": {
+    "method": "residual block permutation (Section 3.3)",
+    "residual": "value - mean(month, hour_of_day, day_of_week)",
+    "n_iter": 50000,
+    "block_size": 24,
+    "seed": 42,
+    "add_one": true,
+    "period": "2026-01-01 .. 2026-07-01",
+    "source": "results/heldout_3band_<band>_2026h1.parquet"
+  },
+  "20m": {
+    "p_resid": 0.00039999,
+    "exceedances": 19,
+    "obs_resid": -12827.9,
+    "drop_pct": -22.39,
+    "N_total": 1441,
+    "N_storm": 70,
+    "N_quiet": 1002
+  },
+  "40m": {
+    "p_resid": 8e-05,
+    "exceedances": 3,
+    "obs_resid": -10128.9,
+    "drop_pct": -21.84,
+    "N_total": 1441,
+    "N_storm": 70,
+    "N_quiet": 1002
+  },
+  "15m": {
+    "p_resid": 0.0047599,
+    "exceedances": 237,
+    "obs_resid": -3098.5,
+    "drop_pct": -9.96,
+    "N_total": 1441,
+    "N_storm": 70,
+    "N_quiet": 1002
+  }
+}

@@ -7,8 +7,8 @@ Both series use WSPR hourly spot counts assigned to the native 3-hourly Kp
 epochs (one hourly count per epoch; storm kp >= 5, quiet kp < 3, unsettled
 excluded), so one "epoch" is one 3-h slot. The training series is rebuilt from
 data/processed/unified.parquet with the same construction as
-scripts/perm_test_18mo_3band.py; the held-out series is read from the frozen
-caches results/heldout_3band_<band>_2026-10-15.parquet.
+scripts/perm_test_18mo_3band.py; the held-out series is read from the extract
+results/heldout_3band_<band>_<src-suffix>.parquet.
 
 Block bootstrap: non-overlapping blocks of 24 epochs (72 h); 1000 resamples;
 seed 42; a fresh RNG(42) stream per series reproduces the component CIs of
@@ -16,11 +16,13 @@ Table 10 of the manuscript exactly. Training and held-out are resampled
 independently; the ratio is formed per iteration index and the reported ratio
 CI is the percentile (2.5/97.5) interval of the bootstrap ratio distribution.
 
-Output: results/abs_loss_ratio_ci.json
+Output: results/abs_loss_ratio_ci.json (frozen Jan-Mar run, default) or
+results/abs_loss_ratio_ci_<src-suffix>.json (--src-suffix 2026h1 = Jan-Jun).
 """
 
 from __future__ import annotations
 
+import argparse
 import json
 from pathlib import Path
 
@@ -32,6 +34,23 @@ BANDS = ("20m", "40m", "15m")
 BLOCK_EPOCHS = 24  # one epoch = 3 h -> 72 h blocks
 N_BOOT = 1000
 SEED = 42
+
+
+def parse_args() -> argparse.Namespace:
+    p = argparse.ArgumentParser(description=__doc__)
+    p.add_argument(
+        "--src-suffix",
+        default="2026-10-15",
+        help="held-out extract suffix: results/heldout_3band_<band>_<suffix>.parquet "
+        "(default: 2026-10-15 = frozen Jan-Mar; use 2026h1 for Jan-Jun)",
+    )
+    p.add_argument(
+        "--out",
+        default=None,
+        help="output JSON path (default: results/abs_loss_ratio_ci.json for the frozen "
+        "run, results/abs_loss_ratio_ci_<src-suffix>.json otherwise)",
+    )
+    return p.parse_args()
 
 
 def load_training_series(band: str) -> pd.DataFrame:
@@ -54,9 +73,9 @@ def load_training_series(band: str) -> pd.DataFrame:
     return merged[["hour", "value", "state"]]
 
 
-def load_heldout_series(band: str) -> pd.DataFrame:
-    """Read the frozen held-out series (720 epochs: hour, value, state)."""
-    path = ROOT / "results" / f"heldout_3band_{band}_2026-10-15.parquet"
+def load_heldout_series(band: str, src_suffix: str = "2026-10-15") -> pd.DataFrame:
+    """Read the held-out series (hour, value, state) for one extract suffix."""
+    path = ROOT / "results" / f"heldout_3band_{band}_{src_suffix}.parquet"
     df = pd.read_parquet(path)
     df = df.sort_values("hour").reset_index(drop=True)
     return df[["hour", "value", "state"]]
@@ -104,6 +123,14 @@ def bootstrap_losses(
 
 
 def main() -> None:
+    args = parse_args()
+    src_suffix = args.src_suffix
+    if args.out:
+        out_path = Path(args.out)
+    elif src_suffix == "2026-10-15":
+        out_path = ROOT / "results" / "abs_loss_ratio_ci.json"
+    else:
+        out_path = ROOT / "results" / f"abs_loss_ratio_ci_{src_suffix}.json"
     results: dict = {
         "method": {
             "block_epochs": BLOCK_EPOCHS,
@@ -113,13 +140,13 @@ def main() -> None:
             "rng": "fresh default_rng(42) per series (reproduces Table 10 component CIs)",
             "resampling": "training and held-out independent; ratio formed per iteration index",
             "training_source": "data/processed/unified.parquet (3-hourly Kp epochs)",
-            "heldout_source": "results/heldout_3band_<band>_2026-10-15.parquet",
+            "heldout_source": f"results/heldout_3band_<band>_{src_suffix}.parquet",
         },
         "bands": {},
     }
     for band in BANDS:
         tr = load_training_series(band)
-        hd = load_heldout_series(band)
+        hd = load_heldout_series(band, src_suffix)
         tr_values = tr["value"].to_numpy(dtype=float)
         tr_states = tr["state"].to_numpy(dtype=object)
         hd_values = hd["value"].to_numpy(dtype=float)
@@ -172,7 +199,7 @@ def main() -> None:
             f"n_valid={b['ratio']['n_valid_resamples']}"
         )
 
-    out_path = ROOT / "results" / "abs_loss_ratio_ci.json"
+    out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(results, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     print(f"\nWrote {out_path}")
 

@@ -55,6 +55,13 @@ results/*
 !results/heldout_3band_15m_2026-10-15.parquet
 !results/heldout_3band_20m_2026-10-15.parquet
 !results/heldout_3band_40m_2026-10-15.parquet
+# Extended held-out window 2026h1 (Jan-Jun 2026; session 2026-10-27)
+!results/heldout_3band_15m_2026h1.parquet
+!results/heldout_3band_20m_2026h1.parquet
+!results/heldout_3band_40m_2026h1.parquet
+!results/heldout_resid_2026h1.json
+!results/abs_loss_ratio_ci_2026h1.json
+!results/provenance_manifest_2026-10-27.json
 #audit/
 bench.log
 aep/
@@ -94,6 +101,7 @@ scripts/test_wspr_query.py
 
 # Zenodo upload staging (manual upload by user; never commit)
 zenodo_v1.3.0/
+zenodo_data/
 
 # --- Housekeeping 2026-10-19: temporary work files -------------------
 tmp_*.py

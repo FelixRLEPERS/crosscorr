@@ -1,10 +1,17 @@
-"""Recompute held-out (Jan-Mar 2026) Table 8 p-values with the residual block
-permutation test of Section 3.3 (residual = value - mean(month, hod, dow)).
+"""Recompute held-out Table 8 p-values with the residual block permutation test
+of Section 3.3 (residual = value - mean(month, hod, dow)).
 
-Writes results/heldout_resid_2026-10-15.json and prints a verification table.
-Decision: audit #5 blocker B3, option (ii).
+Default (no flags) reproduces the frozen Jan-Mar 2026 run:
+writes results/heldout_resid_2026-10-15.json and verifies p-values against
+Phase 0 diagnostics. Decision: audit #5 blocker B3, option (ii).
+
+Extended window (2026-10-27): --src-suffix 2026h1 reads
+results/heldout_3band_<band>_2026h1.parquet (Jan-Jun 2026) and writes
+results/heldout_resid_2026h1.json; the EXPECT_P check runs only for the
+frozen suffix 2026-10-15.
 """
 
+import argparse
 import json
 import warnings
 from pathlib import Path
@@ -21,6 +28,28 @@ SEED = 42
 BANDS = ["20m", "40m", "15m"]
 
 EXPECT_P = {"20m": 1.99996e-05, "40m": 1.99996e-04, "15m": 7.99984e-05}
+
+
+def parse_args() -> argparse.Namespace:
+    p = argparse.ArgumentParser(description=__doc__)
+    p.add_argument(
+        "--src-suffix",
+        default="2026-10-15",
+        help="held-out extract suffix: results/heldout_3band_<band>_<suffix>.parquet "
+        "(default: 2026-10-15 = frozen Jan-Mar; use 2026h1 for Jan-Jun)",
+    )
+    p.add_argument(
+        "--out",
+        default=None,
+        help="output JSON path (default: results/heldout_resid_<src-suffix>.json)",
+    )
+    p.add_argument(
+        "--period",
+        default=None,
+        help="period label in the config block "
+        "(default: 2026-01-01 .. 2026-04-01 for frozen, 2026-01-01 .. 2026-07-01 otherwise)",
+    )
+    return p.parse_args()
 
 
 def block_perm(resid, storm_mask, quiet_mask, n_iter=N_ITER, block=BLOCK, seed=SEED):
@@ -43,6 +72,11 @@ def block_perm(resid, storm_mask, quiet_mask, n_iter=N_ITER, block=BLOCK, seed=S
 
 
 def main():
+    args = parse_args()
+    src_suffix = args.src_suffix
+    frozen = src_suffix == "2026-10-15"
+    out_path = Path(args.out) if args.out else ROOT / "results" / f"heldout_resid_{src_suffix}.json"
+    period = args.period or ("2026-01-01 .. 2026-04-01" if frozen else "2026-01-01 .. 2026-07-01")
     out = {
         "config": {
             "method": "residual block permutation (Section 3.3)",
@@ -51,8 +85,8 @@ def main():
             "block_size": BLOCK,
             "seed": SEED,
             "add_one": True,
-            "period": "2026-01-01 .. 2026-04-01",
-            "source": "results/heldout_3band_<band>_2026-10-15.parquet",
+            "period": period,
+            "source": f"results/heldout_3band_<band>_{src_suffix}.parquet",
         }
     }
 
@@ -62,7 +96,7 @@ def main():
     print(f"{'band':<6} {'p_resid':>12} {'exceed':>7} {'obs_resid':>12} {'drop%':>8} {'N':>12}")
     ok = True
     for band in BANDS:
-        d = pd.read_parquet(ROOT / "results" / f"heldout_3band_{band}_2026-10-15.parquet")
+        d = pd.read_parquet(ROOT / "results" / f"heldout_3band_{band}_{src_suffix}.parquet")
         d["hour"] = pd.to_datetime(d["hour"])
         d = d.sort_values("hour").reset_index(drop=True)
         d["month"] = d["hour"].dt.to_period("M")
@@ -79,9 +113,13 @@ def main():
             / d.loc[d["kp"] < 3, "value"].mean()
         )
 
-        exp = EXPECT_P[band]
-        match = abs(p - exp) < 1e-12
-        ok = ok and match
+        if frozen:
+            exp = EXPECT_P[band]
+            match = abs(p - exp) < 1e-12
+            ok = ok and match
+            verdict = "OK" if match else "MISMATCH vs Phase 0"
+        else:
+            verdict = f"(frozen ref {EXPECT_P[band]:.6g} not compared)"
         out[band] = {
             "p_resid": round(p, 8),
             "exceedances": cnt,
@@ -93,13 +131,16 @@ def main():
         }
         print(
             f"{band:<6} {p:>12.6g} {cnt:>7} {obs:>12.1f} {drop:>8.2f} "
-            f"{sm.sum():>4}/{qm.sum():<7} {'OK' if match else 'MISMATCH vs Phase 0'}"
+            f"{sm.sum():>4}/{qm.sum():<7} {verdict}"
         )
 
-    path = ROOT / "results" / "heldout_resid_2026-10-15.json"
-    with open(path, "w", encoding="utf-8") as f:
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(out_path, "w", encoding="utf-8") as f:
         json.dump(out, f, indent=2, ensure_ascii=False)
-    print(f"\n[OK] {path}")
+    print(f"\n[OK] {out_path}")
+    if not frozen:
+        print(f"[INFO] extended window {period}: no Phase-0 comparison (frozen only)")
+        return
     if not ok:
         print("[STOP] p-values differ from Phase 0 diagnostics -- do not edit the paper")
         raise SystemExit(1)

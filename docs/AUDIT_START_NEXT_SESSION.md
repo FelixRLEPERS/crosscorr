@@ -414,3 +414,11 @@ Full audit from third-party model (AUDIT_2026-10-19_scientific.md) verified by M
 ## Release v1.4.0
 Подготовлен релиз v1.4.0. Включает: Round 3 & 4 audit fixes, adjusted drops, ratio CIs, parquet publication, UT-window terminology.
 Status: RELEASED. Version DOI: 10.5281/zenodo.23495246.
+
+## Session 18 — 2026-10-27 (extended held-out Jan–Jun 2026)
+- Downloaded missing WSPR hourly data for Apr–Jun 2026 (199 files, 0 errors).
+- Created new extract `results/heldout_3band_*_2026h1.parquet` (1441 epochs).
+- Recalculated p-values and ratio CIs.
+- **Decision:** Keep Jan–Mar as primary held-out; add Jan–Jun as sensitivity check in Limitations/Appendix.
+- Frozen v1.4.0 artifacts untouched.
+- Implemented 2026-10-28: Limitations bullet + Appendix table `tab:heldout_sensitivity` added to `paper/main.tex` and `paper/main_ru.tex` (EN+RU); detailed numbers remain in `docs/AI_ASSISTANCE.md`.

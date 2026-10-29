@@ -1441,6 +1441,17 @@ establishing a unique mechanism attribution.
 	      replication is planned but not yet complete due to wspr.live server
 	      throughput limits.
 
+	\item \textbf{Extended held-out window:} We extended the held-out
+	      period from January--March to January--June 2026 to increase
+	      storm sample size ($N_{\text{storm}} = 47 \rightarrow 70$).
+	      The primary effect remains significant on all three bands
+	      ($p < 0.01$), but the 15\,m drop weakens from \SI{-22.1}{\percent}
+	      to \SI{-10.0}{\percent}. This is consistent with seasonal
+	      dependence (summer sporadic-E and lower storm frequency in
+	      April--June) and does not invalidate the January--March result;
+	      it highlights that 15\,m is the most seasonally sensitive band
+	      (Appendix Table~\ref{tab:heldout_sensitivity}).
+
 \item \textbf{Exploratory KSG modules:} The mutual information and
 	      transfer entropy modules included in the codebase for
 	      exploratory analysis use the Kraskov--Stoegbauer--Grassberger
@@ -1869,6 +1880,35 @@ resolve latitude, local time, or individual transmitter--receiver paths.
 		$>$10\,000    & $-36.5$ [$-46.9$, $-27.5$]
 		& $-43.0$ [$-55.7$, $-29.5$]
 		& $-25.7$ [$-43.0$, $-9.7$] \\
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+\subsection{Extended held-out window}
+
+Table~\ref{tab:heldout_sensitivity} repeats the held-out comparison for
+the extended January--June 2026 window as a sensitivity check. The
+primary held-out analysis above keeps the frozen January--March extract
+($N_{\text{storm}} = 47$ per band); the extended window has
+$N_{\text{storm}} = 70$ per band. All three bands remain significant at
+$p < 0.01$, while the 15\,m drop weakens from \SI{-22.1}{\percent} to
+\SI{-10.0}{\percent}, consistent with the seasonal sensitivity of 15\,m
+discussed in the Limitations. $p$-values are from the residual block
+permutation test of Section~3.3; ratio CIs are 95\% block-bootstrap
+intervals (24-epoch blocks, 1\,000 resamples, seed 42).
+
+\begin{table}[h]
+	\centering
+	\small
+	\caption{Sensitivity check: extended held-out January--June 2026.}
+	\label{tab:heldout_sensitivity}
+	\begin{tabular}{lcccc}
+		\toprule
+		Band & $N_{\text{storm}}$ & Drop (\%) & $p$-value & Absolute loss ratio \\
+		\midrule
+		20\,m & 70 & $-22.4$ & $4.0 \times 10^{-4}$ & $0.98$ [$0.14$, $1.89$] \\
+		40\,m & 70 & $-21.8$ & $8.0 \times 10^{-5}$ & $1.08$ [$0.48$, $1.90$] \\
+		15\,m & 70 & $-10.0$ & $4.8 \times 10^{-3}$ & $0.26$ [$0.02$, $0.98$] \\
 		\bottomrule
 	\end{tabular}
 \end{table}

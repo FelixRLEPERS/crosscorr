@@ -2,10 +2,16 @@
 
 Writes results/provenance_manifest_2026-10-20.json with sha256 checksums,
 row counts, timestamp ranges and the git commit of the analysis code.
+
+Extended held-out (2026-10-27): --out lets you write a fresh manifest (e.g.
+results/provenance_manifest_2026-10-27.json) without overwriting the tracked
+frozen one; the dataset/artifact lists include the 2026h1 extracts when they
+exist (Jan-Jun 2026 held-out window).
 """
 
 from __future__ import annotations
 
+import argparse
 import hashlib
 import json
 import subprocess
@@ -15,6 +21,19 @@ from pathlib import Path
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def parse_args() -> argparse.Namespace:
+    p = argparse.ArgumentParser(description=__doc__)
+    p.add_argument(
+        "--out",
+        default=None,
+        help="output JSON path, relative to the repo root or absolute "
+        "(default: results/provenance_manifest_2026-10-20.json; pass a fresh "
+        "name such as results/provenance_manifest_2026-10-27.json to keep the "
+        "frozen manifest untouched)",
+    )
+    return p.parse_args()
 
 
 def sha256(path: Path) -> str:
@@ -58,6 +77,9 @@ def main() -> None:
         "results/heldout_3band_15m_2026-10-15.parquet",
         "results/heldout_3band_20m_2026-10-15.parquet",
         "results/heldout_3band_40m_2026-10-15.parquet",
+        "results/heldout_3band_15m_2026h1.parquet",
+        "results/heldout_3band_20m_2026h1.parquet",
+        "results/heldout_3band_40m_2026h1.parquet",
         "results/snr_hourly_3band_2024-2025_2026-10-20.parquet",
         "results/path_distance_hourly_2024-2025_2026-10-20.parquet",
     ):
@@ -70,6 +92,8 @@ def main() -> None:
         "results/perm_test_18mo_3band.json",
         "results/heldout_resid_2026-10-15.json",
         "results/abs_loss_ratio_ci.json",
+        "results/heldout_resid_2026h1.json",
+        "results/abs_loss_ratio_ci_2026h1.json",
         "results/round3_effect_sizes.json",
         "results/round3_episode_robustness.json",
         "results/round3_merge_sensitivity.json",
@@ -94,6 +118,10 @@ def main() -> None:
         "scripts/snr_analysis_3band.py",
         "scripts/path_distance_analysis.py",
         "scripts/provenance_manifest.py",
+        "scripts/recompute_heldout_residual.py",
+        "scripts/abs_loss_ratio_ci.py",
+        "scripts/build_heldout_extract.py",
+        "data/scripts/fetch_heldout_2026h1.py",
     ):
         p = ROOT / rel
         if p.exists():
@@ -110,7 +138,8 @@ def main() -> None:
         "git_commit": commit,
         "git_status_porcelain": dirty or "",
         "training_window": ["2024-04-01", "2025-10-01"],
-        "heldout_window": ["2026-01-01", "2026-04-01"],
+        "heldout_window": ["2026-01-01", "2026-07-01"],
+        "heldout_window_frozen": ["2026-01-01", "2026-04-01"],
         "datasets": datasets,
         "artifacts": artifacts,
         "scripts": scripts,
@@ -119,11 +148,22 @@ def main() -> None:
             "provisional Dst; frozen after the 2026-10-07/08 download.",
             "heldout": "Published frozen extracts of the live wspr.live re-download "
             "of 2026-10-15 (720 3-h epochs per band).",
+            "heldout_extended": "2026h1 extracts (Jan-Jun 2026, built 2026-10-27) "
+            "from data/raw/wspr_hourly: 138 frozen canonical CSV + 206 legacy JSON "
+            "day-band files + day-band CSVs downloaded 2026-10-27 for the gaps "
+            "Apr 25/Jun 30; superset of the frozen 2026-10-15 extracts.",
             "snr": "Hourly mean SNR pulled from wspr.live on 2026-10-20 "
             "(14-day chunks) for the training window.",
         },
     }
-    path = ROOT / "results" / "provenance_manifest_2026-10-20.json"
+    args = parse_args()
+    if args.out:
+        path = Path(args.out)
+        if not path.is_absolute():
+            path = ROOT / path
+    else:
+        path = ROOT / "results" / "provenance_manifest_2026-10-20.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(out, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     for ds in datasets:
         print(f"{ds['path']}: {ds['rows']} rows, sha256 {ds['sha256'][:16]}...")
