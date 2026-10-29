@@ -17,11 +17,11 @@
    Перед расчётом вызывается `preprocess` (снятие линейного дрейфа + стандартизация).
    Для лаговой гипотезы используется **max-statistic null** через суррогаты
    (`max_lag_surrogate_pvalue`): тестируется $T = \max_\tau |r(\tau)|$ против
-   того же максимума на суррогатах; по умолчанию `fisher=True` (веса
-   $\sqrt{n_\text{valid}-3}$).
+   того же максимума на суррогатах; по умолчанию `fisher=False` (сырой
+   $\max |r|$, без Fisher-преобразования).
 5. **MFDFA** — мультифрактальный анализ (`crosscorr_lib/analysis/mfdfa.py`).
-6. **Surrogate-тесты** — фазовые суррогаты по умолчанию (200 из CLI, 500 в
-   `max_lag_surrogate_pvalue`, 1000+ для публикаций). Доступны также `iaaft`
+6. **Surrogate-тесты** — IAAFT-суррогаты по умолчанию (200 из CLI, 500 в
+   `max_lag_surrogate_pvalue`, 1000+ для публикаций). Доступны также `phase`
    (сохраняет распределение) и `time_shift` через параметр `surrogate_method`.
    Альтернатива для нестационарных рядов — **block bootstrap**
    (`crosscorr_lib/analysis/block_bootstrap.py`).

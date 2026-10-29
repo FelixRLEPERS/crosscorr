@@ -32,6 +32,35 @@ arithmetic or a spell-checker in writing.
 
 ## Session log
 
+### 2026-10-30 — Statistical audit fixes (Phase 2: Apply)
+
+- **Task:** Apply Q1 audit feedback: switch to IAAFT surrogates, remove Fisher double-counting in Max-stat, unify ESS to τ_int.
+- **AI model:** MiMo V2.6 Flash (OpenCode)
+- **Human reviewer:** Alexey Petrov
+- **Date:** 2026-10-30
+- **Changes made:**
+  1. **IAAFT surrogates (default):**
+     - `crosscorr_lib/analysis/surrogate.py`: `surrogate_method="phase"` → `"iaaft"` (line 452), `surrogate_test` now calls `iaaft_surrogate` (line 122)
+     - `crosscorr_lib/pairs.py`: `method="phase"` → `"iaaft"` (line 201), docstring updated
+  2. **Removed Fisher double-counting:**
+     - `crosscorr_lib/analysis/surrogate.py`: `fisher=True` → `False` (line 373), `fisher_weighted_max_stat` branches: `fisher=True` uses `|arctanh(r)|*sqrt(n-3)`, `fisher=False` uses raw `|r|`; docstring explains double-counting issue
+  3. **Unified ESS to τ_int:**
+     - `docs/first_result.md`: §3.4 AR(1) formula replaced with τ_int + threshold rule (5 consecutive lags < 1.96/√n)
+     - `README.md`: "AR(1)" → "integrated autocorrelation time, tau_int"
+     - `crosscorr_lib/analysis/effective_sample.py`: docstring updated, references `integrated_autocorrelation_time()`
+  4. **Documentation updates:**
+     - `docs/PIPELINE.md` §4.2: description → raw max|r| (Fisher disabled)
+     - `docs/methodology.md` lines 20-21: raw max|r|, `fisher=False`
+  5. **Tests updated:**
+     - `tests/test_statistical_reference.py`: lines 142-167 rewritten to expect raw `|r|` (default `fisher=False`)
+- **Rationale:** Q1 audit feedback — IAAFT more conservative null, remove double-counting of `n-3` in Fisher transform on empirical surrogates, τ_int model-agnostic ESS.
+- **Files modified:** `crosscorr_lib/analysis/surrogate.py`, `crosscorr_lib/pairs.py`, `crosscorr_lib/analysis/effective_sample.py`, `docs/first_result.md`, `README.md`, `docs/PIPELINE.md`, `docs/methodology.md`, `tests/test_statistical_reference.py`.
+- **Methodology impact:** Yes — T_obs values change (raw |r| vs Fisher Z), p-values recomputed with IAAFT surrogates.
+- **Paper impact:** Potentially — if Results reports specific T_obs values, regenerate from `results/*.json`.
+- **Reproducibility:** Yes — same seeds, same pipeline, deterministic.
+
+---
+
 ### 2026-10-27 (Paper Update) — Limitations note on high autocorrelation
 
 2026-10-27 (Paper Update): Added a note to the Limitations section in both main.tex and main_ru.tex regarding the drop in statistical power at AR(1) ≈ 0.95, based on the experimental findings from power_curve.py verification.

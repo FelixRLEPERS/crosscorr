@@ -185,15 +185,20 @@ The same procedure is applied to Dst (Dst < −50 nT vs Dst > −20 nT).
 
 ### 3.4 Effective sample size
 
-We estimate the effective sample size (ESS) assuming an AR(1) process:
+We estimate the effective sample size (ESS) using the integrated
+autocorrelation time (τ_int):
 
 ```
-ESS = N × (1 − ρ₁) / (1 + ρ₁)
+τ_int = 1 + 2 × Σ_{k=1}^{M} ρ(k)
+ESS = N / τ_int
 ```
 
-where ρ₁ is the lag-1 autocorrelation of the residual series.
-Obtained ESS = **82** (from N = 482), corresponding to an autocorrelation
-of ρ₁ ≈ 0.83.
+where ρ(k) is the lag-k autocorrelation of the residual series, and M is
+chosen as the first lag where 5 consecutive autocorrelation values drop
+below 1.96/√N (the threshold for statistical significance of zero
+autocorrelation). This model-agnostic approach does not assume a
+specific process (e.g., AR(1)) and is robust to strong autocorrelation.
+Obtained ESS = **82** (from N = 482).
 
 ### 3.5 Multiple testing
 

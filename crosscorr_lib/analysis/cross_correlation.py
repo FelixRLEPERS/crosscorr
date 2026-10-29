@@ -275,8 +275,8 @@ def cross_correlation_pairs_with_max_stat(
             n_obs = int(mask.sum())
 
             # rho_at_best_lag — Spearman r в [-1, 1] на лучшем лаге.
-            # t_obs — Fisher-weighted score (|arctanh(r)|*sqrt(n-3)), его
-            # нельзя интерпретировать как корреляцию.
+            # t_obs — max|r| на реальных данных (fisher=False по умолчанию,
+            # raw |rho| без Fisher-преобразования).
             lags_obs, corrs_obs, _ = lagged_cross_correlation(x, y, max_lag)
             idx_obs = int(best_lag) + max_lag
             if 0 <= idx_obs < len(corrs_obs):

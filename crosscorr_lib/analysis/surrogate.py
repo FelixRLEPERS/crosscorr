@@ -114,12 +114,12 @@ def surrogate_test(
 
     # накапливаем распределение корреляций по суррогатам
     surrogate_corrs = np.zeros((n_surrogates, len(cols), len(cols)))
-    # Позиции исходных NaN: phase_surrogate интерполирует пропуски, но
+    # Позиции исходных NaN: iaaft_surrogate интерполирует пропуски, но
     # для корректного pairwise-сравнения NaN нужно вернуть на место.
     nan_mask = wide.isna().values
 
     for i in range(n_surrogates):
-        surro = np.column_stack([phase_surrogate(wide[c].values, rng) for c in cols])
+        surro = np.column_stack([iaaft_surrogate(wide[c].values, rng) for c in cols])
         surro[nan_mask] = np.nan
         surro_df = pd.DataFrame(surro, columns=cols)
         surrogate_corrs[i] = surro_df.corr(method="spearman").values
@@ -370,8 +370,8 @@ def max_lag_surrogate_pvalue(
     max_lag: int = DEFAULT_MAX_LAG,
     n_surrogates: int = DEFAULT_N_SURROGATES_MAXLAG,
     seed: int = DEFAULT_SEED,
-    fisher: bool = True,
-    surrogate_method: str = "phase",
+    fisher: bool = False,
+    surrogate_method: str = "iaaft",
     randomize_both: bool = True,
 ) -> tuple[float, float, int]:
     """
@@ -387,10 +387,10 @@ def max_lag_surrogate_pvalue(
         seed          : seed для воспроизводимости
         fisher        : использовать Fisher-weighted max (по умолчанию True).
                         Если False — обычный max|rho|.
-        surrogate_method : 'phase' | 'iaaft' | 'time_shift'.
-                           'phase' — классическая фазовая рандомизация.
+        surrogate_method : 'iaaft' | 'phase' | 'time_shift'.
                            'iaaft' — сохраняет и спектр, и распределение
                            (Schreiber-Schmitz 1996), важно для heavy-tailed.
+                           'phase' — классическая фазовая рандомизация.
                            'time_shift' — циклический сдвиг (быстрый).
         randomize_both : bool (по умолчанию True)
             Если True — рандомизировать и x, и y. Это консервативный
@@ -399,7 +399,8 @@ def max_lag_surrogate_pvalue(
             p-value для автокоррелированных данных).
     Returns:
         (t_obs, p_value, best_lag)
-        t_obs    : Fisher-weighted (или обычный) max|corr| на реальных данных
+        t_obs    : max|corr| на реальных данных (raw |rho| по умолчанию,
+                   fisher=False; или Fisher-weighted score при fisher=True)
         p_value  : доля суррогатов, где max_stat_surr >= t_obs
         best_lag : лаг, на котором достигнут t_obs
     """
@@ -555,23 +556,26 @@ def fisher_weighted_max_stat(
     rho: np.ndarray,
     n: np.ndarray,
     *,
+    fisher: bool = False,
     clip_eps: float = 1e-6,
 ) -> tuple[float, int, float]:
     """
-    Fisher-weighted max of |rho| over lags.
+    Max-statistic across lags (raw |rho| or Fisher-weighted).
 
-    Если на разных лагах разное число наблюдений n(tau),
-    обычный max|rho| смещён в сторону лагов с большим n.
-    Fisher-weighting исправляет это:
-
-        z(tau)     = arctanh(rho(tau))
-        w(tau)     = sqrt(n(tau) - 3)
-        score(tau) = |z(tau)| * w(tau)
+    score(tau) =
+      - |rho(tau)|               (default, fisher=False) — raw absolute
+        correlation. Recommended for empirical surrogates where each
+        surrogate preserves the original n; Fisher transform would
+        double-count n-3 (once in arctanh, once in sqrt(n-3)).
+      - |arctanh(rho(tau))| * sqrt(n(tau) - 3)  (fisher=True) — Fisher's
+        z-transform weighted by effective sample size. Suitable for
+        Gaussian theory-based null only.
 
     Args:
         rho: массив корреляций (NaN для невалидных лагов)
         n:   массив числа наблюдений на каждом лаге
-        clip_eps: клип для arctanh, чтобы избежать inf
+        fisher: использовать Fisher-weighted max (default False → raw |rho|)
+        clip_eps: клип для arctanh, чтобы избежать inf (только при fisher=True)
 
     Returns:
         (max_score, argmax_index, rho_at_argmax)
@@ -586,15 +590,17 @@ def fisher_weighted_max_stat(
     if not finite.any():
         return 0.0, 0, 0.0
 
-    # Fisher z-transform с клипом
-    rho_clipped = np.clip(rho, -1 + clip_eps, 1 - clip_eps)
-    z = np.arctanh(rho_clipped)
-
-    # Веса
-    w = np.sqrt(np.maximum(n - 3, 1.0))
-
-    # Score
-    score = np.where(finite, np.abs(z) * w, -np.inf)
+    if fisher:
+        # Fisher z-transform с клипом
+        rho_clipped = np.clip(rho, -1 + clip_eps, 1 - clip_eps)
+        z = np.arctanh(rho_clipped)
+        # Веса
+        w = np.sqrt(np.maximum(n - 3, 1.0))
+        # Score
+        score = np.where(finite, np.abs(z) * w, -np.inf)
+    else:
+        # Raw |rho| (no Fisher transform)
+        score = np.where(finite, np.abs(rho), -np.inf)
 
     idx = int(np.argmax(score))
     return float(score[idx]), idx, float(rho[idx])

@@ -159,7 +159,7 @@ More: [`data/README.md`](data/README.md)
 - Lagged cross-correlation with Spearman ρ
 - Max-statistic surrogate test (phase randomized)
 - Block permutation test (block = 24h) to control autocorrelation
-- Effective sample size correction (AR(1))
+- Effective sample size correction (integrated autocorrelation time, tau_int)
 - Benjamini–Hochberg / BY FDR control
 - Seasonal residuals (month × hour-of-day baseline removal)
 - Robustness: per-month replication, Kp vs Dst agreement, seasonal analysis

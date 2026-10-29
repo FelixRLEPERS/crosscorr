@@ -140,18 +140,17 @@ def test_max_stat_rejects_pure_noise():
 
 
 def test_fisher_weighted_max_stat_reference():
-    """Прямой вызов fisher_weighted_max_stat с аналитическим эталоном.
+    """Прямой вызов fisher_weighted_max_stat с аналитическим эталоном (raw |r|).
 
+    default fisher=False → score = |rho| (сырой максимум без Fisher-преобразования).
     rho = [0.5, -0.3], n = 20 на обоих лагах.
-    z = arctanh(rho); w = sqrt(n - 3) = sqrt(17).
-    score = |z| * w. T = max(score).
-    Эталон: max(|arctanh(0.5)|, |arctanh(-0.3)|) * sqrt(17).
+    Эталон: max(|0.5|, |-0.3|) = 0.5.
     """
     rho = np.array([0.5, -0.3])
     n = np.array([20, 20])
     t, idx, rho_at = fisher_weighted_max_stat(rho, n)
 
-    expected = max(abs(np.arctanh(0.5)), abs(np.arctanh(-0.3))) * np.sqrt(17)
+    expected = max(abs(0.5), abs(-0.3))
     np.testing.assert_allclose(t, expected, rtol=1e-12)
     assert idx == 0, "argmax должен указывать на лаг с rho=0.5"
     np.testing.assert_allclose(rho_at, 0.5, atol=1e-12)
@@ -162,7 +161,7 @@ def test_fisher_weighted_max_stat_ignores_small_n():
     rho = np.array([0.9, 0.1])
     n = np.array([3, 50])
     t, idx, _ = fisher_weighted_max_stat(rho, n)
-    expected = abs(np.arctanh(0.1)) * np.sqrt(50 - 3)
+    expected = abs(0.1)  # raw |r|, fisher=False
     np.testing.assert_allclose(t, expected, rtol=1e-12)
     assert idx == 1
 

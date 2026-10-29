@@ -16,6 +16,7 @@ Worker receives TWO shared memory names and slices views into them.
 
 Methods:
     - "shuffle": random permutation of time axis per surrogate.
+    - "iaaft":   iterative amplitude-adjusted Fourier transform (preserves spectrum + distribution).
     - "phase":   phase-randomization in Fourier domain (preserves spectrum).
     - "ar":      AR(1) surrogate via IIR filter (scipy.signal.lfilter).
 
@@ -198,7 +199,7 @@ def cross_correlation_pairs_with_max_stat(
     wide: pd.DataFrame,
     *,
     seed: int = 42,
-    method: str = "phase",
+    method: str = "iaaft",
     B: int = 200,
     n_jobs: int = -1,
     pair_filter: Callable[[str, str], bool] | None = None,
