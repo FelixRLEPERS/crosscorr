@@ -336,6 +336,19 @@ only monthly means are available via the SWPC API, which is too coarse for
 hourly analysis. A daily/hourly F10.7 endpoint exists (SWPC \texttt{f107\_cm\_flux.json}), but it covers only a rolling $\sim$40-day window; the historical daily record for the training period (April 2024 -- September 2025) requires the NGDC Penticton archive, which was not accessible for this analysis.
 
 
+The wspr.live ClickHouse endpoint exposes only the \texttt{wspr.rx}
+table (\texttt{wspr.tx} is absent), and unbounded \texttt{DISTINCT}
+queries are not viable against it. For the latitude-group analysis
+(Section~\ref{sec:spatial}), the Phase-1 API cross-check (heavy sample:
+\texttt{ORDER BY id LIMIT 5000} with server-side \texttt{radians()})
+was deferred because it exceeded the 60-s request budget after
+$\sim$3\,600 requests, while health probes (\texttt{SELECT 1},
+\texttt{count()}) returned HTTP 200 in 0.1--0.2\,s. Phase 2 used
+lightweight server-side aggregation (\texttt{GROUP BY hour, band,
+latbin}; 40 chunks $\times$ $\sim$1.2\,s each), and the deferred
+cross-check will be re-run as a lightweight probe (\texttt{LIMIT 500},
+\texttt{radians()} computed client-side) after endpoint cooldown.
+
 %=============================================================
 \section{Methods}
 %=============================================================
@@ -515,6 +528,26 @@ The primary hypothesis test intentionally excludes unsettled conditions
 ($3 \leq Kp < 5$, $N = 1\,116$ epochs) to maximise the statistical
 contrast between quiet and storm states. These epochs are included in
 the scale-dependent binned analysis (Section 4.2).
+
+\subsection{Time-normalized drop and block-size sensitivity}
+\label{sec:dropnorm}
+
+Drop\% is computed per group as
+$(S_{\text{obs}} - S_{\text{exp}}) / S_{\text{exp}}$, where
+$S_{\text{exp}} = S_{\text{quiet}} \cdot (T_{\text{storm}} /
+T_{\text{quiet}})$, with $T_{\text{storm}} = 198$\,h and
+$T_{\text{quiet}} = 3\,035$\,h --- one sampled hour per 3-h $Kp$ epoch
+(4\,349 of 4\,384 epochs covered, 99.2\%). It is not the raw aggregate
+ratio $S_{\text{obs}} / S_{\text{quiet}}$ (\SI{1.75}{\percent} at
+high latitude, pooled), because the quiet window is $15.3\times$ longer;
+the raw ratio must be normalized by 198/3035 before comparison.
+
+Block-size sensitivity: rerunning the permutation with block = 8
+epochs (24\,h, one diurnal cycle) leaves every band $\times$ latitude
+cell unchanged or more significant: block = 24 is uniformly
+conservative relative to block = 8 across all nine cells; no cell
+becomes less significant (8/9 at the $p$-floor under both settings;
+low-latitude 40\,m moves from $p = 1.5 \times 10^{-4}$ to the floor).
 
 \subsection{Effective sample size}
 
@@ -1178,9 +1211,69 @@ scaling, so we report the absolute values as descriptive quantities
 rather than as a network-size-invariant metric.
 
 
+\subsection{Latitude-group analysis: auroral absorption gradient}
+\label{sec:spatial}
+
+To test whether the global averages conceal latitude structure, hourly
+spot counts were binned server-side by transmitter--receiver midpoint
+latitude ($|\mathrm{lat}| > 60^\circ$ auroral, $30$--$60^\circ$ mid,
+$< 30^\circ$ low) for the training window (1.98 billion spots in
+13\,152 hours; three bands; 4\,349 $Kp$ epochs). Auroral absorption
+produces a monotonic latitude gradient in WSPR spot loss during storm
+epochs ($Kp \ge 5$): the time-normalized drop is \SI{73.1}{\percent}
+at $|\mathrm{lat}| > 60^\circ$, \SI{28.2}{\percent} at
+$30$--$60^\circ$, and \SI{22.8}{\percent} at $< 30^\circ$ (pooled
+over 40/20/15\,m; high/low ratio $3.2\times$; $p < 5 \times
+10^{-5}$). The gradient steepens with frequency: at 15\,m it reaches
+\SI{85.3}{\percent} versus \SI{14.0}{\percent} ($6.1\times$),
+consistent with trans-auroral path geometry and negative storm-phase
+$F2$ depletion. Block-permutation tests (the procedure of
+Section~3.3, 20\,000 iterations, add-one correction; normalization and
+block-size sensitivity in Section~\ref{sec:dropnorm}) are significant
+in all nine band $\times$ latitude cells ($p \le 1.5 \times 10^{-4}$;
+eight of nine at the $5 \times 10^{-5}$ floor).
+
+\begin{table}[h]
+	\centering
+	\small
+	\caption{Time-normalized relative spot drop during storm epochs
+	($Kp \ge 5$) by midpoint-latitude group, 2024-04-01 -- 2025-10-01
+	(Drop\% as in Section~\ref{sec:dropnorm}). $N_{\text{storm}}$ = 198
+	storm epochs of 4\,349 total (3-h $Kp$ cadence, coverage 99.2\%),
+	identical across groups (the epoch universe is shared; groups
+	partition by latitude). Pooled $N_{\text{storm,spots}}$: high-lat
+	90\,669; mid-lat 20\,741\,541; low-lat 1\,012\,300. Per-band
+	$N_{\text{storm,spots}}$ (high/mid/low): 40\,m
+	13\,054/9\,452\,228/201\,193; 20\,m 69\,950/9\,895\,599/587\,346;
+	15\,m \textbf{7\,665}/1\,393\,714/223\,761. $p$-values: pooled
+	cells all $< 5 \times 10^{-5}$; per-band, eight of nine cells at the
+	floor and low-lat 40\,m $p = 1.5 \times 10^{-4}$.}
+	\label{tab:spatial}
+	\begin{tabular}{lcccc}
+		\toprule
+		Group & \multicolumn{4}{c}{Drop (\%)} \\
+		\cmidrule(lr){2-5}
+		 & Pooled & 40\,m & 20\,m & 15\,m \\
+		\midrule
+		Auroral ($|\mathrm{lat}| > 60^\circ$) & $-73.1$ & $-68.0$ & $-71.4$ & $-85.3$ \\
+		Mid-latitude ($30$--$60^\circ$) & $-28.2$ & $-27.2$ & $-27.1$ & $-40.4$ \\
+		Low-latitude ($< 30^\circ$) & $-22.8$ & $-24.7$ & $-25.1$ & $-14.0$ \\
+		\bottomrule
+	\end{tabular}
+\end{table}
+
 %=============================================================
 \section{Discussion}
 %=============================================================
+
+The latitude decomposition also bears on the scope of the main
+analysis: the global averaging does not wash out the latitude
+structure. In every band the high/mid/low contrast survives
+aggregation, so the globally averaged estimates are consistent with
+--- not confirmed nor superseded by --- this spatial decomposition.
+The heterogeneity reported here is therefore preserved within the
+global framing, which directly addresses the reviewer concern that
+global aggregation could mask spatial structure.
 
 \subsection{Physical mechanisms}
 
@@ -1396,6 +1489,14 @@ establishing a unique mechanism attribution.
 	      72\,h, the block spans three full diurnal cycles and exceeds
 	      the span of every storm episode (mean span $\approx 9$\,h,
 	      longest 63\,h).
+	\item \textbf{One sampled hour per $Kp$ epoch (latitude analysis):}
+	      The $Kp$ join of the latitude-group analysis samples one hour
+	      per 3-hour epoch (the hour of the $Kp$ timestamp), yielding 198
+	      storm-hours and 3035 quiet-hours of exposure rather than the
+	      full 594/9105 hours. Reported means are per sampled hour;
+	      extrapolation to full 3-hour epochs is not claimed. The drop\%
+	      ratio is invariant to this sampling because storm and quiet
+	      windows are sampled identically.
 	\item \textbf{Storm-slot independence:} The 198 $Kp \ge 5$
 	      epochs are not statistically independent observations. Grouping
 	      them into episodes separated by more than 12~h yields 58 distinct

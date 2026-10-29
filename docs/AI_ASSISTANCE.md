@@ -66,6 +66,36 @@ arithmetic or a spell-checker in writing.
   the requested regeneration turned out to be a no-op, the human author
   chose this factual reporting variant instead of the pre-drafted text.
 
+### 2026-10-29 — Spatial latitude-group analysis added to `paper/main.tex` (methods, limitations, disclosure)
+
+- **Seven text fragments drafted by the AI assistant and approved by the
+  human author against a numeric checklist** (every figure re-derived from
+  `results/spatial_lat_groups.json`): Main result, Discussion implication,
+  Methods time-normalization, Limitations sampling, endpoint disclosure,
+  table caption, block-sensitivity statement.
+- **New Results subsection (Table `tab:spatial`)** reports the pooled drop
+  gradient 73.1 / 28.2 / 22.8 % and the per-band cells; `N_storm_spots`
+  is captioned per cell (high-lat 15 m = 7 665 flagged as the grey-zone
+  value requiring the caption).
+- **Author-caught correction before insertion:** the Kp join exposes 198
+  storm / 3035 quiet *sampled hours* (one hour per 3-h epoch), not the
+  full 594 / 9105 h; the initial fragment carrying 594 h was rejected and
+  the Limitations item records the design fact. Drop% itself is invariant
+  because the ratio is unchanged.
+- **Terminology check before insertion:** the existing Methods already fix
+  "block = 24 epochs = 72 h"; the block-sensitivity fragment reuses that
+  terminology (block = 8 = 24 h variant; uniformly conservative across all
+  nine band x latitude cells, no cell less significant).
+- **`paper/main_ru.tex` intentionally not updated** — the Russian set
+  requires a separate review round per the author's protocol. One wording
+  deviation was introduced and reported for post-insertion review: the
+  internal version tag was removed from the Implication sentence (the
+  paper does not otherwise reference release versions).
+- **Selective staging:** this entry and the `paper/main.tex` insertions
+  were committed while the author's separate uncommitted held-out-2026h1
+  changes to the same files were deliberately left in the working tree
+  (awaiting the author's OK, per the 2026-10-27 entry).
+
 ### 2026-10-27 — Bug fixes in `power_curve.py`, expanded test suite, release v1.5.0
 
 - **Fixed a bug in `crosscorr_lib/analysis/power_curve.py`:** `measure_point()`
