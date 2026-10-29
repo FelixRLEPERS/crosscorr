@@ -95,6 +95,11 @@ arithmetic or a spell-checker in writing.
   were committed while the author's separate uncommitted held-out-2026h1
   changes to the same files were deliberately left in the working tree
   (awaiting the author's OK, per the 2026-10-27 entry).
+- **Exact run command documented in `paper/main.tex` (Data):** the
+  disclosure paragraph now states
+  `python scripts/spatial_analysis.py --source api --skip-crosscheck --apply`
+  with `\verb` so that `--` and `_` render literally (2026-10-29,
+  explicit human instruction; selective staging, held-out untouched).
 
 ### 2026-10-27 — Bug fixes in `power_curve.py`, expanded test suite, release v1.5.0
 

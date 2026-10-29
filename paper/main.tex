@@ -349,6 +349,11 @@ latbin}; 40 chunks $\times$ $\sim$1.2\,s each), and the deferred
 cross-check will be re-run as a lightweight probe (\texttt{LIMIT 500},
 \texttt{radians()} computed client-side) after endpoint cooldown.
 
+The published run was executed as
+\verb|python scripts/spatial_analysis.py --source api --skip-crosscheck --apply|;
+\verb|--skip-crosscheck| skips only the deferred Phase-1 heavy sample
+(Phase 2 is unaffected).
+
 %=============================================================
 \section{Methods}
 %=============================================================
