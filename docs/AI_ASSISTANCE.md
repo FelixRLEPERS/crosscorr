@@ -32,6 +32,41 @@ arithmetic or a spell-checker in writing.
 
 ## Session log
 
+### 2026-10-30 (Data Release) — Zenodo v11 staged (unified.parquet with GOES X-ray)
+
+- **Task:** refresh the Zenodo data staging after the GOES X-ray schema
+  change (`detector_type += goes_xray`, `unit = W/m2`): new SHA-256/size/
+  row counts/inventory in `zenodo_data/README.md`, new `checksums.txt`,
+  parquet copied into the staging directory for manual upload (concept
+  DOI 10.5281/zenodo.23285958).
+- **AI model:** MiMo V2.6 Flash (OpenCode)
+- **Human reviewer:** Alexey Petrov (approved the Phase-1 diff before Apply)
+- **Tooling:** `scripts/prepare_zenodo_v11.py` (house two-phase pattern:
+  default run = report + unified diff, `--apply` = copy parquet with a
+  post-copy SHA-256 assertion + rewrite README/checksums; exactly-once
+  pattern verification aborts before writing on any mismatch; UTF-8 + LF;
+  idempotent re-run prints `[SKIP]` and exits 0). Temp debug script used
+  during the session was removed.
+- **Result (v11 payload):** sha256
+  `18a3ee5e0b7c09b8e68188141a674125e84633c1333fbb396d8d34c9f2ac1ecf`,
+  2 687 068 bytes, 121 591 rows x 9 columns (v10 was 1 703 727 bytes /
+  84 402 rows). Detector inventory deltas documented in README:
+  `goes_xray` +13 143 rows (hourly max of the XRS 1-min mean, W/m2,
+  2024-04-01 -> 2025-09-30); `wspr` 21 846 -> 44 524 rows (985 -> 1 206
+  receiver callsigns, from earlier rebuilds); `wspr_hourly` 39 456 ->
+  40 824 rows (period extended to 2026-01-19 23:00 by the held-out
+  extension fetches); `dst`/`kp`/`f107`/`ephemeris` unchanged.
+  README also documents the v11 header note, `goes_xray`/`W/m2` in the
+  column vocabularies, and the new ETL step 4 (GOES download from NOAA
+  NCEI via `download_space_weather.py`); the Notes-section receiver count
+  was synced (985 -> 1 206) after it surfaced in review.
+- **Git scope:** `zenodo_data/` is gitignored except `README.md`
+  (tracked); `unified.parquet` + `checksums.txt` remain local staging
+  artifacts for the manual Zenodo upload.
+- **Verification:** `ruff check .` / `ruff format --check` clean for the
+  new script; staging re-run idempotent (`[SKIP] ... agree`, exit 0);
+  README/checksums byte-verified (no BOM, no CR, final newline LF).
+
 ### 2026-10-30 (Paper Sync) — Manuscript switched to flare-controlled spatial numbers
 
 - **Task:** Q1 audit follow-up: update `paper/main.tex` and `paper/main_ru.tex`

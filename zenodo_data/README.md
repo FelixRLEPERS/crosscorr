@@ -4,9 +4,12 @@
 effects on the WSPR (Weak Signal Propagation Reporter) network,
 cross-checked against independent space-weather indices.
 
-**Package prepared:** 2026-10-28 (audit round v1.5.0, task "publish
-unified.parquet on Zenodo"). Upload to Zenodo is a manual step
-(performed by the maintainer); this directory is the staging area.
+**Package version:** v11 (2026-10-30) — schema adds `detector_type`
+`goes_xray` (unit `W/m2`; GOES-R XRS L2 1-min means, aggregated to
+hourly max) for the Q1 solar-flare control. Previous package (v10,
+2026-10-28) stays available under the same concept DOI.
+Upload to Zenodo is a manual step (performed by the maintainer);
+this directory is the staging area.
 
 **Zenodo concept DOI:** 10.5281/zenodo.23285958
 (the dataset lands as a new version under this concept)
@@ -15,13 +18,13 @@ unified.parquet on Zenodo"). Upload to Zenodo is a manual step
 
 | File | Size | SHA-256 (see `checksums.txt`) |
 |---|---|---|
-| `unified.parquet` | 1 703 727 bytes | `0a746f033c7492243d88874968a271f2020fa7631eb7dae75b1f0449d6cfadc2` |
+| `unified.parquet` | 2 687 068 bytes | `18a3ee5e0b7c09b8e68188141a674125e84633c1333fbb396d8d34c9f2ac1ecf` |
 | `README.md` | this file | — |
 | `checksums.txt` | sha256 sums | — |
 
 ## What is in `unified.parquet`
 
-Single long-format table (Apache Parquet, snappy): **84 402 rows ×
+Single long-format table (Apache Parquet, snappy): **121 591 rows ×
 9 columns**, one row per (detector, timestamp) observation.
 
 It serves two roles: (i) replication of the v1.5.0 analysis; (ii) the
@@ -35,11 +38,11 @@ fetches spot aggregates server-side but takes Kp from this file).
 |---|---|---|
 | `timestamp_utc` | timestamp (UTC) | Observation start (hourly grid, except `wspr` = 3-hourly epochs) |
 | `detector_id` | string | Unique detector identifier, e.g. `wspr_hourly_20m`, `kp_index`, or a WSPR receiver callsign |
-| `detector_type` | string | Detector family: `wspr_hourly`, `wspr`, `kp`, `dst`, `f107`, `ephemeris` |
+| `detector_type` | string | Detector family: `wspr_hourly`, `wspr`, `kp`, `dst`, `f107`, `ephemeris`, `goes_xray` |
 | `value` | float | Raw measured/derived value (see `unit`) |
 | `residual` | float | Residual after the OLS geomagnetic model (`residual_method`) |
 | `residual_method` | string | `ols_geomagnetic` for every row in this release |
-| `unit` | string | `count` (WSPR hourly spot counts), `dB` (spot SNR), `AU` (ephemeris distances), `unknown` (Kp/Dst/F10.7 as delivered by upstream services) |
+| `unit` | string | `count` (WSPR hourly spot counts), `dB` (spot SNR), `AU` (ephemeris distances), `W/m2` (GOES X-ray 1–8 Å flux), `unknown` (Kp/Dst/F10.7 as delivered by upstream services) |
 | `quality_flag` | float | Quality marker; `0.0` = OK for all rows in this release |
 | `meta` | string (JSON) | Per-row metadata: band/band_index/mean_snr/max_distance for `wspr_hourly`; granularity for indices; source URLs/objects elsewhere |
 
@@ -47,11 +50,12 @@ fetches spot aggregates server-side but takes Kp from this file).
 
 | `detector_type` | Rows | `detector_id`s | Period (UTC) | Unit |
 |---|---|---|---|---|
-| `wspr_hourly` | 39 456 | 3 (`15m`, `20m`, `40m`) | 2024-04-01 → 2025-09-30 23:00 | count |
+| `wspr_hourly` | 40 824 | 3 (`15m`, `20m`, `40m`) | 2024-04-01 → 2026-01-19 23:00 | count |
 | `kp` | 5 912 | `kp_index` (GFZ Potsdam) | 2024-04-01 → 2026-09-15 | — (nT-free index) |
 | `dst` | 17 095 | `dst_index` (WDC Kyoto, provisional) | 2024-04-01 → 2026-09-15 | nT (stored as `unknown`) |
 | `f107` | 18 | `f107_index` (NOAA SWPC, monthly sample) | 2024-04-15 → 2026-09-15 | sfu (stored as `unknown`) |
-| `wspr` | 21 846 | 985 receiver callsigns (individual spot SNR, 2–6 min cadence, sampled subset) | 2025-01-15 → 2026-09-01 | dB |
+| `goes_xray` | 13 143 | `goes_xray_hourly` (GOES-R XRS L2 1-min mean, hourly max) | 2024-04-01 → 2025-09-30 | W/m2 |
+| `wspr` | 44 524 | 1 206 receiver callsigns (individual spot SNR, 2–6 min cadence, sampled subset) | 2025-01-15 → 2026-09-01 | dB |
 | `ephemeris` | 75 | JPL Horizons sun/moon (hourly step) | 2026-08-01 → 2026-09-02 | AU |
 
 Cadence note: `kp` rows are 3-hourly, `dst` hourly, `f107` monthly;
@@ -79,7 +83,12 @@ ETL pipeline in `data/scripts/` (Python 3.10+, pandas/pyarrow):
    Kp from GFZ Potsdam JSON API, Dst from WDC Kyoto (provisional),
    F10.7 from NOAA SWPC JSON.
 3. **Ephemeris** — `download_horizons.py` (JPL Horizons REST).
-4. **Unification** — `unify_schema.py` merges all raw sources into the
+4. **GOES X-ray flare series** — `download_space_weather.py`: NOAA NCEI
+   GOES-R (`goes18`/`goes16`/`goes19`) XRS L2 1-min means
+   (`xrsf-l2-avg1m` NetCDF), aggregated to hourly **max**
+   (`detector_type = goes_xray`, unit `W/m2`;
+   13 143 rows, 2024-04-01 → 2025-09-30).
+5. **Unification** — `unify_schema.py` merges all raw sources into the
    long schema above and fits the OLS geomagnetic residual model
    (`crosscorr_lib.analysis.residuals.fit_residual_model`,
    method `ols_geomagnetic`).
@@ -156,7 +165,7 @@ Get-FileHash unified.parquet -Algorithm SHA256
 ## Notes / limitations
 
 - `unified.parquet` contains hourly aggregates and a sampled subset of
-  receiver-side individual SNR records (`wspr` detector, 985 callsigns);
+  receiver-side individual SNR records (`wspr` detector, 1 206 callsigns);
   it contains no full per-spot records with transmitter callsigns and
   no station coordinates. Station reference: `stations_geo.csv` —
   38.5 MB / 1 745 681 data rows, tracked in the public code repository
