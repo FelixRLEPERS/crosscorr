@@ -32,6 +32,62 @@ arithmetic or a spell-checker in writing.
 
 ## Session log
 
+### 2026-10-30 — Phase F refetch, unified rebuild, Zenodo v11 refresh, block = 8 rerun (Q1 audit completion)
+
+- **Task:** complete the Q1-audit data fixes: full re-pull of the 1701 WSPR
+  hourly files with `n_unique_tx`, rebuild `unified.parquet`, refresh the
+  Zenodo staging, rerun the spatial permutation with `block = 8` (no flares),
+  and update the `sec:dropnorm` sentence accordingly.
+- **AI model:** MiMo V2.6 Flash (OpenCode)
+- **Human reviewer:** Alexey Petrov (approved the `sec:dropnorm` diff before
+  `--apply`)
+- **Changes made:**
+  1. **Phase F executed:** `python data/scripts/refetch_wspr_hourly.py
+     --apply --workers 4` -> `[DONE] ok=1701 fail=0 of 1701`. spots_count
+     drift WARNs on some files confirm the data changed since the first
+     pull — the reason the full rerun campaign (Q2) was commissioned.
+  2. **Rebuild `data/processed/unified.parquet`:**
+     `python data/scripts/unify_schema.py` -> 121 591 rows x 9 cols,
+     0 errors; per-row `meta` (`n_unique_tx`, `mean_snr`, `max_distance`)
+     verified present.
+  3. **Zenodo staging v11 refresh (two-phase):**
+     `python scripts/prepare_zenodo_v11.py --check` then `--apply` ->
+     `[OK] staged`; sha256
+     `8ee0ac22eb48eb671fc5add881101ef1ae2670a39ea8c0c4d61d8250cc8031ba`,
+     3 829 807 bytes. The actual Zenodo upload stays a manual author step.
+  4. **Block = 8 rerun (no flares):**
+     `python scripts/spatial_analysis.py --block 8 --out
+     results/spatial_lat_groups_block8.json` — guards verified
+     `flare_filter.exclude_flares=True` in both JSONs
+     (`n_spots_total=1 796 248 370`, 1 325 flare hours excluded).
+     Canonical `results/spatial_lat_groups.json` (block = 24) not touched.
+  5. **New `scripts/compare_block8.py`:** builds the b=24 vs b=8 comparison
+     table (12 cells), asserts conservativeness (p(b=8) <= p(b=24) in every
+     cell — holds), floor counts 8/9 per-band (11/12 with pooled) identical
+     in both runs, identical Drop% columns. 40m low-latitude:
+     1.9499e-03 (b=24) -> 3.4998e-04 (b=8), i.e. still above the floor.
+  6. **New `scripts/update_paper_block8.py`** (two-phase): regenerates the
+     `sec:dropnorm` block-sensitivity sentence in `paper/main.tex` and
+     `paper/main_ru.tex` from the two JSONs (values read, not hardcoded;
+     RU comma decimal separator). `--check` reviewed, `--apply` run after
+     explicit human approval:
+     - EN: `... low-latitude 40\,m moves from $1.95 \times 10^{-3}$ to
+       $3.5 \times 10^{-4}$).`
+     - RU: `... низкоширотная 40\,м переходит от $1{,}95 \times 10^{-3}$ к
+       $3{,}5 \times 10^{-4}$).`
+     This replaces the stale claim `from $p = 1.5 \times 10^{-4}$ to the
+     floor`, which matched neither JSON (b=24 = 1.95e-3, b=8 = 3.50e-4,
+     both above the floor). The rest of the sentence (8/9 floor, uniform
+     conservativeness) is unchanged and re-verified.
+- **Intentionally NOT changed (deferred to the Q2 rerun campaign):**
+  permutation-test headline numbers, abstract N=198 / Drop% figures,
+  bootstrap CIs and all other derived tables, plus CI config — they still
+  describe the original with-flares runs, as documented in the 2026-10-30
+  flare-control entry below.
+- **Verification:** `ruff check .` OK; `mypy crosscorr_lib` OK;
+  `pytest -m "not slow"` 369 passed, 2 deselected; `git diff` reviewed;
+  committed and pushed via CLI.
+
 ### 2026-10-30 (Phase B Prep) — `n_unique_tx` in the WSPR hourly ETL
 
 - **Task:** Selection-Bias (Phase B) groundwork, author instructions:
