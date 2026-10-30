@@ -5,6 +5,12 @@ flux reaches --flare-threshold (default 1e-5 W/m2 = M-class) are dropped
 before the storm/quiet split, because flares suppress WSPR independently
 of geomagnetic activity. Use --no-exclude-flares for the legacy (no
 control) run.
+
+Selection-bias control (Phase B): with --norm-tx the analysed value is
+value_norm = spots_count / n_unique_tx (unique transmitters active in that
+hour+band, from unified.parquet meta) instead of raw spot counts, so a
+changing active-transmitter population cannot imitate a storm-time drop.
+Rows where n_unique_tx is missing or <= 0 abort the run (loud guard).
 """
 
 import argparse
@@ -31,6 +37,14 @@ parser.add_argument(
     type=float,
     default=1e-5,
     help="GOES 1-8A flux in W/m2 marking a flare hour (default 1e-5 = M1.0)",
+)
+parser.add_argument(
+    "--norm-tx",
+    action="store_true",
+    default=False,
+    help="normalise spot counts by active transmitters: "
+    "value = spots / n_unique_tx(hour+band) from unified.parquet meta "
+    "(selection-bias control, Phase B; default: off = raw counts)",
 )
 parser.add_argument(
     "--out",
@@ -86,6 +100,48 @@ print(
     f"flare hours in period={len(flare_hours)}, "
     f"wspr hours {n_hours_before} -> {n_hours_after}"
 )
+
+
+def _parse_n_tx(meta_str: object) -> float:
+    """n_unique_tx out of the unified.parquet meta JSON string (NaN if absent)."""
+    try:
+        obj = json.loads(meta_str) if isinstance(meta_str, str) else (meta_str or {})
+    except (TypeError, ValueError):
+        return float("nan")
+    v = obj.get("n_unique_tx") if isinstance(obj, dict) else None
+    try:
+        return float(v)
+    except (TypeError, ValueError):
+        return float("nan")
+
+
+# Rounding/format for the observed statistic: integer spots without --norm-tx,
+# fractional spots-per-transmitter with it.
+DELTA_DIGITS = 3 if args.norm_tx else 0
+DELTA_FMT = ".2f" if args.norm_tx else ".0f"
+
+norm_info = {
+    "enabled": bool(args.norm_tx),
+    "metric": "spots / n_unique_tx(hour,band)",
+    "n_unique_tx_source": "unified.parquet meta (wspr_hourly)",
+}
+if args.norm_tx:
+    n_tx = wspr["meta"].apply(_parse_n_tx)
+    bad = n_tx.isna() | (n_tx <= 0)
+    if bad.any():
+        raise SystemExit(
+            f"--norm-tx: {int(bad.sum())} wspr_hourly rows have n_unique_tx missing or <= 0 "
+            "in meta.\nFix the data first:\n"
+            "  python data/scripts/refetch_wspr_hourly.py --apply\n"
+            "  python data/scripts/unify_schema.py"
+        )
+    wspr["value"] = wspr["value"] / n_tx
+    print(
+        f"[norm-tx] value = spots / n_unique_tx(hour,band); rows={len(wspr)}, "
+        f"n_tx min/median/max={int(n_tx.min())}/{n_tx.median():.0f}/{int(n_tx.max())}"
+    )
+else:
+    print("[norm-tx] off: raw spot counts (legacy metric)")
 
 
 def block_perm_test(merged, block_size=BLOCK, n_iter=N_ITER):
@@ -147,12 +203,12 @@ for band in ["20m", "40m", "15m"]:
     print(
         f"  {band}: N={N}, storm={storm_N}, quiet={quiet_N}, blocks={N // BLOCK}, n_perm={n_valid}"
     )
-    print(f"         delta={obs:.0f}, drop={drop:.1f}%, p={p:.2e}")
+    print(f"         delta={obs:{DELTA_FMT}}, drop={drop:.1f}%, p={p:.2e}")
     results[band] = {
         "N": N,
         "N_storm": int(storm_N),
         "N_quiet": int(quiet_N),
-        "delta": round(float(obs)),
+        "delta": round(float(obs), DELTA_DIGITS),
         "drop_pct": round(float(drop), 1),
         # 8 decimals: Monte Carlo p can be < 1e-4, 4 decimals would round to 0.
         "p_value": round(float(p), 8),
@@ -252,12 +308,12 @@ for band in ["20m", "40m", "15m"]:
             continue
         sig = "***" if p < 0.001 else ("**" if p < 0.01 else ("*" if p < 0.05 else "ns"))
         print(
-            f"  [{band}] {label}: delta={diff:.0f}, p={p:.2e} {sig} "
+            f"  [{band}] {label}: delta={diff:{DELTA_FMT}}, p={p:.2e} {sig} "
             f"(N_low={n_low}, N_high={n_high})"
         )
 
         pairwise_results.setdefault(band, {})[label] = {
-            "delta": round(float(diff)),
+            "delta": round(float(diff), DELTA_DIGITS),
             "p_value": round(float(p), 8),
             "p_significant": bool(p < 0.05),
             "N_low": int(n_low),
@@ -271,6 +327,7 @@ out = {
         "block_size": BLOCK,
         "period": "2024-04-01 .. 2025-09-30",
         "flare_filter": flare_info,
+        "norm_tx": norm_info,
     },
     "results": results,
     "pairwise_bins": pairwise_results,

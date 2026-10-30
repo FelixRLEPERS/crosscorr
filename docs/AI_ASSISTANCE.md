@@ -32,6 +32,66 @@ arithmetic or a spell-checker in writing.
 
 ## Session log
 
+### 2026-10-30 — Phase B: selection-bias normalisation by active transmitters (`--norm-tx`)
+
+- **Task:** Q1 audit, physical block — control for selection bias (human
+  factor): normalise spot counts by the number of active transmitters
+  (`n_unique_tx`, per hour+band, available in unified.parquet meta after the
+  Phase F refetch) and test whether the storm/quiet effect survives.
+- **AI model:** MiMo V2.6 Flash (OpenCode)
+- **Human reviewer:** Alexey Petrov (approved the script diff before the
+  runs; approved the commit after seeing the comparison table)
+- **Code changes (all behind `--norm-tx`, default off = legacy behaviour):**
+  1. `scripts/perm_test_18mo_3band.py` — new `--norm-tx` flag; after the
+     flare filter `value = value / n_unique_tx` parsed from the meta JSON
+     (loud `SystemExit` if n_unique_tx is missing or <= 0, with the
+     refetch/unify instructions); delta rounding/format switches to
+     fractional spots-per-transmitter (3 decimals); `config.norm_tx` block
+     added to the output JSON.
+  2. `scripts/spatial_analysis.py` — new `--norm-tx` flag; Phase 1 gains two
+     checks: n_unique_tx coverage in unified meta over the window (>= 99%,
+     required for `--source local` where meta is the ONLY source) and a light
+     API probe of `uniqExact(tx_sign) GROUP BY hour, band`. Phase 2: api
+     source fetches a companion n_unique_tx query per chunk and merges on
+     (hour, band); local source joins n_unique_tx from unified meta;
+     `spots_norm = spots / n_unique_tx(hour,band)` with a loud guard before
+     statistics; `block_perm_test`/`analyze_group` take a `value_col`
+     parameter (raw `value` kept for n_storm_spots provenance);
+     `params.norm_tx` recorded in the output JSON. NOTE: `--source local`
+     was rejected for the actual run (spot CSVs are truncated at 100k rows
+     per the module docstring), the run used `--source api`.
+  3. New `scripts/compare_norm_tx.py` — read-only two-table reporter
+     (perm per-band + spatial pooled/per-band, raw vs norm) with guards
+     (flare filter active in all 4 inputs, norm flags as expected) and a
+     verdict block (sign, significance count with `[WEAK]` cell listing,
+     band/latitude gradient order comparison); exit 0 on guards + verdict.
+- **Runs (2026-10-30, no flares, block=24, canonical defaults):**
+  - `perm_test_18mo_3band.py --norm-tx --out results/perm_test_18mo_3band_norm_tx.json`
+    -> 20m -23.9%, 40m -22.5%, 15m -30.1% (raw -25.5/-25.3/-36.8), all
+    p=2.00e-05 (floor). n_tx min/median/max = 99/461/1023.
+  - `spatial_analysis.py --source api --norm-tx --skip-crosscheck --apply
+    --out results/spatial_lat_groups_norm_tx.json` -> Phase 1 all OK
+    (n_unique_tx coverage 39456/39456 = 100%), 40 chunks + 40 companion
+    queries, 106 328 cells normalised, Total spots 1 796 248 370 unchanged.
+- **Comparison (`scripts/compare_norm_tx.py`, exit 0):**
+  - Pooled lat groups: High -72.1 -> -72.7 (slightly STRONGER), Mid
+    -26.1 -> -24.1, Low -20.0 -> -12.8; all p=5.00e-05 (floor) in both.
+  - 14/15 cells significant after norm; sign negative everywhere; band
+    gradient (15m > 20m > 40m) and latitude gradient (H > M > L) PRESERVED.
+  - **One exception — 15m Low-lat: -11.8% (p=5.00e-05) -> -0.8%
+    (p=9.07e-02)**: this secondary cell is explained by the active-
+    transmitter population (selection bias), not by geomagnetic physics.
+    40m Low-lat weakens 1.95e-03 -> 2.37e-02 but stays significant.
+  - Interpretation for the manuscript: the MAIN effect (auroral/mid-lat
+    drop, all pooled bands) is physical; the 15m low-lat cell is a
+    candidate Limitations item for the Q2 sync (decided with the author).
+- **Intentionally NOT changed:** the manuscript (Q2 sync will decide how to
+  phrase the norm results), headline/abstract numbers, canonical JSONs
+  (`results/perm_test_18mo_3band.json`, `results/spatial_lat_groups*.json`).
+  Norm output JSONs live in gitignored `results/` next to the canonicals.
+- **Verification:** `ruff check .`, `mypy crosscorr_lib`,
+  `pytest -m "not slow"` green; `git diff` reviewed.
+
 ### 2026-10-30 — Phase F refetch, unified rebuild, Zenodo v11 refresh, block = 8 rerun (Q1 audit completion)
 
 - **Task:** complete the Q1-audit data fixes: full re-pull of the 1701 WSPR

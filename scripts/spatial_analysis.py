@@ -46,6 +46,18 @@ hourly MAX flux (detector_type 'goes_xray' in unified.parquet) reaches
 --no-exclude-flares. Phase 1 fails loudly when exclusion is on but GOES
 coverage is missing, so the analysis can never silently lose the control.
 
+Selection-bias control (Phase B, --norm-tx)
+-------------------------------------------
+value_norm = spots / n_unique_tx, where n_unique_tx is the number of unique
+transmitters active in that hour+band -- the same definition as in
+unified.parquet meta (uniqExact(tx_sign) GROUP BY hour, band). Every
+latbin cell (hour, band, latbin) is divided by the n_unique_tx of its own
+(hour, band), so the metric is "spots per active transmitter". Sources:
+* api    -- a second, light SQL per chunk:
+           uniqExact(tx_sign) GROUP BY hour, band (mirrors the ETL exactly);
+* local  -- n_unique_tx joined from unified.parquet wspr_hourly meta.
+Rows with spots > 0 but n_unique_tx missing/<= 0 abort Phase 2 (loud guard).
+
 Outputs: results/spatial_lat_groups.json (+ tables on stdout).
 """
 
@@ -151,6 +163,20 @@ def ch_query(sql: str, timeout: int = HTTP_TIMEOUT, retries: int = 3) -> list:
 # --------------------------------------------------------------------------- #
 # Phase 1: verify (read-only, prints ALL problems, gates Phase 2)
 # --------------------------------------------------------------------------- #
+def _json_n_tx(meta_str: object) -> float | None:
+    """n_unique_tx out of the unified.parquet meta JSON string (None if absent)."""
+    try:
+        obj = json.loads(meta_str) if isinstance(meta_str, str) else (meta_str or {})
+    except (TypeError, ValueError):
+        return None
+    v = obj.get("n_unique_tx") if isinstance(obj, dict) else None
+    try:
+        f = float(v)
+    except (TypeError, ValueError):
+        return None
+    return f
+
+
 def kp_coverage(kp_hours: pd.DatetimeIndex, start: str, end: str) -> float:
     """Share of expected 3h Kp epochs present. Single source: Phase 1 + JSON."""
     want = pd.date_range(start, end, freq="3h", inclusive="left")
@@ -256,6 +282,55 @@ def verify(args: argparse.Namespace) -> bool:
         f"{len(local_files)} files in {RAW_SPOTS_DIR}",
         required=args.source == "local",
     )
+
+    # 4b. Selection-bias normalisation (Phase B): n_unique_tx availability
+    if getattr(args, "norm_tx", False):
+        if UNIFIED_PATH.exists():
+            uni_meta = pd.read_parquet(
+                UNIFIED_PATH, columns=["timestamp_utc", "detector_type", "meta"]
+            )
+            wm = uni_meta[uni_meta["detector_type"] == "wspr_hourly"]
+            wm_win = wm[
+                (wm["timestamp_utc"].dt.tz_convert(None) >= args.start)
+                & (wm["timestamp_utc"].dt.tz_convert(None) < args.end)
+            ]
+            n_tx_vals = wm_win["meta"].apply(_json_n_tx)
+            n_tx_ok = n_tx_vals.notna() & (n_tx_vals > 0)
+            frac = float(n_tx_ok.mean()) if len(wm_win) else 0.0
+            # meta must carry n_unique_tx; for --source local it is the ONLY
+            # source of the normaliser, for api it is an independent reference.
+            check(
+                len(wm_win) > 0 and frac >= 0.99,
+                "n_unique_tx in unified meta",
+                f"{int(n_tx_ok.sum())}/{len(wm_win)} wspr_hourly rows "
+                f"({frac:.1%}) in {args.start}..{args.end}",
+                required=args.source == "local",
+            )
+        else:
+            check(
+                False,
+                "n_unique_tx in unified meta",
+                f"missing: {UNIFIED_PATH}",
+                required=args.source == "local",
+            )
+        if args.source == "api":
+            t0 = pd.Timestamp(args.start) + pd.Timedelta(hours=args.sample_hour)
+            bands = ",".join(str(b) for b in args.bands)
+            ntx_sql = (
+                "SELECT toStartOfHour(time) AS hour, band, "
+                "uniqExact(tx_sign) AS n_unique_tx FROM wspr.rx "
+                f"WHERE time >= '{t0}' AND time < '{t0 + timedelta(hours=1)}' "
+                f"AND band IN ({bands}) GROUP BY hour, band FORMAT JSONCompact"
+            )
+            try:
+                rows = ch_query(ntx_sql, timeout=60)
+                check(
+                    bool(rows),
+                    "norm-tx API (uniqExact tx_sign)",
+                    f"{len(rows)} (hour,band) rows for {t0} (1 h window)",
+                )
+            except RuntimeError as exc:
+                check(False, "norm-tx API (uniqExact tx_sign)", str(exc))
 
     # 5. API: sample spots with coordinates, cross-check three ways
     if args.source == "api" and len(stations) > 0:
@@ -384,6 +459,15 @@ def verify(args: argparse.Namespace) -> bool:
         print(f"  flares   : excluded, GOES XRS 1-8A hourly max >= {args.flare_threshold:.1e} W/m2")
     else:
         print("  flares   : NOT excluded (--no-exclude-flares)")
+    if getattr(args, "norm_tx", False):
+        ntx_ref = (
+            "unified.parquet meta"
+            if args.source == "local"
+            else "API uniqExact(tx_sign) GROUP BY hour, band"
+        )
+        print(f"  metric   : spots / n_unique_tx(hour,band) (--norm-tx, source: {ntx_ref})")
+    else:
+        print("  metric   : raw spot counts (legacy)")
     print(
         f"  test     : block permutation, block={args.block}, "
         f"n_iter={args.n_iter}, seed={args.seed}"
@@ -402,6 +486,7 @@ def fetch_counts_api(args: argparse.Namespace) -> pd.DataFrame:
         ("radians(tx_lat)", "radians(tx_lon)", "radians(rx_lat)", "radians(rx_lon)")
     )
     parts: list[pd.DataFrame] = []
+    ntx_parts: list[pd.DataFrame] = []
     d0 = pd.Timestamp(args.start)
     end = pd.Timestamp(args.end)
     chunk = timedelta(days=args.chunk_days)
@@ -423,6 +508,18 @@ def fetch_counts_api(args: argparse.Namespace) -> pd.DataFrame:
         )
         if rows:
             parts.append(pd.DataFrame(rows, columns=["hour", "band", "latbin", "spots"]))
+        if args.norm_tx:
+            # Light companion query: unique transmitters per (hour, band) --
+            # mirrors the ETL definition uniqExact(tx_sign) GROUP BY hour, band.
+            sql_ntx = (
+                "SELECT toStartOfHour(time) AS hour, band, "
+                "uniqExact(tx_sign) AS n_unique_tx FROM wspr.rx WHERE time >= "
+                f"'{d0}' AND time < '{d1}' AND band IN ({bands}) "
+                "GROUP BY hour, band ORDER BY hour, band FORMAT JSONCompact"
+            )
+            rows_ntx = ch_query(sql_ntx)
+            if rows_ntx:
+                ntx_parts.append(pd.DataFrame(rows_ntx, columns=["hour", "band", "n_unique_tx"]))
         d0 = d1
     if not parts:
         raise RuntimeError("no data returned for the requested period")
@@ -430,6 +527,15 @@ def fetch_counts_api(args: argparse.Namespace) -> pd.DataFrame:
     out["hour"] = pd.to_datetime(out["hour"])
     out["band"] = out["band"].astype(int)
     out["spots"] = out["spots"].astype(int)
+    if args.norm_tx:
+        if not ntx_parts:
+            raise RuntimeError("--norm-tx: no n_unique_tx rows returned by the API")
+        ntx = pd.concat(ntx_parts, ignore_index=True)
+        ntx["hour"] = pd.to_datetime(ntx["hour"])
+        ntx["band"] = ntx["band"].astype(int)
+        ntx["n_unique_tx"] = ntx["n_unique_tx"].astype(int)
+        out = out.merge(ntx, on=["hour", "band"], how="left")
+        print(f"  n_unique_tx: {len(ntx)} (hour,band) rows merged into counts")
     return out
 
 
@@ -474,6 +580,26 @@ def load_counts_local(args: argparse.Namespace) -> pd.DataFrame:
         .size()
         .rename(columns={"size": "spots"})
     )
+    if args.norm_tx:
+        # n_unique_tx comes from unified.parquet wspr_hourly meta (per hour+band);
+        # the raw spot CSVs do not carry it.
+        uni = pd.read_parquet(
+            UNIFIED_PATH, columns=["timestamp_utc", "detector_type", "detector_id", "meta"]
+        )
+        wm = uni[uni["detector_type"] == "wspr_hourly"][
+            ["timestamp_utc", "detector_id", "meta"]
+        ].copy()
+        wm["hour"] = wm["timestamp_utc"].dt.tz_convert(None).dt.floor("1h")
+        wm["band_name"] = wm["detector_id"].astype(str).str.replace("wspr_hourly_", "")
+        wm["n_unique_tx"] = wm["meta"].apply(_json_n_tx)
+        ntx = wm[["hour", "band_name", "n_unique_tx"]]
+        counts["band_name"] = counts["band"].map(BAND_IDX)
+        counts = counts.merge(ntx, on=["hour", "band_name"], how="left")
+        counts = counts.drop(columns=["band_name"])
+        print(
+            f"  norm-tx: n_unique_tx joined from unified meta for "
+            f"{int(counts['n_unique_tx'].notna().sum())}/{len(counts)} cells"
+        )
     return counts
 
 
@@ -506,12 +632,16 @@ def load_goes_hours(start: str, end: str) -> pd.DataFrame:
 
 
 def block_perm_test(
-    merged: pd.DataFrame, block_size: int, n_iter: int, rng: np.random.Generator
+    merged: pd.DataFrame,
+    block_size: int,
+    n_iter: int,
+    rng: np.random.Generator,
+    value_col: str = "value",
 ) -> tuple[float, float] | None:
     """Two-sided block permutation on month x hod x dow residuals (paper sec 3.3)."""
     merged = merged.copy()
-    merged["resid"] = merged["value"] - merged.groupby(["month", "hour_of_day", "day_of_week"])[
-        "value"
+    merged["resid"] = merged[value_col] - merged.groupby(["month", "hour_of_day", "day_of_week"])[
+        value_col
     ].transform("mean")
     storm = (merged["kp"] >= 5).values
     quiet = (merged["kp"] < 3).values
@@ -565,22 +695,25 @@ def analyze_group(
     quiet = merged["kp"] < 3
     if storm.sum() < 3 or quiet.sum() < 10:
         return None
-    storm_mean = float(merged.loc[storm, "value"].mean())
-    quiet_mean = float(merged.loc[quiet, "value"].mean())
+    vcol = "value_norm" if getattr(args, "norm_tx", False) else "value"
+    storm_mean = float(merged.loc[storm, vcol].mean())
+    quiet_mean = float(merged.loc[quiet, vcol].mean())
     drop_pct = 100.0 * (storm_mean - quiet_mean) / quiet_mean if quiet_mean else float("nan")
-    test = block_perm_test(merged, args.block, args.n_iter, rng)
+    test = block_perm_test(merged, args.block, args.n_iter, rng, value_col=vcol)
     if test is None:
         return None
     obs, p_value = test
+    delta_digits = 3 if getattr(args, "norm_tx", False) else 1
     return {
         "n_epochs": int(len(merged)),
         "n_storm": int(storm.sum()),
         "n_quiet": int(quiet.sum()),
+        # raw spot totals (counts), kept even under --norm-tx for provenance
         "n_storm_spots": int(merged.loc[storm, "value"].sum()),
         "n_quiet_spots": int(merged.loc[quiet, "value"].sum()),
         "storm_mean": round(storm_mean, 1),
         "quiet_mean": round(quiet_mean, 1),
-        "delta_resid": round(obs, 1),
+        "delta_resid": round(obs, delta_digits),
         "drop_pct": round(drop_pct, 1),
         "p_value": round(p_value, 8),
     }
@@ -604,7 +737,11 @@ def build_group_series(
     for g in GROUPS:
         sub = counts[counts["latbin"] == g]
         s = sub.groupby("hour")["spots"].sum().reindex(hours, fill_value=0)
-        out[g] = pd.DataFrame({"hour": hours, "value": s.values.astype(float)})
+        frame = pd.DataFrame({"hour": hours, "value": s.values.astype(float)})
+        if getattr(args, "norm_tx", False):
+            sn = sub.groupby("hour")["spots_norm"].sum().reindex(hours, fill_value=0)
+            frame["value_norm"] = sn.values.astype(float)
+        out[g] = frame
     return out
 
 
@@ -696,6 +833,29 @@ def apply(args: argparse.Namespace) -> None:
         )
 
     total = int(counts["spots"].sum())
+    if args.norm_tx:
+        # Loud guard: every cell with spots must have a usable normaliser.
+        usable = counts["n_unique_tx"].notna() & (counts["n_unique_tx"] > 0)
+        bad = int((~usable).sum())
+        if bad:
+            raise SystemExit(
+                f"--norm-tx: {bad} count cells have spots > 0 but n_unique_tx missing or <= 0.\n"
+                + (
+                    "Fix the data first:\n"
+                    "  python data/scripts/refetch_wspr_hourly.py --apply\n"
+                    "  python data/scripts/unify_schema.py"
+                    if args.source == "local"
+                    else "The API n_unique_tx query returned no match for these (hour, band) "
+                    "cells; re-run Phase 1 or inspect the wspr.live response."
+                )
+            )
+        counts["spots_norm"] = counts["spots"] / counts["n_unique_tx"]
+        print(
+            f"[norm-tx] spots_norm = spots / n_unique_tx(hour,band); "
+            f"{len(counts)} cells, n_tx min/median/max="
+            f"{int(counts['n_unique_tx'].min())}/{counts['n_unique_tx'].median():.0f}/"
+            f"{int(counts['n_unique_tx'].max())}"
+        )
     print(
         f"Total spots: {total:,} in {counts['hour'].nunique()} hours, "
         f"bands={sorted(counts['band'].unique())}"
@@ -730,6 +890,15 @@ def apply(args: argparse.Namespace) -> None:
             "quiet": "Kp < 3",
             "groups": "|midpoint lat| > 60 high / 30-60 mid / < 30 low",
             "flare_filter": flare_info,
+            "norm_tx": {
+                "enabled": bool(args.norm_tx),
+                "metric": "spots / n_unique_tx(hour,band)",
+                "n_unique_tx_source": (
+                    "API uniqExact(tx_sign) GROUP BY hour, band"
+                    if args.source == "api"
+                    else "unified.parquet meta (wspr_hourly)"
+                ),
+            },
         },
         "pooled": headline,
         "per_band": per_band,
@@ -777,6 +946,14 @@ def main() -> int:
         type=float,
         default=1e-5,
         help="GOES 1-8A flux in W/m2 marking a flare hour (default 1e-5 = M1.0)",
+    )
+    parser.add_argument(
+        "--norm-tx",
+        action="store_true",
+        default=False,
+        help="normalise spot counts by active transmitters: "
+        "spots_norm = spots / n_unique_tx(hour+band) "
+        "(selection-bias control, Phase B; default: off = raw counts)",
     )
     parser.add_argument(
         "--out",
