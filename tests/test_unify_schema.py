@@ -265,6 +265,48 @@ def test_load_confounders_if_present_reads(tmp_path: Path):
         assert name in conf.columns
 
 
+def test_load_wspr_hourly_meta_is_per_row(tmp_path: Path):
+    """B1: meta собирается построчно, n_unique_tx попадает в meta (Phase B)."""
+    from data.scripts.unify_schema import load_wspr_hourly
+
+    path = tmp_path / "wspr_hourly_2025-06-01_20m.csv"
+    path.write_text(
+        "timestamp,band,spots_count,mean_snr,max_distance,mean_frequency,n_unique_tx\n"
+        "2025-06-01 00:00:00+00:00,14,106400,-14.7,18736,14097099.5,710\n"
+        "2025-06-01 01:00:00+00:00,14,91590,-14.9,19663,14097099.8,696\n",
+        encoding="utf-8",
+    )
+
+    out = load_wspr_hourly(path)
+    metas = [json.loads(m) for m in out["meta"]]
+
+    assert [m["n_unique_tx"] for m in metas] == [710, 696]
+    assert [m["mean_snr"] for m in metas] == [-14.7, -14.9]
+    assert [m["max_distance"] for m in metas] == [18736, 19663]
+    assert all(m["band"] == "20m" and m["band_index"] == 14 for m in metas)
+    assert [float(v) for v in out["value"]] == [106400.0, 91590.0]
+
+
+def test_load_wspr_hourly_meta_missing_columns_null(tmp_path: Path):
+    """Старый CSV без n_unique_tx/mean_snr -> null, unify не падает."""
+    from data.scripts.unify_schema import load_wspr_hourly
+
+    path = tmp_path / "wspr_hourly_2025-06-01_40m.csv"
+    path.write_text(
+        "timestamp,band,spots_count\n2025-06-01 00:00:00+00:00,7,55\n",
+        encoding="utf-8",
+    )
+
+    out = load_wspr_hourly(path)
+    meta = json.loads(out["meta"].iloc[0])
+
+    assert meta["n_unique_tx"] is None
+    assert meta["mean_snr"] is None
+    assert meta["max_distance"] is None
+    assert meta["band"] == "40m" and meta["band_index"] == 7
+    assert float(out["value"].iloc[0]) == 55.0
+
+
 if __name__ == "__main__":
     import pytest
 

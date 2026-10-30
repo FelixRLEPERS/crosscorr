@@ -156,7 +156,8 @@ def fetch_wspr_hourly(date: dt.date, band: str = "20m") -> pd.DataFrame:
     """Скачивает агрегированные по часам споты WSPR за день.
 
     Один SQL-запрос (GROUP BY hour) — 24 строки за день.
-    Колонки: timestamp_utc, spots_count, mean_snr, max_distance, mean_frequency.
+    Колонки: timestamp_utc, spots_count, mean_snr, max_distance, mean_frequency,
+    n_unique_tx (uniqExact по tx_sign внутри часа — для meta Selection Bias).
     """
     if band not in BAND_MHZ:
         raise ValueError(f"Неизвестный диапазон: {band!r}. Доступны: {list(BAND_MHZ)}")
@@ -171,7 +172,8 @@ def fetch_wspr_hourly(date: dt.date, band: str = "20m") -> pd.DataFrame:
         f"count(*) AS spots_count, "
         f"avg(snr) AS mean_snr, "
         f"max(distance) AS max_distance, "
-        f"avg(frequency) AS mean_frequency "
+        f"avg(frequency) AS mean_frequency, "
+        f"uniqExact(tx_sign) AS n_unique_tx "
         f"FROM wspr.rx "
         f"WHERE time >= '{start_ts}' AND time < '{end_ts}' "
         f"AND band = {band_index} "
@@ -186,13 +188,30 @@ def fetch_wspr_hourly(date: dt.date, band: str = "20m") -> pd.DataFrame:
         print("[WARN] WSPR hourly: 0 строк. Дата может быть в будущем или сервер не отвечает.")
         return pd.DataFrame()
 
-    hourly_cols = ["hour", "spots_count", "mean_snr", "max_distance", "mean_frequency"]
+    hourly_cols = [
+        "hour",
+        "spots_count",
+        "mean_snr",
+        "max_distance",
+        "mean_frequency",
+        "n_unique_tx",
+    ]
     df = pd.DataFrame(rows, columns=hourly_cols)
     df["timestamp"] = pd.to_datetime(df["hour"], utc=True, errors="coerce")
     df = df.drop(columns=["hour"])
     df["band"] = band_index
 
-    return df[["timestamp", "band", "spots_count", "mean_snr", "max_distance", "mean_frequency"]]
+    return df[
+        [
+            "timestamp",
+            "band",
+            "spots_count",
+            "mean_snr",
+            "max_distance",
+            "mean_frequency",
+            "n_unique_tx",
+        ]
+    ]
 
 
 def normalize(df: pd.DataFrame) -> pd.DataFrame:

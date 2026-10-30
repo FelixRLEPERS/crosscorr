@@ -238,6 +238,8 @@ def load_wspr_hourly(path: Path) -> pd.DataFrame:
     """Прочитать почасовую агрегацию WSPR в unified-формат (value = spots_count).
 
     Извлекает band из имени файла: wspr_hourly_YYYY-MM-DD_20m.csv -> 20m.
+    meta собирается ПОСТРОЧНО (band/band_index/mean_snr/max_distance/
+    n_unique_tx); колонки, отсутствующие в старых CSV, дают null.
     """
     df = pd.read_csv(path)
     band = path.stem.split("_")[-1]
@@ -250,16 +252,22 @@ def load_wspr_hourly(path: Path) -> pd.DataFrame:
             "value": df["spots_count"].astype(float),
         }
     )
-    out["meta"] = json.dumps(
-        {
-            "band": band,
-            "band_index": band_index,
-            "mean_snr": float(df["mean_snr"].iloc[0]) if "mean_snr" in df.columns else None,
-            "max_distance": float(df["max_distance"].iloc[0])
-            if "max_distance" in df.columns
-            else None,
-        }
-    )
+    n = len(df)
+    snr_vals = df["mean_snr"].tolist() if "mean_snr" in df.columns else [None] * n
+    dist_vals = df["max_distance"].tolist() if "max_distance" in df.columns else [None] * n
+    nuniq_vals = df["n_unique_tx"].tolist() if "n_unique_tx" in df.columns else [None] * n
+    out["meta"] = [
+        json.dumps(
+            {
+                "band": band,
+                "band_index": band_index,
+                "mean_snr": float(snr) if pd.notna(snr) else None,
+                "max_distance": float(dist) if pd.notna(dist) else None,
+                "n_unique_tx": int(nuniq) if pd.notna(nuniq) else None,
+            }
+        )
+        for snr, dist, nuniq in zip(snr_vals, dist_vals, nuniq_vals, strict=True)
+    ]
     return out[["timestamp_utc", "detector_id", "detector_type", "value", "meta"]]
 
 

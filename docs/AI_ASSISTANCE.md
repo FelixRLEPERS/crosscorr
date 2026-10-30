@@ -32,6 +32,61 @@ arithmetic or a spell-checker in writing.
 
 ## Session log
 
+### 2026-10-30 (Phase B Prep) — `n_unique_tx` in the WSPR hourly ETL
+
+- **Task:** Selection-Bias (Phase B) groundwork, author instructions:
+  add `uniqExact(tx_sign) AS n_unique_tx` to `fetch_wspr_hourly`, persist it
+  in `meta` via `unify_schema.py`, and produce the re-pull plan (full
+  18 months vs a single test band).
+- **AI model:** MiMo V2.6 Flash (OpenCode)
+- **Human reviewer:** Alexey Petrov (approved Phase 1 + decisions: per-row
+  meta, Phase T now / Phase F when API is up, re-pull BEFORE the Zenodo
+  upload so published v11 already carries `n_unique_tx`)
+- **Code changes:**
+  1. `data/scripts/download_wspr.py::fetch_wspr_hourly` — SQL gains
+     `uniqExact(tx_sign) AS n_unique_tx`; `hourly_cols` (positional
+     DataFrame construction) and the return column list gain the field;
+     docstring updated. CSV header becomes
+     `timestamp,band,spots_count,mean_snr,max_distance,mean_frequency,n_unique_tx`.
+  2. `data/scripts/unify_schema.py::load_wspr_hourly` — meta is now built
+     **per row** (decision B1). This also fixes a latent bug: previously
+     `mean_snr`/`max_distance` were taken via `.iloc[0]`, i.e. the first
+     hour's values were replicated onto every row of the day, contradicting
+     the README's "Per-row metadata" claim. Risk assessed as zero: grep
+     shows no analysis code parses `meta["mean_snr"]`/`max_distance`
+     (only download scripts and `snr_analysis_3band.py`, which queries the
+     API directly). Missing columns (old CSVs) yield JSON `null`.
+  3. New `data/scripts/refetch_wspr_hourly.py` — two-phase re-pull runner
+     (default = plan + one-request probe; `--apply` = parallel re-fetch).
+     Target universe = files that already exist in `data/raw/wspr/`
+     (1701 = 548 days x 3 bands training + 19 days x 3 bands Jan-2026;
+     span 2024-04-01..2026-01-19) - the date set never grows. Resume =
+     skip files whose header already has `n_unique_tx` (unless `--force`).
+     Per file: spots_count drift check against the old file (warn),
+     atomic tmp -> replace, sha256 sidecar via `download_wspr._write_checksum`.
+     `--workers 4` -> estimated 8-12 min for the full run.
+  4. Two unit tests in `tests/test_unify_schema.py`: per-row meta with
+     `n_unique_tx`/`mean_snr`/`max_distance`; missing columns -> null.
+- **Phase T executed (2026-10-30):** probe 2024-04-01 15m
+  (16 745 spots/h -> 258 unique tx) and 3-day x 20m apply
+  (2025-06-01..03): 3/3 ok, header verified, values plausible
+  (106 400 spots/h -> 710 unique tx). One fix during T: drift-merge
+  needed `pd.to_datetime(..., utc=True)` normalisation of the old file's
+  `timestamp` (str vs datetime64[us, UTC]).
+- **Scope notes:** writers feeding `data/raw/wspr_hourly/`
+  (`download_wspr_parallel.py`, `dload_2026.py`, `bg_dload_2026.py`,
+  `fetch_heldout_2026h1.py`; schema `hour,spots,...`) are untouched -
+  that directory is a separate cache that `unify_schema.LOADERS` never
+  reads (only `data/raw/wspr/` is globbed).
+- **Verification:** `ruff check .` OK; `mypy crosscorr_lib` OK;
+  `pytest -m "not slow"` 367 passed, 2 deselected; targeted
+  `pytest tests/test_unify_schema.py` 15 passed (incl. 2 new).
+- **Next (author plan):** Phase F `--apply` (1701 files, API restored
+  2026-10-30) -> `unify_schema.py` rebuild -> refresh the Zenodo v11
+  staging (staging currently hash `18a3ee5e...`, NOT yet uploaded) ->
+  manual upload. Still pending: block = 8 without-flares spatial rerun
+  for the `sec:dropnorm` sensitivity sentence.
+
 ### 2026-10-30 (Data Release) — Zenodo v11 staged (unified.parquet with GOES X-ray)
 
 - **Task:** refresh the Zenodo data staging after the GOES X-ray schema
