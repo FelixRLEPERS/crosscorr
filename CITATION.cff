@@ -7,7 +7,7 @@ authors:
     given-names: Makar
 title: "Scale-dependent WSPR response to geomagnetic storms: frequency dependence and network-size effects on absolute loss"
 version: 1.5.0
-doi: 10.5281/zenodo.23285958
+doi: 10.5281/zenodo.23802881
 date-released: 2026-10-27
 url: "https://github.com/FelixRLEPERS/crosscorr"
 repository-code: "https://github.com/FelixRLEPERS/crosscorr"

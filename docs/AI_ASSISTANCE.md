@@ -32,6 +32,10 @@ arithmetic or a spell-checker in writing.
 
 ## Session log
 
+### 2026-10-30 — Data package v11 published on Zenodo
+
+Data package v11 published on Zenodo. Version DOI: 10.5281/zenodo.23802881. Schema updated with goes_xray and n_unique_tx.
+
 ### 2026-10-30 — Q2 sync: paper (EN+RU) updated to the final flare-controlled and tx-normalized results
 
 - **Task:** sync `paper/main.tex` + `paper/main_ru.tex` with the final
