@@ -72,8 +72,10 @@ Preprint: [DOI: 10.5281/zenodo.23285958](https://doi.org/10.5281/zenodo.23285958
 | Tests | ✅ 369 passed |
 | Independent audit | ✅ Qwen 3.8 27B + external LLM audit |
 | Independent replication | ✅ Primary hypothesis + scale-dependence confirmed (Jan–Mar 2026) |
-| Preprint | ✅ Published on Zenodo ([DOI: 10.5281/zenodo.23285958](https://doi.org/10.5281/zenodo.23285958)) |
-| Journal submission | 🚧 Planned (Space Weather / Ann. Geophys.) |
+| Q1 narrative audit | ✅ 7-point consistency review closed (commits `cba17ab`, `1bac504`) |
+| HamSCI community review | ✅ G. Griffiths (G3ZIL) critique addressed — 15 comments triaged, 7 open items fixed (`3f68d55`) |
+| Preprint / data package | ✅ Zenodo v11 ([version DOI: 10.5281/zenodo.23802881](https://doi.org/10.5281/zenodo.23802881), [concept DOI: 10.5281/zenodo.23285958](https://doi.org/10.5281/zenodo.23285958)) |
+| Journal submission | ✅ Ready — cover letter + response to HamSCI review in `docs/submission/` (target: Space Weather) |
 
 ---
 

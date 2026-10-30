@@ -97,6 +97,13 @@ paper/*.bak*
 # Review source PDFs stay local; extracted .txt IS committed
 docs/reviews/*.pdf
 
+# Submission LaTeX artifacts stay local; .tex/.md sources ARE committed
+docs/submission/*.pdf
+docs/submission/*.aux
+docs/submission/*.log
+docs/submission/*.out
+docs/submission/*.synctex.gz
+
 *.bak
 
 # Smoke-test probes (network calls at module level — pytest-unsafe)

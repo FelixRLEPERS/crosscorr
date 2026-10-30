@@ -1,0 +1,85 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{url}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.7em}
+\begin{document}
+
+\today
+
+Dear Editor-in-Chief,
+
+Re: Submission of our manuscript ``Scale-dependent WSPR response to
+geomagnetic storms: frequency dependence and network-size effects on
+absolute loss'' for consideration in \emph{Space Weather}.
+
+We are an independent family research group (Alexey Petrov and Makar
+Petrov, no institutional affiliation). We present an 18-month,
+three-band (20/40/15 m) quantitative analysis of WSPR spot counts
+during geomagnetic storms ($Kp \ge 5$), using openly available
+citizen-science data from wspr.live together with GFZ Potsdam $Kp$
+and GOES X-ray indices.
+
+Main findings:
+
+\begin{enumerate}
+\item Storm-time suppression of spots per active transmitter on all
+three bands ($-23.9\%$, $-22.5\%$, $-30.1\%$; block-permutation
+$p \le 2\times10^{-5}$), with an independent held-out replication
+(Jan--Mar 2026).
+\item A statistically robust auroral-to-equatorial gradient of
+absorption: $-72.7\%$ at high latitudes versus $-12.8\%$ at low
+latitudes, a $5.7\times$ ratio.
+\item A selection-bias control: normalising hourly counts by the
+number of active transmitters reveals that the long-standing
+``15 m low-latitude anomaly'' is an artifact of operator behaviour
+rather than a propagation effect.
+\item Two distinct loss channels: MUF suppression and D-layer
+absorption, joined by a decode-channel mechanism --- storm-time
+Doppler spreading of the narrow ($\sim$1.4 Hz) WSPR tones, which
+removes spots even when received SNR is high.
+\end{enumerate}
+
+The analysis has passed a strict independent audit: a multi-round
+Q1 narrative and consistency review (estimate families separated,
+effective sample size recomputed via $\tau_{\rm int}$, permutation
+floors corrected), and a community critique by Gwyn Griffiths
+(G3ZIL) of the HamSCI community --- 15 comments, all addressed; a
+point-by-point response is attached as a supplementary file.
+Statistical methodology includes block permutation with IAAFT
+surrogates, Benjamini--Hochberg FDR control, and episode-level
+robustness checks.
+
+All data and code are openly available: the archived data package
+(Zenodo v11) is at \url{https://doi.org/10.5281/zenodo.23802881}
+(concept DOI: \url{https://doi.org/10.5281/zenodo.23285958}); the
+analysis code is at \url{https://github.com/FelixRLEPERS/crosscorr}
+(MIT license).
+
+This manuscript is original, has not been published elsewhere, and
+is not under consideration by another journal. All authors have
+approved the submission. We declare no conflicts of interest.
+
+We believe this bias-control method --- normalizing by active
+transmitters --- is directly applicable to other citizen-science
+datasets and may prevent false physical interpretations in future
+WSPR studies.
+
+We believe the results are of direct interest to the \emph{Space
+Weather} readership: they quantify a practical HF-propagation impact
+of geomagnetic storms using scalable, open citizen-science data, and
+they demonstrate a bias-control method that the WSPR community can
+apply directly.
+
+Thank you for your consideration.
+
+Sincerely,
+
+Alexey Petrov (corresponding author) and Makar Petrov
+Independent Researchers, Russia
+felixrpetrov@gmail.com
+https://github.com/FelixRLEPERS/crosscorr
+
+\end{document}

@@ -32,6 +32,39 @@ arithmetic or a spell-checker in writing.
 
 ## Session log
 
+### 2026-10-30 - Submission artefacts: README status, cover letter, HamSCI response
+
+- **Task:** bring project artefacts in line with the Q1 audit and the
+  closed HamSCI critique (commit `3f68d55`). Human-approved diffs.
+- **AI model:** MiMo V2.6 Flash (OpenCode)
+- **Human reviewer:** Alexey Petrov (approved README diff + cover
+  letter text; requested the added sentence on generalising the
+  bias-control method)
+- **Changes:**
+  - `README.md` Status table: added rows "Q1 narrative audit" and
+    "HamSCI community review"; Preprint row now shows Zenodo v11
+    version DOI 10.5281/zenodo.23802881 alongside the concept DOI;
+    Journal submission row -> "Ready" with pointer to
+    `docs/submission/` (target: Space Weather).
+  - `docs/submission/Cover_Letter_SpaceWeather.tex` (new): cover letter
+    for Space Weather - headline numbers (-23.9/-22.5/-30.1 %,
+    p <= 2e-5; -72.7/-12.8 %, 5.7x), selection-bias control (15 m
+    low-latitude artifact), storm-time Doppler spread of the ~1.4 Hz
+    WSPR tones, audit chain (Q1 review + Griffiths G3ZIL 15 comments),
+    Zenodo v11 DOI, open data/code, and the added generalisation
+    sentence (bias control -> other citizen-science datasets).
+  - `docs/submission/Response_to_HamSCI.md` (new): point-by-point
+    table of all 15 critique comments (6 solved / 2 stale / 3 partial /
+    7 actual-fixed + 2 editorial), matched by content since v1.1.0 PDF
+    line numbers differ from source.
+  - `.gitignore`: LaTeX build artifacts under `docs/submission/`
+    (*.pdf/*.aux/*.log/*.out/*.synctex.gz) stay local; .tex/.md
+    sources ARE committed.
+- **Checks:** `pdflatex -interaction=nonstopmode
+  Cover_Letter_SpaceWeather.tex` exit 0 (PDF 92 434 bytes);
+  `ruff check .` exit 0; `pytest -m "not slow"` 369 passed / 2
+  deselected.
+
 ### 2026-10-30 - HamSCI review response: Doppler spread, plain-language Key Points, terminology, limitations
 
 - **Task:** address the critique of Gwyn Griffiths (G3ZIL,
