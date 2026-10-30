@@ -32,6 +32,67 @@ arithmetic or a spell-checker in writing.
 
 ## Session log
 
+### 2026-10-30 — Q2 sync: paper (EN+RU) updated to the final flare-controlled and tx-normalized results
+
+- **Task:** sync `paper/main.tex` + `paper/main_ru.tex` with the final
+  Phase B numbers, scope "full sync + raw labels": headline results move to
+  the tx-normalized, flare-excluded family; the NB model, bootstrap CIs,
+  scale-dependence, UT-window, held-out, episode/monthly/distance and
+  block-8 families keep their raw numbers but gain an explicit
+  "raw spot counts" label; Methods gain the `eq:normtx` normalization
+  paragraph; Limitations/Confounders revised.
+- **AI model:** MiMo V2.6 Flash (OpenCode)
+- **Human reviewer:** Alexey Petrov (approved the scope beforehand, then
+  the full unified diff `q2_sync.diff` in the Review pane BEFORE `--apply`)
+- **Tooling (two-phase, AGENTS.md):**
+  1. New `scripts/q2_extract_numbers.py` — read-only extractor of the
+     final numbers from the result JSONs.
+  2. New `scripts/update_paper_q2_sync.py` — `--check` / `--apply`
+     updater: every `old` anchor must match exactly once per file
+     (count == 1 guard; mismatch aborts without writing); all numbers
+     interpolated from `results/perm_test_18mo_3band_norm_tx.json`,
+     `results/spatial_lat_groups_norm_tx.json`,
+     `results/spatial_lat_groups.json` (raw 15m low-lat cell) and
+     `results/perm_test_18mo_3band.json` (raw flare-filtered drops
+     -25.5 / -25.3 / -36.8) — nothing hardcoded; sanity checks pin the key
+     values (169/2738, pooled -72.7/-24.1/-12.8, raw 15m low-lat -11.8,
+     1325 flare hours); output guaranteed UTF-8 without BOM, LF, final
+     newline. Per-band section anchors are asserted present, and both
+     lists are matched file-wide (the count==1 guard is the uniqueness
+     check, not the section slice).
+- **Paper changes (both languages, mirrored):**
+  - Abstract / keypoints / PLS / conclusions: headline = spots per active
+    transmitter — 20m -23.9%, 40m -22.5%, 15m -30.1% (p=2.00e-05),
+    sample 169 storm / 2738 quiet epochs (1325 GOES XRS flare hours
+    excluded); raw-vs-norm wording corrected where the old text claimed
+    the raw values were "conservative".
+  - `sec:spatial`: norm prose (pooled -72.7 / -24.1 / -12.8, high/low
+    ratio 5.7x), "significant in 8 of 9 band x latitude cells"
+    (low-lat 15m p=9.07e-02 does not survive TX-normalization), the
+    flare paragraph kept raw-vs-raw (73.1/72.1, 28.2/26.1, 22.8/20.0)
+    with explicit labels, new Selection-bias paragraph (15m low-lat
+    -11.8% p=5e-05 -> -0.8% p=0.0907), `tab:spatial` rows, caption and
+    p-values (40m low-lat 2.4e-02, 15m low-lat 9.1e-02 not significant).
+  - Methods: new `\paragraph{Selection-bias normalization.}` with
+    `\begin{equation} \label{eq:normtx}` inserted before the existing
+    subsection, so the `Section~3.3` / `разд.~3.3` cross-references stay
+    valid; the paragraph states which analyses run on `S_norm` and which
+    stay on raw counts (labeled as such).
+  - Limitations: obsolete claim "normalisation ... is not available"
+    removed — "Station activity" rewritten (tx normalization applied via
+    `eq:normtx`, receivers/paths remain residual confounders); new item
+    "Low-latitude 15m selection bias". Confounders: false claim "the
+    permutation analyses retain all hours" corrected (both the headline
+    permutation and the latitude-group analysis exclude the flare hours).
+  - Raw-kept families carry explicit labels: tab:main raw run
+    "(raw spot counts, flare-included training run)", UT-table all-hours
+    rows, block-size sensitivity, scale/blocked-8 and distance/Kp-scheme
+    captions, held-out raw comparisons.
+- **Verification:** `ruff check .`, `mypy crosscorr_lib`,
+  `pytest -m "not slow"` (369 passed, 2 deselected) green; BOM / CRLF /
+  final-newline verified on both .tex files; full `git diff` reviewed;
+  temporary diagnostic scripts removed from the repo root.
+
 ### 2026-10-30 — Phase B: selection-bias normalisation by active transmitters (`--norm-tx`)
 
 - **Task:** Q1 audit, physical block — control for selection bias (human

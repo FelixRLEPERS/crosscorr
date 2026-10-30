@@ -24,10 +24,10 @@
 \linenumbers
 \maketitle
 \begin{keypoints}
-	\item On the training set, WSPR spot counts drop \SIrange{27}{39}{\percent}
+	\item On the training set, spots per active transmitter drop \SIrange{22.5}{30.1}{\percent}
 	during $Kp \ge 5$ storms on all three HF bands (block permutation
-	$p \le 2 \times 10^{-5}$); covariate-adjusted drops are
-	\SIrange{27}{40}{\percent}. On the held-out set, adjusted drops are
+	$p \le 2 \times 10^{-5}$); on raw spot counts, covariate-adjusted
+	drops are \SIrange{27}{40}{\percent}. On the held-out set, adjusted drops are
 	\SIrange{19}{23}{\percent}
 	\item The response shows a scale-dependent pattern: at Kp 5--6
 	$\sim$\SI{-18}{\percent}, at Kp $\ge$ 6 $\sim$\SI{-43}{\percent}
@@ -49,10 +49,11 @@
 	counts on HF amateur bands. Using openly available data from wspr.live
 	(hourly aggregated, 3 bands: 20\,m, 40\,m, 15\,m) and the GFZ Potsdam $Kp$ index,
 	covering 18 months (April 2024 -- September 2025; 39\,456 WSPR hours
-	across the three bands, 198 storm epochs at $Kp \ge 5$), we find
-	significant storm-induced spot reductions on all three bands:
-	20\,m: \SI{-27.7}{\percent}, 40\,m: \SI{-27.2}{\percent},
-	15\,m: \SI{-38.7}{\percent} (block permutation $p \le 2 \times 10^{-5}$
+	across the three bands; solar-flare hours excluded via GOES XRS,
+	169 storm epochs at $Kp \ge 5$ and 2738 quiet epochs), we find
+	significant storm-induced reductions of spots per active transmitter (hourly spot counts normalized by the number of unique WSPR transmitters, a selection-bias control) on all three bands:
+	20\,m: \SI{-23.9}{\percent}, 40\,m: \SI{-22.5}{\percent},
+	15\,m: \SI{-30.1}{\percent} (block permutation $p \le 2 \times 10^{-5}$
 	for all, \SI{50000}{iterations}, block = 24 epochs = 72\,h).
 	Because storm epochs are not evenly distributed across months and UTC
 	hours, we also estimate covariate-adjusted drops on the training set
@@ -61,10 +62,11 @@
 	[\SI{-39.9}{\percent}, \SI{-26.7}{\percent}]), 40\,m
 	\SI{-27.1}{\percent} ([\SI{-33.2}{\percent}, \SI{-20.5}{\percent}]), and
 	15\,m \SI{-39.8}{\percent} ([\SI{-46.8}{\percent}, \SI{-31.8}{\percent}]).
-	The raw values are therefore conservative for 20\,m and essentially
-	unchanged for 40\,m.
+	These covariate-adjusted estimates are fitted to raw spot counts;
+	they are more negative than the normalized drops for 20\,m and
+	close to the raw-count drops for 40\,m.
 
-	We observe a scale-dependent pattern: the drop increases from
+	We observe a scale-dependent pattern: the drop (on raw spot counts) increases from
 	$Kp = 5\text{--}6$ ($\sim\SI{-18}{\percent}$) to $Kp \ge 6$
 	($\sim\SI{-43}{\percent}$) on 20/40\,m (15\,m: \SI{-28.6}{\percent} to
 	\SI{-54.8}{\percent}), consistent with a non-linear ionospheric response
@@ -82,9 +84,9 @@
 
 	The frequency dependence and the exploratory UT-window pattern are
 	consistent with a dual-mechanism interpretation: the 15\,m drop
-	(\SI{-38.7}{\percent}) is compatible with MUF reduction, while
+	(\SI{-30.1}{\percent}) is compatible with MUF reduction, while
 	D-layer absorption affects 20\,m/40\,m
-	(\SI{-27.7}{\percent}/\SI{-27.2}{\percent}). The UT-window
+	(\SI{-23.9}{\percent}/\SI{-22.5}{\percent}). The UT-window
 	asymmetry (40\,m drop stronger in the 0--6 UTC window across the 8 months
 	with sufficient data) is consistent with intermittent auroral and polar
 	cap absorption. However, aggregate spot counts cannot uniquely separate
@@ -112,7 +114,7 @@ reflects high-frequency radio waves back to Earth. We tested whether a
 global network of amateur radio beacons (WSPR) can detect these
 disturbances. Analysing 18 months of data on three bands (20\,m, 40\,m,
 15\,m), we found that during moderate-to-strong storms the number of
-successfully reported signals falls by 27--39 percent, and that the
+successfully reported signals per active transmitter falls by 22.5--30.1 percent, and that the
 reduction grows with storm intensity. The pattern repeats in an
 independent three-month period. Stronger effects on the highest band
 are consistent with storm-driven reductions of the maximum usable
@@ -534,6 +536,25 @@ The primary hypothesis test intentionally excludes unsettled conditions
 contrast between quiet and storm states. These epochs are included in
 the scale-dependent binned analysis (Section 4.2).
 
+\paragraph{Selection-bias normalization.} Headline results are
+computed on the transmitter-normalized series
+\begin{equation}
+	S_{\mathrm{norm}} = \frac{\mathrm{spots}}{n_{\mathrm{tx}}}
+	\label{eq:normtx}
+\end{equation}
+where $n_{\mathrm{tx}}$ is the number of unique WSPR transmitters
+active in that hour and band (server-side
+\texttt{uniqExact(tx\_sign)}; stored per row in the unified archive
+meta, available both locally and from the API). Every hourly cell
+is divided by the $n_{\mathrm{tx}}$ of its own (hour, band) before
+aggregation, so a cell with spots $>0$ but missing $n_{\mathrm{tx}}$
+aborts the run. The permutation headline (Sections on frequency
+dependence and scale-dependence) and the latitude-group analysis
+(Section~\ref{sec:spatial}) use $S_{\mathrm{norm}}$; analyses that
+model integer counts (negative-binomial adjustment, block-bootstrap
+CIs, absolute-loss ratio) are computed on raw spot counts and are
+labeled as such.
+
 \subsection{Time-normalized drop and block-size sensitivity}
 \label{sec:dropnorm}
 
@@ -547,7 +568,7 @@ ratio $S_{\text{obs}} / S_{\text{quiet}}$ (\SI{1.72}{\percent} at
 high latitude, pooled), because the quiet window is $16.2\times$ longer;
 the raw ratio must be normalized by 169/2738 before comparison.
 
-Block-size sensitivity: rerunning the permutation with block = 8
+Block-size sensitivity (raw spot counts): rerunning the permutation with block = 8
 epochs (24\,h, one diurnal cycle) leaves every band $\times$ latitude
 cell unchanged or more significant: block = 24 is uniformly
 conservative relative to block = 8 across all nine cells; no cell
@@ -599,9 +620,9 @@ Four robustness checks were performed:
 	\item \textbf{Independent events:} The 198 storm epochs derive from 76 storm days,
 	      grouping into 58 episodes separated by more than 12~h, across 18 months
 	      and covering all four seasons. This is not a single-event result.
-	\item \textbf{Absolute magnitude:} The observed spot-density drops
-	      (\SI{-27.7}{\percent} on 20\,m, \SI{-27.2}{\percent} on 40\,m,
-	      \SI{-38.7}{\percent} on 15\,m) at $Kp \ge 5$ are consistent with
+	\item \textbf{Absolute magnitude:} The observed drops per active transmitter
+	      (\SI{-23.9}{\percent} on 20\,m, \SI{-22.5}{\percent} on 40\,m,
+	      \SI{-30.1}{\percent} on 15\,m) at $Kp \ge 5$ are consistent with
 	      the magnitude of MUF depression reported for moderate storms
 	      \citep{davies1990}. Spot-count loss and MUF reduction are distinct
 	      quantities, so we compare orders of magnitude only. This is not a
@@ -637,8 +658,11 @@ leave-one-episode-out jackknife.
 	\label{fig:timeseries}
 \end{figure}
 
-Table~\ref{tab:main} presents the primary result: storm-induced WSPR spot
-reduction on all three HF bands.
+Table~\ref{tab:main} presents the raw-count estimators of the primary
+result: storm-induced WSPR spot reduction on all three HF bands. The
+headline permutation drops on spots per active transmitter are
+\SI{-23.9}{\percent} (20\,m), \SI{-22.5}{\percent} (40\,m) and
+\SI{-30.1}{\percent} (15\,m), all $p \le 5 \times 10^{-5}$.
 
 \begin{table}[h]
 	\centering
@@ -646,7 +670,7 @@ reduction on all three HF bands.
 	\setlength{\tabcolsep}{3pt}
 	\caption{Primary result: WSPR spot reduction during $Kp \ge 5$ storms
 		(18 months, April 2024 -- September 2025). $N_{\text{storm}} = 198$
-		and $N_{\text{quiet}} = 3\,035$ for every band, in 3-h $Kp$ epochs. Raw drop follows Eq.~\eqref{eq:drop} (raw spot values)
+		and $N_{\text{quiet}} = 3\,035$ for every band, in 3-h $Kp$ epochs. Raw drop follows Eq.~\eqref{eq:drop} (raw spot counts, flare-included training run)
 		with a 95\% block-bootstrap CI (24-epoch blocks, 1\,000 resamples,
 		seed 42). Adjusted drop is $100(e^{\beta}-1)$ from the
 		negative-binomial model of Eq.~\eqref{eq:glm} with 95\%
@@ -679,9 +703,11 @@ reduction on all three HF bands.
 
 All three bands show a highly significant reduction in spot density during
 $Kp \ge 5$ conditions (block permutation, \SI{50000}{iterations},
-block = 24 epochs = 72\,h). The raw effect is strongest on 15\,m
-(\SI{-38.7}{\percent}) and nearly identical on 20\,m and 40\,m
-(\SI{-27.7}{\percent} and \SI{-27.2}{\percent}). After covariate
+block = 24 epochs = 72\,h). On spots per active transmitter the
+effect is strongest on 15\,m (\SI{-30.1}{\percent}) and nearly
+identical on 20\,m and 40\,m (\SI{-23.9}{\percent} and
+\SI{-22.5}{\percent}); the corresponding raw-count drops are
+$-25.5$\%, $-25.3$\% and $-36.8$\%. After covariate
 adjustment the 20\,m drop increases in magnitude to \SI{-33.6}{\percent}
 (95\% CI [\SI{-39.9}{\percent}, \SI{-26.7}{\percent}]): storm epochs are
 over-represented at 00 UTC and in June 2025, when the 20\,m quiet baseline is
@@ -839,9 +865,9 @@ point ordering, not the significance of individual contrasts.
 \subsection{Frequency dependence}
 
 The frequency dependence is consistent with a dual-mechanism structure
-(Figure~\ref{fig:freq}): 15\,m (\SI{-38.7}{\percent}) is substantially more
-affected than 20\,m (\SI{-27.7}{\percent}) and 40\,m
-(\SI{-27.2}{\percent}). After covariate adjustment the ordering becomes
+(Figure~\ref{fig:freq}): 15\,m (\SI{-30.1}{\percent}) is substantially more
+affected than 20\,m (\SI{-23.9}{\percent}) and 40\,m
+(\SI{-22.5}{\percent}). After covariate adjustment the ordering becomes
 monotonic (15\,m \SI{-39.8}{\percent}, 20\,m \SI{-33.6}{\percent},
 40\,m \SI{-27.1}{\percent}), whereas the raw 20\,m and 40\,m drops are nearly
 equal; this is expected if 20\,m receives an additional MUF penalty during
@@ -852,10 +878,10 @@ night-time absorption.
 	\centering
 	\includegraphics[width=0.85\textwidth]{figures/fig3_frequency_dependence.png}
 	\caption{Frequency dependence of the WSPR storm response. Spot reduction
-		for the three HF bands during $Kp \ge 5$ storms. The 15\,m band
-		shows substantially stronger suppression ($\SI{-38.7}{\percent}$)
-		than 20\,m ($\SI{-27.7}{\percent}$) and 40\,m
-		($\SI{-27.2}{\percent}$), consistent with the dual-mechanism
+		for the three HF bands during $Kp \ge 5$ storms (spots per
+		active transmitter). The 15\,m band shows substantially
+		stronger suppression (\SI{-30.1}{\percent}) than 20\,m
+		(\SI{-23.9}{\percent}) and 40\,m (\SI{-22.5}{\percent}), consistent with the dual-mechanism
 		interpretation (MUF reduction on 15\,m, D-layer absorption on
 		20\,m/40\,m).}
 	\label{fig:freq}
@@ -876,7 +902,7 @@ simultaneously:
 	      operate well below typical MUF, so their primary sensitivity is to
 	      non-deviative absorption in the D-region, which scales as
 	      $\propto 1/f^2$. However, the total drops are nearly equal
-	      ($\SI{-27.7}{\percent}$ vs $\SI{-27.2}{\percent}$), which appears to
+	      (\SI{-23.9}{\percent} vs \SI{-22.5}{\percent}), which appears to
 	      contradict the $1/f^2$ scaling (40\,m at \SI{7}{MHz} should be
 	      $\sim$4$\times$ more affected than 20\,m at \SI{14}{MHz}).
 \end{enumerate}
@@ -904,7 +930,7 @@ cycle (Table~\ref{tab:daynight}).
 		bootstrap resampling (\SI{1000}{resamples});
 		$N_{\text{storm}} / N_{\text{quiet}}$ as indicated.
 		All-hours rows are the block permutation result
-		(observed, no CI). The UT-day and UT-night rows cover 111 of the 198 storm
+		(observed, no CI; raw spot counts). The UT-day and UT-night rows cover 111 of the 198 storm
 		epochs and 1\,466 of the 3\,035 quiet epochs; the remainder fall
 		outside the 12--18 and 0--6 UTC windows.}
 	\label{tab:daynight}
@@ -1040,8 +1066,9 @@ zero, reflecting its smaller effect size rather than a sample-size deficit
 After covariate adjustment the held-out drops are \SI{-19.1}{\percent}
 (20\,m), \SI{-21.2}{\percent} (40\,m) and \SI{-23.4}{\percent} (15\,m),
 all with CIs excluding zero (Table~\ref{tab:heldout}). These are smaller
-than the training-period estimates (raw \SI{-27.7}{\percent},
-\SI{-27.2}{\percent}, \SI{-38.7}{\percent}; adjusted \SI{-33.6}{\percent},
+than the training-period estimates (raw (flare-included training run)
+\SI{-27.7}{\percent}, \SI{-27.2}{\percent}, \SI{-38.7}{\percent};
+adjusted \SI{-33.6}{\percent},
 \SI{-27.1}{\percent}, \SI{-39.8}{\percent}), so the replication is
 directional and significant but not quantitatively exact. Raw percentage
 drops on 20\,m and 40\,m are nevertheless comparable to training; the
@@ -1080,7 +1107,8 @@ requires specific storm morphologies (energetic particle precipitation) that
 were not prevalent in this particular 3-month interval.
 
 Specifically, the raw frequency ordering inverts between the two periods:
-in training the drops are \SI{-38.7}{\percent} (15\,m),
+in training the raw (flare-included) drops are
+	\SI{-38.7}{\percent} (15\,m),
 \SI{-27.7}{\percent} (20\,m), and \SI{-27.2}{\percent} (40\,m), whereas
 in the held-out window they are \SI{-22.1}{\percent} (15\,m),
 \SI{-26.7}{\percent} (20\,m), and \SI{-29.0}{\percent} (40\,m)
@@ -1225,41 +1253,60 @@ latitude ($|\mathrm{lat}| > 60^\circ$ auroral, $30$--$60^\circ$ mid,
 $< 30^\circ$ low) for the training window (1.80 billion spots in
 11\,827 hours; three bands; 4\,349 $Kp$ epochs). Auroral absorption
 produces a monotonic latitude gradient in WSPR spot loss during storm
-epochs ($Kp \ge 5$): the time-normalized drop is \SI{72.1}{\percent}
-at $|\mathrm{lat}| > 60^\circ$, \SI{26.1}{\percent} at
-$30$--$60^\circ$, and \SI{20.0}{\percent} at $< 30^\circ$ (pooled
-over 40/20/15\,m; high/low ratio $3.6\times$; $p < 5 \times
-10^{-5}$). The gradient steepens with frequency: at 15\,m it reaches
-\SI{84.2}{\percent} versus \SI{11.8}{\percent} ($7.1\times$),
+epochs ($Kp \ge 5$): the time-normalized drop per active transmitter is
+\SI{-72.7}{\percent} at $|\mathrm{lat}| > 60^\circ$,
+\SI{-24.1}{\percent} at $30$--$60^\circ$, and
+\SI{-12.8}{\percent} at $< 30^\circ$ (pooled
+over 40/20/15\,m; high/low ratio $5.7\times$; $p \le 5 \times 10^{-5}$). The gradient steepens with frequency: at 15\,m the auroral drop
+reaches \SI{-82.6}{\percent} while the
+low-latitude cell is near zero (\SI{-0.8}{\percent},
+$p = 9.1 \times 10^{-2}$), i.e. a ratio of $103.2\times$,
 consistent with trans-auroral path geometry and negative storm-phase
 $F2$ depletion. Block-permutation tests (the procedure of
 Section~3.3, 20\,000 iterations, add-one correction; normalization and
-block-size sensitivity in Section~\ref{sec:dropnorm}) are significant
-in all nine band $\times$ latitude cells ($p \le 1.95 \times 10^{-3}$;
-eight of nine at the $5 \times 10^{-5}$ floor).
-The reported values are flare-controlled: the 1\,325 hours (10.1\% of
-the window) with a GOES X-ray flare of class M1.0+ are excluded. The
-flare-included run differs by only 1--2\,pp (high-lat
-\SI{73.1}{\percent} vs.\ \SI{72.1}{\percent}, mid-lat
-\SI{28.2}{\percent} vs.\ \SI{26.1}{\percent}, low-lat
-\SI{22.8}{\percent} vs.\ \SI{20.0}{\percent}) and leaves $p$ at the permutation floor
-in both runs, so the gradient is not a flare (SID) artifact.
+block-size sensitivity in Section~\ref{sec:dropnorm}) are significant in eight of the nine band $\times$ latitude cells
+($p \le 2.4 \times 10^{-2}$; seven of nine at the floor); the low-latitude
+15\,m cell does not survive TX-normalization ($p = 9.1 \times 10^{-2}$).
+The reported values are flare-controlled and normalized by active
+transmitters: the 1\,325 hours (10.1\% of the window) with a GOES
+X-ray flare of class M1.0+ are excluded. On raw spot counts the
+flare-included run differs from the flare-controlled run by only
+1--2\,pp (high-lat \SI{73.1}{\percent} vs.\ \SI{72.1}{\percent},
+mid-lat \SI{28.2}{\percent} vs.\ \SI{26.1}{\percent}, low-lat
+\SI{22.8}{\percent} vs.\ \SI{20.0}{\percent}) and leaves $p$ at
+the permutation floor in both runs, so the gradient is not a flare
+(SID) artifact.
+
+Selection-bias control: dividing every hourly cell by the number of
+unique transmitters active in that hour and band
+(Eq.~\eqref{eq:normtx}) leaves the band and latitude gradient
+orders intact (pooled high-lat \SI{-72.7}{\percent}, mid-lat \SI{-24.1}{\percent},
+low-lat \SI{-12.8}{\percent}; all pooled $p \le 5 \times 10^{-5}$), but
+the low-latitude 15\,m cell collapses from
+\SI{-11.8}{\percent} ($p = 5 \times 10^{-5}$) to
+\SI{-0.8}{\percent} ($p = 9.1 \times 10^{-2}$): the original
+low-latitude 15\,m drop is explained by changes in the
+active-transmitter population (selection bias) rather than by
+geomagnetic absorption, consistent with the physical expectation
+that storm-time D-layer absorption is negligible at equatorial
+latitudes.
 
 \begin{table}[h]
 	\centering
 	\small
 	\caption{Time-normalized relative spot drop during storm epochs
 	($Kp \ge 5$) by midpoint-latitude group, 2024-04-01 -- 2025-10-01
-	(Drop\% as in Section~\ref{sec:dropnorm}). $N_{\text{storm}}$ = 169
+	(Drop\% on spots per active transmitter, Eq.~\eqref{eq:normtx};
+	definition in Section~\ref{sec:dropnorm}). $N_{\text{storm}}$ = 169
 	storm epochs of 4\,349 total (3-h $Kp$ cadence, coverage 99.2\%),
 	identical across groups (the epoch universe is shared; groups
 	partition by latitude). Pooled $N_{\text{storm,spots}}$: high-lat
 	80\,673; mid-lat 18\,380\,593; low-lat 909\,770. Per-band
 	$N_{\text{storm,spots}}$ (high/mid/low): 40\,m
 	11\,426/8\,368\,948/180\,897; 20\,m 62\,133/8\,775\,808/529\,483;
-	15\,m \textbf{7\,114}/1\,235\,837/199\,390. $p$-values: pooled
-	cells all $< 5 \times 10^{-5}$; per-band, eight of nine cells at the
-	floor and low-lat 40\,m $p = 1.95 \times 10^{-3}$.}
+	15\,m \textbf{7\,114}/1\,235\,837/199\,390. $p$-values: pooled cells all $p \le 5 \times 10^{-5}$; per-band, seven of nine
+	cells at the floor, low-lat 40\,m $p = 2.4 \times 10^{-2}$ and low-lat
+	15\,m $p = 9.1 \times 10^{-2}$ (not significant).}
 	\label{tab:spatial}
 	\begin{tabular}{lcccc}
 		\toprule
@@ -1267,9 +1314,9 @@ in both runs, so the gradient is not a flare (SID) artifact.
 		\cmidrule(lr){2-5}
 		 & Pooled & 40\,m & 20\,m & 15\,m \\
 		\midrule
-		Auroral ($|\mathrm{lat}| > 60^\circ$) & $-72.1$ & $-67.2$ & $-70.3$ & $-84.2$ \\
-		Mid-latitude ($30$--$60^\circ$) & $-26.1$ & $-25.2$ & $-24.9$ & $-38.6$ \\
-		Low-latitude ($< 30^\circ$) & $-20.0$ & $-21.6$ & $-22.2$ & $-11.8$ \\
+		Auroral ($|\mathrm{lat}| > 60^\circ$) & $-72.7$ & $-66.1$ & $-70.0$ & $-82.6$ \\
+		Mid-latitude ($30$--$60^\circ$) & $-24.1$ & $-22.5$ & $-23.4$ & $-32.5$ \\
+		Low-latitude ($< 30^\circ$) & $-12.8$ & $-17.8$ & $-19.5$ & $-0.8$ \\
 		\bottomrule
 	\end{tabular}
 \end{table}
@@ -1300,7 +1347,7 @@ $\rightarrow$ neutral temperature increase $\rightarrow$ composition changes
 $\rightarrow$ $f_oF_2$ decreases $\rightarrow$ MUF drops below the operating
 frequency on affected paths $\rightarrow$ signal no longer reflects
 $\rightarrow$ fewer WSPR spots. This mechanism predominantly affects the
-highest band, 15\,m (\SI{-38.7}{\percent}).
+highest band, 15\,m (\SI{-30.1}{\percent}).
 
 \textbf{D-layer absorption chain:} $Kp$ increase $\rightarrow$ particle
 precipitation (electrons and protons) $\rightarrow$ D-region ionisation
@@ -1393,7 +1440,7 @@ The absolute-loss comparison across training and held-out periods (Section~\ref{
 	      should be re-validated periodically over multi-year network growth.
 	\item \textbf{Band-dependent thresholds:} On 20\,m and 40\,m,
 	      $Kp \ge 6$ is required for substantial disruption; on 15\,m,
-	      $Kp = 5\text{--}6$ already produces \SI{-28.6}{\percent}
+	      $Kp = 5\text{--}6$ already produces \SI{-28.6}{\percent} (raw spot counts)
 	      (95\% CI [\SI{-37.3}{\percent}, \SI{-20.0}{\percent}]). A single
 	      $Kp$ threshold therefore overstates the warning level for 15\,m
 	      and understates it for the mid-bands.
@@ -1490,19 +1537,29 @@ establishing a unique mechanism attribution.
 	      monthly mean residuals (Spearman $r = +0.047$, $p = 0.86$; median-based
 	      check, $r = -0.17$, $p = 0.52$, agrees), which argues against the
 	      storm-driven effects reported here being solar-cycle artifacts. Solar flare effects (Sudden
-	      Ionospheric Disturbances, SIDs) are controlled for in the latitude-group analysis, which
-	      excludes the 1\,325 GOES X-ray M1.0+ flare hours (10.1\%,
-	      Section~\ref{sec:spatial}) and shifts the pooled drops by 1--2\,pp;
-	      the permutation analyses retain all hours \citep{mitra1974}.
+	      Ionospheric Disturbances, SIDs) are controlled for in both the headline permutation analysis and
+	      the latitude-group analysis, which exclude the 1\,325 GOES X-ray
+	      M1.0+ flare hours (10.1\%, Section~\ref{sec:spatial}); on raw
+	      spot counts the exclusion shifts the pooled drops by only
+	      1--2\,pp \citep{mitra1974}.
 	      Summer 15\,m observations may be partially contaminated by
 	      sporadic-E propagation \citep{whitehead1989}; however, the storm effect is present in all
 	      seasons, including winter when Es is absent. No corresponding F10.7 analysis was performed for the held-out period, as only a single monthly data point (January 2026) is available.
 	\item \textbf{Station activity:} The reported reductions are reductions
-	      in \emph{reported} WSPR spots: the number of active transmitters,
-	      receivers, and unique paths, and operator upload behaviour, are not
-	      normalised out. A pure propagation-mode attribution would require
-	      normalisation by active-station counts, which is not available from
-	      the aggregated queries used here.
+	      in \emph{reported} WSPR spots: the number of receivers and unique
+	      paths, and operator upload behaviour, are not normalised out. The
+	      number of active transmitters is normalised out via
+	      Eq.~\eqref{eq:normtx} (spots per active transmitter); receiver
+	      and path populations remain a residual confounder.
+	\item \textbf{Low-latitude 15\,m selection bias:} After normalization
+	      by active transmitters the low-latitude 15\,m effect vanishes
+	      (\SI{-0.8}{\percent}, $p = 9.1 \times 10^{-2}$), while
+	      the auroral and mid-latitude gradients and the band ordering
+	      persist. This localizes the effect physically (D-layer
+	      absorption is negligible at equatorial latitudes) and
+	      demonstrates that raw spot-count drops at low latitudes can be
+	      driven by human activity; future studies should normalize by
+	      active-station counts before interpreting low-latitude drops.
 	\item \textbf{Band coverage:} Only three WSPR bands are analysed. Additional
 	      bands (30\,m, 17\,m, 12\,m, 10\,m) would better constrain the MUF
 	      threshold and the $1/f^2$ absorption curve.
@@ -1568,7 +1625,7 @@ establishing a unique mechanism attribution.
 	      marginal comparisons; the adjusted drops from the negative-binomial
 	      model depend on the choice of month, UT-hour and day-of-week
 	      controls. The raw and adjusted estimates agree for 40\,m but differ
-	      for 20\,m (raw \SI{-27.7}{\percent} vs adjusted
+	      for 20\,m (raw (flare-included run) \SI{-27.7}{\percent} vs adjusted
 	      \SI{-33.6}{\percent}) and for the held-out period (raw
 	      \SIrange{-29.0}{-26.7}{\percent} vs adjusted
 	      \SIrange{-23.4}{-19.1}{\percent}). We report both and do not treat
@@ -1613,12 +1670,12 @@ in WSPR spot density, with five principal conclusions:
 
 {\sloppy
 \begin{enumerate}
-	\item \textbf{Primary effect:} Storm-induced spot reduction is
-	      \SI{-27.7}{\percent} (20\,m), \SI{-27.2}{\percent} (40\,m), and
-	      \SI{-38.7}{\percent} (15\,m), all significant at
+	\item \textbf{Primary effect:} Storm-induced reduction of spots per active transmitter is
+	      \SI{-23.9}{\percent} (20\,m), \SI{-22.5}{\percent} (40\,m), and
+	      \SI{-30.1}{\percent} (15\,m), all significant at
 	      $p \le 2 \times 10^{-5}$ (block permutation,
-	      \SI{50000}{iterations}). Covariate-adjusted estimates are
-	      \SI{-33.6}{\percent}, \SI{-27.1}{\percent} and
+	      \SI{50000}{iterations}). On raw spot counts, covariate-adjusted
+	      estimates are \SI{-33.6}{\percent}, \SI{-27.1}{\percent} and
 	      \SI{-39.8}{\percent}, respectively, with cluster-robust CIs
 	      excluding zero. The effect is corroborated by the independent $Dst$
 	      index and survives all sensitivity checks.
@@ -1775,7 +1832,7 @@ permutation.
 \begin{table}[h]
 	\centering
 	\small
-	\caption{Top: primary drop (\%) under three $Kp$ assignment schemes.
+	\caption{Top: primary drop (\%) under three $Kp$ assignment schemes (raw spot counts).
 		Bottom: drop (\%) as a function of $Kp$ lag; positive lag means the
 		WSPR epoch is compared with a $Kp$ epoch 3\,h earlier (delayed
 		response), negative lag with a later $Kp$ epoch.}
@@ -1880,7 +1937,7 @@ resolve latitude, local time, or individual transmitter--receiver paths.
 	\centering
 	\small
 	\caption{Distance-resolved storm drop (\%) by great-circle distance bin
-		(training period). CIs are 95\% block-bootstrap intervals
+		(training period; raw spot counts). CIs are 95\% block-bootstrap intervals
 		(24-epoch blocks, 1\,000 resamples, seed 42).}
 	\label{tab:distance}
 	\begin{tabular}{lrrr}
