@@ -6,7 +6,9 @@ cross-checked against independent space-weather indices.
 
 **Package version:** v11 (2026-10-30) — schema adds `detector_type`
 `goes_xray` (unit `W/m2`; GOES-R XRS L2 1-min means, aggregated to
-hourly max) for the Q1 solar-flare control. Previous package (v10,
+hourly max) for the Q1 solar-flare control, and `wspr_hourly` meta now
+stores the per-row unique transmitter count `n_unique_tx`
+(Selection-Bias control). Previous package (v10,
 2026-10-28) stays available under the same concept DOI.
 Upload to Zenodo is a manual step (performed by the maintainer);
 this directory is the staging area.
@@ -18,7 +20,7 @@ this directory is the staging area.
 
 | File | Size | SHA-256 (see `checksums.txt`) |
 |---|---|---|
-| `unified.parquet` | 2 687 068 bytes | `18a3ee5e0b7c09b8e68188141a674125e84633c1333fbb396d8d34c9f2ac1ecf` |
+| `unified.parquet` | 3 829 807 bytes | `8ee0ac22eb48eb671fc5add881101ef1ae2670a39ea8c0c4d61d8250cc8031ba` |
 | `README.md` | this file | — |
 | `checksums.txt` | sha256 sums | — |
 
@@ -44,7 +46,7 @@ fetches spot aggregates server-side but takes Kp from this file).
 | `residual_method` | string | `ols_geomagnetic` for every row in this release |
 | `unit` | string | `count` (WSPR hourly spot counts), `dB` (spot SNR), `AU` (ephemeris distances), `W/m2` (GOES X-ray 1–8 Å flux), `unknown` (Kp/Dst/F10.7 as delivered by upstream services) |
 | `quality_flag` | float | Quality marker; `0.0` = OK for all rows in this release |
-| `meta` | string (JSON) | Per-row metadata: band/band_index/mean_snr/max_distance for `wspr_hourly`; granularity for indices; source URLs/objects elsewhere |
+| `meta` | string (JSON) | Per-row metadata: band/band_index/mean_snr/max_distance/n_unique_tx for `wspr_hourly`; granularity for indices; source URLs/objects elsewhere |
 
 ### Detector inventory (this release)
 

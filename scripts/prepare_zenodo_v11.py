@@ -15,6 +15,12 @@ What v11 changes versus the staged (v10) package:
   * file size and SHA-256 (checksums.txt + README table row);
   * ETL steps (GOES download from NOAA NCEI) and package version note.
 
+The script is dual-state: it also REFRESHES an already-staged v11
+(after an ETL change such as the ``n_unique_tx`` re-pull: new hash/size,
+meta vocabulary note, inventory drift) via state-independent regexes
+plus conditional one-time updates - applied one-time literals are
+skipped, ambiguous patterns (2+ matches) fail loudly.
+
 Upload to Zenodo stays a manual maintainer step; this script only
 prepares the staging directory.
 """
@@ -84,49 +90,79 @@ def collect_stats() -> dict:
 
 
 def readme_edits(stats: dict) -> tuple[list[tuple[str, str]], list[tuple[str, str]]]:
-    """Return (replacements, insertions) for README.md; count == 1 each."""
+    """Return (replacements, insertions) for README.md.
+
+    Dual-state by design (fail-loud in every state):
+
+    * fresh v10 -> v11 staging: one-time literals jump straight to the
+      final header/meta text;
+    * v11 refresh after an ETL change (re-pull / rebuild): state-independent
+      regexes (files row, rows sentence, inventory) plus conditional
+      one-time updates.
+
+    ``add()`` skips a literal that is absent (already applied) and fails
+    on 2+ occurrences; required patterns raise when not found.
+    """
     inv = stats["inv"]
     goes = inv.get("goes_xray")
     if goes is None:
         raise SystemExit("goes_xray detector_type absent from unified.parquet")
 
     text = README.read_text(encoding="utf-8")
-    total = fmt_n(stats["rows"])
-    old_total = fmt_n(84402) if stats["rows"] != 84402 else None
+    replaces: list[tuple[str, str]] = []
+    inserts: list[tuple[str, str]] = []
 
-    replaces: list[tuple[str, str]] = [
-        # package header
-        (
-            '**Package prepared:** 2026-10-28 (audit round v1.5.0, task "publish\n'
-            'unified.parquet on Zenodo"). Upload to Zenodo is a manual step\n'
-            "(performed by the maintainer); this directory is the staging area.",
-            "**Package version:** v11 (2026-10-30) — schema adds `detector_type`\n"
-            "`goes_xray` (unit `W/m2`; GOES-R XRS L2 1-min means, aggregated to\n"
-            "hourly max) for the Q1 solar-flare control. Previous package (v10,\n"
-            "2026-10-28) stays available under the same concept DOI.\n"
-            "Upload to Zenodo is a manual step (performed by the maintainer);\n"
-            "this directory is the staging area.",
-        ),
-    ]
+    def add(old: str, new: str) -> None:
+        n = text.count(old)
+        if n == 1:
+            replaces.append((old, new))
+        elif n > 1:
+            raise SystemExit(f"ambiguous pattern ({n}x): {old[:70]!r}")
 
-    # files table row: size + sha256
-    replaces.append(
-        (
-            "| `unified.parquet` | 1 703 727 bytes | "
-            "`0a746f033c7492243d88874968a271f2020fa7631eb7dae75b1f0449d6cfadc2` |",
-            f"| `unified.parquet` | {stats['size']:,} bytes | `{stats['sha']}` |".replace(",", " "),
-        )
+    # -- package header --------------------------------------------------
+    v10_header = (
+        '**Package prepared:** 2026-10-28 (audit round v1.5.0, task "publish\n'
+        'unified.parquet on Zenodo"). Upload to Zenodo is a manual step\n'
+        "(performed by the maintainer); this directory is the staging area."
     )
+    v11_base = (
+        "**Package version:** v11 (2026-10-30) — schema adds `detector_type`\n"
+        "`goes_xray` (unit `W/m2`; GOES-R XRS L2 1-min means, aggregated to\n"
+        "hourly max) for the Q1 solar-flare control. Previous package (v10,\n"
+        "2026-10-28) stays available under the same concept DOI.\n"
+        "Upload to Zenodo is a manual step (performed by the maintainer);\n"
+        "this directory is the staging area."
+    )
+    v11_meta = (
+        "**Package version:** v11 (2026-10-30) — schema adds `detector_type`\n"
+        "`goes_xray` (unit `W/m2`; GOES-R XRS L2 1-min means, aggregated to\n"
+        "hourly max) for the Q1 solar-flare control, and `wspr_hourly` meta now\n"
+        "stores the per-row unique transmitter count `n_unique_tx`\n"
+        "(Selection-Bias control). Previous package (v10,\n"
+        "2026-10-28) stays available under the same concept DOI.\n"
+        "Upload to Zenodo is a manual step (performed by the maintainer);\n"
+        "this directory is the staging area."
+    )
+    add(v10_header, v11_meta)  # fresh staging jumps to the final text
+    add(v11_base, v11_meta)  # refresh of the already-staged v11 header
 
-    # row/column count sentence (space may be U+00A0 or ASCII)
-    if old_total is not None:
-        pat = re.compile(r"\*\*" + old_total.replace(" ", r"[  ]") + r" rows ×\s*\n9 columns\*\*")
-        m = pat.search(text)
-        if not m:
-            raise SystemExit("rows/columns sentence not found in README")
-        replaces.append((m.group(0), f"**{total} rows ×\n9 columns**"))
+    # -- files table row: size + sha256 (state-independent) --------------
+    m = re.search(r"\| `unified\.parquet` \| [\d\u00a0 ]+ bytes \| `[0-9a-f]{64}` \|", text)
+    if not m:
+        raise SystemExit("files-table row not found in README")
+    new_row = f"| `unified.parquet` | {fmt_n(stats['size'])} bytes | `{stats['sha']}` |"
+    if m.group(0) != new_row:
+        replaces.append((m.group(0), new_row))
 
-    # inventory lines whose content changed since the staged v10 package
+    # -- row/column count sentence (state-independent) -------------------
+    m = re.search(r"\*\*[\d\u00a0 ]+ rows ×\s*\n9 columns\*\*", text)
+    if not m:
+        raise SystemExit("rows/columns sentence not found in README")
+    new_sentence = f"**{fmt_n(stats['rows'])} rows ×\n9 columns**"
+    if m.group(0) != new_sentence:
+        replaces.append((m.group(0), new_sentence))
+
+    # -- inventory lines whose content changed (dynamic) -----------------
     def inv_line(dtype: str) -> str:
         m = re.search(rf"^\| `{re.escape(dtype)}` \|.*\|$", text, flags=re.MULTILINE)
         if not m:
@@ -149,55 +185,59 @@ def readme_edits(stats: dict) -> tuple[list[tuple[str, str]], list[tuple[str, st
         if new_line != old_line:
             replaces.append((old_line, new_line))
 
-    # Notes section repeats the receiver-sample size in prose
-    replaces.append(("`wspr` detector, 985 callsigns", "`wspr` detector, 1 206 callsigns"))
-
-    # column vocabularies
-    replaces.append(
-        (
-            "`wspr_hourly`, `wspr`, `kp`, `dst`, `f107`, `ephemeris`",
-            "`wspr_hourly`, `wspr`, `kp`, `dst`, `f107`, `ephemeris`, `goes_xray`",
-        )
+    # -- one-time prose/vocabulary updates (skip when already applied) ---
+    add("`wspr` detector, 985 callsigns", "`wspr` detector, 1 206 callsigns")
+    add(
+        "`wspr_hourly`, `wspr`, `kp`, `dst`, `f107`, `ephemeris` |",
+        "`wspr_hourly`, `wspr`, `kp`, `dst`, `f107`, `ephemeris`, `goes_xray` |",
     )
-    replaces.append(
-        (
-            "| `unit` | string | `count` (WSPR hourly spot counts), `dB` (spot SNR), "
-            "`AU` (ephemeris distances), `unknown` (Kp/Dst/F10.7 as delivered by "
-            "upstream services) |",
-            "| `unit` | string | `count` (WSPR hourly spot counts), `dB` (spot SNR), "
-            "`AU` (ephemeris distances), `W/m2` (GOES X-ray 1–8 Å flux), `unknown` "
-            "(Kp/Dst/F10.7 as delivered by upstream services) |",
-        )
+    add(
+        "| `unit` | string | `count` (WSPR hourly spot counts), `dB` (spot SNR), "
+        "`AU` (ephemeris distances), `unknown` (Kp/Dst/F10.7 as delivered by "
+        "upstream services) |",
+        "| `unit` | string | `count` (WSPR hourly spot counts), `dB` (spot SNR), "
+        "`AU` (ephemeris distances), `W/m2` (GOES X-ray 1–8 Å flux), `unknown` "
+        "(Kp/Dst/F10.7 as delivered by upstream services) |",
     )
-
-    # ETL: add GOES step, renumber unification
-    replaces.append(
-        (
-            "4. **Unification** — `unify_schema.py` merges all raw sources into the",
-            "5. **Unification** — `unify_schema.py` merges all raw sources into the",
-        )
+    add(
+        "| `meta` | string (JSON) | Per-row metadata: band/band_index/"
+        "mean_snr/max_distance for `wspr_hourly`; granularity for indices; "
+        "source URLs/objects elsewhere |",
+        "| `meta` | string (JSON) | Per-row metadata: band/band_index/"
+        "mean_snr/max_distance/n_unique_tx for `wspr_hourly`; granularity for "
+        "indices; source URLs/objects elsewhere |",
+    )
+    add(
+        "4. **Unification** — `unify_schema.py` merges all raw sources into the",
+        "5. **Unification** — `unify_schema.py` merges all raw sources into the",
     )
 
+    # -- insertions (guarded: only when the block is absent) -------------
     goest0 = goes["t0"]
     goest1 = goes["t1"][:10]
-    inserts: list[tuple[str, str]] = [
-        (
-            "5. **Unification** — `unify_schema.py` merges all raw sources into the",
-            "4. **GOES X-ray flare series** — `download_space_weather.py`: NOAA NCEI\n"
-            "   GOES-R (`goes18`/`goes16`/`goes19`) XRS L2 1-min means\n"
-            "   (`xrsf-l2-avg1m` NetCDF), aggregated to hourly **max**\n"
-            "   (`detector_type = goes_xray`, unit `W/m2`;\n"
-            f"   {fmt_n(goes['rows'])} rows, {goest0} → {goest1}).\n"
-            "5. **Unification** — `unify_schema.py` merges all raw sources into the",
-        ),
-        (
+    unification_anchor = "5. **Unification** — `unify_schema.py` merges all raw sources into the"
+    if "**GOES X-ray flare series**" not in text:
+        inserts.append(
+            (
+                unification_anchor,
+                "4. **GOES X-ray flare series** — `download_space_weather.py`: NOAA NCEI\n"
+                "   GOES-R (`goes18`/`goes16`/`goes19`) XRS L2 1-min means\n"
+                "   (`xrsf-l2-avg1m` NetCDF), aggregated to hourly **max**\n"
+                "   (`detector_type = goes_xray`, unit `W/m2`;\n"
+                f"   {fmt_n(goes['rows'])} rows, {goest0} → {goest1}).\n" + unification_anchor,
+            )
+        )
+    if "| `goes_xray` |" not in text:
+        f107_line = (
             "| `f107` | 18 | `f107_index` (NOAA SWPC, monthly sample) | "
-            "2024-04-15 → 2026-09-15 | sfu (stored as `unknown`) |",
-            "| `f107` | 18 | `f107_index` (NOAA SWPC, monthly sample) | "
-            "2024-04-15 → 2026-09-15 | sfu (stored as `unknown`) |\n"
-            + GOES_META.format(rows=fmt_n(goes["rows"]), t0=goest0, t1=goest1),
-        ),
-    ]
+            "2024-04-15 → 2026-09-15 | sfu (stored as `unknown`) |"
+        )
+        inserts.append(
+            (
+                f107_line,
+                f107_line + "\n" + GOES_META.format(rows=fmt_n(goes["rows"]), t0=goest0, t1=goest1),
+            )
+        )
     return replaces, inserts
 
 
