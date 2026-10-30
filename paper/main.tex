@@ -280,6 +280,7 @@ download dates and freeze status are listed in Table~\ref{tab:provenance}.
 
 \subsection{WSPR network}
 
+{\sloppy
 WSPR spot data were obtained from the wspr.live ClickHouse mirror via SQL
 queries: \texttt{SELECT toStartOfHour(time), count(), avg(snr)} from the
 \texttt{wspr.rx} table, filtered by band index: 14 (20\,m,
@@ -292,6 +293,7 @@ aggregated spot count (spots per hour per band); it is not normalised per
 path, per station, or per unit area. Note that \texttt{avg(snr)} is computed
 in the logarithmic dB domain, so it corresponds to a geometric mean of the
 linear SNR.
+\par}
 
 The training period covers April 1, 2024 through September 30, 2025
 (548 days, 18 months), yielding 13\,152 WSPR hours per band
@@ -368,9 +370,11 @@ cross-check will be re-run as a lightweight probe (\texttt{LIMIT 500},
 \texttt{radians()} computed client-side) after endpoint cooldown.
 
 The published run was executed as
-\verb|python scripts/spatial_analysis.py --source api --skip-crosscheck --apply|;
+{\sloppy
+\texttt{python scripts/spatial\_analysis.py -\kern0pt-source api -\kern0pt-skip-crosscheck -\kern0pt-apply};
 \verb|--skip-crosscheck| skips only the deferred Phase-1 heavy sample
 (Phase 2 is unaffected).
+\par}
 
 %=============================================================
 \section{Methods}
@@ -1283,7 +1287,8 @@ epochs ($Kp \ge 5$): the time-normalized drop per active transmitter is
 \SI{-72.7}{\percent} at $|\mathrm{lat}| > 60^\circ$,
 \SI{-24.1}{\percent} at $30$--$60^\circ$, and
 \SI{-12.8}{\percent} at $< 30^\circ$ (pooled
-over 40/20/15\,m; high/low ratio $5.7\times$; $p \le 5 \times 10^{-5}$). The gradient steepens with frequency: at 15\,m the auroral drop
+over 40/20/15\,m; high/low ratio $5.7\times$; $p \le 5 \times 10^{-5}$;
+see Table~\ref{tab:spatial}). The gradient steepens with frequency: at 15\,m the auroral drop
 reaches \SI{-82.6}{\percent} while the
 low-latitude cell is near zero (\SI{-0.8}{\percent},
 $p = 9.1 \times 10^{-2}$), i.e. a ratio of $103.2\times$,
@@ -1704,7 +1709,9 @@ establishing a unique mechanism attribution.
 
 
 \paragraph{Limitations regarding autocorrelation.}
+{\sloppy
 Note that the statistical power of the method decreases substantially at high autocorrelation levels; at AR(1) $\approx$ 0.95, the power drops to near zero. This should be considered a limitation of the current approach.
+\par}
 
 
 %=============================================================

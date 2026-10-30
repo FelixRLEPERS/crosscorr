@@ -32,6 +32,45 @@ arithmetic or a spell-checker in writing.
 
 ## Session log
 
+### 2026-10-30 - Pre-submission fix: RU equation rendering, clipped command line, unused label
+
+- **Task:** close the two critical defects found by the Phase-1
+  pre-submission verification (read-only report approved by the human):
+  (1) RU equation (6) rendered with an empty numerator; (2) the
+  reproducibility command line was clipped off the page in both PDFs.
+  Full fix option 1+2+3+4 approved.
+- **AI model:** MiMo V2.6 Flash (OpenCode)
+- **Human reviewer:** Alexey Petrov (chose full fix; approved report)
+- **Changes:**
+  - `paper/main_ru.tex` eq. (6): `\frac{\mathrm{споты}}{...}` ->
+    `\frac{\mbox{споты}}{...}` -- Cyrillic letters inside `\mathrm` in
+    math mode dropped all 5 glyphs (log: 5x `Command \cyrXX invalid in
+    math mode` + 5x `Missing character ... cmr12`). `\mbox` matches the
+    project's established SI-unit style.
+  - `paper/main.tex:373` + `paper/main_ru.tex:416`: unbreakable
+    `\verb|python scripts/spatial_analysis.py ...|` (Overfull 195pt EN /
+    261pt RU, text lost off the page) -> `\texttt{...}` with `\_`,
+    breaks at spaces, plus `-\kern0pt-` instead of `--` to defeat the
+    en-dash ligature in T1/T2A typewriter fonts (verified empirically
+    with a micro-test: plain `\texttt{--}` ligates, `\path` collapses
+    spaces, `-\kern0pt-` is literal). Paragraphs wrapped in
+    `{\sloppy ... \par}` (RU additionally `\emergencystretch 3em`).
+  - Unused label `tab:spatial` (§4.7 latitude groups): added
+    `see Table~\ref{tab:spatial}` (EN) / `см. табл.~\ref{tab:spatial}`
+    (RU) at the first pooled-gradient sentence.
+  - Small Overfulls fixed by scoped `{\sloppy ... \par}` on the SQL
+    paragraph and the autocorrelation-limitations paragraph (EN); the
+    invisible 0.31pt remainder was deliberately left untouched.
+- **Verification:** both PDFs pdflatex x2 exit 0,0,0,0; logs: EN
+  0 err / 0 cyr / 0 missing / 0 undef / 1 Overfull (0.31pt);
+  RU all zeros incl. Overfull 0; pdftotext confirms RU eq (6) now
+  reads `S_norm = споты / n_tx` and the command appears complete and
+  literal (`--source api --skip-crosscheck --apply`, no en-dash) in
+  both PDFs; `tab:spatial` ref x1 + label x1 both files.
+- Note: pdftotext shows EN underscore as a space -- OT1 lacks char 95,
+  LaTeX draws `\_` as a rule (rendered, not a glyph); a render-only
+  artifact of text extraction, not of the PDF.
+
 ### 2026-10-30 - Cover letter addressed to Dr. Steven K. Morley (EiC, Space Weather)
 
 - **Task:** personalise the submission cover letter now that
