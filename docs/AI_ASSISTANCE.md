@@ -32,7 +32,41 @@ arithmetic or a spell-checker in writing.
 
 ## Session log
 
-### 2026-10-30 — Data package v11 published on Zenodo
+### 2026-10-30 - RU manuscript repair: literal `\t` accent sequences in the Limitations block
+
+- **Task:** rebuild both local PDFs from the Q2-synced .tex sources; the
+  RU build (`paper/main_ru.tex`) failed with a cascade of errors starting
+  at `.tex` line 1694 (`Not allowed in LR mode`, `TS1` encoding errors,
+  "not UTF-8" as a false follow-on symptom).
+- **AI model:** MiMo V2.6 Flash (OpenCode)
+- **Human reviewer:** Alexey Petrov (approved the surgical fix after the
+  byte-level hexdump diagnosis; rejected the initial blind "replace all
+  228 regex hits" variant in favour of a scoped fix)
+- **Root cause:** nine lines of the Limitations item "one sampled hour per
+  Kp epoch" (lines 1694-1702) began with the two literal characters `\`
+  `t` (0x5c 0x74) instead of indentation whitespace. TeX reads `\t` as the
+  double-acute accent command: for `\t\item` the accent grabs `\item`
+  (LR-mode error), and because spaces after a control word are gobbled at
+  tokenization, the `\t      Слово` continuation lines would typeset the
+  accent over the first Cyrillic letter (`˝Слово`). Encoding, BOM and CRLF
+  were verified clean and were not the cause; the EN manuscript and
+  `scripts/update_paper_q2_sync.py` (its `\t` are correct Python escapes
+  yielding real 0x09) were unaffected.
+- **Fix (two-phase verify -> apply script, then removed):** replace the 9
+  leading literal `\t` with 4 spaces; post-apply scan shows 0 leftovers;
+  file re-verified UTF-8 without BOM, LF only, final newline present.
+- **Rebuild/verification:** `pdflatex -interaction=nonstopmode main_ru.tex`
+  twice, exit 0 both runs -> `paper/main_ru.pdf` 42 pages, 1 243 232
+  bytes; `pdftotext` extract contains `72,7`, `169 штормовых часов`,
+  `2 738`, `Соединение` intact and zero U+02DD accent artifacts; 0 `!`
+  errors in `main_ru.log`. EN PDF rebuilt the same session (exit 0,
+  38 pages, headline numbers 72.7 / 169 / 2738 / 23.9 / 22.5 / 30.1).
+  `paper/*.pdf` stays gitignored - local artifacts, not committed.
+- **DoD:** `ruff check .` OK, `mypy crosscorr_lib` OK,
+  `pytest -m "not slow"` 369 passed, 2 deselected; `git diff` reviewed
+  (only `paper/main_ru.tex` + this entry).
+
+### 2026-10-30 - Data package v11 published on Zenodo
 
 Data package v11 published on Zenodo. Version DOI: 10.5281/zenodo.23802881. Schema updated with goes_xray and n_unique_tx.
 
