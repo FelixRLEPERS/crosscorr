@@ -104,6 +104,18 @@
   `tmp_fix_*.py` с Phase-1 verify. После любого автобайтового
   редактирования — dump `repr()` вокруг затронутых строк.
 
+- **Генерация отступов LaTeX из Python (session 2026-10-30).**
+  При генерации LaTeX из Python использовать `\t` только в начале
+  строк или заменять на 4 пробела; literal `\t` (два символа
+  `\` + `t`) перед `\item` в LaTeX вызывает ошибку LR-mode
+  (accent tie на кириллице). Python-escape `"\t"` = реальный таб
+  (0x09) — безопасен; ломает именно литеральный `\` + `t` в
+  результате битой escape-обработки. Симптом — каскад ошибок
+  (`Not allowed in LR mode`, ложное «not UTF-8») с первой строки
+  `\t\item`. Проверка: grep `(?<!\\)\t(?![a-zA-Z])` по `.tex`,
+  лечение — 4 пробела (пример: 9 строк Limitations в
+  `main_ru.tex`, фикс в коммите `5a22dbb`).
+
 - **read_text/write_text vs CRLF (session 12).** `read_text()`
   делает universal-newline-нормализацию CR→LF; смешение
   `read_text`/`write_text` на CRLF-файле переписывает все 1256
