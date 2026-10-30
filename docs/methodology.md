@@ -31,6 +31,15 @@
 8. **Distance-based analysis** — основной метод Mantel test
    (`crosscorr_lib/analysis/mantel.py`), OLS-регрессия как опция
    (`crosscorr_lib/analysis/distance_analysis.py`, `--method ols`).
+9. **Контроль солнечных вспышек** — часы с X/M-классовыми флейрами
+   исключаются из storm/quiet-разбиения до статистики: порог по
+   **максимуму** потока GOES XRS 1–8 Å за час (по умолчанию
+   `1e-5` Вт/м² = M1.0). Флейр ионизирует дневную D-область и
+   подавляет WSPR независимо от геомагнитной активности; месячные
+   F10.7 пик не видят. Данные — `detector_type == "goes_xray"`
+   (NOAA NCEI, XRS L2). Флаги: `--exclude-flares` /
+   `--no-exclude-flares`, `--flare-threshold`. Подробнее:
+   `docs/PIPELINE.md` §9b, `docs/DATA_PIPELINE.md`.
 
 ## ESS: область применимости
 

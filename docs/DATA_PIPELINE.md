@@ -95,9 +95,9 @@ python data/scripts/fetch_all.py --start YYYY-MM-DD --end YYYY-MM-DD
 Наблюдаемые объекты: Mercury, Venus, Earth, Moon, Mars, Jupiter, Saturn.
 Каждая загрузка сохраняет метаданные запроса (`.json`) и контрольную сумму (`.sha256`) — эфемериды JPL обновляются при смене DE-ядер и не воспроизводимы задним числом.
 
-### Space Weather (Kp, Dst, F10.7)
+### Space Weather (Kp, Dst, F10.7, GOES X-ray)
 
-Три индекса космической погоды из трёх разных источников. Каждый скачивается независимо — падение одного не прерывает остальные.
+Четыре индекса из четырёх разных источников. Каждый скачивается независимо — падение одного не прерывает остальные.
 
 #### Kp (геомагнитная активность)
 
@@ -134,6 +134,23 @@ python data/scripts/fetch_all.py --start YYYY-MM-DD --end YYYY-MM-DD
 | Ограничения | Только месячные средние |
 | Скрипт | `data/scripts/download_space_weather.py:fetch_f107` |
 
+#### GOES X-ray (рентгеновский поток Солнца, 1–8 Å)
+
+Источник контроля солнечных вспышек (Q1-аудит, фаза A): X/M-классовые флейры ионизируют дневную D-область и подавляют WSPR-приёмы независимо от геомагнитной активности.
+
+| Параметр | Значение |
+|---|---|
+| URL | `https://data.ngdc.noaa.gov/platforms/solar-space-observing-satellites/goes/<sat>/l2/data/xrsf-l2-avg1m/<YYYY>/<MM>/` |
+| Формат | NetCDF-4 (суточные файлы XRS Level-2, 1-минутные средние, ~290 КБ/день) |
+| Периодичность | 1 минута → агрегация до **часового максимума** |
+| Автоматизация | Полная |
+| Единица | W/m² (канал XRS-B, 1–8 Å) |
+| Спутники | `goes18` (основной, весь период), `goes16` (до 2025-04), `goes19` (с 2025-01) — fallback по дням |
+| Зависимость | `netCDF4` — extra `.[etl]` (ленивый импорт, в CI не требуется) |
+| Скрипт | `data/scripts/download_space_weather.py:fetch_goes_xray` |
+
+Агрегация именно по **максимуму**, а не среднему: класс флейра определяется пиковым значением, среднее за час размазало бы пик и флейр прошёл мимо порога. Часы без валидных минут (`flag != 0`, пропуски на затмениях) не выводятся — пропуск, а не ноль. Пороговые классы: C ≥ 1e-6, M ≥ 1e-5, X ≥ 1e-4 W/m².
+
 ### INTERMAGNET (магнитные обсерватории)
 
 | Параметр | Значение |
@@ -157,11 +174,11 @@ python data/scripts/fetch_all.py --start YYYY-MM-DD --end YYYY-MM-DD
 |---|---|---|
 | `timestamp_utc` | datetime64[ns, UTC] | Время измерения по UTC |
 | `detector_id` | str | Уникальный ID датчика (позывной, имя станции, `kp_index` и т.д.) |
-| `detector_type` | str | Тип: `wspr`, `magnetometer`, `ephemeris`, `kp`, `dst`, `f107`, `ballistic`, `gnss`, `ionosonde` |
+| `detector_type` | str | Тип: `wspr`, `magnetometer`, `ephemeris`, `kp`, `dst`, `f107`, `goes_xray`, `ballistic`, `gnss`, `ionosonde` |
 | `value` | float64 | Сырое измерение |
 | `residual` | float64 | Остаток после удаления baseline-модели (confounders) |
 | `residual_method` | str | Метод: `mixedlm_ballistic`, `ols_geomagnetic`, или `none` (если confounders не переданы) |
-| `unit` | str | Единицы: `dB` (WSPR), `nT` (магнитометры, Dst), `AU` (эфемериды), `sfu` (F10.7), `""` (Kp) |
+| `unit` | str | Единицы: `dB` (WSPR), `nT` (магнитометры, Dst), `AU` (эфемериды), `sfu` (F10.7), `W/m2` (GOES X-ray), `""` (Kp) |
 | `quality_flag` | str | `"ok"` — качественные данные, `"missing"` — NaN в residual |
 | `meta` | str (JSON) | Метаданные: для WSPR — `{"tx": "...", "band": "..."}`, для Kp — `{"granularity": "3h"}` |
 
@@ -187,7 +204,7 @@ detector(t) = α + β₁·Kp(t) + β₂·Dst(t) + β₃·F10.7(t) + residual(t)
 - Сохранять CSV в `data/raw/<name>/`
 - Возвращать путь к сохранённому файлу
 
-Образец: `download_space_weather.py` (три независимых функции — `fetch_kp`, `fetch_dst`, `fetch_f107`).
+Образец: `download_space_weather.py` (независимые функции — `fetch_kp`, `fetch_dst`, `fetch_f107`, `fetch_goes_xray`).
 
 ### 2. Добавь loader в unify_schema.py
 
@@ -197,7 +214,7 @@ detector(t) = α + β₁·Kp(t) + β₂·Dst(t) + β₃·F10.7(t) + residual(t)
   - Возвращает DataFrame с колонками: `timestamp_utc`, `detector_id`, `detector_type`, `value`, `meta`
 - Добавь в словарь `LOADERS`: `"<name>": load_<name>`
 
-Если твой источник — подтип существующей папки (как kp/dst/f107 — подпапки `space_weather`), добавь его в `_route_sw()` (или напиши аналогичный роутер).
+Если твой источник — подтип существующей папки (как kp/dst/f107/goes_xray — подпапки `space_weather`), добавь его в `_route_sw()` (или напиши аналогичный роутер).
 
 ### 3. Добавь detector_unit
 
@@ -234,6 +251,8 @@ detector(t) = α + β₁·Kp(t) + β₂·Dst(t) + β₃·F10.7(t) + residual(t)
 | WSPR: будущие даты вешают запрос | Сервер не возвращает ответ, если данных нет | Использовать **только прошлые даты** |
 | Horizons sun: ошибка | `astroquery.jplhorizons` не поддерживает observation target = Sun | Исключить sun из `config.yaml → horizons.objects` |
 | F10.7: только месячные | NOAA SWPC даёт только monthly means | Заполнять `confounders.csv` синтетикой или найти другой источник ежедневных F10.7 |
+| GOES X-ray: 404 на месячном каталоге | Спутник ещё не запущен / снят с эксплуатации (напр. `goes16` после 2025-04) | `fetch_goes_xray` перебирает спутники `GOES_SATS` по каждому дню и пропускает день, если файла нет ни у одного |
+| GOES X-ray: нужен netCDF4 | Архив NCEI — NetCDF-4, не CSV | `pip install -e ".[etl]"`; без extra скрипт падает с понятной ошибкой |
 | INTERMAGNET: ручное скачивание | API требует авторизации, закрыт | Скачивать .min файлы вручную через intermagnet.org → класть в `data/raw/intermagnet/` |
 | Confounders: синтетические | Реальные Kp/Dst/F10.7 дневного разрешения недоступны как единый файл | Использовать `confounders.csv` (генерируется скриптом) |
 | Kp/Dst коллинеарны | Оба индекса измеряют геомагнитную активность | OLS использует Moore-Penrose pseudoinverse — устойчив к мультиколлинеарности |

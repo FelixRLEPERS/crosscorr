@@ -32,6 +32,85 @@ arithmetic or a spell-checker in writing.
 
 ## Session log
 
+### 2026-10-30 — Solar flare control via GOES X-ray (Q1 audit, physical block, Phase A)
+
+- **Task:** Q1 audit physical block: control for solar flares (GOES X-ray) and
+  regenerate affected results with a with-flares vs without-flares comparison.
+- **AI model:** MiMo V2.6 Flash (OpenCode)
+- **Human reviewer:** Alexey Petrov
+- **Date:** 2026-10-30
+- **Changes made:**
+  1. **ETL: new source `goes_xray`:**
+     - `data/scripts/download_space_weather.py`: new `fetch_goes_xray(start, end, out_dir)` —
+       NOAA NCEI GOES-R XRS Level-2, daily NetCDF (1-minute means, ~290 KB/day),
+       URL `data.ngdc.noaa.gov/platforms/solar-space-observing-satellites/goes/<sat>/l2/data/xrsf-l2-avg1m/`.
+       Multi-satellite fallback `GOES_SATS = ("goes18", "goes16", "goes19")` (goes18 covers the full
+       2024-04..2025-10 window; goes16 stops at 2025-04, goes19 starts at 2025-01). Days with no file
+       on any satellite are skipped, not zero-filled. Requires `netCDF4` — declared as optional
+       extra `etl = ["netCDF4>=1.6"]` in `pyproject.toml` (lazy import, CI unaffected).
+     - `data/scripts/fetch_all.py`: `goes_xray` added to `KNOWN_SOURCES` and the space-weather router.
+     - `data/scripts/config.yaml`: `space_weather.indices += "goes_xray"`.
+     - `data/scripts/unify_schema.py`: `load_goes_xray()` + `_route_sw()` branch
+       (`detector_id = "goes_xray_1_8a"`, `detector_type = "goes_xray"`, `meta.granularity = "hourly"`).
+     - `crosscorr_lib/analysis/residuals.py`: `DETECTOR_UNITS["goes_xray"] = "W/m2"`.
+     - `data/schema/unified_schema.json`: `detector_type` enum `+= "goes_xray"` (kept in sync with
+       `DETECTOR_UNITS` by `test_detector_units_cover_schema_enum`).
+  2. **Aggregation is hourly MAX, not mean (explicit decision):**
+     - `download_space_weather.py:_hourly_max_from_nc()` groups the 1-minute XRS-B (1–8 Å) flux by
+       hour and takes `max()`. A 10-minute M-class flare diluted by hourly `mean()` would fall below
+       the M1.0 threshold. Empirical check on the 2024-05-10 super-flare day (AR 3664): threshold
+       1e-5 W/m2 flags **16 hours by max but only 11 by mean — 5 flare hours lost**, including the
+       06:00 UTC peak (max 3.98e-4 vs mean 9.9e-5). Minutes with `flag != 0` or non-finite flux are
+       dropped; hours with zero valid minutes are absent from the CSV (a gap, not a zero).
+  3. **Flare filter is an `isin()` index, not merge + dropna:**
+     - `scripts/perm_test_18mo_3band.py:73` — `wspr[~wspr["hour"].isin(flare_hours)]`
+     - `scripts/spatial_analysis.py:686` — `counts[~counts["hour"].isin(flare_hours)]`
+     - Missing GOES data therefore never drops WSPR hours: an hour with no GOES row is not in
+       `flare_hours` and stays in the analysis ("no data = no flare"), with no `fillna(0)` that
+       could mask a real zero background. The filter reads `value` (raw flux), not `residual`, so
+       NaNs from the OLS residual stage cannot affect it. `spatial_analysis.py verify()` FAILS
+       loudly if `goes_xray` rows are missing or hourly coverage < 90%, so the run can never
+       silently degrade to the uncontrolled analysis.
+  4. **CLI flags (no hardcoded parameters):**
+     - `scripts/perm_test_18mo_3band.py`, `scripts/spatial_analysis.py`: `--exclude-flares`
+       (default on, `BooleanOptionalAction` → `--no-exclude-flares`), `--flare-threshold`
+       (default `1e-5` W/m2 = M1.0), `--out`. Both JSONs record a `flare_filter` block
+       (threshold, flare hours in period, hours excluded).
+     - `scripts/flare_control_compare.py` (new): builds the with-flares vs without-flares
+       comparison table (drop%, p-value, N_storm deltas) from the two result JSONs.
+  5. **Docs:** `docs/DATA_PIPELINE.md` (GOES source section + limitations),
+     `docs/PIPELINE.md` §9b, `docs/methodology.md` item 9, `data/README.md`.
+  6. **Zenodo v11 required:** the unified schema changed (`detector_type` enum gained `goes_xray`,
+     `unit` gained `W/m2`), so a new data package version must be published. Raw observations are
+     unchanged; the `unified.parquet` structure/values are. `paper/` not touched.
+- **Comparison results (with flares vs without flares):**
+  - 18-month permutation (2024-04-01..2025-10-01), 50 000 permutations, seed 42:
+
+    | Band | Drop% with flares | Drop% without flares | Δ (pp) | p with | p without | N_storm |
+    |------|-------------------|----------------------|--------|--------|-----------|---------|
+    | 15m  | −38.7 | −36.8 | 1.9 | 2.00e-05 | 2.00e-05 | 198 → 169 |
+    | 20m  | −27.7 | −25.5 | 2.2 | 2.00e-05 | 2.00e-05 | 198 → 169 |
+    | 40m  | −27.2 | −25.3 | 1.9 | 2.00e-05 | 2.00e-05 | 198 → 169 |
+
+  - hours excluded: **1325 of 13152 (10.1%)** flare hours (hourly GOES XRS-B max
+    flux ≥ 1e-5 W/m2, M1.0+); 29 of them were storm epochs (198 → 169, −14.6%).
+  - verification: the `--no-exclude-flares` run reproduces the pre-flare-control
+    canonical JSON exactly (0 differing values across all 66 shared keys — only the
+    `config.flare_filter` block was added), so the pipeline regeneration is bit-for-bit
+    neutral for the baseline.
+  - **Verdict: robust physics.** All three bands kept p at the floor (2.00e-05 =
+    1/50000), the latitude/frequency gradient order (15m > 20m > 40m) is unchanged,
+    and the drop% attenuated by only ~2 pp after removing 10% of the hours — flare
+    (SID) contamination explains only a small share of the suppression.
+  - **Power caveat:** pairwise Kp-bin tests lost significance on 15m (all 3 pairs)
+    and on 40m Kp5-6 vs Kp6-7, driven by N_storm 198 → 169 rather than by effect
+    reversal (effect sizes stay negative). The main three-band result and the Kp7+
+    pairs on 20m/40m remain significant. Recorded in `docs/first_result.md` §6.
+  - spatial (High/Mid/Low) comparison: **pending** — `wspr.live` API unreachable
+    from this region without VPN (8/8 read timeouts on 2026-10-30); the two
+    `spatial_analysis.py --apply` runs (with/without flare filter) are deferred until
+    the API is reachable (`scripts/wait_for_api.py` polls it).
+
 ### 2026-10-30 — Statistical audit fixes (Phase 2: Apply)
 
 - **Task:** Apply Q1 audit feedback: switch to IAAFT surrogates, remove Fisher double-counting in Max-stat, unify ESS to τ_int.

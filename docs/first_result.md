@@ -227,6 +227,23 @@ all p_FDR = 0.0 and all rejected = True.
    in the baseline model (see §3.1); it reduces residual variance by
    12–16% and improves test power without changing the storm effect
    direction or significance.
+7. **Solar flare control (GOES X-ray)**: hours with an M1.0+ solar
+   flare (hourly GOES-16/18/19 XRS 1–8 Å maximum flux ≥ 1e-5 W/m²,
+   NOAA NCEI L2 1-min means) were excluded and the 18-month
+   permutation test was rerun (seed 42, 50 000 permutations):
+
+   | Band | Drop% with flares | Drop% without flares | Δ (pp) | p (both) | N_storm |
+   |------|-------------------|----------------------|--------|----------|---------|
+   | 15m  | −38.7 | −36.8 | 1.9 | 2.00e-05 | 198 → 169 |
+   | 20m  | −27.7 | −25.5 | 2.2 | 2.00e-05 | 198 → 169 |
+   | 40m  | −27.2 | −25.3 | 1.9 | 2.00e-05 | 198 → 169 |
+
+   1325 of 13152 hours (10.1%) were excluded; 29 of them were storm
+   epochs. The effect attenuates by only ~2 pp, p stays at the
+   permutation floor, and the band ordering (15m > 20m > 40m) is
+   preserved — the suppression is not a flare (SID) artifact. The
+   `--no-exclude-flares` run reproduces the pre-control canonical JSON
+   exactly (0 differing values), confirming pipeline neutrality.
 
 ---
 
@@ -355,7 +372,12 @@ conclusion.
 4. **Confounders**: Solar flux (F10.7) is only available as monthly means
    via the NOAA SWPC API — too coarse for hourly analysis. Day-of-week
    effect is weak (explains 12-16% of residual variance) and uncorrelated
-   with Kp (r = −0.0087). Solar flares are not separately accounted for.
+   with Kp (r = −0.0087). The exclusion of flare hours (M-class and above)
+   reduces the number of storm epochs from 198 to 169. This reduction in
+   sample size decreases statistical power for pairwise Kp-bin comparisons,
+   particularly on the 15m band, where some pairwise differences are no
+   longer statistically significant. However, the main three-band result
+   and the overall latitude gradient remain robust.
    Summer 15m observations may be partially contaminated by sporadic-E
    propagation (Es clouds at ~100–120 km create additional reflection
    paths). However, the storm effect is present in all seasons, including
