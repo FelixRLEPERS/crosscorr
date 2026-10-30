@@ -32,6 +32,72 @@ arithmetic or a spell-checker in writing.
 
 ## Session log
 
+### 2026-10-30 (Paper Sync) — Manuscript switched to flare-controlled spatial numbers
+
+- **Task:** Q1 audit follow-up: update `paper/main.tex` and `paper/main_ru.tex`
+  to the flare-controlled (canonical, without-flares) latitude-group results
+  and add the Methods/Limitations text on the GOES flare control.
+- **AI model:** MiMo V2.6 Flash (OpenCode)
+- **Human reviewer:** Alexey Petrov (approved the Phase-1 diff before Apply)
+- **Tooling:** `scripts/update_paper_flare_numbers.py` (house two-phase
+  pattern: default run prints the unified diff and changes nothing; `--apply`
+  writes). All new values are read from `results/spatial_lat_groups.json`
+  (flare-controlled run); old values are cross-validated against
+  `results/spatial_lat_groups_with_flares.json` *and* the literal .tex text
+  (15 JSON sanity assertions; every pattern must match exactly once inside its
+  scope - the spatial slice `sec:spatial -> Discussion` or the whole file -
+  otherwise the script aborts before writing). The script refuses BOM/CRLF/
+  missing final newline and writes UTF-8 + LF only.
+- **Changes (identical set in both languages):**
+  1. `sec:spatial` prose: pooled drop 73.1/28.2/22.8 -> **72.1/26.1/20.0 %**,
+     high/low ratio 3.2x -> 3.6x; 15 m 85.3/14.0 -> 84.2/11.8 %
+     (6.1x -> 7.1x); window "1.98 billion spots / 13 152 h" -> **1.80 billion
+     / 11 827 h**; significance summary p <= 1.5e-4 -> **p <= 1.95e-3**
+     (8/9 cells still at the 5e-5 floor).
+  2. `tab:spatial`: all 12 cells (pooled/40/20/15 m x high/mid/low) to the
+     flare-controlled values; caption N_storm 198 -> **169**; per-group and
+     per-band `N_storm,spots` (e.g. pooled high-lat 90 669 -> 80 673); low-lat
+     40 m p 1.5e-4 -> 1.95e-3.
+  3. `sec:dropnorm`: T_storm/T_quiet 198/3035 -> **169/2738 h**, raw ratio
+     1.75 -> 1.72 %, quiet window 15.3x -> 16.2x, normalization 169/2738.
+  4. Limitations "One sampled hour per Kp epoch": 198/3035 -> 169/2738
+     sampled hours, full 594/9105 -> 507/8214 h.
+  5. Confounders SID sentence rewritten: flare effects ARE controlled in the
+     latitude-group analysis (1 325 h, 10.1 %, shifts pooled drops by
+     1-2 pp); the permutation-based analyses retain all hours (citation kept).
+  6. Two new notes: (i) `sec:spatial` Methods-style sentence - values are
+     flare-controlled, the flare-included run differs by 1-2 pp per group
+     (73.1 vs 72.1, 28.2 vs 26.1, 22.8 vs 20.0), p at the permutation floor
+     in both runs, so the gradient is not a flare (SID) artifact; (ii) a new
+     Limitations item "Solar-flare control / Контроль солнечных вспышек":
+     1 325 flare hours remove the sampled hour of 326 of 4 349 covered epochs
+     (N_storm 198 -> 169, N_quiet 3035 -> 2738), pooled drops shift 1-2 pp,
+     all p stay at the floor, and the smaller epoch sample lowers power for
+     secondary pairwise Kp-bin contrasts.
+- **Intentionally NOT changed (author decisions, 2026-10-30):**
+  - Permutation-test headline numbers (abstract 198 storm epochs, -27.7 /
+    -27.2 / -38.7 %, bootstrap CIs, episode/monthly/UT-window/pairwise/
+    held-out tables and the remaining 198/3035 mentions) still describe the
+    original WITH-flares runs. The author commissioned a **full re-run
+    campaign** (all derived analyses without flare hours + full manuscript
+    sync) as a separate task; the interim hybrid state is explicitly
+    documented by the rewritten SID sentence and the new Limitations item.
+  - "Storm-slot independence: The 198 Kp >= 5 epochs ..." kept: it is a
+    statement about the Kp epoch universe of the window (true regardless of
+    the flare filter); the new Limitations item covers the 198 -> 169
+    reduction of the analyzed sample.
+  - `sec:dropnorm` block-size-sensitivity sentence ("8/9 at the p-floor under
+    both settings; low-lat 40 m p = 1.5e-4 -> floor") **not yet updated**: the
+    block = 8 rerun WITHOUT flare hours is pending -
+    `python scripts/spatial_analysis.py --block 8 --out
+    results/spatial_lat_groups_block8.json` failed its Phase-1 API
+    reachability check on 2026-10-30 (wspr.live connection reset after 3
+    attempts). Re-run when the endpoint is reachable, then patch the sentence
+    via script (fresh 9-cell p-values for block = 8 vs 24).
+- **Verification:** `ruff check .` OK; `mypy crosscorr_lib` OK;
+  `pytest -m "not slow"` 367 passed, 2 deselected; both .tex files verified
+  BOM-free, CRLF-free, final newline = LF; `git diff` reviewed.
+
 ### 2026-10-30 — Solar flare control via GOES X-ray (Q1 audit, physical block, Phase A)
 
 - **Task:** Q1 audit physical block: control for solar flares (GOES X-ray) and
