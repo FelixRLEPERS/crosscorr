@@ -32,6 +32,54 @@ arithmetic or a spell-checker in writing.
 
 ## Session log
 
+### 2026-10-30 - Review-response patch: estimate families separated, ESS -> tau_int, §4.1 p-floor corrected
+
+- **Task:** address the narrative/consistency review of both manuscripts.
+  This commit covers review Points 1--3 (Points 4--7 pending): (1) the
+  abstract/key-points/tab:main caption mixed two estimate families;
+  (2) §3.5 still used the legacy AR(1) ESS formula; (3) §4.1 quoted a
+  p-floor inconsistent with the 50 000-iteration headline run.
+- **AI model:** MiMo V2.6 Flash (OpenCode)
+- **Human reviewer:** Alexey Petrov (approved the Point-1 diffs before
+  apply, caught a "передатчиры" typo in the proposed RU text and chose
+  Variant 1 for ESS = recompute instead of a text-only patch)
+- **Changes:**
+  1. **Two estimate families separated (EN+RU abstract, Key Points,
+     `tab:main` caption):** headline = normalized by active transmitters,
+     169 flare-free epochs, -23.9 / -22.5 / -30.1 % (from
+     `results/perm_test_18mo_3band_norm_tx.json`); negative-binomial
+     models = raw spot counts, all 198 storm epochs with flare hours
+     included, -33.6 / -27.1 / -39.8 % (from
+     `results/round3_effect_sizes.json`, N_storm=198, no flare filter).
+     The caption now says explicitly "fitted on raw spot counts
+     (198 epochs, including flare hours)". Stale `\SIrange{27}{40}` /
+     `\SIrange{22.5}{30.1}` key-point ranges removed (no other uses).
+  2. **§3.5 ESS -> integrated autocorrelation time:** equation replaced
+     by `tau_int = 1 + 2 sum rho(k)`, `ESS = N / tau_int`, stopping rule
+     "five consecutive |rho(k)| below 1.96/sqrt(N)" (matches
+     `crosscorr_lib.analysis.effective_sample`, `N_CONSECUTIVE=5`).
+     Numbers recomputed by the new read-only `scripts/ess_tau_int.py`
+     (mirrors the perm-test residual construction: window 2024-04-01 ..
+     2025-10-01, inner Kp join = one hour per 3-h epoch, resid = value -
+     mean | month, hour_of_day, day_of_week; no flare filter) -> committed
+     `results/ess_tau_int.json` (`.gitignore` negation added):
+     N=4349 epochs per band (reproduces the paragraph's sample exactly),
+     rho_lag1 = 0.754 / 0.691 / 0.708 (matches the old text's 0.69--0.75,
+     confirming the same series), tau_int = 20.4 / 17.5 / 14.6,
+     ESS = 213 / 249 / 298 epochs (= 639 / 747 / 894 h),
+     reduction 15--20x (the old AR(1) closed form had understated it as
+     5--7x; the block-permutation argument is therefore stronger).
+  3. **§4.1 p-floor:** `p <= 5e-5` -> `p <= 2e-5` in both languages
+     (headline norm-tx run = 50 000 iterations, add-one floor = 2e-5,
+     consistent with the abstract). §4.7 and the spatial table captions
+     keep `5e-5` on purpose: the spatial run has 20 000 iterations.
+- **Intentionally NOT changed here:** review Points 4--7 (DOI, minor
+  wording, LaTeX checks) and the local PDF rebuild (planned for the final
+  review round); `paper/*.pdf` stays gitignored.
+- **Verification:** `ruff check .`, `mypy crosscorr_lib`,
+  `pytest -m "not slow"` green; both .tex files BOM-free/LF; `git diff`
+  reviewed (old ESS numbers 610/793/743 fully gone; §4.7 untouched).
+
 ### 2026-10-30 - RU manuscript repair: literal `\t` accent sequences in the Limitations block
 
 - **Task:** rebuild both local PDFs from the Q2-synced .tex sources; the

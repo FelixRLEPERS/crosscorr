@@ -1,0 +1,35 @@
+{
+  "config": {
+    "window": [
+      "2024-04-01",
+      "2025-10-01"
+    ],
+    "source": "data/processed/unified.parquet (wspr_hourly, raw spot counts)",
+    "flare_filter": "off (section 3.5 reports the flare-included matched series)",
+    "kp_join": "inner join on the hour -> one sampled hour per native 3-h Kp epoch",
+    "residual_model": "value - mean(value | month, hour_of_day, day_of_week)",
+    "estimator": "tau_int = 1 + 2*sum rho(k); stop at 5 consecutive |rho| < 1.96/sqrt(n)",
+    "ess_formula": "ess = n_epochs / tau_int",
+    "generated": "2026-10-30T18:00:14+00:00"
+  },
+  "results": {
+    "20m": {
+      "n_epochs": 4349,
+      "tau_int": 20.3762,
+      "ess_epochs": 213,
+      "rho_lag1": 0.754
+    },
+    "40m": {
+      "n_epochs": 4349,
+      "tau_int": 17.4503,
+      "ess_epochs": 249,
+      "rho_lag1": 0.691
+    },
+    "15m": {
+      "n_epochs": 4349,
+      "tau_int": 14.5897,
+      "ess_epochs": 298,
+      "rho_lag1": 0.708
+    }
+  }
+}

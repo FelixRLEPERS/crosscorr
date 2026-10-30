@@ -62,6 +62,7 @@ results/*
 !results/heldout_resid_2026h1.json
 !results/abs_loss_ratio_ci_2026h1.json
 !results/provenance_manifest_2026-10-27.json
+!results/ess_tau_int.json
 #audit/
 bench.log
 aep/

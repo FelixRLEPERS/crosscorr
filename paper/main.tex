@@ -24,10 +24,14 @@
 \linenumbers
 \maketitle
 \begin{keypoints}
-	\item On the training set, spots per active transmitter drop \SIrange{22.5}{30.1}{\percent}
-	during $Kp \ge 5$ storms on all three HF bands (block permutation
-	$p \le 2 \times 10^{-5}$); on raw spot counts, covariate-adjusted
-	drops are \SIrange{27}{40}{\percent}. On the held-out set, adjusted drops are
+	\item Headline results (normalized by active transmitters, 169
+	flare-free epochs): spots drop \SI{-23.9}{\percent} (20\,m),
+	\SI{-22.5}{\percent} (40\,m) and \SI{-30.1}{\percent} (15\,m) during
+	$Kp \ge 5$ storms on all three HF bands (block permutation
+	$p \le 2 \times 10^{-5}$). Negative-binomial models (fitted on raw
+	spot counts, 198 epochs including flare hours): covariate-adjusted
+	drops of \SI{-33.6}{\percent} (20\,m), \SI{-27.1}{\percent} (40\,m)
+	and \SI{-39.8}{\percent} (15\,m). On the held-out set, adjusted drops are
 	\SIrange{19}{23}{\percent}
 	\item The response shows a scale-dependent pattern: at Kp 5--6
 	$\sim$\SI{-18}{\percent}, at Kp $\ge$ 6 $\sim$\SI{-43}{\percent}
@@ -58,13 +62,16 @@
 	Because storm epochs are not evenly distributed across months and UTC
 	hours, we also estimate covariate-adjusted drops on the training set
 	with a negative-binomial model (month, UTC-hour and day-of-week fixed
-	effects, episode-clustered errors): 20\,m \SI{-33.6}{\percent} (95\% CI
-	[\SI{-39.9}{\percent}, \SI{-26.7}{\percent}]), 40\,m
+	effects, episode-clustered errors). The two result families are
+	distinct: the headline results above are normalized by active
+	transmitters and use the 169 flare-free epochs, whereas the
+	negative-binomial models are fitted to raw spot counts on all 198
+	storm epochs (flare hours included), giving 20\,m \SI{-33.6}{\percent}
+	(95\% CI [\SI{-39.9}{\percent}, \SI{-26.7}{\percent}]), 40\,m
 	\SI{-27.1}{\percent} ([\SI{-33.2}{\percent}, \SI{-20.5}{\percent}]), and
 	15\,m \SI{-39.8}{\percent} ([\SI{-46.8}{\percent}, \SI{-31.8}{\percent}]).
-	These covariate-adjusted estimates are fitted to raw spot counts;
-	they are more negative than the normalized drops for 20\,m and
-	close to the raw-count drops for 40\,m.
+	These covariate-adjusted estimates are more negative than the
+	normalized drops for 20\,m and close to the raw-count drops for 40\,m.
 
 	We observe a scale-dependent pattern: the drop (on raw spot counts) increases from
 	$Kp = 5\text{--}6$ ($\sim\SI{-18}{\percent}$) to $Kp \ge 6$
@@ -577,19 +584,25 @@ low-latitude 40\,m moves from $1.95 \times 10^{-3}$ to $3.5 \times 10^{-4}$).
 
 \subsection{Effective sample size}
 
-We estimate the effective sample size (ESS) under the assumption of a
-first-order autoregressive process:
+We estimate the effective sample size (ESS) using the integrated
+autocorrelation time ($\tau_{\text{int}}$):
 
 \begin{equation}
-	\text{ESS} = N \cdot \frac{1 - \rho_1}{1 + \rho_1}
+	\tau_{\text{int}} = 1 + 2 \sum_{k=1}^{M} \rho(k), \qquad
+	\text{ESS} = N / \tau_{\text{int}}
 	\label{eq:ess}
 \end{equation}
 
-where $\rho_1$ is the lag-1 autocorrelation of the residual series
-(lag = 3\,h, the native $Kp$ cadence). On the 18-month matched series
-($N = 4\,349$ epochs per band), $\rho_1$ ranges from 0.69 (40\,m) to
-0.75 (20\,m), yielding ESS of 610 (20\,m),
-793 (40\,m), and 743 (15\,m) epochs (= 1\,830, 2\,379, and 2\,229\,h). This factor-of-5 to factor-of-7
+where $\rho(k)$ is the lag-$k$ autocorrelation of the residual series
+(lag = 3\,h, the native $Kp$ cadence) and $M$ is the first lag at which
+five consecutive autocorrelation values fall below $1.96/\sqrt{N}$, the
+significance threshold for zero autocorrelation. This model-agnostic
+estimator assumes no specific stochastic process (in particular, no
+AR(1)) and remains robust under strong autocorrelation. On the
+18-month matched series ($N = 4\,349$ epochs per band) it yields
+$\tau_{\text{int}}$ of 20.4 (20\,m), 17.5 (40\,m) and 14.6 (15\,m),
+i.e.\ ESS of 213 (20\,m), 249 (40\,m) and 298 (15\,m) epochs
+(= 639, 747 and 894\,h). This factor-of-15 to factor-of-20
 reduction from raw to effective sample size underscores the importance
 of the block permutation approach: a naive permutation test (treating
 each epoch as independent) would produce anti-conservative $p$-values.
@@ -662,7 +675,7 @@ Table~\ref{tab:main} presents the raw-count estimators of the primary
 result: storm-induced WSPR spot reduction on all three HF bands. The
 headline permutation drops on spots per active transmitter are
 \SI{-23.9}{\percent} (20\,m), \SI{-22.5}{\percent} (40\,m) and
-\SI{-30.1}{\percent} (15\,m), all $p \le 5 \times 10^{-5}$.
+\SI{-30.1}{\percent} (15\,m), all $p \le 2 \times 10^{-5}$.
 
 \begin{table}[h]
 	\centering
@@ -673,7 +686,8 @@ headline permutation drops on spots per active transmitter are
 		and $N_{\text{quiet}} = 3\,035$ for every band, in 3-h $Kp$ epochs. Raw drop follows Eq.~\eqref{eq:drop} (raw spot counts, flare-included training run)
 		with a 95\% block-bootstrap CI (24-epoch blocks, 1\,000 resamples,
 		seed 42). Adjusted drop is $100(e^{\beta}-1)$ from the
-		negative-binomial model of Eq.~\eqref{eq:glm} with 95\%
+		negative-binomial model of Eq.~\eqref{eq:glm}, fitted on raw
+		spot counts (198 epochs, including flare hours), with 95\%
 		episode-clustered CI. $\Delta$ is the raw storm-minus-quiet
 		difference (negative for loss); its magnitude is the absolute loss
 		reported in Table~\ref{tab:baseline}. $p$-values come from the
