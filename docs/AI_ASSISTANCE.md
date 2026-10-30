@@ -32,6 +32,27 @@ arithmetic or a spell-checker in writing.
 
 ## Session log
 
+### 2026-10-30 - Cover letter addressed to Dr. Steven K. Morley (EiC, Space Weather)
+
+- **Task:** personalise the submission cover letter now that
+  Dr. Steven K. Morley is Editor-in-Chief of Space Weather (since
+  Jan 2026) and tie the work to his vision of the journal as a
+  maturing applied field. Phase 2 Apply after human approval.
+- **AI model:** MiMo V2.6 Flash (OpenCode)
+- **Changes (`docs/submission/Cover_Letter_SpaceWeather.tex`):**
+  - salutation: `Dear Editor-in-Chief,` -> `Dear Dr. Steven K. Morley,`
+    + `Editor-in-Chief, Space Weather` + `American Geophysical Union`.
+  - end of the 2nd paragraph: added "We believe this work aligns with
+    your vision of Space Weather as a maturing applied field, bridging
+    open citizen-science data with rigorous statistical controls."
+  - (no Russian version of the letter exists, so the RU variant of the
+    sentence was not needed)
+- **Checks:** pdflatex x2 exit 0,0 (PDF 92 990 bytes); PDF text
+  verified (Morley salutation present, old salutation gone, "maturing
+  applied field" present -- pdftotext ligature artifact "eld" noted);
+  `ruff check .` exit 0; `pytest -m "not slow"` 369 passed / 2
+  deselected.
+
 ### 2026-10-30 - Submission artefacts: README status, cover letter, HamSCI response
 
 - **Task:** bring project artefacts in line with the Q1 audit and the
