@@ -7,7 +7,7 @@
 по Kp.
 
 ## Стек и окружение
-Python 3.10+, ruff, mypy, pytest (291 тест), CI на 3.11/3.12 + Windows job.
+Python 3.10+, ruff, mypy, pytest (369 тестов), CI на 3.11/3.12 + Windows job.
 Data pipeline: `data/scripts/fetch_all.py` → `unified.parquet`
 (schema: detector_type, detector_id, value, timestamp_utc, unit, quality_flag).
 
@@ -32,7 +32,7 @@ Held-out: Jan–Mar 2026.
 - Negative controls, statistical reference tests.
 
 ## Ключевой результат
-- Все 3 диапазона (10/15/20 м?) — негативный отклик в шторм.
+- Все 3 диапазона (20/40/15 м) — негативный отклик в шторм.
 - Scale-dependence: Kp≥6 → −42.8%.
 - Baseline invariance для 15 м: коэффициент 0.42× (требует аккуратной
   формулировки в §7.5).
@@ -49,13 +49,28 @@ Held-out: Jan–Mar 2026.
 - `docs/methodology.md` (14 KB)
 - `docs/AI_ASSISTANCE.md` — disclosure
 
-## Состояние перед submission
-- arXiv: готово.
-- Space Weather: при условии 3 MUST-действий:
-  1. Zenodo/Figshare DOI для `unified.parquet`.
-  2. CRediT statement.
-  3. Параметризация периодов анализа (убрать hardcoded даты).
-- Оценка Reviewer 2: 8.0/10, Accept with minor revisions.
+## Статус (обновлено 2026-10-30)
+
+**Q1 Audit Passed. Manuscript (EN/RU) ready for submission to Space Weather.
+Cover Letter addressed to Dr. Steven K. Morley. Zenodo v11 published
+(Version DOI: 10.5281/zenodo.23802881). Status: HOLD (awaiting HamSCI feedback).**
+
+- **HamSCI review (Gwyn Griffiths, G3ZIL, 15 комментариев):** 8 sub-rows
+  закрыты в манускрипте (commit `3f68d55`) — L1 Key Points (plain language),
+  L3b+L4c+L4f (один joint-Limitations «Index scaling and path diversity»:
+  quasi-log Kp, hop-count, FT8), L4b Doppler spread, L5 F-region,
+  L11 avg(snr) (геометрическое среднее линейного SNR), L12 Station
+  geography; 6 solved ранее, 2 stale, 2 editorial (A1/A2) — за авторами.
+  Point-by-point: `docs/submission/Response_to_HamSCI.md`.
+- **3 статфикса Q1:** IAAFT-суррогаты вместо phase (`surrogate.py`,
+  default `surrogate_method="iaaft"`); ESS через интегральное время
+  автокорреляции τ_int (не AR(1)); снято двойное Fisher Z в max-stat
+  (сырой max|r|, `fisher=False`).
+- Cover letter: `docs/submission/Cover_Letter_SpaceWeather.tex`.
+- arXiv: готово. Бывшие MUST-пункты закрыты: Zenodo DOI → v11,
+  CRediT → есть в `paper/main.tex` (Contributor Roles Taxonomy);
+  hardcoded даты — под правилом AGENTS.md (CLI/config).
+- Оценка Reviewer 2: 8.0/10, Accept with minor revisions (исторично).
 
 ## Известные риски
 - Критично: данные не в репо → reproducibility блокер для журнала.

@@ -6,7 +6,7 @@
 - **Reviewer:** Gwyn Griffiths, G3ZIL — 22 October 2026
   (`docs/reviews/gary_critique_v1.1.0.pdf`)
 - **Response prepared:** 2026-10-30, against manuscript v1.5.0
-- **Status:** all 15 comments triaged; 7 open items fixed in commit
+- **Status:** all 15 comments triaged; 8 sub-rows fixed in commit
   `3f68d55`; 6 were already solved in v1.5.0; 2 stale (contradicted by
   the new data).
 
@@ -40,8 +40,10 @@ markers), not the current source; comments were matched by content.
 | L13 | Line 256: all subsequent "why" deductions are questionable while all latitudes and hops are in one group | **[STALE / PARTIALLY SOLVED]** | Latitude groups, path-distance bins, UT windows and season splits now separate the sample; hop-level caveat recorded in Limitations |
 
 Summary: **6 [SOLVED]** before this round · **2 [STALE]** (contradicted by
-the new data) · **3 [PARTIALLY SOLVED]** · **7 [ACTUAL → FIXED]** ·
+the new data) · **3 [PARTIALLY SOLVED]** · **8 [ACTUAL → FIXED]** ·
 **2 editorial (A1, A2)** remain with the authors outside the manuscript.
+(The table has 21 sub-rows because L3 and L4 are split into sub-comments;
+L3b, L4c and L4f are covered by one joint Limitations item.)
 
 ## Reviewer statistics (unchanged, from the Q1 round)
 

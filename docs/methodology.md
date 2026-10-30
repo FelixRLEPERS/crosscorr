@@ -40,6 +40,16 @@
    (NOAA NCEI, XRS L2). Флаги: `--exclude-flares` /
    `--no-exclude-flares`, `--flare-threshold`. Подробнее:
    `docs/PIPELINE.md` §9b, `docs/DATA_PIPELINE.md`.
+10. **Нормировка на активные передатчики (TX normalization).** Относительное
+    снижение считается на активный передатчик часа: $S_{\text{norm}} =
+    \text{spots}/n_{\text{tx}}$, где $n_{\text{tx}}$ — уникальные
+    передатчики часа и диапазона (`uniqExact(tx_sign)` в ClickHouse);
+    устраняет selection bias популяции. Реализация:
+    `scripts/spatial_analysis.py` (публикуемый прогон
+    `--source api --skip-crosscheck --apply`); числа —
+    `results/spatial_lat_groups_norm_tx.json`,
+    `results/perm_test_18mo_3band_norm_tx.json`. Подробнее:
+    `docs/PIPELINE.md` §9c (уравнение (6) статьи).
 
 ## ESS: область применимости
 

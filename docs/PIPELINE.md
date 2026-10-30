@@ -90,7 +90,7 @@ $$
 Для суррогата $n_{\text{valid}}$ пересчитывается по самому суррогату
 (после `time_shift` на краях появляются NaN).
 
-Нулевое распределение строится через **phase randomization** (см. §5):
+Нулевое распределение строится через суррогаты **IAAFT** (см. §5):
 
 $$
 T_{ij}^{(b)} = \max_{\tau} \bigl| r_{ij}^{(b)}(\tau) \bigr|, \quad b = 1, \ldots, B
@@ -114,9 +114,16 @@ $$
 
 ---
 
-## 5. Phase randomization (surrogate)
+## 5. Surrogate tests (IAAFT by default)
 
-Для ряда $y$ применяется **фазовый суррогат**: FFT → случайные фазы → IFFT.
+Основной суррогат проекта — **IAAFT** (iterative amplitude-adjusted Fourier
+transform, Schreiber & Schmitz, 2000): сохраняет и спектр, и распределение
+ряда и даёт более консервативный нулевой хвост, чем чистая фазовая
+рандомизация. Дефолт зафиксирован в `max_lag_surrogate_pvalue`:
+`surrogate_method="iaaft"` (решение Q1-аудита; см. `docs/methodology.md`,
+п.6).
+
+**Фазовый суррогат** (опция `phase`) для ряда $y$: FFT → случайные фазы → IFFT.
 
 $$
 \tilde{y}(t) = \mathcal{F}^{-1}\!\left[\, \bigl|\mathcal{F}[y]\bigr| \cdot e^{i \varphi_{\text{rand}}} \,\right]
@@ -124,21 +131,22 @@ $$
 
 где $\varphi_{\text{rand}} \sim \mathcal{U}(0, 2\pi)$ — случайные фазы.
 
-**Ограничения:**
+**Ограничения `phase`:**
 - Фаза DC ($k = 0$) фиксируется в **0** — сохраняет нулевое среднее.
 - Фаза Nyquist ($k = N/2$ для чётной длины) фиксируется в **0** — сохраняет вещественность.
 
-Это **не итеративный** (non-ITC) суррогат. Для строгих тестов можно перейти
-к ITC (Schreiber & Schmitz, 2000), но для большинства задач достаточно.
+Это **не итеративный** (non-ITC) суррогат: спектр сохраняется,
+неравномерное распределение — нет; для публикаций используется IAAFT.
 
 **Доступные методы** (параметр `surrogate_method` у
 `max_lag_surrogate_pvalue`):
-- `phase` — фазовый суррогат (default), сохраняет спектр;
-- `iaaft` — сохраняет и спектр, и распределение;
+- `iaaft` — **default**, сохраняет и спектр, и распределение;
+- `phase` — фазовый суррогат, сохраняет только спектр;
 - `time_shift` — циклический сдвиг (быстрый).
 
-Методы доступны только через API-параметр; отдельного CLI-флага для выбора
-метода нет (`cross_correlation.py` использует `phase`).
+Отдельного CLI-флага выбора метода нет: `cross_correlation.py` не задаёт
+`surrogate_method` и использует дефолт `iaaft`. Число суррогатов: 200 из
+CLI, 500 в `max_lag_surrogate_pvalue`, 1000+ для публикаций.
 
 **Реализация:** `crosscorr_lib/analysis/surrogate.py:phase_surrogate`,
 `iaaft_surrogate`, `_time_shift`.
@@ -235,7 +243,7 @@ ESS считается для корреляции на нулевом лаге 
 
 ## 8. Block bootstrap
 
-Альтернатива phase randomization для **не-стационарных** рядов.
+Альтернатива суррогатным тестам (§5) для **не-стационарных** рядов.
 
 Идея: нарезать ряд на блоки длины $L$, перемешать блоки, сшить.
 
@@ -310,6 +318,30 @@ $$
 **Реализация:** `data/scripts/download_space_weather.py:fetch_goes_xray`
 (ETL), `data/scripts/unify_schema.py:load_goes_xray` (схема),
 фильтр в `scripts/perm_test_18mo_3band.py` и `scripts/spatial_analysis.py`.
+
+---
+
+## 9c. TX normalisation (spots per active transmitter)
+
+Число спотов в часе зависит и от ионосферы, и от того, сколько
+передатчиков реально работало в этом часе (selection bias популяции).
+Нормировка — отношение спотов к числу уникальных активных передатчиков
+часа и диапазона (это уравнение (6) статьи):
+
+$$
+S_{\text{norm}} = \frac{\text{spots}}{n_{\text{tx}}}
+$$
+
+где $n_{\text{tx}}$ — уникальные передатчики часа и диапазона (серверная
+функция `uniqExact(tx_sign)`). Относительное снижение в штормовые эпохи и
+широтные градиенты считаются по $S_{\text{norm}}$, а не по сырым спотах.
+
+**Реализация:** `scripts/spatial_analysis.py` (серверная агрегация в
+ClickHouse; публикуемый прогон — `--source api --skip-crosscheck --apply`).
+
+**Числа:** `results/spatial_lat_groups_norm_tx.json` (широтные группы:
+−72.7 / −24.1 / −12.8 %), `results/perm_test_18mo_3band_norm_tx.json`
+(18-месячный тест: −23.9 / −22.5 / −30.1 %).
 
 ---
 

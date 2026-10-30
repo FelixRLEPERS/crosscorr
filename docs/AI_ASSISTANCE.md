@@ -32,6 +32,58 @@ arithmetic or a spell-checker in writing.
 
 ## Session log
 
+### 2026-10-31 - Tracking files synced with Q1-audit final state (HOLD)
+
+- **Task:** bring `PROJECT_CONTEXT.md`, `README.md` Status, `AGENTS.md`
+  Hard Constraints, `docs/PIPELINE.md`, `docs/methodology.md`,
+  `CHANGELOG.md` and `docs/submission/Response_to_HamSCI.md` in line with
+  the post-Q1/HamSCI HOLD state, so the next session starts from accurate
+  repository context and does not redo completed work.
+- **AI model:** MiMo V2.6 Flash (OpenCode)
+- **Human reviewer:** Alexey Petrov (approved the Phase-1 plan; chose the
+  count "8 sub-rows" and the inclusion of `README.md` in the commit)
+- **Changes:**
+  1. `PROJECT_CONTEXT.md` — «Состояние перед submission» (старые 3
+     MUST-пункты) → «Статус (обновлено 2026-10-30)»: Q1 Audit Passed,
+     EN/RU ready for Space Weather, cover letter → Dr. Steven K. Morley,
+     Zenodo v11 Version DOI, HOLD awaiting HamSCI; перечислены 8 закрытых
+     sub-rows и 3 статфикса Q1 (IAAFT, τ_int ESS, снятие Fisher Z);
+     микро-фиксы: 291 → 369 тестов, «(10/15/20 м?)» → (20/40/15 м).
+     Старые MUST сняты только после проверки: Zenodo DOI = v11;
+     CRediT есть в `paper/main.tex:2108` / `paper/main_ru.tex:2241`;
+     hardcoded даты покрыты правилом AGENTS.md (CLI/config).
+  2. `README.md` — Status: `Journal submission` → 🟡 HOLD (Morley,
+     awaiting HamSCI); строка HamSCI пересчитана 7 → 8 sub-rows.
+  3. `AGENTS.md` — новая подсекция «Hard Constraints (Q1, session
+     2026-10-30)»: `\mbox` для кириллицы в формулах; `\texttt` +
+     `-\kern0pt-` + scoped `{\sloppy \par}` для CLI-команд (не `\verb`,
+     не `\path`); JSON через `write_bytes`+`\n`; независимость
+     Zenodo-версий софта/датасета; синхронный `docs/AI_ASSISTANCE.md`
+     обязателен для правок `paper/`.
+  4. `docs/PIPELINE.md` — §5 переименован в «Surrogate tests (IAAFT by
+     default)» (дефолт `surrogate_method="iaaft"` сверен с
+     `surrogate.py:374`; `cross_correlation.py` не задаёт метод); §4.2:
+     нулевое распределение phase → IAAFT; §8: «альтернатива суррогатным
+     тестам»; **новый §9c** TX normalisation (уравнение (6),
+     `uniqExact(tx_sign)`, `scripts/spatial_analysis.py`,
+     `results/spatial_lat_groups_norm_tx.json`,
+     `results/perm_test_18mo_3band_norm_tx.json`).
+  5. `docs/methodology.md` — новый п.10 (TX normalization), зеркальный §9c.
+  6. `CHANGELOG.md` — блок `[Unreleased] — Q1-Ready` (аудит, контроли,
+     HamSCI, Zenodo v11, HOLD).
+  7. `docs/submission/Response_to_HamSCI.md` — пересчёт 7 → 8
+     `[ACTUAL → FIXED]` в статусе и саммари + clarifier (21 sub-row;
+     L3b/L4c/L4f закрыты одним joint-Limitations).
+- **Recount note (7 → 8):** историческая запись этого лога (2026-10-30,
+  «7 actual-fixed + 2 editorial») намеренно НЕ переписана — история
+  уточняется только последующими записями. Корректный счёт — 8 sub-rows
+  таблицы (L1, L3b, L4b, L4c, L4f, L5, L11, L12); сверено с коммитом
+  `3f68d55` (6 текстовых правок, где joint-Limitations покрывает
+  L3b+L4c+L4f).
+- **Verification:** `ruff check .` 0; `pytest -m "not slow"` 369 passed /
+  2 deselected; `git diff` просмотрен — только 9 файлов документации;
+  LF сохранены; CLI commit + push.
+
 ### 2026-10-30 - Pre-submission fix: RU equation rendering, clipped command line, unused label
 
 - **Task:** close the two critical defects found by the Phase-1
