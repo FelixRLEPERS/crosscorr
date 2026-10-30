@@ -94,6 +94,9 @@ paper/*.synctex.gz
 
 paper/*.bak*
 
+# Review source PDFs stay local; extracted .txt IS committed
+docs/reviews/*.pdf
+
 *.bak
 
 # Smoke-test probes (network calls at module level — pytest-unsafe)

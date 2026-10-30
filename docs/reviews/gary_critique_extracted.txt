@@ -1,0 +1,80 @@
+--- page 1 ---
+Critique of a manuscript, “Scale-dependent WSPR response to geomagnetic
+storms: frequency dependence and network-size e=ects on absolute loss”
+by A Petrov and M Petrov
+
+Gwyn Gri(iths, G3ZIL  22 October 2026
+
+Preamble
+I am a radio amateur and citizen scientist, a retired ocean technologist broadly familiar
+with common statistical methods and deeply familiar with WSPR analysis.
+Overall impression
+The Plain Language summary is useful as the manuscript is written in a dense academic
+style with many instances of statistics terminology that is unfamiliar. In places the use
+of jargon that may be commonplace in statistics obscures the meaning for me.
+Consequently, I suggest strongly that a professional statistician who is also a radio
+amateur and familiar with WSPR be invited to comment on the appropriateness of the
+statistical methods and conclusions drawn from them. I have suggested a name.
+My comments are therefore primarily on the WSPR and propagation aspects of the
+manuscript.
+Two key questions are a) the intended readership and b) route to publication.
+Comments by line numbers
+Lines 13-14: An example where jargon means I do not really understand the point being
+made. I can guess, but in Key Points, take the approach you did in the Plain Language
+Summary. Are 20 m and 15 m ‘stable’ or not?
+Line 16: You have a clear and testable hypothesis, and it is well reﬂected in the ﬁrst part
+of your title. I have no doubt that the statistical methods you use lead you to robust
+conclusions on the very strict and limited hypothesis you are testing. However, where
+you try and explain the cause(s) of the decline and ascribe to phenomena in the
+ionosphere I have several comments.
+Lines 22-23: Far too conﬁdent a deduction based on your study. You do not mention
+that the Kp scale is more of an exponential one rather than linear, roughly doubling in
+variation in magnetic ﬂux density for each unit increase. And you conﬂate intervals 5–6
+and >=6 make for a messy comparison.
+Lines 26 et seq.: I could see no real justiﬁcation for the MUF being responsible. A major
+weakness is that there is no discussion of why WSPR spots may not be decoded during
+--- page 2 ---
+a geomagnetic storm. The reason is a complex mix of a storm’s e(ect on signal to noise
+ratio and, critically, the e(ect on Doppler spread. With WSPR tones only ~1.4 Hz apart
+frequency spread can greatly reduce probability of decode even when SNR remains
+high. This opens up several questions related to your data sets in relation to ionospheric
+propagation and how a(ected in in geomagnetic storm:
+• The number of hops will matter: each interaction with the ionosphere will be
+a(ected cumulatively.
+• The geomagnetic latitude and time of day where reﬂections (i.e. refractions
+treated as reﬂections) take place matters. Paths that have reﬂections at high
+geomagnetic latitudes will be more a(ected. Paths that are between mid-
+latitude stations may be less a(ected.
+• This calls into question the value of a single number, to three signiﬁcant ﬁgures,
+as the e(ect for each band. It bundles paths of all types, single and multi-hop,
+low and high latitude, into one number. I reiterate, you will have answered your
+explicitly stated hypothesis, but no conclusions as to radio propagation can be
+drawn without much data stratiﬁcation on paths and hops.
+• The e(ect of a geomagnetic storm on frequency spread, and in turn the highly
+non-linear e(ect of frequency spread on probability of WSPR decode is
+problematic. Very di(erent results would be likely if the data set was FT8 (e.g.
+from the Madrigal database) as it has a larger tone spacing and hence Doppler
+tolerance. See this graph for WSPR:
+
+
+Line 53: A very small comment, but it is F region, not layer, within the F region we have
+the F1 and F2 layers. This mistake is in contrast to some very technical descriptions in
+the lines that follow.
+Credit: Steve Franke K9AN
+--- page 3 ---
+Line 66: It is not clear how many paths are a(ected by auroral absorption or Polar Cap
+absorption as no data stratiﬁcation by latitude has taken place.
+Line 87: Absolutely true.
+Line 95: density is not needed.
+Line 97: See previous comment that Kp is exponential rather than linear.
+Line 105: Case not made, see previous comment on where paths actually lie.
+Line 112: in forming avg(snr) the average of a logarithmic quantity is a geometrical
+average. Have you convinced yourself that this is valid for the ranges of SNR
+encountered?
+Line 162: To what extent is this diurnal activity due to the vast majority of WSPR spots
+being between stations in Europe and N America and between those two continents?
+That is between longitudes 125 W and say 30 E? Station location is not mentioned.
+Line 256: These are undoubtedly outcomes from your analysis; the question comes
+when interpreting given all spots of all geomagnetic latitudes and hops are in one group.
+I think going this far shows the key comments. All subsequent deductions as to why
+reductions happen are questionable because of the comments above.
