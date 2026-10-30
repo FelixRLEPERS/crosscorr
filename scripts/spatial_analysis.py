@@ -36,6 +36,16 @@ Statistic (identical definitions to scripts/perm_test_18mo_3band.py)
   over month x hour-of-day x day-of-week residuals;
 * BH-FDR across the three latitude groups.
 
+Flare control (Q1 audit, phase A)
+---------------------------------
+X-class/M-class solar flares ionise the dayside D-region and can suppress
+WSPR spots on their own, so hours contaminated by flares are excluded before
+the storm/quiet split. A hour is a flare hour when the GOES XRS 1-8 A
+hourly MAX flux (detector_type 'goes_xray' in unified.parquet) reaches
+--flare-threshold (default 1e-5 W/m2 = M-class). Disable with
+--no-exclude-flares. Phase 1 fails loudly when exclusion is on but GOES
+coverage is missing, so the analysis can never silently lose the control.
+
 Outputs: results/spatial_lat_groups.json (+ tables on stdout).
 """
 
@@ -214,7 +224,27 @@ def verify(args: argparse.Namespace) -> bool:
     else:
         check(False, "unified.parquet", f"missing: {UNIFIED_PATH}")
 
-    # 3. local spot files (informational for --source local)
+    # 3. GOES X-ray coverage (flare control, phase A of the Q1 audit).
+    #    Checked only when the flare filter is on: without GOES the exclusion
+    #    could not be applied, and Phase 1 must fail loudly instead of
+    #    silently degrading to the unfiltered analysis.
+    if getattr(args, "exclude_flares", False) and UNIFIED_PATH.exists():
+        try:
+            goes = load_goes_hours(args.start, args.end)
+        except RuntimeError as exc:
+            check(False, "GOES X-ray coverage", str(exc))
+        else:
+            want = pd.date_range(args.start, args.end, freq="1h")
+            cover = len(want.intersection(pd.DatetimeIndex(goes["hour"]))) / max(len(want), 1)
+            n_flare = int((goes["flux_long"] >= args.flare_threshold).sum())
+            check(
+                cover > 0.90,
+                "GOES X-ray coverage",
+                f"coverage={cover:.1%} of hourly bins, flare hours (>= "
+                f"{args.flare_threshold:.1e} W/m2)={n_flare}",
+            )
+
+    # 4. local spot files (informational for --source local)
     local_files = (
         sorted(p for p in RAW_SPOTS_DIR.glob("wspr_*.csv") if "hourly" not in p.name)
         if RAW_SPOTS_DIR.exists()
@@ -227,7 +257,7 @@ def verify(args: argparse.Namespace) -> bool:
         required=args.source == "local",
     )
 
-    # 4. API: sample spots with coordinates, cross-check three ways
+    # 5. API: sample spots with coordinates, cross-check three ways
     if args.source == "api" and len(stations) > 0:
         t0 = pd.Timestamp(args.start) + pd.Timedelta(hours=args.sample_hour)
         t1 = t0 + pd.Timedelta(hours=1)
@@ -350,11 +380,15 @@ def verify(args: argparse.Namespace) -> bool:
     print(f"  bands    : {[BAND_IDX.get(b, str(b)) for b in args.bands]}")
     print(f"  source   : {args.source}")
     print("  groups   : |mid lat| > 60 high / 30-60 mid / < 30 low")
+    if args.exclude_flares:
+        print(f"  flares   : excluded, GOES XRS 1-8A hourly max >= {args.flare_threshold:.1e} W/m2")
+    else:
+        print("  flares   : NOT excluded (--no-exclude-flares)")
     print(
         f"  test     : block permutation, block={args.block}, "
         f"n_iter={args.n_iter}, seed={args.seed}"
     )
-    print(f"  output   : {OUT_JSON}")
+    print(f"  output   : {args.out}")
     return True
 
 
@@ -452,6 +486,23 @@ def load_kp(args: argparse.Namespace) -> pd.DataFrame:
     kp["hour"] = kp["timestamp_utc"].dt.tz_convert(None).dt.floor("1h")
     kp = kp[(kp["hour"] >= args.start) & (kp["hour"] < args.end)]
     return kp[["hour", "value"]].rename(columns={"value": "kp"}).drop_duplicates("hour")
+
+
+def load_goes_hours(start: str, end: str) -> pd.DataFrame:
+    """Hourly GOES XRS 1-8 A max flux (W/m2) from unified.parquet, [start, end)."""
+    if not UNIFIED_PATH.exists():
+        raise RuntimeError(f"missing {UNIFIED_PATH}; run data/scripts/fetch_all.py first")
+    unified = pd.read_parquet(UNIFIED_PATH, columns=["timestamp_utc", "detector_type", "value"])
+    goes = unified[unified["detector_type"] == "goes_xray"][["timestamp_utc", "value"]].copy()
+    if goes.empty:
+        raise RuntimeError(
+            "no goes_xray rows in unified.parquet; fetch them with: "
+            f"python data/scripts/fetch_all.py --only goes_xray --start {start} "
+            f"--end {end} --skip-unify && python data/scripts/unify_schema.py"
+        )
+    goes["hour"] = goes["timestamp_utc"].dt.tz_convert(None).dt.floor("1h")
+    goes = goes[(goes["hour"] >= start) & (goes["hour"] < end)]
+    return goes[["hour", "value"]].rename(columns={"value": "flux_long"}).drop_duplicates("hour")
 
 
 def block_perm_test(
@@ -622,6 +673,28 @@ def apply(args: argparse.Namespace) -> None:
     kp = load_kp(args)
     if kp.empty:
         raise RuntimeError(f"no Kp rows in {args.start}..{args.end} (unified.parquet)")
+
+    flare_info = {"exclude_flares": bool(args.exclude_flares)}
+    if args.exclude_flares:
+        goes = load_goes_hours(args.start, args.end)
+        flare_hours = pd.DatetimeIndex(goes.loc[goes["flux_long"] >= args.flare_threshold, "hour"])
+        n_before = counts["hour"].nunique()
+        counts = counts[~counts["hour"].isin(flare_hours)]
+        n_after = counts["hour"].nunique()
+        flare_info.update(
+            {
+                "threshold_w_m2": args.flare_threshold,
+                "channel": "GOES XRS 1-8A hourly max",
+                "n_flare_hours_in_period": int(len(flare_hours)),
+                "n_hours_excluded": n_before - n_after,
+            }
+        )
+        print(
+            f"Flare filter: {n_before - n_after} hours excluded "
+            f"(threshold {args.flare_threshold:.1e} W/m2, "
+            f"{len(flare_hours)} flare hours in period)"
+        )
+
     total = int(counts["spots"].sum())
     print(
         f"Total spots: {total:,} in {counts['hour'].nunique()} hours, "
@@ -656,13 +729,15 @@ def apply(args: argparse.Namespace) -> None:
             "storm": "Kp >= 5",
             "quiet": "Kp < 3",
             "groups": "|midpoint lat| > 60 high / 30-60 mid / < 30 low",
+            "flare_filter": flare_info,
         },
         "pooled": headline,
         "per_band": per_band,
     }
-    OUT_JSON.parent.mkdir(parents=True, exist_ok=True)
-    OUT_JSON.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-    print(f"\nWrote {OUT_JSON}")
+    out_path = Path(args.out)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    print(f"\nWrote {out_path}")
 
 
 def main() -> int:
@@ -690,6 +765,24 @@ def main() -> int:
     parser.add_argument("--block", type=int, default=24, help="permutation block size (epochs)")
     parser.add_argument("--n-iter", type=int, default=20000, help="permutation iterations")
     parser.add_argument("--seed", type=int, default=42, help="RNG seed")
+    parser.add_argument(
+        "--exclude-flares",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="drop hours whose GOES XRS 1-8A hourly max flux >= --flare-threshold "
+        "(default: on; M-class flares suppress WSPR independently of geomagnetic activity)",
+    )
+    parser.add_argument(
+        "--flare-threshold",
+        type=float,
+        default=1e-5,
+        help="GOES 1-8A flux in W/m2 marking a flare hour (default 1e-5 = M1.0)",
+    )
+    parser.add_argument(
+        "--out",
+        default=str(OUT_JSON),
+        help="output JSON path (default: results/spatial_lat_groups.json)",
+    )
     parser.add_argument(
         "--sample-n", type=int, default=5000, help="Phase-1 API sample size (spots)"
     )

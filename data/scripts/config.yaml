@@ -17,4 +17,4 @@ intermagnet:
   stations: ["MOS", "ESK", "OTT"]
 
 space_weather:
-  indices: ["kp", "dst", "f107"]
+  indices: ["kp", "dst", "f107", "goes_xray"]

@@ -106,10 +106,31 @@ arithmetic or a spell-checker in writing.
     and on 40m Kp5-6 vs Kp6-7, driven by N_storm 198 → 169 rather than by effect
     reversal (effect sizes stay negative). The main three-band result and the Kp7+
     pairs on 20m/40m remain significant. Recorded in `docs/first_result.md` §6.
-  - spatial (High/Mid/Low) comparison: **pending** — `wspr.live` API unreachable
-    from this region without VPN (8/8 read timeouts on 2026-10-30); the two
-    `spatial_analysis.py --apply` runs (with/without flare filter) are deferred until
-    the API is reachable (`scripts/wait_for_api.py` polls it).
+  - spatial (High/Mid/Low), 20 000 iterations, seed 42 — completed 2026-10-30
+    after the API became reachable (`--sample-n 500`; the default 5000 exceeds
+    the endpoint's ~19 s long-request budget in this region, see `docs/LESSONS.md`):
+
+    | Group | Drop% with flares | Drop% without flares | Δ (pp) | p with | p without | N_storm |
+    |-------|-------------------|----------------------|--------|--------|-----------|---------|
+    | High-lat (>60)  | −73.1 | −72.1 | 1.0 | 5.00e-05 | 5.00e-05 | 198 → 169 |
+    | Mid-lat (30–60) | −28.2 | −26.1 | 2.1 | 5.00e-05 | 5.00e-05 | 198 → 169 |
+    | Low-lat (<30)   | −22.8 | −20.0 | 2.8 | 5.00e-05 | 5.00e-05 | 198 → 169 |
+
+    Per band (without flares): 15m −84.2/−38.6/−11.8, 20m −70.3/−24.9/−22.2,
+    40m −67.2/−25.2/−21.6 (high/mid/low); all p = 5.00e-05 except 40m low-lat
+    p = 1.95e-03 (q = 1.95e-03, was 1.50e-04 with flares — power loss only).
+  - **spatial verdict: the auroral gradient survives flare control.**
+    High > Mid > Low holds in the pooled table and in every band; attenuation
+    is 0.8–3.1 pp across all 12 group/band cells while p stays at the
+    permutation floor in 11/12 of them. The high-lat effect (−72.1%) is an
+    order of magnitude above the low-lat one — flare (SID) hours cannot
+    explain the latitude structure.
+  - the `--no-exclude-flares` spatial run reproduces the pre-control canonical
+    JSON exactly (148/148 shared keys identical apart from the `generated`
+    timestamp; only `params.flare_filter` was added).
+  - tables: `results/flare_control_comparison_perm.csv`,
+    `results/flare_control_comparison_spatial.csv`; run JSONs:
+    `results/*_with_flares.json` (with flares) vs the canonical paths (without).
 
 ### 2026-10-30 — Statistical audit fixes (Phase 2: Apply)
 

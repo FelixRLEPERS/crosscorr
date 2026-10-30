@@ -7,7 +7,7 @@
     "detector_id": { "type": "string", "minLength": 1 },
     "detector_type": {
       "type": "string",
-      "enum": ["wspr", "magnetometer", "gnss", "ionosonde", "ballistic", "metrology", "genome", "ephemeris", "wspr_hourly"]
+      "enum": ["wspr", "magnetometer", "gnss", "ionosonde", "ballistic", "metrology", "genome", "ephemeris", "wspr_hourly", "goes_xray"]
     },
     "value": {
       "type": "number",
@@ -24,7 +24,7 @@
     },
     "unit": {
       "type": "string",
-      "description": "Physical unit of value, e.g. dB, nT, AU. Taken from DETECTOR_UNITS in crosscorr_lib/analysis/residuals.py."
+      "description": "Physical unit of value, e.g. dB, nT, AU, W/m2. Taken from DETECTOR_UNITS in crosscorr_lib/analysis/residuals.py."
     },
     "quality_flag": {
       "type": "integer",

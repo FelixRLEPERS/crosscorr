@@ -1,0 +1,4 @@
+band,drop_pct_with_flares,drop_pct_without_flares,drop_pct_delta,p_value_with_flares,p_value_without_flares,n_storm_with_flares,n_storm_without_flares,n_storm_delta
+15m,-38.7,-36.8,1.9,2e-05,2e-05,198,169,-29
+20m,-27.7,-25.5,2.2,2e-05,2e-05,198,169,-29
+40m,-27.2,-25.3,1.9,2e-05,2e-05,198,169,-29

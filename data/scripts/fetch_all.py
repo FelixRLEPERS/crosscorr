@@ -26,12 +26,14 @@ CONFIG_PATH = HERE / "config.yaml"
 ROOT = HERE.parents[1]
 sys.path.insert(0, str(ROOT))
 
-KNOWN_SOURCES = {"wspr", "horizons", "intermagnet", "kp", "dst", "f107"}
+KNOWN_SOURCES = {"wspr", "horizons", "intermagnet", "kp", "dst", "f107", "goes_xray"}
 
 # Флаги, которые не должны конфликтовать с subparser
 SKIP_UNIFY_HELP = "Не запускать unify_schema.py после загрузки."
 SKIP_MANUAL_HELP = "Не печатать инструкцию по INTERMAGNET."
-ONLY_HELP = "Только указанные источники (через запятую): wspr,horizons,intermagnet,kp,dst,f107."
+ONLY_HELP = (
+    "Только указанные источники (через запятую): wspr,horizons,intermagnet,kp,dst,f107,goes_xray."
+)
 
 
 def load_config(path: Path) -> dict:
@@ -192,10 +194,16 @@ def _fetch_space_weather(start: str, end: str, indices: set[str]) -> int:
         RAW_DIR,
         fetch_dst,
         fetch_f107,
+        fetch_goes_xray,
         fetch_kp,
     )
 
-    funcs = {"kp": fetch_kp, "dst": fetch_dst, "f107": fetch_f107}
+    funcs = {
+        "kp": fetch_kp,
+        "dst": fetch_dst,
+        "f107": fetch_f107,
+        "goes_xray": fetch_goes_xray,
+    }
     needed = {name for name in indices if name in funcs}
     if not needed:
         return 0
@@ -286,8 +294,8 @@ def main() -> None:
         results["horizons"] = f"{n} объектов"
         print()
 
-    # Space weather (kp, dst, f107)
-    sw_indices = sources & {"kp", "dst", "f107"}
+    # Space weather (kp, dst, f107, goes_xray)
+    sw_indices = sources & {"kp", "dst", "f107", "goes_xray"}
     if sw_indices:
         print("--- Space Weather ---")
         n = _fetch_space_weather(args.start, args.end, sw_indices)

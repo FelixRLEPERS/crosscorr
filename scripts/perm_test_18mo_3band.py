@@ -1,5 +1,13 @@
-"""Phase 5: Permutation test 18mo x 3 band."""
+"""Phase 5: Permutation test 18mo x 3 band.
 
+Flare control (Q1 audit, phase A): hours whose GOES XRS 1-8A hourly MAX
+flux reaches --flare-threshold (default 1e-5 W/m2 = M-class) are dropped
+before the storm/quiet split, because flares suppress WSPR independently
+of geomagnetic activity. Use --no-exclude-flares for the legacy (no
+control) run.
+"""
+
+import argparse
 import json
 from pathlib import Path
 
@@ -10,6 +18,26 @@ ROOT = Path(__file__).resolve().parents[1]
 RNG = np.random.default_rng(42)
 N_ITER = 50000
 BLOCK = 24
+
+parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+parser.add_argument(
+    "--exclude-flares",
+    action=argparse.BooleanOptionalAction,
+    default=True,
+    help="drop hours with GOES XRS 1-8A hourly max >= --flare-threshold (default: on)",
+)
+parser.add_argument(
+    "--flare-threshold",
+    type=float,
+    default=1e-5,
+    help="GOES 1-8A flux in W/m2 marking a flare hour (default 1e-5 = M1.0)",
+)
+parser.add_argument(
+    "--out",
+    default=str(ROOT / "results" / "perm_test_18mo_3band.json"),
+    help="output JSON path",
+)
+args = parser.parse_args()
 
 df = pd.read_parquet(ROOT / "data" / "processed" / "unified.parquet")
 full = df[(df["timestamp_utc"] >= "2024-04-01") & (df["timestamp_utc"] < "2025-10-01")]
@@ -25,6 +53,39 @@ kp = full[full["detector_type"] == "kp"][["timestamp_utc", "value"]].copy()
 kp.columns = ["timestamp_utc", "kp"]
 kp["hour"] = kp["timestamp_utc"].dt.floor("1h")
 kp_h = kp.groupby("hour")["kp"].mean().reset_index()
+
+goes = full[full["detector_type"] == "goes_xray"][["timestamp_utc", "value"]].copy()
+goes["hour"] = goes["timestamp_utc"].dt.floor("1h")
+goes_h = goes.groupby("hour")["value"].max().reset_index()
+goes_h.columns = ["hour", "flux_long"]
+flare_hours = pd.DatetimeIndex(goes_h.loc[goes_h["flux_long"] >= args.flare_threshold, "hour"])
+
+n_hours_before = wspr["hour"].nunique()
+if args.exclude_flares:
+    if goes_h.empty:
+        raise SystemExit(
+            "goes_xray rows not found in unified.parquet; fetch them with:\n"
+            "  python data/scripts/fetch_all.py --only goes_xray "
+            "--start 2024-04-01 --end 2025-09-30 --skip-unify\n"
+            "  python data/scripts/unify_schema.py\n"
+            "or run with --no-exclude-flares."
+        )
+    wspr = wspr[~wspr["hour"].isin(flare_hours)]
+n_hours_after = wspr["hour"].nunique()
+
+flare_info = {
+    "exclude_flares": bool(args.exclude_flares),
+    "threshold_w_m2": args.flare_threshold,
+    "channel": "GOES XRS 1-8A hourly max",
+    "n_flare_hours_in_period": int(len(flare_hours)),
+    "n_hours_excluded": int(n_hours_before - n_hours_after),
+}
+print(
+    f"[flare-filter] exclude_flares={args.exclude_flares}, "
+    f"threshold={args.flare_threshold:.1e} W/m2, "
+    f"flare hours in period={len(flare_hours)}, "
+    f"wspr hours {n_hours_before} -> {n_hours_after}"
+)
 
 
 def block_perm_test(merged, block_size=BLOCK, n_iter=N_ITER):
@@ -205,11 +266,16 @@ for band in ["20m", "40m", "15m"]:
 
 # Save results
 out = {
-    "config": {"n_iter": N_ITER, "block_size": BLOCK, "period": "2024-04-01 .. 2025-09-30"},
+    "config": {
+        "n_iter": N_ITER,
+        "block_size": BLOCK,
+        "period": "2024-04-01 .. 2025-09-30",
+        "flare_filter": flare_info,
+    },
     "results": results,
     "pairwise_bins": pairwise_results,
 }
-(ROOT / "results").mkdir(exist_ok=True)
-with open(str(ROOT / "results" / "perm_test_18mo_3band.json"), "w") as f:
-    json.dump(out, f, indent=2, ensure_ascii=False)
-print("\n[OK] results/perm_test_18mo_3band.json")
+out_path = Path(args.out)
+out_path.parent.mkdir(parents=True, exist_ok=True)
+out_path.write_text(json.dumps(out, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+print(f"\n[OK] {out_path}")

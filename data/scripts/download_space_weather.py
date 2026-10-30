@@ -1,13 +1,14 @@
 """
-Загрузка индексов космической погоды: Kp, Dst, F10.7.
+Загрузка индексов космической погоды: Kp, Dst, F10.7 + GOES X-ray.
 
-Три независимых источника — каждый скачивается отдельно.
+Четыре независимых источника — каждый скачивается отдельно.
 Если один падает, остальные продолжают.
 
 Источники:
 - Kp:  GFZ Potsdam JSON API  (3-часовой)
 - Dst: WDC Kyoto text        (часовой)
 - F107: NOAA SWPC JSON       (месячный)
+- GOES X-ray: NOAA NCEI XRS L2 (1-минутные средние NetCDF -> почасовой максимум)
 
 Сохраняет CSV-файлы в data/raw/space_weather/.
 """
@@ -15,9 +16,12 @@
 from __future__ import annotations
 
 import argparse
+import re
+import tempfile
 import time
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 import requests
 
@@ -25,6 +29,18 @@ RAW_DIR = Path(__file__).resolve().parents[1] / "raw" / "space_weather"
 KP_API = "https://kp.gfz-potsdam.de/app/json/"
 DST_BASE = "http://wdc.kugi.kyoto-u.ac.jp/dst_provisional"
 F107_API = "https://services.swpc.noaa.gov/json/solar-cycle/observed-solar-cycle-indices.json"
+
+#: GOES-R XRS Level-2 (1-minute averages), дневные NetCDF на NCEI.
+GOES_XRS_BASE = "https://data.ngdc.noaa.gov/platforms/solar-space-observing-satellites/goes"
+GOES_PRODUCT = "l2/data/xrsf-l2-avg1m"
+#: Приоритет спутников: GOES-18 покрывает весь период 2024-2025 целиком,
+#: GOES-16 (до 2025-04) и GOES-19 (с 2025-01) — резерв на выпадающие дни.
+GOES_SATS = ("goes18", "goes16", "goes19")
+#: Канал 1-8 Angstrom («long») — именно им определяется класс флейра.
+GOES_CHANNEL_VAR = "xrsb_flux"
+GOES_FLAG_VAR = "xrsb_flag"
+#: Имя файла вида dn_xrsf-l2-avg1m_g18_d20240510_v2-2-2.nc (версия плавает).
+GOES_NC_RE = re.compile(r"([\w.-]+_d(\d{8})_v[\w.-]+\.nc)")
 
 MAX_RETRIES = 3
 BACKOFF = 5
@@ -268,19 +284,202 @@ def fetch_f107(start_date: str, end_date: str, out_dir: Path) -> Path:
     return path
 
 
+# ── GOES X-ray (XRS) ─────────────────────────────────────────────
+
+
+def _try_get(url: str, timeout: int = 60) -> requests.Response | None:
+    """GET без retry; ``None`` на 404 (недоступные месяцы/спутники — это норма)."""
+    try:
+        r = requests.get(url, timeout=timeout)
+    except requests.RequestException as e:
+        raise DataFetchError(f"Не удалось скачать {url}: {e}") from e
+    if r.status_code == 404:
+        return None
+    r.raise_for_status()
+    return r
+
+
+def _goes_month_index(sat: str, year: int, month: int) -> dict[str, str]:
+    """Индекс дневных файлов XRS за месяц: ``{"20240510": "<filename>.nc", ...}``.
+
+    Пустой словарь, если каталога нет (спутник ещё не запущен / уже снят).
+    """
+    url = f"{GOES_XRS_BASE}/{sat}/{GOES_PRODUCT}/{year:04d}/{month:02d}/"
+    r = _try_get(url)
+    if r is None:
+        return {}
+    return {m.group(2): m.group(1) for m in GOES_NC_RE.finditer(r.text)}
+
+
+def _hourly_max_from_nc(path: Path) -> pd.DataFrame:
+    """Почасовой максимум XRS-B (1-8 Angstrom) из дневного NetCDF.
+
+    Валидны минуты с ``flag == 0`` и конечным потоком. Часы без валидных
+    минут не попадают в результат (пропуск, а не ноль).
+
+    Returns:
+        DataFrame с колонками ``timestamp`` (naive UTC) и ``flux_long`` (W/m2).
+
+    Raises:
+        DataFetchError: netCDF4 не установлен или неожиданный формат времени.
+    """
+    try:
+        import netCDF4
+    except ImportError as e:
+        raise DataFetchError(
+            "netCDF4 не установлен (нужен для чтения архива GOES XRS): pip install netCDF4"
+        ) from e
+
+    with netCDF4.Dataset(str(path)) as ds:
+        tvar = ds.variables["time"]
+        units = str(getattr(tvar, "units", ""))
+        m = re.match(r"seconds since (.+)", units)
+        if not m:
+            raise DataFetchError(f"{path.name}: неожиданные единицы времени {units!r}")
+        base = pd.Timestamp(m.group(1).strip().replace("UTC", "").strip().rstrip("Z"))
+        times = np.asarray(tvar[:], dtype=float)
+        flux = np.ma.filled(np.ma.asarray(ds.variables[GOES_CHANNEL_VAR][:]), np.nan)
+        flux = np.asarray(flux, dtype=float)
+        if GOES_FLAG_VAR in ds.variables:
+            flags = np.ma.filled(np.ma.asarray(ds.variables[GOES_FLAG_VAR][:]), -1)
+            flags = np.asarray(flags)
+        else:
+            flags = np.zeros_like(times, dtype=int)
+
+    stamps = base + pd.to_timedelta(times, unit="s")
+    valid = (flags == 0) & np.isfinite(flux)
+    df = pd.DataFrame({"timestamp": stamps[valid], "flux_long": flux[valid]})
+    if df.empty:
+        return pd.DataFrame(columns=["timestamp", "flux_long"])
+    df["timestamp"] = df["timestamp"].dt.floor("1h")
+    hourly = df.groupby("timestamp", as_index=False)["flux_long"].max()
+    return hourly
+
+
+def fetch_goes_xray(start_date: str, end_date: str, out_dir: Path) -> Path:
+    """Скачать GOES X-ray (1-8 Angstrom) и агрегировать до почасового максимума.
+
+    Источник: NOAA NCEI, GOES-R XRS Level-2, 1-минутные средние (NetCDF-4,
+    ~290 КБ/день). Перебираются спутники в порядке :data:`GOES_SATS`; день
+    считается пропущенным, если файла нет ни у одного.
+
+    Агрегация — **максимум за час**: класс флейра (M/X) определяется по
+    пиковому значению, среднее за час пик размазало бы и флейр прошёл бы
+    мимо порога. Часы без валидных минут не выводятся.
+
+    Требует ``pip install netCDF4``.
+
+    Args:
+        start_date: YYYY-MM-DD (включительно)
+        end_date: YYYY-MM-DD (включительно)
+        out_dir: куда сохранить CSV
+
+    Returns:
+        Path к сохранённому файлу ``goes_xray_<start>_<end>.csv``
+        с колонками ``timestamp, flux_long``.
+    """
+    try:
+        start_dt = pd.Timestamp(start_date)
+        end_dt = pd.Timestamp(end_date)
+    except Exception as e:
+        raise DataFetchError(f"GOES X-ray: неверный формат даты: {e}") from e
+
+    days = pd.date_range(start_dt.normalize(), end_dt.normalize(), freq="D")
+    index_cache: dict[tuple[str, int, int], dict[str, str]] = {}
+    frames: list[pd.DataFrame] = []
+    n_missing = 0
+
+    for i, day in enumerate(days):
+        day_key = day.strftime("%Y%m%d")
+        url = None
+        for sat in GOES_SATS:
+            key = (sat, day.year, day.month)
+            if key not in index_cache:
+                index_cache[key] = _goes_month_index(sat, day.year, day.month)
+            fname = index_cache[key].get(day_key)
+            if fname:
+                url = f"{GOES_XRS_BASE}/{sat}/{GOES_PRODUCT}/{day.year:04d}/{day.month:02d}/{fname}"
+                break
+
+        if url is None:
+            n_missing += 1
+            print(f"[SKIP] GOES X-ray {day.date()}: файла нет ни у одного спутника")
+            continue
+
+        try:
+            r = _retry_get(url, timeout=120)
+        except DataFetchError as e:
+            n_missing += 1
+            print(f"[SKIP] GOES X-ray {day.date()}: {e}")
+            continue
+
+        tmp_path = None
+        try:
+            with tempfile.NamedTemporaryFile(suffix=".nc", delete=False) as fh:
+                fh.write(r.content)
+                tmp_path = Path(fh.name)
+            hourly = _hourly_max_from_nc(tmp_path)
+        except DataFetchError as e:
+            n_missing += 1
+            print(f"[SKIP] GOES X-ray {day.date()}: {e}")
+            continue
+        finally:
+            if tmp_path is not None:
+                tmp_path.unlink(missing_ok=True)
+
+        if hourly.empty:
+            n_missing += 1
+            print(f"[SKIP] GOES X-ray {day.date()}: нет валидных минут")
+            continue
+
+        frames.append(hourly)
+        if (i + 1) % 10 == 0:
+            print(f"[INFO] GOES X-ray: обработано {i + 1}/{len(days)} дней...")
+
+    if not frames:
+        raise DataFetchError(
+            f"GOES X-ray: нет данных за {start_date} – {end_date}. "
+            "Проверьте даты: архив NCEI покрывает период с 2010-х годов, "
+            "файлы появляются с задержкой в несколько дней после наблюдения."
+        )
+
+    df = pd.concat(frames, ignore_index=True).sort_values("timestamp").reset_index(drop=True)
+
+    out_dir.mkdir(parents=True, exist_ok=True)
+    path = out_dir / f"goes_xray_{start_date}_{end_date}.csv"
+    df.to_csv(path, index=False)
+    n_days = len(frames)
+    print(
+        f"[OK] GOES X-ray: {len(df)} строк (часовых максимумов), "
+        f"дней {n_days}/{len(days)}, пропущено {n_missing} -> {path.name}"
+    )
+    print(
+        f"[INFO] GOES X-ray: максимум потока за период = {df['flux_long'].max():.3e} W/m2 "
+        "(канал 1-8 Angstrom, агрегация — максимум за час)"
+    )
+    return path
+
+
 # ── fetch_all ────────────────────────────────────────────────────
 
 
 def fetch_all(start_date: str, end_date: str) -> dict[str, Path | None]:
-    """Скачать все три индекса. Каждый — независимо от ошибок других.
+    """Скачать все индексы. Каждый — независимо от ошибок других.
 
     Returns:
-        {"kp": Path | None, "dst": Path | None, "f107": Path | None}
+        {"kp": Path | None, "dst": Path | None, "f107": Path | None,
+         "goes_xray": Path | None}
     """
     results: dict[str, Path | None] = {}
     out_dir = RAW_DIR
 
-    for name, fn in [("kp", fetch_kp), ("dst", fetch_dst), ("f107", fetch_f107)]:
+    funcs = {
+        "kp": fetch_kp,
+        "dst": fetch_dst,
+        "f107": fetch_f107,
+        "goes_xray": fetch_goes_xray,
+    }
+    for name, fn in funcs.items():
         try:
             results[name] = fn(start_date, end_date, out_dir)
         except DataFetchError as e:
@@ -295,15 +494,15 @@ def fetch_all(start_date: str, end_date: str) -> dict[str, Path | None]:
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Скачать индексы космической погоды (Kp, Dst, F10.7)"
+        description="Скачать индексы космической погоды (Kp, Dst, F10.7, GOES X-ray)"
     )
     parser.add_argument("--start", required=True, help="YYYY-MM-DD")
     parser.add_argument("--end", required=True, help="YYYY-MM-DD")
     parser.add_argument(
         "--indices",
         nargs="+",
-        choices=["kp", "dst", "f107"],
-        default=["kp", "dst", "f107"],
+        choices=["kp", "dst", "f107", "goes_xray"],
+        default=["kp", "dst", "f107", "goes_xray"],
         help="Какие индексы скачивать (по умолчанию все)",
     )
     args = parser.parse_args()
@@ -313,7 +512,12 @@ def main() -> None:
     print(f"[INFO] Индексы: {', '.join(args.indices)}")
     print(f"[INFO] Сохраняем в {RAW_DIR}\n")
 
-    funcs = {"kp": fetch_kp, "dst": fetch_dst, "f107": fetch_f107}
+    funcs = {
+        "kp": fetch_kp,
+        "dst": fetch_dst,
+        "f107": fetch_f107,
+        "goes_xray": fetch_goes_xray,
+    }
     ok = 0
     for name in args.indices:
         try:

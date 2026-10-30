@@ -207,6 +207,26 @@ def load_f107(path: Path) -> pd.DataFrame:
     return out[["timestamp_utc", "detector_id", "detector_type", "value", "meta"]]
 
 
+def load_goes_xray(path: Path) -> pd.DataFrame:
+    """Прочитать GOES X-ray CSV в unified-формат (сырое наблюдение = поток 1-8 Angstrom).
+
+    ``value`` — почасовой **максимум** исправленного потока XRS-B в W/m2
+    (см. ``fetch_goes_xray``). Часы без валидных минут в файл отсутствуют
+    и в unified не попадают.
+    """
+    df = pd.read_csv(path)
+    out = pd.DataFrame(
+        {
+            "timestamp_utc": pd.to_datetime(df["timestamp"], utc=True),
+            "detector_id": "goes_xray_1_8a",
+            "detector_type": "goes_xray",
+            "value": df["flux_long"].astype(float),
+        }
+    )
+    out["meta"] = json.dumps({"granularity": "hourly", "statistic": "max", "channel": "1-8A"})
+    return out[["timestamp_utc", "detector_id", "detector_type", "value", "meta"]]
+
+
 def _route_wspr(path: Path) -> pd.DataFrame:
     """Направить WSPR-файл в raw или hourly loader по префиксу имени."""
     if path.stem.startswith("wspr_hourly"):
@@ -260,8 +280,11 @@ def _route_sw(path: Path) -> pd.DataFrame:
         return load_dst(path)
     if name.startswith("f107"):
         return load_f107(path)
+    if name.startswith("goes_xray"):
+        return load_goes_xray(path)
     raise ValueError(
-        f"Неизвестный префикс файла space_weather: {path.name}. Ожидается kp_*, dst_* или f107_*."
+        f"Неизвестный префикс файла space_weather: {path.name}. "
+        "Ожидается kp_*, dst_*, f107_* или goes_xray_*."
     )
 
 

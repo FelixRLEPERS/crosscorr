@@ -245,6 +245,13 @@ all p_FDR = 0.0 and all rejected = True.
    `--no-exclude-flares` run reproduces the pre-control canonical JSON
    exactly (0 differing values), confirming pipeline neutrality.
 
+   The spatial analysis was rerun the same way: the high/mid/low
+   gradient moves from −73.1/−28.2/−22.8% to −72.1/−26.1/−20.0%
+   (all p = 5.00e-05, N_storm 198 → 169). The auroral gradient
+   (High > Mid > Low) holds in the pooled table and in every band,
+   with attenuation of only 0.8–3.1 pp across all 12 group×band
+   cells — flare hours cannot explain the latitude structure.
+
 ---
 
 ## 4. Results

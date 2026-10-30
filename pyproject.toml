@@ -45,6 +45,10 @@ astro = ["astroquery>=0.4.6", "astropy>=5.0"]
 bayes = ["pymc>=5.10", "arviz>=0.16"]
 mfdfa = ["MFDFA>=0.4"]
 game = ["streamlit>=1.30", "edge-tts>=6.1"]
+# ETL-only: netCDF4 читает суточные NetCDF GOES XRS (fetch_goes_xray).
+# Ленивый импорт в data/scripts/download_space_weather.py, поэтому без
+# этого extra скрипт падает с понятной ошибкой, а не ImportError на старте.
+etl = ["netCDF4>=1.6"]
 dev = [
     "pytest>=7.4",
     "pytest-cov>=4.1",
@@ -66,6 +70,7 @@ all = [
     "MFDFA>=0.4",
     "streamlit>=1.30",
     "edge-tts>=6.1",
+    "netCDF4>=1.6",
 ]
 
 [project.urls]

@@ -105,6 +105,7 @@ DETECTOR_UNITS: dict[str, str] = {
     "ionosonde": "m",
     "metrology": "s",
     "genome": "count",
+    "goes_xray": "W/m2",
 }
 
 #: Единица для типа детектора, отсутствующего в :data:`DETECTOR_UNITS`.
