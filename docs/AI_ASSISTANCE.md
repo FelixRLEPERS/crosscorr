@@ -32,6 +32,44 @@ arithmetic or a spell-checker in writing.
 
 ## Session log
 
+### 2026-10-30 - Narrative review Points 4-6: DOI -> Zenodo v11 (v1.5.0), RU wording, latitude gradient in Abstract
+
+- **Task:** continue the narrative/consistency review of both manuscripts
+  (Points 4--6; Point 7 = PDF rebuild + final commit done in the same
+  session).
+- **AI model:** MiMo V2.6 Flash (OpenCode)
+- **Human reviewer:** Alexey Petrov (approved all Phase-1 diffs before
+  apply; chose Variant A for the DOI block -- tag bumped to v1.5.0 with
+  the historical line keeping v1.4.0/23495246 as history; also ordered
+  the `(tag v1.4.0)` -> `v1.5.0` fix at the live re-download mentions
+  for 100% consistency)
+- **Changes (EN `paper/main.tex` + RU `paper/main_ru.tex`):**
+  1. **Code/Data Availability DOI:** version DOI
+     `10.5281/zenodo.23495246` -> `10.5281/zenodo.23802881` (Zenodo v11
+     = v1.5.0, matching `CITATION.cff`); tag text v1.4.0 -> v1.5.0;
+     historical version-DOI line now v1.4.0/23495246; concept DOI
+     23285958 untouched.
+  2. **Live re-download mentions:** `(tag v1.4.0)` -> `(tag v1.5.0)`.
+  3. **RU §3.1 grammar:** `Включение \emph{день недели}` -> `\emph{дня недели}`.
+  4. **§3.1 / Eq. (1) clarification:** `hour_of_day` / «час суток» defined
+     as one of eight 3-h UTC sectors (00, 03, ..., 21 UTC).
+  5. **Mitra 1974 citation moved:** `\citep{mitra1974}` now sits right
+     after the SID/flare-effect definition, not after our results.
+  6. **§4.7 10.1% denominator:** "(10.1% of the window)" -> "(10.1% of
+     the full 18-month window, 13,152 h)" (1325/13152 = 10.07%). The
+     other four 10.1% mentions (different contexts) left as-is.
+  7. **Latitude gradient added to Abstract + Key Points:** auroral-to-
+     equatorial 72.7% vs 12.8% drop (5.7x ratio) from
+     `results/spatial_lat_groups_norm_tx.json` (pooled -72.7 / -12.8,
+     ratio 5.68). RU uses decimal commas.
+  8. **Point 6 verified, no edits:** Eq. (6) `eq:normtx` renders as a
+     proper fraction (both languages); Table 4 headers render $10^3$.
+- **Checks:** `ruff check .` exit 0; `mypy crosscorr_lib` success (23
+  files); `pytest -m "not slow"` 369 passed / 2 deselected; both PDFs
+  rebuilt (pdflatex x2, exit 0; EN 38 pp., RU 43 pp.) with key strings
+  verified via `pdftotext`: 23802881, 213, `p ≤ 2 × 10−5`, gradient
+  numbers (EN 5.7/72.7/12.8, RU 5,7/72,7/12,8).
+
 ### 2026-10-30 - Review-response patch: estimate families separated, ESS -> tau_int, §4.1 p-floor corrected
 
 - **Task:** address the narrative/consistency review of both manuscripts.

@@ -32,7 +32,9 @@
 	spot counts, 198 epochs including flare hours): covariate-adjusted
 	drops of \SI{-33.6}{\percent} (20\,m), \SI{-27.1}{\percent} (40\,m)
 	and \SI{-39.8}{\percent} (15\,m). On the held-out set, adjusted drops are
-	\SIrange{19}{23}{\percent}
+	\SIrange{19}{23}{\percent}. Spatial analysis reveals an
+	auroral-to-equatorial gradient of \SI{72.7}{\percent} vs.\
+	\SI{12.8}{\percent} drop ($5.7\times$ ratio).
 	\item The response shows a scale-dependent pattern: at Kp 5--6
 	$\sim$\SI{-18}{\percent}, at Kp $\ge$ 6 $\sim$\SI{-43}{\percent}
 	(20/40\,m; 15\,m: \SI{-28.6}{\percent} to \SI{-54.8}{\percent}).
@@ -72,6 +74,9 @@
 	15\,m \SI{-39.8}{\percent} ([\SI{-46.8}{\percent}, \SI{-31.8}{\percent}]).
 	These covariate-adjusted estimates are more negative than the
 	normalized drops for 20\,m and close to the raw-count drops for 40\,m.
+
+	Spatial analysis reveals an auroral-to-equatorial gradient of
+	\SI{72.7}{\percent} vs.\ \SI{12.8}{\percent} drop ($5.7\times$ ratio).
 
 	We observe a scale-dependent pattern: the drop (on raw spot counts) increases from
 	$Kp = 5\text{--}6$ ($\sim\SI{-18}{\percent}$) to $Kp \ge 6$
@@ -381,6 +386,9 @@ residuals:
 	\text{hour\_of\_day}, \text{day\_of\_week})
 	\label{eq:baseline}
 \end{equation}
+
+where \text{hour\_of\_day} is one of the eight 3-h UTC sectors
+(00, 03, \ldots, 21\,UTC).
 
 \begin{equation}
 	\text{residual} = \text{spots} - \text{baseline}
@@ -1282,8 +1290,9 @@ block-size sensitivity in Section~\ref{sec:dropnorm}) are significant in eight o
 ($p \le 2.4 \times 10^{-2}$; seven of nine at the floor); the low-latitude
 15\,m cell does not survive TX-normalization ($p = 9.1 \times 10^{-2}$).
 The reported values are flare-controlled and normalized by active
-transmitters: the 1\,325 hours (10.1\% of the window) with a GOES
-X-ray flare of class M1.0+ are excluded. On raw spot counts the
+transmitters: the 1\,325 hours (10.1\% of the full 18-month window,
+13\,152\,h) with a GOES X-ray flare of class M1.0+ are excluded. On
+raw spot counts the
 flare-included run differs from the flare-controlled run by only
 1--2\,pp (high-lat \SI{73.1}{\percent} vs.\ \SI{72.1}{\percent},
 mid-lat \SI{28.2}{\percent} vs.\ \SI{26.1}{\percent}, low-lat
@@ -1551,11 +1560,11 @@ establishing a unique mechanism attribution.
 	      monthly mean residuals (Spearman $r = +0.047$, $p = 0.86$; median-based
 	      check, $r = -0.17$, $p = 0.52$, agrees), which argues against the
 	      storm-driven effects reported here being solar-cycle artifacts. Solar flare effects (Sudden
-	      Ionospheric Disturbances, SIDs) are controlled for in both the headline permutation analysis and
+	      Ionospheric Disturbances, SIDs) \citep{mitra1974} are controlled for in both the headline permutation analysis and
 	      the latitude-group analysis, which exclude the 1\,325 GOES X-ray
 	      M1.0+ flare hours (10.1\%, Section~\ref{sec:spatial}); on raw
 	      spot counts the exclusion shifts the pooled drops by only
-	      1--2\,pp \citep{mitra1974}.
+	      1--2\,pp.
 	      Summer 15\,m observations may be partially contaminated by
 	      sporadic-E propagation \citep{whitehead1989}; however, the storm effect is present in all
 	      seasons, including winter when Es is absent. No corresponding F10.7 analysis was performed for the held-out period, as only a single monthly data point (January 2026) is available.
@@ -1634,7 +1643,7 @@ establishing a unique mechanism attribution.
 	      growth, but the wide CI is compatible with both proportional growth
 	      and invariance. Percentage drops remain the more stable metric. Archival reproduction of the initial snapshot-based
 	      numbers is available at the v1.1.0 release tag; the present
-	      manuscript uses the live re-download (tag v1.4.0).
+	      manuscript uses the live re-download (tag v1.5.0).
 	\item \textbf{Covariate adjustment and model dependence:} Raw drops are
 	      marginal comparisons; the adjusted drops from the negative-binomial
 	      model depend on the choice of month, UT-hour and day-of-week
@@ -2036,13 +2045,13 @@ All data used in this study are publicly available:
 All analysis code is available at
 \url{https://github.com/FelixRLEPERS/crosscorr}
 under the MIT license. The exact version used for the core analysis is
-tag \texttt{v1.4.0}, archived at
-\url{https://doi.org/10.5281/zenodo.23495246} (version DOI for
-v1.4.0). The round-3 sensitivity scripts and results are included in the
+tag \texttt{v1.5.0}, archived at
+\url{https://doi.org/10.5281/zenodo.23802881} (version DOI for
+v1.5.0). The round-3 sensitivity scripts and results are included in the
 repository at the revision accompanying this manuscript. The concept DOI
 \url{https://doi.org/10.5281/zenodo.23285958} resolves to the
-latest release; the v1.3.0 version DOI was
-\url{https://doi.org/10.5281/zenodo.23399017}. The repository includes:
+latest release; the v1.4.0 version DOI was
+\url{https://doi.org/10.5281/zenodo.23495246}. The repository includes:
 
 {\sloppy
 \begin{itemize}
