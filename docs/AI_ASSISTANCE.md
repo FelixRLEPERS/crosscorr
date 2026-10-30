@@ -32,6 +32,48 @@ arithmetic or a spell-checker in writing.
 
 ## Session log
 
+### 2026-10-30 - HamSCI review response: Doppler spread, plain-language Key Points, terminology, limitations
+
+- **Task:** address the critique of Gwyn Griffiths (G3ZIL,
+  `docs/reviews/gary_critique_v1.1.0.pdf`, written against v1.1.0).
+  Phase 1 triaged 15 comments against v1.5.0: 6 [solved], 2 [stale],
+  3 [partially], 7 [still actual]; the author approved closing the 7
+  actual ones (plus the "two mechanisms" lead-in fix).
+- **AI model:** MiMo V2.6 Flash (OpenCode)
+- **Human reviewer:** Alexey Petrov (approved the Doppler paragraph
+  diff and the lead-in micro-fix before apply; approved the plain-
+  language Key Points rewrite)
+- **Changes (EN `paper/main.tex` + RU `paper/main_ru.tex`):**
+  1. **Doppler spread (new Discussion paragraph):** WSPR tones
+     $\sim$1.4 Hz spacing; storm-time Doppler spreading can make
+     signals fail to decode even at high SNR, a loss channel distinct
+     from absorption. Placed after the SNR-channel check. Lead-in of
+     "Physical mechanisms" now reads "two separate propagation
+     mechanisms ... (a third, decode-channel effect is discussed
+     below)".
+  2. **Key Points rewritten in plain language** (all numbers kept:
+     -23.9/-22.5/-30.1, NB -33.6/-27.1/-39.8, held-out 19-23 %,
+     gradient 72.7 vs 12.8 (5.7x), Kp bins, ratio 1.44 [0.65, 2.33]);
+     latitude gradient now states "driven by both absorption and
+     Doppler-spread decoding failures".
+  3. **Terminology:** EN `F-layer` -> `F-region` (Intro + replication);
+     RU Intro `от слоя F` -> `от области F` (Gary's L53 comment,
+     credit S. Franke K9AN).
+  4. **SNR note:** `avg(snr)` is computed in the dB domain and is
+     therefore a geometric mean of the linear SNR (Data section).
+  5. **Station geography limitation:** WSPR network is spatially
+     non-uniform (Europe/North America); diurnal variation may be
+     geography-driven.
+  6. **Index scaling and path diversity limitation:** quasi-logarithmic
+     Kp -> bins not linearly spaced; no hop-count stratification;
+     future work: hop stratification + WSPR vs FT8 (higher Doppler
+     tolerance).
+- **Artefacts committed separately:** `docs/reviews/
+  gary_critique_extracted.txt` + `scripts/extract_gary_critique.py`
+  (commit `dba7fce`); `docs/reviews/*.pdf` gitignored.
+- **Checks:** `ruff check .` exit 0; `pytest -m "not slow"` 369
+  passed / 2 deselected; both PDFs rebuilt (pdflatex x2, exit 0).
+
 ### 2026-10-30 - Narrative review Points 4-6: DOI -> Zenodo v11 (v1.5.0), RU wording, latitude gradient in Abstract
 
 - **Task:** continue the narrative/consistency review of both manuscripts

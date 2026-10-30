@@ -24,30 +24,32 @@
 \linenumbers
 \maketitle
 \begin{keypoints}
-	\item Headline results (normalized by active transmitters, 169
-	flare-free epochs): spots drop \SI{-23.9}{\percent} (20\,m),
-	\SI{-22.5}{\percent} (40\,m) and \SI{-30.1}{\percent} (15\,m) during
-	$Kp \ge 5$ storms on all three HF bands (block permutation
-	$p \le 2 \times 10^{-5}$). Negative-binomial models (fitted on raw
-	spot counts, 198 epochs including flare hours): covariate-adjusted
-	drops of \SI{-33.6}{\percent} (20\,m), \SI{-27.1}{\percent} (40\,m)
-	and \SI{-39.8}{\percent} (15\,m). On the held-out set, adjusted drops are
-	\SIrange{19}{23}{\percent}. Spatial analysis reveals an
-	auroral-to-equatorial gradient of \SI{72.7}{\percent} vs.\
-	\SI{12.8}{\percent} drop ($5.7\times$ ratio).
-	\item The response shows a scale-dependent pattern: at Kp 5--6
-	$\sim$\SI{-18}{\percent}, at Kp $\ge$ 6 $\sim$\SI{-43}{\percent}
-	(20/40\,m; 15\,m: \SI{-28.6}{\percent} to \SI{-54.8}{\percent}).
-	A monotonic gradient is observed; the trend test is significant for
-	20\,m and 15\,m, but marginal for 40\,m at the episode level
-	($p = 0.064$). The highest-Kp bins are sparse and not every
-	adjacent-bin comparison is resolved. The primary effect replicates in
-	direction on all three bands in the held-out period (residual test
-	$p \le 2 \times 10^{-4}$; 15\,m raw CI includes zero)
-	\item Absolute spot loss on 40\,m has a ratio of 1.44, a point estimate
-	that exceeds the expected scaling ($\approx$1.35), but the wide
-	confidence interval [0.65, 2.33] is compatible with both proportional
-	growth and invariance; percentage drops remain the more stable metric
+	\item During geomagnetic storms ($Kp \ge 5$) the WSPR network decodes
+	fewer spots on all three bands: \SI{-23.9}{\percent} (20\,m),
+	\SI{-22.5}{\percent} (40\,m) and \SI{-30.1}{\percent} (15\,m), after
+	correcting for the number of active transmitters (169 storm hours
+	without solar flares; block permutation $p \le 2 \times 10^{-5}$).
+	Models that keep the solar-flare hours (198 storm hours) give larger
+	drops of \SI{-33.6}{\percent}, \SI{-27.1}{\percent} and
+	\SI{-39.8}{\percent}, and an independent held-out period confirms
+	\SIrange{19}{23}{\percent}. The WSPR network shows a clear
+	latitude-dependent drop: \SI{72.7}{\percent} near the auroral zone
+	versus \SI{12.8}{\percent} near the equator ($5.7\times$ ratio),
+	driven by both absorption and Doppler-spread decoding failures.
+	\item The stronger the storm, the larger the drop: about
+	$\sim$\SI{-18}{\percent} at $Kp$ 5--6 and $\sim$\SI{-43}{\percent}
+	at $Kp \ge 6$ (20/40\,m; 15\,m: \SI{-28.6}{\percent} to
+	\SI{-54.8}{\percent}). The upward trend across the bins is
+	significant for 20\,m and 15\,m but marginal for 40\,m at episode
+	level ($p = 0.064$), and the strongest bins are sparse, so not every
+	pair of neighbouring bins is separated. The direction of the effect
+	repeats on all three bands in the held-out period (residual block
+	permutation $p \le 2 \times 10^{-4}$; the raw 95\% CI for 15\,m
+	includes zero)
+	\item Percentage drops remain the more stable metric: the absolute
+	spot loss on 40\,m has a ratio of 1.44 (expected $\approx$1.35), but
+	the wide confidence interval [0.65, 2.33] is compatible with both
+	proportional growth and invariance.
 \end{keypoints}
 
 \begin{abstract}
@@ -144,7 +146,7 @@ effects on radio propagation.
 %=============================================================
 
 High-frequency (HF) radio propagation in the \SIrange{3}{30}{MHz} range relies
-on ionospheric reflection from the F-layer, whose critical frequency $f_oF_2$
+on ionospheric reflection from the F-region, whose critical frequency $f_oF_2$
 determines the Maximum Usable Frequency (MUF) for a given path and elevation
 angle \citep{davies1990}. During geomagnetic storms, enhanced magnetospheric
 convection and particle precipitation transfer energy into the ionosphere--
@@ -287,7 +289,9 @@ $\sim$100$\times$ relative to individual spot records and suffices for
 storm-scale analysis ($\Delta t = 1$\,h versus typical storm duration of several
 hours). Throughout the paper, ``spot density'' is shorthand for this hourly
 aggregated spot count (spots per hour per band); it is not normalised per
-path, per station, or per unit area.
+path, per station, or per unit area. Note that \texttt{avg(snr)} is computed
+in the logarithmic dB domain, so it corresponds to a geometric mean of the
+linear SNR.
 
 The training period covers April 1, 2024 through September 30, 2025
 (548 days, 18 months), yielding 13\,152 WSPR hours per band
@@ -1150,7 +1154,7 @@ seasonal composition: the training period spans all four seasons,
 whereas January--March contains only late-winter and early-spring
 storms, with a different UT-day MUF climatology and shorter days.
 Third, sporadic-E: a fraction of summer 15\,m training spots arrives
-via Es rather than F-layer propagation (Section~5.5), so the training
+via Es rather than F-region propagation (Section~5.5), so the training
 and held-out 15\,m samples are not strictly comparable, and the
 direction of this bias cannot be determined from spot counts alone.
 The held-out window is therefore consistent with, but does not
@@ -1361,7 +1365,8 @@ global aggregation could mask spatial structure.
 
 The observed WSPR response is consistent with the standard picture of
 ionospheric storm effects, but the multi-band coverage reveals two separate
-mechanisms that can now be distinguished:
+propagation mechanisms that can now be distinguished (a third,
+decode-channel effect is discussed below):
 
 \textbf{MUF suppression chain:} $Kp$ increase $\rightarrow$ enhanced
 magnetospheric convection $\rightarrow$ Joule heating in the auroral oval
@@ -1400,6 +1405,15 @@ comes from paths that fall below the decoding threshold or disappear, not
 from a uniform SNR decrease of surviving spots. It does not by itself
 discriminate MUF reduction from absorption; both would remove marginal paths
 from the decoded sample.
+
+A key factor in the spot-count reduction is the Doppler spread
+caused by the rapid motion of the ionospheric F-region during
+storms. WSPR uses very narrow frequency tones ($\sim$1.4\,Hz
+spacing). Under storm conditions, Doppler spreading can cause the
+signal to fail decoding even when the received SNR is high,
+effectively reducing the number of spots. This mechanism is
+distinct from absorption and should be considered when
+interpreting the observed drop.
 
 A coarse path-length decomposition (hourly counts binned by great-circle
 distance; Appendix Table~\ref{tab:distance}) shows that the response is not
@@ -1676,6 +1690,16 @@ establishing a unique mechanism attribution.
 	      largest (\SI{-29.0}{\percent}). After adjustment 15\,m is again the
 	      most affected band, but the 20\,m/40\,m order remains reversed
 	      relative to training, and the confidence intervals overlap broadly.
+	\item \textbf{Station geography:} The WSPR network is spatially
+	      non-uniform (predominantly Europe and North America). Diurnal
+	      variations in spot counts may be influenced by this station
+	      geography rather than by propagation alone.
+	\item \textbf{Index scaling and path diversity:} The
+	      quasi-logarithmic nature of $Kp$ implies that bins (e.g.,
+	      $Kp$ 5--6 vs.\ $Kp \ge 6$) are not linearly spaced. Paths are
+	      analysed without a hop-count stratification. Future work could
+	      stratify by hop count and compare WSPR with FT8, which has
+	      higher Doppler tolerance.
 \end{enumerate}
 
 
