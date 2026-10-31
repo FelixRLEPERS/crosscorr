@@ -1,7 +1,7 @@
 # AGENTS.md — CrossCorr
 
-**Last updated:** 2026-10-27
-**Applies to:** v1.1.x
+**Last updated:** 2026-10-31
+**Applies to:** v1.6.x (submission revision, 2026-10-31; tag v1.6.0)
 
 ## Содержание
 1. [Что это за проект](#что-это-за-проект)
@@ -27,10 +27,10 @@ CrossCorr — воспроизводимый научный артефакт д�
 - Parquet для unified-схемы
 
 ## Структура (ключевое)
-- `crosscorr_lib/analysis/` — 20 модулей статистического ядра
-- `data/scripts/` — 13 ETL-скриптов; `data/processed/unified.parquet` — gitignored
-- `scripts/` — 15 скриптов анализа
-- `tests/` — 291 тест
+- `crosscorr_lib/analysis/` — 17 модулей статистического ядра
+- `data/scripts/` — 16 ETL-скриптов; `data/processed/unified.parquet` — gitignored
+- `scripts/` — 51 скрипт анализа
+- `tests/` — 343 test functions (369 collected, 2 deselected)
 - `paper/` — статья (AGU)
 - `docs/` — методология, pipeline, AI_ASSISTANCE.md, LESSONS.md
 - `audit/` — версионированные аудиты (не удалять, это часть прозрачности)
@@ -41,7 +41,7 @@ CrossCorr — воспроизводимый научный артефакт д�
 - Типы: `mypy crosscorr_lib`
 - Быстрые тесты: `pytest -m "not slow"`
 - Все тесты: `pytest`
-- Покрытие: `pytest --cov=crosscorr_lib --cov-fail-under=45` (план: поднять до 70)
+- Покрытие: `pytest --cov=crosscorr_lib --cov-fail-under=70`
 - ETL: `python data/scripts/fetch_all.py`
 - Главный результат: `python scripts/perm_test_18mo_3band.py`
 
@@ -91,7 +91,7 @@ CrossCorr — воспроизводимый научный артефакт д�
 ## Известные системные ограничения
 - WSPR API (`wspr.live`) требует VPN из некоторых регионов.
 - Windows: см. `tests/test_shared_memory_cleanup.py` (shared_memory cleanup).
-- Held-out период (Jan–Mar 2026) содержит N_storm = 23 часа — статистическая мощность ограничена, это ожидаемо и признано в Limitations.
+- Held-out период (Jan–Mar 2026) содержит N_storm = 47 часов (frozen-экстракт 2026-10-15) / 70 (extended 2026h1, Jan–Jun) — статистическая мощность ограничена, это ожидаемо и признано в Limitations.
 
 ## Pre-commit hook (2026-10-12)
 Repo runs ruff + file hygiene on every CLI `git commit`.
