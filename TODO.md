@@ -1,11 +1,16 @@
 # TODO.md — CrossCorr
 
 ## MUST (до submission в Space Weather)
-- [ ] Загрузить `data/processed/unified.parquet` в Zenodo/Figshare,
+- [x] Загрузить `data/processed/unified.parquet` в Zenodo/Figshare,
       получить DOI, добавить в Data Availability statement.
-- [ ] Добавить CRediT author contributions (A.P., M.P.) в paper.
+      (Готово: Zenodo v11, DOI 10.5281/zenodo.23802881, 2026-10-30.)
+- [x] Добавить CRediT author contributions (A.P., M.P.) в paper.
+      (Готово: секция Author Contributions, `paper/main.tex`.)
 - [ ] Параметризовать периоды в `scripts/perm_test_18mo_3band.py`
       через CLI / config.yaml (убрать hardcoded '2024-04-01 .. 2025-09-30').
+      (Проверено 2026-10-31: НЕ сделано — argparse: только
+      --exclude-flares/--flare-threshold/--norm-tx/--out; даты
+      захардкожены в строках 57 и 328 скрипта.)
 
 ## SHOULD (в течение недели)
 - [x] Поднять `--cov-fail-under` с 45 до 70 в CI (2026-10-27, `ci.yml:64`).

@@ -1,41 +1,38 @@
 # Audit — Start of Next Session
 
-Generated: 2026-10-15 (end of session 15)
+Generated: 2026-10-15 (session 15), refreshed 2026-10-31 (v1.6.1, HOLD)
 For: next chat session (MiMo or human)
 Purpose: operational snapshot — read this first.
 
 ## 1. Where we are (state at generation)
 
+- **Mode:** HOLD — submission-ready, ждём Гэри (HamSCI Science telecon
+  2026-11-05); paper/ и crosscorr_lib/ заморожены, только docs-правки.
 - **Branch:** main
-- **HEAD:** `3b891a0` — release: v1.3.1 -- use version DOI 23402384
-  (this AUDIT_START update commits next; see `git log`).
-  (Sessions 12-13: audit round 4 + v1.3.0. Session 14: audit round 5
-  Phases A/B/C + maketitle. Session 15: m4 close-out + v1.3.1
-  release — see §2.)
-- **origin/main:** `3b891a0` (synced after session 15 push)
-- **Project version:** 1.3.1 — pyproject.toml / CITATION.cff bumped
-  (commit `a59a09c`)
+- **HEAD:** `a174ad2` — docs: sync cover letter date and finalize
+  v1.6.1 DOI references (pushed; origin/main synced 2026-10-31).
+- **Project version:** 1.6.1 — CITATION.cff = 1.6.1; pyproject.toml
+  бампнут до 1.6.1 этим же docs-коммитом.
 - **Zenodo concept DOI:** `10.5281/zenodo.23285958` (**active**)
-- **Zenodo version DOI (v1.3.1):** `10.5281/zenodo.23402384`
-  (v1.3.0 was 23399017; v1.2.0 was 23394340)
-- **GitHub Release:** v1.3.1 (latest)
-- **Latest tag:** `v1.3.1` @`a59a09c` (annotated `d1f721a`;
-  HEAD = v1.3.1-1-g3b891a0)
+- **Zenodo code version DOI (v1.6.1):** `10.5281/zenodo.23838116`
+  (README, CITATION.cff и Cover Letter указывают на него; DOI v1.6.0
+  = 23835569 — исторический)
+- **Zenodo dataset v11 (data only):** `10.5281/zenodo.23802881`
+- **GitHub Release:** для v1.6.1 ещё НЕ создан (manual, user via UI)
+- **Latest tag:** `v1.6.1` @`af56edb` (annotated `5eaddaf`);
+  v1.6.0 @`81efbf3`
 - **Title:** 'Scale-dependent WSPR response to geomagnetic
   storms: frequency dependence and network-size effects on absolute
   loss'
-- **PDF:** paper/main.pdf — 26 pages, pdflatex+bibtex clean
-  (rebuilt session 15 after the DOI patch), title block present
-  (`\maketitle`), 0 undefined refs, 21 references, 10 tables,
-  5 figures (all cited from text), \linenumbers active,
-  Plain Language Summary present.
-- **Test files:** 32 (288 passed, `pytest -m "not slow"`,
-  session 14 re-run — unchanged baseline)
+- **PDFs:** paper/main.pdf — 39 pages (EN); paper/main_ru.pdf —
+  43 pages (RU); Cover_Letter_SpaceWeather.pdf — 2 pages. pdflatex
+  чист на последней сборке (2026-10-31): 0 errors,
+  0 undefined refs, 0 Overfull.
+- **Tests:** 369 passed, 2 deselected (`pytest -m "not slow"`,
+  2026-10-31); ruff + mypy clean; CI green.
 - **CI:** ci.yml (only workflow); green on latest pushed HEAD
-- **ruff:** clean on project code incl. session-14 new scripts
-  (diag_*, recompute_heldout_residual, make_paper_figures,
-  replication_2026); ruff errors live only in untracked
-  tmp_*.py session scripts.
+- **Untracked (ожидаемые):** `checksums_v1.6.0.txt`,
+  `checksums_v1.6.1.txt`, `results/perm_test_18mo_3band_fdr.json`.
 
 ## 2. What was done in sessions 12–13 (2026-10-15, external audit round 4)
 
@@ -300,8 +297,12 @@ Remaining external items:
 - docs/AUDIT_START_NEXT_SESSION.md (this file)
 - docs/releases/v1.3.0.md (release notes, prepared)
 - AGENTS.md (model rules, pre-commit, lessons §)
-- paper/main.tex (manuscript; Code Availability = tag v1.3.1 +
-  version DOI 23402384; 21 bib keys; audit-5 full pass applied)
+- paper/main.tex (manuscript; Code Availability = tag v1.6.0 for the
+  core analysis; code DOI 23838116; API-repro notes + Limitations
+  item 23; audit-5 + Q1 passes applied)
+- docs/submission/Cover_Letter_SpaceWeather.tex/.pdf (date fixed
+  2026-10-31, code DOI 23838116)
+- checksums_v1.6.1.txt (8 файлов, только tracked-пути)
 - scripts/perm_test_18mo_3band.py
 - scripts/make_paper_figures.py (fig4 narrow windows + point
   estimates + RNG burn; fig5 band_abs = live values)
@@ -311,7 +312,7 @@ Remaining external items:
 - results/heldout_3band_2026-10-15.json (live held-out cache)
 - results/heldout_resid_2026-10-15.json (residual p-values, gitignored)
 - zenodo_v1.3.0/ (upload staging, gitignored)
-- paper/main.pdf (26 pages, rebuilt clean after Phase C)
+- paper/main.pdf (39 pages EN / 43 pages RU, rebuilt clean 2026-10-31)
 
 ## 5. What NOT to do (anti-patterns)
 
@@ -350,17 +351,13 @@ configured).
 ## 7. Recommended next tasks (in order)
 
 1. **HamSCI Science teleconference — 5 November 2026, 16:00 ET.**
-   Gary Mikitin (gmkmitinfa8a@gmail.com) invited us on 14 Oct.
-   Prepare a ~10-minute presentation and reply to Gary's letter
-   (draft in chat, dated 5 November).
-2. **Frissell follow-up — 28 October** if still no answer.
-3. **arXiv submission** once an endorsement arrives (Frissell or
-   HamSCI channel): rebuild PDF, verify authors/affiliation
-   ('Independent researchers, Russia'), upload, choose categories,
-   record arXiv ID.
-4. **Space Weather submission** — after arXiv.
-5. **Optional: GitHub release assets for v1.3.1** — attach the
-   3 held-out parquets + JSON from `zenodo_v1.3.0/`.
+   Материалы готовы: `docs/presentations/hamsci_2026-11-05/`.
+2. **Space Weather submission** — всё синхронизировано (cover letter,
+   README, CITATION, DOI 23838116); отправка через Wiley UI.
+3. **GitHub Release v1.6.1 + Zenodo autozip — manual (user, UI):**
+   приложить 2 PDF + `checksums_v1.6.1.txt`.
+4. **arXiv submission** — когда придёт endorsement (Frissell/HamSCI).
+5. **2FA on GitHub** — deadline 25 Nov 2026.
 
 ## 9. Quick reference — where things live
 
@@ -391,11 +388,10 @@ configured).
 ## Metadata
 
 - Generated by: MiMo via OpenCode
-- Generated at: 2026-10-15 (session 15 tail, after `3b891a0`)
-- Source HEAD: `3b891a0` (v1.3.1 DOI patch; this update is the
-  next commit — see `git log --oneline -6`)
+- Generated at: 2026-10-15 (session 15); refreshed 2026-10-31 (v1.6.1)
+- Source HEAD: `a174ad2` (v1.6.1 DOI sync; pushed to origin/main)
 - Sources read: git log/tags, paper/main.tex, CITATION.cff,
-  pyproject.toml, Phase-0 diagnostics, results JSONs.
+  pyproject.toml, docs/AI_ASSISTANCE.md, results JSONs.
 
 ## Session 17 — 2026-10-19 (audit-2026-10-19 closure)
 
@@ -422,3 +418,15 @@ Status: RELEASED. Version DOI: 10.5281/zenodo.23495246.
 - **Decision:** Keep Jan–Mar as primary held-out; add Jan–Jun as sensitivity check in Limitations/Appendix.
 - Frozen v1.4.0 artifacts untouched.
 - Implemented 2026-10-28: Limitations bullet + Appendix table `tab:heldout_sensitivity` added to `paper/main.tex` and `paper/main_ru.tex` (EN+RU); detailed numbers remain in `docs/AI_ASSISTANCE.md`.
+
+## Session 2026-10-31 — submission freeze (v1.6.1)
+
+- v1.6.0 (`81efbf3`): Q1 submission revision — flare control, tx-norm,
+  extended held-out, provenance audit F1–F9 fixes.
+- v1.6.1 (`af56edb`, annotated `5eaddaf`): API-repro notes (Data
+  Availability + Limitations #23, EN+RU) + README version mapping;
+  follow-up `a174ad2`: cover letter date/code DOI sync, README +
+  CITATION → DOI 23838116.
+- Code Availability намеренно пинит тег v1.6.0 (ядро анализа);
+  v1.6.1 — только текст.
+- Mode: HOLD до ответа Гэри / сабмита в Space Weather.
