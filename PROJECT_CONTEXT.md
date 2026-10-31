@@ -74,7 +74,7 @@ Cover Letter addressed to Dr. Steven K. Morley. Zenodo v11 published
 
 ## Известные риски
 - Критично: данные не в репо → reproducibility блокер для журнала.
-- Small N в held-out (N_storm=23).
+- Small N в held-out (N_storm=47 frozen / 70 extended).
 - Spatial aggregation маскирует регион-специфичные эффекты (PCA vs mid-lat MUF).
 - Overclaiming "fixed population of vulnerable paths" — смягчить формулировку.
 - Low coverage threshold (45%).

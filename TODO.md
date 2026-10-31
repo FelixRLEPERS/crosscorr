@@ -10,7 +10,8 @@
 ## SHOULD (в течение недели)
 - [x] Поднять `--cov-fail-under` с 45 до 70 в CI (2026-10-27, `ci.yml:64`).
 - [ ] Добавить spatial analysis (Great Circle path geometry) в Future Work.
-- [ ] Явно признать small N (N_storm=23) в Limitations.
+- [x] Явно признать small N (N_storm=47 frozen / 70 extended) в Limitations —
+      реализовано в main.tex:1535.
 - [ ] Смягчить формулировку "fixed population of vulnerable paths"
       → "structurally constrained population of marginally viable paths".
 - [ ] Ювелирно объяснить §7.5 коэффициент 0.42× для 15 м (MUF depression).
