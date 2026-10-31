@@ -63,6 +63,13 @@ results/*
 !results/abs_loss_ratio_ci_2026h1.json
 !results/provenance_manifest_2026-10-27.json
 !results/ess_tau_int.json
+# Header-table JSON sources (audit F3, 2026-10-31): tracked so the
+# provenance manifest can hash them; fdr.json enters git only after
+# the F4 rebuild commit.
+!results/perm_test_18mo_3band_with_flares.json
+!results/perm_test_18mo_3band_norm_tx.json
+!results/spatial_lat_groups_norm_tx.json
+!results/perm_test_18mo_3band_fdr.json
 #audit/
 bench.log
 aep/

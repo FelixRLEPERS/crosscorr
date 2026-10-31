@@ -1,0 +1,111 @@
+{
+  "config": {
+    "n_iter": 50000,
+    "block_size": 24,
+    "period": "2024-04-01 .. 2025-09-30",
+    "flare_filter": {
+      "exclude_flares": false,
+      "threshold_w_m2": 1e-05,
+      "channel": "GOES XRS 1-8A hourly max",
+      "n_flare_hours_in_period": 1325,
+      "n_hours_excluded": 0
+    }
+  },
+  "results": {
+    "20m": {
+      "N": 4349,
+      "N_storm": 198,
+      "N_quiet": 3035,
+      "delta": -19793,
+      "drop_pct": -27.7,
+      "p_value": 2e-05
+    },
+    "40m": {
+      "N": 4349,
+      "N_storm": 198,
+      "N_quiet": 3035,
+      "delta": -14847,
+      "drop_pct": -27.2,
+      "p_value": 2e-05
+    },
+    "15m": {
+      "N": 4349,
+      "N_storm": 198,
+      "N_quiet": 3035,
+      "delta": -4362,
+      "drop_pct": -38.7,
+      "p_value": 2e-05
+    }
+  },
+  "pairwise_bins": {
+    "20m": {
+      "Kp 5-6 vs Kp 6-7": {
+        "delta": -7656,
+        "p_value": 0.00417992,
+        "p_significant": true,
+        "N_low": 122,
+        "N_high": 38
+      },
+      "Kp 6-7 vs Kp 7+": {
+        "delta": -7315,
+        "p_value": 0.08601828,
+        "p_significant": false,
+        "N_low": 38,
+        "N_high": 38
+      },
+      "Kp 5-6 vs Kp 7+": {
+        "delta": -14971,
+        "p_value": 0.00125997,
+        "p_significant": true,
+        "N_low": 122,
+        "N_high": 38
+      }
+    },
+    "40m": {
+      "Kp 5-6 vs Kp 6-7": {
+        "delta": -3664,
+        "p_value": 0.0450191,
+        "p_significant": true,
+        "N_low": 122,
+        "N_high": 38
+      },
+      "Kp 6-7 vs Kp 7+": {
+        "delta": -9507,
+        "p_value": 0.00247995,
+        "p_significant": true,
+        "N_low": 38,
+        "N_high": 38
+      },
+      "Kp 5-6 vs Kp 7+": {
+        "delta": -13171,
+        "p_value": 0.00012,
+        "p_significant": true,
+        "N_low": 122,
+        "N_high": 38
+      }
+    },
+    "15m": {
+      "Kp 5-6 vs Kp 6-7": {
+        "delta": -2228,
+        "p_value": 0.00321994,
+        "p_significant": true,
+        "N_low": 122,
+        "N_high": 38
+      },
+      "Kp 6-7 vs Kp 7+": {
+        "delta": -195,
+        "p_value": 0.85468291,
+        "p_significant": false,
+        "N_low": 38,
+        "N_high": 38
+      },
+      "Kp 5-6 vs Kp 7+": {
+        "delta": -2423,
+        "p_value": 0.04223916,
+        "p_significant": true,
+        "N_low": 122,
+        "N_high": 38
+      }
+    }
+  }
+}

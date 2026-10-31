@@ -1,0 +1,204 @@
+{
+  "generated": "2026-10-30T09:36:24Z",
+  "period": {
+    "start": "2024-04-01",
+    "end": "2025-10-01"
+  },
+  "bands": [
+    "40m",
+    "20m",
+    "15m"
+  ],
+  "source": "api",
+  "n_spots_total": 1796248370,
+  "n_storm_epochs": 198,
+  "n_quiet_epochs": 3035,
+  "kp_coverage_pct": 99.2,
+  "params": {
+    "block": 24,
+    "n_iter": 20000,
+    "seed": 42,
+    "epoch_cadence": "3h (Kp)",
+    "storm": "Kp >= 5",
+    "quiet": "Kp < 3",
+    "groups": "|midpoint lat| > 60 high / 30-60 mid / < 30 low",
+    "flare_filter": {
+      "exclude_flares": true,
+      "threshold_w_m2": 1e-05,
+      "channel": "GOES XRS 1-8A hourly max",
+      "n_flare_hours_in_period": 1325,
+      "n_hours_excluded": 1325
+    },
+    "norm_tx": {
+      "enabled": true,
+      "metric": "spots / n_unique_tx(hour,band)",
+      "n_unique_tx_source": "API uniqExact(tx_sign) GROUP BY hour, band"
+    }
+  },
+  "pooled": {
+    "high": {
+      "n_epochs": 3920,
+      "n_storm": 169,
+      "n_quiet": 2738,
+      "n_storm_spots": 80673,
+      "n_quiet_spots": 4681868,
+      "storm_mean": 0.8,
+      "quiet_mean": 3.0,
+      "delta_resid": -1.517,
+      "drop_pct": -72.7,
+      "p_value": 5e-05,
+      "q_fdr": 5e-05
+    },
+    "mid": {
+      "n_epochs": 3920,
+      "n_storm": 169,
+      "n_quiet": 2738,
+      "n_storm_spots": 18380593,
+      "n_quiet_spots": 403196040,
+      "storm_mean": 212.7,
+      "quiet_mean": 280.4,
+      "delta_resid": -56.944,
+      "drop_pct": -24.1,
+      "p_value": 5e-05,
+      "q_fdr": 5e-05
+    },
+    "low": {
+      "n_epochs": 3920,
+      "n_storm": 169,
+      "n_quiet": 2738,
+      "n_storm_spots": 909770,
+      "n_quiet_spots": 18423064,
+      "storm_mean": 11.7,
+      "quiet_mean": 13.5,
+      "delta_resid": -1.141,
+      "drop_pct": -12.8,
+      "p_value": 5e-05,
+      "q_fdr": 5e-05
+    }
+  },
+  "per_band": {
+    "40m": {
+      "high": {
+        "n_epochs": 3920,
+        "n_storm": 169,
+        "n_quiet": 2738,
+        "n_storm_spots": 11426,
+        "n_quiet_spots": 564866,
+        "storm_mean": 0.2,
+        "quiet_mean": 0.4,
+        "delta_resid": -0.212,
+        "drop_pct": -66.1,
+        "p_value": 5e-05,
+        "q_fdr": 7.5e-05
+      },
+      "mid": {
+        "n_epochs": 3920,
+        "n_storm": 169,
+        "n_quiet": 2738,
+        "n_storm_spots": 8368948,
+        "n_quiet_spots": 181370284,
+        "storm_mean": 110.0,
+        "quiet_mean": 142.0,
+        "delta_resid": -26.095,
+        "drop_pct": -22.5,
+        "p_value": 5e-05,
+        "q_fdr": 7.5e-05
+      },
+      "low": {
+        "n_epochs": 3920,
+        "n_storm": 169,
+        "n_quiet": 2738,
+        "n_storm_spots": 180897,
+        "n_quiet_spots": 3740429,
+        "storm_mean": 2.4,
+        "quiet_mean": 2.9,
+        "delta_resid": -0.166,
+        "drop_pct": -17.8,
+        "p_value": 0.02369882,
+        "q_fdr": 0.02369882
+      }
+    },
+    "20m": {
+      "high": {
+        "n_epochs": 3920,
+        "n_storm": 169,
+        "n_quiet": 2738,
+        "n_storm_spots": 62133,
+        "n_quiet_spots": 3389504,
+        "storm_mean": 0.5,
+        "quiet_mean": 1.8,
+        "delta_resid": -0.871,
+        "drop_pct": -70.0,
+        "p_value": 5e-05,
+        "q_fdr": 5e-05
+      },
+      "mid": {
+        "n_epochs": 3920,
+        "n_storm": 169,
+        "n_quiet": 2738,
+        "n_storm_spots": 8775808,
+        "n_quiet_spots": 189214842,
+        "storm_mean": 77.4,
+        "quiet_mean": 101.0,
+        "delta_resid": -21.691,
+        "drop_pct": -23.4,
+        "p_value": 5e-05,
+        "q_fdr": 5e-05
+      },
+      "low": {
+        "n_epochs": 3920,
+        "n_storm": 169,
+        "n_quiet": 2738,
+        "n_storm_spots": 529483,
+        "n_quiet_spots": 11020123,
+        "storm_mean": 4.8,
+        "quiet_mean": 6.0,
+        "delta_resid": -0.755,
+        "drop_pct": -19.5,
+        "p_value": 5e-05,
+        "q_fdr": 5e-05
+      }
+    },
+    "15m": {
+      "high": {
+        "n_epochs": 3920,
+        "n_storm": 169,
+        "n_quiet": 2738,
+        "n_storm_spots": 7114,
+        "n_quiet_spots": 727498,
+        "storm_mean": 0.1,
+        "quiet_mean": 0.8,
+        "delta_resid": -0.434,
+        "drop_pct": -82.6,
+        "p_value": 5e-05,
+        "q_fdr": 7.5e-05
+      },
+      "mid": {
+        "n_epochs": 3920,
+        "n_storm": 169,
+        "n_quiet": 2738,
+        "n_storm_spots": 1235837,
+        "n_quiet_spots": 32610914,
+        "storm_mean": 25.2,
+        "quiet_mean": 37.4,
+        "delta_resid": -9.158,
+        "drop_pct": -32.5,
+        "p_value": 5e-05,
+        "q_fdr": 7.5e-05
+      },
+      "low": {
+        "n_epochs": 3920,
+        "n_storm": 169,
+        "n_quiet": 2738,
+        "n_storm_spots": 199390,
+        "n_quiet_spots": 3662512,
+        "storm_mean": 4.5,
+        "quiet_mean": 4.6,
+        "delta_resid": -0.219,
+        "drop_pct": -0.8,
+        "p_value": 0.09074546,
+        "q_fdr": 0.09074546
+      }
+    }
+  }
+}
