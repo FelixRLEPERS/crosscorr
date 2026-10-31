@@ -32,6 +32,25 @@ arithmetic or a spell-checker in writing.
 
 ## Session log
 
+### 2026-10-31 — Cover letter sync and v1.6.1 DOI finalization (README, CITATION.cff)
+
+- **`docs/submission/Cover_Letter_SpaceWeather.tex`:** `\today` replaced
+  with the explicit date `October 31, 2026` (stable artifact — rebuilds
+  no longer shift the date); the availability sentence now reads "the
+  analysis code is archived at
+  \url{https://doi.org/10.5281/zenodo.23838116} (MIT license), with the
+  development repository at \url{https://github.com/FelixRLEPERS/crosscorr}."
+- **DOI sync (v1.6.0 → v1.6.1):** all code-archive DOI references
+  updated from `10.5281/zenodo.23835569` to `10.5281/zenodo.23838116`
+  in `README.md` (header link, Version mapping, Status table — labels
+  moved to "v1.6.1") and `CITATION.cff` (`version: 1.6.1`, `doi`,
+  `identifiers[0].value`, description "Code archive (v1.6.1)").
+  The previous session-log entry retains the historical v1.6.0 DOI as
+  a record of that state. Dataset DOIs (v11 / concept) unchanged.
+- **PDF rebuilt** (pdflatex ×2): 0 errors, 0 undefined references,
+  0 overfull \hbox — URLs stay within margins.
+- **No new tag:** `v1.6.1` already exists; this commit is docs-only.
+
 ### 2026-10-31 — Final polish: API-reproducibility notes and version mapping (v1.6.1)
 
 - **Motivation:** independent pre-submission audit (8.5/10, Strong Accept)

@@ -6,12 +6,12 @@ authors:
   - family-names: Petrov
     given-names: Makar
 title: "Scale-dependent WSPR response to geomagnetic storms: frequency dependence and network-size effects on absolute loss"
-version: 1.6.0
-doi: 10.5281/zenodo.23835569
+version: 1.6.1
+doi: 10.5281/zenodo.23838116
 identifiers:
   - type: doi
-    value: 10.5281/zenodo.23835569
-    description: "Code archive (v1.6.0)"
+    value: 10.5281/zenodo.23838116
+    description: "Code archive (v1.6.1)"
   - type: doi
     value: 10.5281/zenodo.23802881
     description: "Dataset snapshot (v11)"
