@@ -32,6 +32,33 @@ arithmetic or a spell-checker in writing.
 
 ## Session log
 
+### 2026-10-31 — Final polish: API-reproducibility notes and version mapping (v1.6.1)
+
+- **Motivation:** independent pre-submission audit (8.5/10, Strong Accept)
+  recommended short defensive notes against likely Reviewer-2 questions
+  about reproducibility of live-API downloads.
+- **`paper/main.tex`:** (1) Data Availability — added a paragraph after the
+  DOI list advising the archived Zenodo snapshot over live `wspr.live`
+  queries (delayed-upload / mutable-database effects); (2) Limitations —
+  added item 23 "API dependence" (continued availability of `wspr.live`,
+  GFZ Potsdam, WDC Kyoto; Zenodo snapshot as fallback). Code Availability
+  intentionally still states tag `v1.6.0` — v1.6.1 changes text only.
+- **`paper/main_ru.tex`:** mirrored translations of both additions
+  (Data Availability paragraph + Limitations item 23).
+- **`README.md`:** added a "Version mapping" line: manuscript submission
+  v1.0 ↔ code tag `v1.6.1` (code archive DOI `10.5281/zenodo.23835569`,
+  released as v1.6.0) ↔ dataset snapshot v11
+  (DOI `10.5281/zenodo.23802881`).
+- **LaTeX hygiene:** both new paragraphs wrapped in scoped
+  `{\sloppy ... \par}` per AGENTS.md hard constraint (Q1); no Cyrillic in
+  math mode; `\texttt{-\kern0pt-}`-safe wording.
+- **PDF rebuilt** (pdflatex ×2 for `main.tex` and `main_ru.tex`):
+  0 errors, 0 undefined references/citations in both logs.
+- **Checksums:** new `checksums_v1.6.1.txt` generated alongside (not
+  overwriting) `checksums_v1.6.0.txt`.
+- **Verification:** `ruff check .`, `mypy crosscorr_lib`,
+  `pytest -m "not slow"` — all pass.
+
 ### 2026-10-31 - Audit F6: honest Kp period label in tab:data and tab:provenance (EN+RU)
 
 - **Task:** close audit finding F6 - the Kp row claimed the period

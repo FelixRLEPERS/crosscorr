@@ -1706,6 +1706,11 @@ establishing a unique mechanism attribution.
 	      analysed without a hop-count stratification. Future work could
 	      stratify by hop count and compare WSPR with FT8, which has
 	      higher Doppler tolerance.
+	\item \textbf{API dependence:} Long-term reproducibility depends on
+	      the continued availability of the public APIs used here
+	      (\texttt{wspr.live}, GFZ Potsdam, WDC Kyoto). The archived
+	      Zenodo data snapshot provides a fallback for the specific
+	      periods analysed in this study.
 \end{enumerate}
 
 
@@ -2070,6 +2075,13 @@ All data used in this study are publicly available:
 	      \path{results/path_distance_analysis.json}, and
 	      \path{results/provenance_manifest_2026-10-20.json}.
 \end{itemize}
+\par}
+
+{\sloppy
+Researchers attempting to reproduce the held-out analysis should use the
+archived Zenodo snapshot rather than live queries, as the
+\texttt{wspr.live} database is continuously updated and subject to
+delayed-upload effects.
 \par}
 
 \subsection*{Code Availability}
