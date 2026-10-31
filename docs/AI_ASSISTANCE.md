@@ -32,6 +32,54 @@ arithmetic or a spell-checker in writing.
 
 ## Session log
 
+### 2026-10-31 - Audit F6: honest Kp period label in tab:data and tab:provenance (EN+RU)
+
+- **Task:** close audit finding F6 - the Kp row claimed the period
+  "Apr 2024 -- Mar 2026" with N = 5\,069, which is arithmetically
+  impossible for an uninterrupted 3-hourly series (23 months x ~240
+  epochs > 5\,069) and hid an actual data gap.
+- **AI model:** MiMo V2.6 Flash (OpenCode)
+- **Human reviewer:** Alexey Petrov (chose option A-prime: keep N = 5\,069
+  unchanged - it is the correct count for the primary analysis window
+  training 4\,349 + frozen held-out 720 - and rewrite only the label;
+  explicitly rejected extending the window to 5\,790 with the extended
+  held-out).
+- **Diagnostic (read-only, before any edit):** Kp rows in
+  `data/processed/unified.parquet` (detector_type = "kp") = 5\,912;
+  Apr 2024 - Dec 2025 = 4\,349 rows with **0 rows in Oct, Nov and Dec
+  2025** (per-month check); Jan - Jun 2026 = 1\,441 (= 720 + 721);
+  Jul - Sep 2026 = 157 (rows past the analysis window). Therefore
+  4\,349 + 720 = 5\,069 exactly. The label, not the number, was wrong.
+- **Changes (4 lines, one unified wording):**
+  1. `paper/main.tex` line 245 (`tab:data`, the row carrying
+     N = 5\,069): "Apr 2024 -- Mar 2026" ->
+     "Apr 2024 -- Sep 2025; Jan -- Mar 2026 (no $Kp$ data Oct -- Dec 2025)".
+  2. `paper/main.tex` line 269 (`tab:provenance`): same replacement,
+     cell re-wrapped over two lines.
+  3. `paper/main_ru.tex` line 284 (`tab:data`): "апр. 2024 -- март 2026" ->
+     "апр. 2024 -- сент. 2025; янв. -- март 2026 (нет данных $Kp$ окт. -- дек. 2025)".
+  4. `paper/main_ru.tex` lines 310-311 (`tab:provenance`): same
+     replacement, cell re-wrapped.
+- **Style decisions:** RU month abbreviations follow the surrounding
+  table style already present in the file (`сент.` as in lines 281/306,
+  full `март` as in 282/310/316, `янв.`); the gap months use the table
+  abbreviations `окт. -- дек.` (the prose form "октябрь--декабрь 2025"
+  stays only in the Section 2.1 explanation). The parenthetical says
+  "no $Kp$ data" rather than "no data" so it cannot be misread as a
+  WSPR gap.
+- **No duplication:** the gap itself was already explained in Section 2.1
+  (`main.tex` lines 325-327, `main_ru.tex` lines 363-365, an edit from
+  the 2026-10-10 session, see `paper/_edits_log.md` edit 3); the tables
+  only carry the corrected fact-label, no reference or prose was added.
+- **Not touched:** any number (N = 5\,069, 5\,912, 4\,349, 720 all
+  unchanged), Section 2.1 text, `audit/`, result JSONs, code.
+- **Procedure:** two-phase fix script (verify all 4 patterns occur
+  exactly once -> apply or abort; LF preserved, 0 CRLF, no BOM), git
+  diff reviewed line by line, PDFs rebuilt EN+RU with 0 errors /
+  0 undefined references, full DoD (ruff, mypy, pytest, coverage),
+  `checksums_v1.6.0.txt` regenerated (PDF hashes only), tag v1.6.0
+  re-created on the new HEAD.
+
 ### 2026-10-31 - Provenance-fix session: audit F1+F7 (Batch 1), tag v1.6.0
 
 - **Task:** close post-audit provenance findings F1 (Code Availability)
