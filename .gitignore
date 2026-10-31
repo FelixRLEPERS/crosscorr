@@ -65,8 +65,10 @@ results/*
 !results/provenance_manifest_2026-10-31.json
 !results/ess_tau_int.json
 # Header-table JSON sources (audit F3, 2026-10-31): tracked so the
-# provenance manifest can hash them; fdr.json enters git only after
-# the F4 rebuild commit.
+# provenance manifest can hash them.
+# F4 B-lite (2026-10-31): fdr.json stays untracked — legacy artifact,
+# superseded by round3_merge_sensitivity.json + perm_test_dst_50k.json.
+# Documented in results/perm_test_18mo_3band_fdr_README.md.
 !results/perm_test_18mo_3band_with_flares.json
 !results/perm_test_18mo_3band_norm_tx.json
 !results/spatial_lat_groups_norm_tx.json
