@@ -70,6 +70,7 @@ results/*
 !results/perm_test_18mo_3band_norm_tx.json
 !results/spatial_lat_groups_norm_tx.json
 !results/perm_test_18mo_3band_fdr.json
+!results/perm_test_18mo_3band_fdr_README.md
 #audit/
 bench.log
 aep/

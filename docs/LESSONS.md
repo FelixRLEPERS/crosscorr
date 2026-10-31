@@ -168,6 +168,16 @@
   Windows может добавить CRLF. Это ломает pre-commit хуки и diff.
   (Урок подтвержден на `scripts/ess_tau_int.py`).
 
+- **FDR artifact** — `perm_test_18mo_3band_fdr.json` (5000 iter, no add-one)
+  is legacy; superseded by `round3_merge_sensitivity.json` +
+  `perm_test_dst_50k.json`. Do not use in analysis.
+- **Parquet drift** — the current `unified.parquet` (rebuilt 2026-10-30,
+  sha 8ee0ac22…) does not bitwise reproduce analysis artifacts committed
+  before that date (round3, perm_test_18mo_3band_fdr). Drift ~1e-6
+  relative; below reporting precision (0.1 pp), above bit-identity.
+  Rebuild any artifact by rounding to reported precision, not by
+  comparing raw floats.
+
 ### Долгие фоновые загрузки (метод part-файлов / resume)
 
 Урок сессии 2026-10-27 (`download_stations_geo.py`: 3652 API-запроса,
