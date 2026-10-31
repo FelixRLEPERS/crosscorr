@@ -38,6 +38,9 @@ and replicated on a held-out period (Jan–Mar 2026).
 
 Preprint: [DOI: 10.5281/zenodo.23285958](https://doi.org/10.5281/zenodo.23285958)
 
+Code archive (v1.6.0): [DOI: 10.5281/zenodo.23835569](https://doi.org/10.5281/zenodo.23835569)
+Dataset snapshot (v11): [DOI: 10.5281/zenodo.23802881](https://doi.org/10.5281/zenodo.23802881)
+
 **Key findings (5 layers):**
 
 1. **Scale-dependence (novel):** Effect grows non-linearly with Kp —
@@ -75,6 +78,7 @@ Preprint: [DOI: 10.5281/zenodo.23285958](https://doi.org/10.5281/zenodo.23285958
 | Q1 narrative audit | ✅ 7-point consistency review closed (commits `cba17ab`, `1bac504`) |
 | HamSCI community review | ✅ G. Griffiths (G3ZIL) critique addressed — 15 comments triaged, 8 sub-rows fixed (`3f68d55`) |
 | Preprint / data package | ✅ Zenodo v11 ([version DOI: 10.5281/zenodo.23802881](https://doi.org/10.5281/zenodo.23802881), [concept DOI: 10.5281/zenodo.23285958](https://doi.org/10.5281/zenodo.23285958)) |
+| Code archive | ✅ Zenodo v1.6.0 ([version DOI: 10.5281/zenodo.23835569](https://doi.org/10.5281/zenodo.23835569)) |
 | Journal submission | 🟡 HOLD — ready for *Space Weather*; cover letter addressed to Dr. Steven K. Morley (EiC); awaiting HamSCI feedback (response to review in `docs/submission/`) |
 
 ---
