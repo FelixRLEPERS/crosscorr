@@ -90,6 +90,8 @@ def main() -> None:
     artifacts = []
     for rel in (
         "results/perm_test_18mo_3band.json",
+        # Dst source for §3.6 (parallel to perm_test_18mo_3band.json for Kp)
+        "results/perm_test_dst_50k.json",
         "results/heldout_resid_2026-10-15.json",
         "results/abs_loss_ratio_ci.json",
         "results/heldout_resid_2026h1.json",
@@ -99,6 +101,12 @@ def main() -> None:
         "results/round3_merge_sensitivity.json",
         "results/snr_analysis.json",
         "results/path_distance_analysis.json",
+        # Header-table sources (audit F3, 2026-10-31)
+        "results/perm_test_18mo_3band_with_flares.json",
+        "results/perm_test_18mo_3band_norm_tx.json",
+        "results/spatial_lat_groups_norm_tx.json",
+        # Legacy FDR artifact documented (audit F4, 2026-10-31)
+        "results/perm_test_18mo_3band_fdr_README.md",
     ):
         p = ROOT / rel
         if p.exists():
@@ -164,7 +172,7 @@ def main() -> None:
     else:
         path = ROOT / "results" / "provenance_manifest_2026-10-20.json"
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(out, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    path.write_bytes(json.dumps(out, indent=2, ensure_ascii=False).encode("utf-8") + b"\n")
     for ds in datasets:
         print(f"{ds['path']}: {ds['rows']} rows, sha256 {ds['sha256'][:16]}...")
     print(f"Wrote {path}")
