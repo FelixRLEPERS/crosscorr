@@ -32,6 +32,16 @@ arithmetic or a spell-checker in writing.
 
 ## Session log
 
+### 2026-11-01 — Fixed SNR wording (point estimate vs CI) after final math audit. Bumped to v1.6.2.
+
+- **`paper/main.tex` (Abstract):** "mean SNR … changes by less than
+  0.5 dB" → "the point estimates of mean SNR change … remain within
+  0.5 dB (though the 95% CI for the 40 m band extends to -0.56 dB)".
+- **`paper/main_ru.tex` (Abstract):** synchronized Russian wording,
+  `\mbox{дБ}` + `95 \% ДИ` conventions preserved.
+- **`docs/LESSONS.md`:** new lesson "Point estimates vs CI in prose".
+- Tag `v1.6.2`; PDF EN+RU rebuilt.
+
 ### 2026-10-31 — Cover letter sync and v1.6.1 DOI finalization (README, CITATION.cff)
 
 - **`docs/submission/Cover_Letter_SpaceWeather.tex`:** `\today` replaced

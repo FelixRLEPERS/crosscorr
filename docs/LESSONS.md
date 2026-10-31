@@ -198,6 +198,14 @@
   Rebuild any artifact by rounding to reported precision, not by
   comparing raw floats.
 
+- **Point estimates vs CI in prose (session 2026-11-01).** Не пишите
+  "изменение менее чем на X", если верхняя граница 95% CI выходит за X.
+  В таких случаях явно указывайте, что это "point estimate", и добавляйте
+  скобку с реальной границей CI. Иначе строгий рецензент (или аудит)
+  поймает противоречие между текстом и таблицей.
+  (Пример: Abstract "SNR changes by less than 0.5 dB" при CI 40 м до
+  -0.56 дБ — исправлено в v1.6.2.)
+
 ### Долгие фоновые загрузки (метод part-файлов / resume)
 
 Урок сессии 2026-10-27 (`download_stations_geo.py`: 3652 API-запроса,
