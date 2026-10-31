@@ -32,6 +32,37 @@ arithmetic or a spell-checker in writing.
 
 ## Session log
 
+### 2026-10-31 - Provenance-fix session: audit F1+F7 (Batch 1), tag v1.6.0
+
+- **Task:** close post-audit provenance findings F1 (Code Availability)
+  and F7 (flare-control range) without changing any scientific numbers;
+  prepare the v1.6.0 submission-revision release.
+- **AI model:** MiMo V2.6 Flash (OpenCode)
+- **Human reviewer:** Alexey Petrov (approved the Phase-1 diffs, chose
+  re-tagging v1.6.0 onto the final HEAD after all batches, chose to cite
+  the tag name rather than a raw commit hash in the manuscript).
+- **Changes:**
+  1. `paper/main.tex` Code Availability — replaced the false claim that
+     Zenodo `10.5281/zenodo.23802881` archives tag v1.5.0 source code
+     (that record contains `unified.parquet`, `README.md`,
+     `checksums.txt` only — verified via Zenodo API): now cites
+     `tag \texttt{v1.6.0}` + dataset version DOI 23802881 (v1.5.0 data
+     record, data files only, no source code) + concept DOI 23285958.
+     Raw commit hash intentionally omitted (a file cannot contain the
+     hash of its own commit; exact HEAD goes into the GitHub Release
+     body instead).
+  2. `paper/main_ru.tex` — same fix in Russian.
+  3. F7 flare-control range `1--2\,pp` -> `1--3\,pp` (EN, 3 sites:
+     lines 1306/1586/1630) and `1--2~п.п.` -> `1--3~п.п.` (RU, 3 sites:
+     lines 1393/1695/1747), matching the CSV source
+     `results/flare_control_comparison_spatial.csv` pooled deltas
+     1.0/2.1/2.8 pp. No other numbers touched.
+  4. Annotated tag `v1.6.0` created and pushed at 1af1275; will be
+     re-created on the final HEAD after Batches 2-3 (no GitHub Release
+     or Zenodo record exists yet, so moving it is safe).
+- **Not touched:** `audit/`, `data/raw/`, `data/processed/unified.parquet`,
+  LaTeX artifacts, any result JSON.
+
 ### 2026-10-31 - Tracking files synced with Q1-audit final state (HOLD)
 
 - **Task:** bring `PROJECT_CONTEXT.md`, `README.md` Status, `AGENTS.md`
