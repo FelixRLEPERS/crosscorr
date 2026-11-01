@@ -117,6 +117,14 @@ them"), re-run, and the manuscript updated.
   `results/spatial_lat_groups_norm_tx.json` with a run reporting
   `N_storm = 0`; the file was restored byte-identically from a snapshot before
   the proper API re-run.
+- **README (version mapping):** the manuscript's printed numbers now exist
+  only from `218ca93` on (Dst deltas, trend p, block-size and spatial
+  p-values), so the mapping line, the DOI block and the status table were
+  retagged from `v1.6.2` / `v1.6.1` (they disagreed with each other) to
+  `v1.6.3`; the v1.6.3 Zenodo DOI is written as "registered on release
+  publication" until the deposit exists.
+- `checksums_v1.6.3.txt` regenerated (same 8 paths, 3 hashes moved:
+  `spatial_lat_groups_norm_tx.json`, `main.pdf`, `main_ru.pdf`).
 - DoD: `ruff check .` clean, `mypy crosscorr_lib` clean (23 files),
   `pytest -m "not slow"` 369 passed / 2 deselected (146.22 s).
 
