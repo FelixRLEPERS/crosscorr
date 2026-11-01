@@ -159,13 +159,21 @@ def block_perm_test(merged, block_size=BLOCK, n_iter=N_ITER):
     if sm.sum() < 3 or qm.sum() < 10:
         return None, None, None
 
-    obs = merged["resid"].values[sm].mean() - merged["resid"].values[qm].mean()
     resid = merged["resid"].values
     kpv = merged["kp"].values
     n = len(resid)
     nb = n // block_size
     rblocks = resid[: nb * block_size].reshape(nb, block_size)
     kpv = kpv[: nb * block_size]
+    # Q0-audit fix: obs must be computed on the SAME trimmed series as the
+    # null distribution (the arrays are trimmed to nb*block_size before
+    # permuting; computing obs on the full series compared a different
+    # statistic against the null).
+    resid_t = resid[: nb * block_size]
+    obs_t = resid_t[kpv >= 5].mean() - resid_t[kpv < 3].mean()
+    if not np.isfinite(obs_t):
+        return None, None, None
+    obs = obs_t
     stats = []
     for _ in range(n_iter):
         order = RNG.permutation(nb)
@@ -260,15 +268,22 @@ def pairwise_perm_test(merged, kp_low, kp_high, band, block_size=BLOCK, n_iter=N
     if n_low < 3 or n_high < 3:
         return None, None, None, n_low, n_high
 
-    # Observed difference: mean(resid | high) - mean(resid | low)
-    obs_diff = merged.loc[mask_high, "resid"].mean() - merged.loc[mask_low, "resid"].mean()
-
     resid = merged["resid"].values
     kpv = merged["kp"].values
     n = len(resid)
     nb = n // block_size
     rblocks = resid[: nb * block_size].reshape(nb, block_size)
     kpv_trim = kpv[: nb * block_size]
+    # Q0-audit fix: observed difference must be computed on the SAME trimmed
+    # series as the null distribution (see block_perm_test above): trim
+    # first, then obs.
+    s_low = (kpv_trim >= kp_low[0]) & (kpv_trim < kp_low[1])
+    s_high = (kpv_trim >= kp_high[0]) & (kpv_trim < kp_high[1])
+    resid_t = resid[: nb * block_size]
+    obs_t = resid_t[s_high].mean() - resid_t[s_low].mean()
+    if not np.isfinite(obs_t):
+        return None, None, None, n_low, n_high
+    obs_diff = obs_t
 
     stats = []
     for _ in range(n_iter):

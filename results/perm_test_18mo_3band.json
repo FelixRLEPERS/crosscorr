@@ -9,6 +9,11 @@
       "channel": "GOES XRS 1-8A hourly max",
       "n_flare_hours_in_period": 1325,
       "n_hours_excluded": 1325
+    },
+    "norm_tx": {
+      "enabled": false,
+      "metric": "spots / n_unique_tx(hour,band)",
+      "n_unique_tx_source": "unified.parquet meta (wspr_hourly)"
     }
   },
   "results": {
@@ -16,7 +21,7 @@
       "N": 3920,
       "N_storm": 169,
       "N_quiet": 2738,
-      "delta": -18040,
+      "delta": -17933.0,
       "drop_pct": -25.5,
       "p_value": 2e-05
     },
@@ -24,7 +29,7 @@
       "N": 3920,
       "N_storm": 169,
       "N_quiet": 2738,
-      "delta": -13892,
+      "delta": -13982.0,
       "drop_pct": -25.3,
       "p_value": 2e-05
     },
@@ -32,7 +37,7 @@
       "N": 3920,
       "N_storm": 169,
       "N_quiet": 2738,
-      "delta": -3864,
+      "delta": -3749.0,
       "drop_pct": -36.8,
       "p_value": 2e-05
     }
@@ -40,22 +45,22 @@
   "pairwise_bins": {
     "20m": {
       "Kp 5-6 vs Kp 6-7": {
-        "delta": -5975,
-        "p_value": 0.04359913,
+        "delta": -6244.0,
+        "p_value": 0.0347793,
         "p_significant": true,
         "N_low": 110,
         "N_high": 29
       },
       "Kp 6-7 vs Kp 7+": {
-        "delta": -7023,
+        "delta": -7023.0,
         "p_value": 0.10543789,
         "p_significant": false,
         "N_low": 29,
         "N_high": 30
       },
       "Kp 5-6 vs Kp 7+": {
-        "delta": -12998,
-        "p_value": 0.00429991,
+        "delta": -13267.0,
+        "p_value": 0.00351993,
         "p_significant": true,
         "N_low": 110,
         "N_high": 30
@@ -63,21 +68,21 @@
     },
     "40m": {
       "Kp 5-6 vs Kp 6-7": {
-        "delta": -2388,
-        "p_value": 0.22069559,
+        "delta": -2313.0,
+        "p_value": 0.23533529,
         "p_significant": false,
         "N_low": 110,
         "N_high": 29
       },
       "Kp 6-7 vs Kp 7+": {
-        "delta": -9424,
+        "delta": -9424.0,
         "p_value": 0.00189996,
         "p_significant": true,
         "N_low": 29,
         "N_high": 30
       },
       "Kp 5-6 vs Kp 7+": {
-        "delta": -11812,
+        "delta": -11738.0,
         "p_value": 0.00039999,
         "p_significant": true,
         "N_low": 110,
@@ -86,22 +91,22 @@
     },
     "15m": {
       "Kp 5-6 vs Kp 6-7": {
-        "delta": -964,
-        "p_value": 0.24693506,
+        "delta": -1156.0,
+        "p_value": 0.16581668,
         "p_significant": false,
         "N_low": 110,
         "N_high": 29
       },
       "Kp 6-7 vs Kp 7+": {
-        "delta": -927,
-        "p_value": 0.41703166,
+        "delta": -927.0,
+        "p_value": 0.41699166,
         "p_significant": false,
         "N_low": 29,
         "N_high": 30
       },
       "Kp 5-6 vs Kp 7+": {
-        "delta": -1890,
-        "p_value": 0.11029779,
+        "delta": -2083.0,
+        "p_value": 0.08081838,
         "p_significant": false,
         "N_low": 110,
         "N_high": 30

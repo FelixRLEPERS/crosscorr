@@ -106,6 +106,23 @@ def test_negative_control_min_p_value_distribution():
             )
             p_values.append(p)
 
+    p_values = np.asarray(p_values, dtype=float)
+    n = len(p_values)
+    assert n >= 20, f"expected >=20 p-values, got {n}"
+
+    # KS test against Uniform(0,1): the null of a valid p-value distribution.
+    from scipy import stats
+
+    ks_stat, ks_p = stats.kstest(p_values, "uniform")
+    print(f"\nKS vs uniform: D={ks_stat:.4f}, p={ks_p:.4f}")
+    assert ks_p > 0.01, (
+        f"p-values deviate from uniform (KS p={ks_p:.4f}); "
+        "the max-stat/FDR pipeline is miscalibrated."
+    )
+    # Sanity: a valid null should put ~5% of p-values below 0.05.
+    frac_below = float((p_values < 0.05).mean())
+    assert frac_below <= 0.30, f"too many small p-values under null: {frac_below:.2f}"
+
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v", "-s"])

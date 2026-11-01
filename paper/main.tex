@@ -27,9 +27,9 @@
 	\item During geomagnetic storms ($Kp \ge 5$) the WSPR network decodes
 	fewer spots on all three bands: \SI{-23.9}{\percent} (20\,m),
 	\SI{-22.5}{\percent} (40\,m) and \SI{-30.1}{\percent} (15\,m), after
-	correcting for the number of active transmitters (169 storm hours
+	correcting for the number of active transmitters (169 storm epochs
 	without solar flares; block permutation $p \le 2 \times 10^{-5}$).
-	Models that keep the solar-flare hours (198 storm hours) give larger
+	Models that keep the solar-flare hours (198 storm epochs) give larger
 	drops of \SI{-33.6}{\percent}, \SI{-27.1}{\percent} and
 	\SI{-39.8}{\percent}, and an independent held-out period confirms
 	\SIrange{19}{23}{\percent}. The WSPR network shows a clear
@@ -800,8 +800,9 @@ definition of Eq.~\eqref{eq:drop}.
 		The gradient across storm bins is consistent with a scale-dependent
 		response; the highest-$Kp$ bin is sparse (12 independent episodes).
 		Error bars are 95\% iid bootstrap intervals; episode-clustered
-		intervals are wider and are reported in Appendix
-		Table~\ref{tab:episode}.}
+		intervals are wider for the highest $Kp$ bin ($\ge 7$) and are
+		reported in Appendix Table~\ref{tab:episode}; for other bins the
+		iid intervals are slightly wider.}
 	\label{fig:scale}
 \end{figure}
 
@@ -816,7 +817,8 @@ definition of Eq.~\eqref{eq:drop}.
 		episodes contributing. CIs are 95\% iid bootstrap intervals
 		(\SI{1000}{resamples}, seed 42), consistent with the error bars of
 		Figure~\ref{fig:scale}; a cluster bootstrap by episode gives wider
-		intervals (Appendix Table~\ref{tab:episode}).}
+		intervals for the highest $Kp$ bin ($\ge 7$), while for other bins
+		the iid intervals are slightly wider (Appendix Table~\ref{tab:episode}).}
 	\label{tab:scale}
 	\begin{tabular}{lrrrr}
 		\toprule
@@ -852,12 +854,13 @@ the three storm bins is significant for 20\,m ($p = 8\times10^{-4}$),
 40\,m ($p \le 2\times10^{-4}$) and 15\,m ($p = 0.020$).
 
 The scale-dependence is supported by pairwise block permutation tests between
-$Kp$ bins (all 9 combinations; Table~\ref{tab:pairwise}). Five of the nine
-comparisons survive Benjamini--Hochberg correction; the four exceptions are
-the 15\,m $5\text{--}6$ vs $\ge 7$ and the 40\,m $5\text{--}6$ vs $6\text{--}7$
-comparisons (both nominal $p < 0.05$, FDR $0.058$), and the two highest-bin
-comparisons (20\,m and 15\,m $6\text{--}7$ vs $\ge 7$), where the highest bin
-is sparse. The gradient is therefore statistically supported as a trend, but
+$Kp$ bins (all 9 combinations; Table~\ref{tab:pairwise}). In the primary
+flare-free set (169 storm epochs), three of the nine pairwise comparisons
+survive Benjamini--Hochberg correction; when flare hours are included (198
+epochs, sensitivity analysis), six of nine survive. Table~\ref{tab:pairwise}
+reports the flare-included sensitivity analysis, so its q-values
+($p_{\text{FDR}}$ of the three exceptions: 0.063, 0.097, 0.855) refer to
+that set. In both sets the gradient is statistically supported as a trend, but
 the individual high-$Kp$ contrasts are not all resolved. The highest bin
 contains only 12 independent episodes, and an episode-level trend test gives
 Spearman $\rho = -0.28$ ($p = 0.036$), $-0.24$ ($p = 0.064$) and $-0.27$
@@ -872,24 +875,25 @@ point ordering, not the significance of individual contrasts.
 	\caption{Pairwise permutation test between $Kp$ bins (training period).
 		$\Delta$ in spots/h is the difference of mean residuals between the
 		two bins (a separate quantity from the raw $\Delta$ of
-		Table~\ref{tab:main}). The Significant column is nominal;
-		after Benjamini--Hochberg correction across the nine tests, 5 are
-		significant at $\alpha = 0.05$ ($p_{\text{FDR}}$ of the four
-		exceptions: 0.058, 0.058, 0.097, 0.855).}
+		Table~\ref{tab:main}). Sensitivity analysis with solar-flare hours
+		included (198 storm epochs). The Significant column is nominal;
+		after Benjamini--Hochberg correction across the nine tests, 6 are
+		significant at $\alpha = 0.05$ ($p_{\text{FDR}}$ of the three
+		exceptions: 0.063, 0.097, 0.855).}
 	\label{tab:pairwise}
 	\begin{tabular}{llrrl}
 		\toprule
 		Band  & Comparison        & $\Delta$   & $p$-value & Significant?      \\
 		\midrule
-		20\,m & $Kp$ 5--6 vs 6--7 & $-7\,656$  & $0.0042$  & Yes ($p < 0.01$)  \\
-		20\,m & $Kp$ 6--7 vs $7+$ & $-7\,315$  & $0.0860$  & No (trend)        \\
-		20\,m & $Kp$ 5--6 vs $7+$ & $-14\,971$ & $0.0013$  & Yes ($p < 0.01$)  \\
-		40\,m & $Kp$ 5--6 vs 6--7 & $-3\,664$  & $0.0450$  & Yes ($p < 0.05$)  \\
+		20\,m & $Kp$ 5--6 vs 6--7 & $-7\,884$  & $0.0031$  & Yes ($p < 0.01$)  \\
+		20\,m & $Kp$ 6--7 vs $7+$ & $-7\,315$  & $0.0861$  & No (trend)        \\
+		20\,m & $Kp$ 5--6 vs $7+$ & $-15\,199$ & $0.0011$  & Yes ($p < 0.01$)  \\
+		40\,m & $Kp$ 5--6 vs 6--7 & $-3\,595$  & $0.0491$  & Yes ($p < 0.05$)  \\
 		40\,m & $Kp$ 6--7 vs $7+$ & $-9\,507$  & $0.0025$  & Yes ($p < 0.01$)  \\
-		40\,m & $Kp$ 5--6 vs $7+$ & $-13\,171$ & $0.0001$  & Yes ($p < 0.001$) \\
-		15\,m & $Kp$ 5--6 vs 6--7 & $-2\,228$  & $0.0032$  & Yes ($p < 0.01$)  \\
-		15\,m & $Kp$ 6--7 vs $7+$ & $-195$     & $0.8547$  & No (saturation)   \\
-		15\,m & $Kp$ 5--6 vs $7+$ & $-2\,423$  & $0.0422$  & Yes ($p < 0.05$)  \\
+		40\,m & $Kp$ 5--6 vs $7+$ & $-13\,102$ & $0.0001$  & Yes ($p < 0.001$) \\
+		15\,m & $Kp$ 5--6 vs 6--7 & $-2\,399$  & $0.0018$  & Yes ($p < 0.01$)  \\
+		15\,m & $Kp$ 6--7 vs $7+$ & $-195$     & $0.8546$  & No (saturation)   \\
+		15\,m & $Kp$ 5--6 vs $7+$ & $-2\,594$  & $0.0297$  & Yes ($p < 0.05$)  \\
 		\bottomrule
 	\end{tabular}
 \end{table}
@@ -1031,23 +1035,19 @@ corrected for multiplicity.
 \begin{figure}[t]
 	\centering
 	\includegraphics[width=\textwidth]{figures/fig4_day_night_asymmetry.png}
-	\caption{UT-window asymmetry of the WSPR storm response. Per-month spot
-		drop on 40\,m, decomposed by UT-day (12--18 UTC, epochs 12/15)
-		and UT-night (0--6 UTC, epochs 0/3). UT-night drops exceed
-		UT-day drops across the 8 training months with sufficient storm
-		data ($\ge$3 storm epochs per window), consistent with
-		intermittent auroral and polar cap absorption. The two windows were
-		fixed before the per-month analysis as the 6-h sectors with the
-		largest storm-epoch counts; they are UT-sector composites, not
-		local day/night.}
+	\caption{UT-window asymmetry of the WSPR storm response. Grouped bar
+		chart (3 bands $\times$ \{Day, Night\}), pooling the entire 18-month
+		training period: UT-day (12--18 UTC, epochs 12/15) and UT-night
+		(0--6 UTC, epochs 0/3), 95\% bootstrap CI. The two windows were fixed
+		as the 6-h sectors with the largest storm-epoch counts; they are
+		UT-sector composites, not local day/night.}
 	\label{fig:daynight}
 \end{figure}
 
-A per-month analysis of the training period shows 40\,m UT-night $>$ UT-day across the 8 months
-with sufficient data meeting the $\ge$3-epoch criterion ($\ge$3 storm epochs in each
-UT window), consistent with the intermittent nature of particle
-precipitation: the mechanism requires specific storm morphologies that are
-not present in every event.
+Pooling the entire training period, 40\,m shows UT-night $>$ UT-day
+(Figure~\ref{fig:daynight}; Table~\ref{tab:daynight} also reports UT-day and
+UT-night rows covering 111 of the 198 storm epochs), consistent with the
+intermittent nature of particle precipitation.
 
 \subsection{Independent replication}
 
@@ -1451,7 +1451,7 @@ ionosphere--thermosphere system:
 	      recombination rates balance. This may explain why 15\,m drops are
 	      similar at $Kp$ 6--7 (\SI{-51}{\percent}) and $Kp \ge 7$
 	      (\SI{-59}{\percent}), and why the pairwise test between these bins
-	      is not significant ($p = 0.8547$ for 15\,m).
+	      is not significant ($p = 0.8546$ for 15\,m).
 \end{itemize}
 
 The practical implication is that $Kp \ge 6$ is required for substantial HF
@@ -1744,7 +1744,7 @@ in WSPR spot density, with five principal conclusions:
 	      intensity: $\sim\SI{-18}{\percent}$ at $Kp = 5\text{--}6$,
 	      $\sim\SI{-34}{\percent}$ at $Kp = 6\text{--}7$, and
 	      $\sim\SI{-53}{\percent}$ at $Kp \ge 7$. A block-permutation trend
-	      test is significant on all three bands, and 5 of 9 pairwise
+	      test is significant on all three bands, and 6 of 9 pairwise
 	      comparisons survive Benjamini--Hochberg correction. The highest
 	      bin is sparse (38 epochs, 12 episodes), the episode-level trend is
 	      marginal for 40\,m, and the 15\,m $6\text{--}7$ vs $\ge 7$
@@ -1849,7 +1849,8 @@ $Kp$ bin, a cluster bootstrap that resamples episodes (2\,000 replicates),
 and the range of bin drops under a leave-one-episode-out jackknife. The
 jackknife preserves the ordering of the three bin drops in all 58 replicates
 for every band; the cluster intervals are wider than the iid intervals of
-Table~\ref{tab:scale}, especially for the highest bin.
+Table~\ref{tab:scale} for the highest bin ($\ge 7$), while for the lower
+bins the iid intervals are slightly wider.
 
 \begin{table}[h]
 	\centering
@@ -2090,7 +2091,7 @@ delayed-upload effects.
 All analysis code is available at
 \url{https://github.com/FelixRLEPERS/crosscorr}
 under the MIT license. The exact version used for the core analysis is
-tag \texttt{v1.6.0} of that repository. The dataset snapshot is
+tag \texttt{v1.6.2} of that repository. The dataset snapshot is
 archived at
 \url{https://doi.org/10.5281/zenodo.23802881} (version DOI of the
 v1.5.0 data record; that record contains data files only and no source
@@ -2144,11 +2145,15 @@ Correspondence should be addressed to A.~Petrov (felixrpetrov@gmail.com).
 
 AI assistance was used during the preparation of this manuscript (2026):
 DeepSeek V4 Pro (Polza.ai) for code generation and statistical methodology,
-Bonsai 2 27B for local development and quick tasks, and Qwen 3.8 27B for
-scientific audit. Model versions, access routes and the scope of assistance
-are recorded in \texttt{docs/AI\_ASSISTANCE.md}. All scientific decisions,
-including the formulation of hypotheses, interpretation of results, and
-writing of the manuscript, were made by the human authors.
+DeepSeek V4.1 Flash (OpenCode) for sensitivity analyses and internal audit
+support, MiMo V2.6 Flash (Polza.ai / OpenCode) for test coverage, bug fixes
+and release preparation, Bonsai 2 27B for local development and quick tasks,
+and Qwen 3.8 27B for scientific audit. Model versions, access routes and the
+scope of assistance are recorded in \texttt{docs/AI\_ASSISTANCE.md}. All
+scientific decisions, data interpretation, and final conclusions are the
+responsibility of the human authors. AI tools assisted with code generation,
+statistical methodology verification, and scientific audits, as detailed in
+\texttt{docs/AI\_ASSISTANCE.md}.
 
 This work was made possible by the open-source scientific Python ecosystem
 (NumPy, SciPy, pandas, Matplotlib).

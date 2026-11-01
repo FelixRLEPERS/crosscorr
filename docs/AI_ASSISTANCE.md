@@ -32,6 +32,67 @@ arithmetic or a spell-checker in writing.
 
 ## Session log
 
+### 2026-11-01 — Math audit P0/P1 fixes: obs/null bug, FDR reporting, AI disclosure, Fig 4 caption. Bumped to v1.6.3.
+
+Full read-only math/science audit was performed first (three parallel
+review passes plus independent numeric re-verification of every BH/BY
+correction, table value and headline number); only after explicit human
+approval were the fixes below applied.
+
+- **`scripts/perm_test_18mo_3band.py` — bug fix (P0).** In both
+  `block_perm_test` and `pairwise_perm_test` the observed statistic was
+  computed on the *untrimmed* series while the null distribution was built
+  from the series trimmed to `nb * block_size` — an obs/null mismatch (up to
+  2.97 % of `obs`, flare-free 15 m, anti-conservative direction). `obs` is now
+  computed on the *same* trimmed array as the null, plus a non-finite guard.
+- **Re-runs (three CLI invocations):** default (flare-free), `--no-exclude-flares`,
+  `--norm-tx`. Consequences:
+  - `results/perm_test_18mo_3band.json` (primary, flare-free): BH **3/9 unchanged**;
+    pairwise p-values moved slightly (e.g. 20 m 5--6 vs 6--7: 0.0436 -> 0.0348).
+  - `results/perm_test_18mo_3band_with_flares.json` (source of Table 7):
+    BH **5/9 -> 6/9**, exceptions **4 -> 3** (q = 0.063, 0.097, 0.855);
+    15 m 5--6 vs >=7: p **0.0422 -> 0.0297** (now also BH-significant, q = 0.0446);
+    40 m 5--6 vs 6--7: p 0.0450 -> 0.0491 (now *not* BH-significant, q = 0.063).
+  - `results/perm_test_18mo_3band_norm_tx.json`: BH **3/9 unchanged**.
+  - Headline `drop_pct` values (-25.5/-25.3/-36.8, -27.7/-27.2/-38.7,
+    -23.9/-22.5/-30.1) and Table 2 (`tab:main`) are unaffected: they are
+    computed on the untrimmed series / from `abs_loss_ratio_ci.json`.
+- **`paper/main.tex` + `paper/main_ru.tex`, Section 4.2 and Table 7:** FDR
+  reporting rewritten — primary flare-free set = 3/9 BH, flare-included
+  sensitivity set (Table 7) = 6/9 BH; Table 7 caption now states it is a
+  sensitivity analysis; Table 7 `Delta` and p columns updated to post-fix
+  values; Conclusions "5 of 9" -> "6 of 9"; 15 m saturation p 0.8547 -> 0.8546.
+- **AI disclosure (P1):** both acknowledgements now name all five models from
+  the table above (added DeepSeek V4.1 Flash and MiMo V2.6 Flash), and the
+  claim that hypotheses were formulated exclusively by the human authors was
+  replaced by an accuracy-of-responsibility statement, matching
+  `docs/PREPRINT_OUTLINE.md` (which records hypothesis generation as a joint
+  human/AI step).
+- **Fig 4 (P1):** the figure produced by `scripts/make_paper_figures.py` is a
+  grouped bar chart (3 bands x {Day, Night}, pooled over the 18-month training
+  period; `results/fig4_day_night.json` holds exactly 6 records), not a
+  per-month panel. Caption and body text rewritten in both languages; no new
+  figure was generated.
+- **Cluster-vs-iid wording (P1):** "episode-clustered intervals are wider" was
+  false for 6 of 9 cells (`tab:scale` vs `tab:episode`); now scoped to the
+  highest bin (>= 7) with the reverse noted for lower bins — 6 places total
+  (EN and RU captions, tables and Appendix paragraph).
+- **Key Points / README (P2):** "storm hours" -> "storm epochs" (3-hour epochs)
+  in `main.tex`, `main_ru.tex`, `README.md`. Aggregate-hour usages at
+  `main.tex:338,351` and `main_ru.tex:1734` are correct and were left untouched.
+- **Version sync (D):** tag reference in `main.tex` / `main_ru.tex` v1.6.0 ->
+  v1.6.2; `README.md` code-archive and version-mapping v1.6.1 -> v1.6.2.
+- **`tests/test_negative_control.py` (P1):** the null-calibration test now has
+  real assertions instead of only printing — KS test of the p-value
+  distribution against Uniform(0,1) (`ks_p > 0.01`, measured D = 0.1702,
+  p = 0.3514) and a cap on the share of p < 0.05 (<= 0.30), plus `n >= 20`.
+  `@pytest.mark.slow` was **kept**: measured runtime is **179.3 s**
+  (`pytest --durations=3`), far above the 5 s budget of the fast DoD run; the
+  test passes under `-m slow` (`1 passed in 181.11s`). CRLF line endings of
+  the file preserved.
+- **PDF rebuild:** EN 39 pages / RU 44 pages, both `0 errors, 0 undefined
+  references`.
+
 ### 2026-11-01 — Fixed SNR wording (point estimate vs CI) after final math audit. Bumped to v1.6.2.
 
 - **`paper/main.tex` (Abstract):** "mean SNR … changes by less than

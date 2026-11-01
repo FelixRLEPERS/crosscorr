@@ -21,7 +21,7 @@
       "N": 3920,
       "N_storm": 169,
       "N_quiet": 2738,
-      "delta": -23.317,
+      "delta": -23.166,
       "drop_pct": -23.9,
       "p_value": 2e-05
     },
@@ -29,7 +29,7 @@
       "N": 3920,
       "N_storm": 169,
       "N_quiet": 2738,
-      "delta": -26.474,
+      "delta": -26.676,
       "drop_pct": -22.5,
       "p_value": 2e-05
     },
@@ -37,7 +37,7 @@
       "N": 3920,
       "N_storm": 169,
       "N_quiet": 2738,
-      "delta": -9.811,
+      "delta": -9.463,
       "drop_pct": -30.1,
       "p_value": 2e-05
     }
@@ -45,8 +45,8 @@
   "pairwise_bins": {
     "20m": {
       "Kp 5-6 vs Kp 6-7": {
-        "delta": -6.745,
-        "p_value": 0.07771845,
+        "delta": -7.115,
+        "p_value": 0.06233875,
         "p_significant": false,
         "N_low": 110,
         "N_high": 29
@@ -59,8 +59,8 @@
         "N_high": 30
       },
       "Kp 5-6 vs Kp 7+": {
-        "delta": -17.325,
-        "p_value": 0.00249995,
+        "delta": -17.695,
+        "p_value": 0.00211996,
         "p_significant": true,
         "N_low": 110,
         "N_high": 30
@@ -68,8 +68,8 @@
     },
     "40m": {
       "Kp 5-6 vs Kp 6-7": {
-        "delta": -5.242,
-        "p_value": 0.15379692,
+        "delta": -5.058,
+        "p_value": 0.16903662,
         "p_significant": false,
         "N_low": 110,
         "N_high": 29
@@ -82,8 +82,8 @@
         "N_high": 30
       },
       "Kp 5-6 vs Kp 7+": {
-        "delta": -23.196,
-        "p_value": 0.00016,
+        "delta": -23.012,
+        "p_value": 0.0002,
         "p_significant": true,
         "N_low": 110,
         "N_high": 30
@@ -91,8 +91,8 @@
     },
     "15m": {
       "Kp 5-6 vs Kp 6-7": {
-        "delta": -2.638,
-        "p_value": 0.2301754,
+        "delta": -3.22,
+        "p_value": 0.1449971,
         "p_significant": false,
         "N_low": 110,
         "N_high": 29
@@ -105,9 +105,9 @@
         "N_high": 30
       },
       "Kp 5-6 vs Kp 7+": {
-        "delta": -5.85,
-        "p_value": 0.05887882,
-        "p_significant": false,
+        "delta": -6.433,
+        "p_value": 0.03805924,
+        "p_significant": true,
         "N_low": 110,
         "N_high": 30
       }

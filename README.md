@@ -32,16 +32,16 @@
 | **All Kp ≥ 5** | **−27.7%** | **−27.2%** | **−38.7%** |
 
 Based on 18 months (Apr 2024 – Sep 2025) of hourly WSPR data
-from [wspr.live](https://wspr.live), 198 storm hours.
+from [wspr.live](https://wspr.live), 198 storm epochs.
 Confirmed independently by Kp and Dst indices, all 4 seasons,
 and replicated on a held-out period (Jan–Mar 2026).
 
 Preprint: [DOI: 10.5281/zenodo.23285958](https://doi.org/10.5281/zenodo.23285958)
 
-Code archive (v1.6.1): [DOI: 10.5281/zenodo.23838116](https://doi.org/10.5281/zenodo.23838116)
+Code archive (v1.6.2): [DOI: 10.5281/zenodo.23838116](https://doi.org/10.5281/zenodo.23838116)
 Dataset snapshot (v11): [DOI: 10.5281/zenodo.23802881](https://doi.org/10.5281/zenodo.23802881)
 
-**Version mapping:** Manuscript (submission v1.0) corresponds to code tag `v1.6.1` (code archive DOI: `10.5281/zenodo.23838116`) and dataset snapshot v11 (DOI: `10.5281/zenodo.23802881`).
+**Version mapping:** Manuscript (submission v1.0) corresponds to code tag `v1.6.2` (code archive DOI: `10.5281/zenodo.23838116`) and dataset snapshot v11 (DOI: `10.5281/zenodo.23802881`).
 
 **Key findings (5 layers):**
 
