@@ -1,6 +1,6 @@
 # AGENTS.md — CrossCorr
 
-**Last updated:** 2026-10-31
+**Last updated:** 2026-11-01
 **Applies to:** v1.6.x (submission revision, 2026-10-31; tag v1.6.0)
 
 ## Содержание
@@ -28,9 +28,11 @@ CrossCorr — воспроизводимый научный артефакт д�
 
 ## Структура (ключевое)
 - `crosscorr_lib/analysis/` — 17 модулей статистического ядра
+- `crosscorr_lib/analysis/permutation.py` — block_permutation_test (в ветке refactor/block-perm-core, ещё не в main)
 - `data/scripts/` — 16 ETL-скриптов; `data/processed/unified.parquet` — gitignored
 - `scripts/` — 51 скрипт анализа
-- `tests/` — 343 test functions (369 collected, 2 deselected)
+- `tests/` — 343 test functions; pytest: **369 passed / 2 deselected в main**,
+  **373 в ветке `refactor/block-perm-core`** (369 + 3 golden + 1 smoke)
 - `paper/` — статья (AGU)
 - `docs/` — методология, pipeline, AI_ASSISTANCE.md, LESSONS.md
 - `audit/` — версионированные аудиты (не удалять, это часть прозрачности)
@@ -42,6 +44,7 @@ CrossCorr — воспроизводимый научный артефакт д�
 - Быстрые тесты: `pytest -m "not slow"`
 - Все тесты: `pytest`
 - Покрытие: `pytest --cov=crosscorr_lib --cov-fail-under=70`
+- Golden-тесты (в ветке `refactor/block-perm-core`): `pytest tests/test_paper_numbers.py` (скипаются в CI, results/*.json gitignored); smoke: `pytest tests/test_scripts_smoke.py`
 - ETL: `python data/scripts/fetch_all.py`
 - Главный результат: `python scripts/perm_test_18mo_3band.py`
 

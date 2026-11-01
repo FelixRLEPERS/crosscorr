@@ -51,6 +51,12 @@
   собирать здесь-строкой: `$inp = "protocol=https`nhost=github.com`n`n"`
   и передавать через pipe.
 
+- **PowerShell не выполняет Python-код (session 2026-11-01).** Вставка
+  `def foo(...)` в PowerShell даёт `ParserError: Отсутствует аргумент в
+  списке параметров` и `CommandNotFoundException`. Для просмотра кода —
+  `Get-Content file.py | Select-String -Pattern "pattern"` или
+  `more file.py`. Для запуска Python — только `python script.py`, не инлайн.
+
 - **`Out-File -Encoding UTF8` в PS 5.1 даёт BOM.** Для Python-исходников
   это безопасно (CPython скипает UTF-8 BOM), поэтому скрипты из
   here-string так и писались; для данных и markdown так делать нельзя —
@@ -285,6 +291,33 @@
   planned». Правило: перед тем как чинить сетевой скрипт «на всякий
   случай», зафиксировать в отчёте, что его артефакта нет и в статье
   он не цитируется — иначе задача выглядит невыполненной.
+
+### Рефакторинг block-perm: rng-passthrough и доказательство «0 сдвигов» (session 2026-11-01)
+
+Уроки выноса block-перестановочного теста из `scripts/` в
+`crosscorr_lib/analysis/permutation.py` (ветка refactor/block-perm-core).
+
+- **rng-passthrough обязателен.** При извлечении `block_permutation_test`
+  в либу параметр `rng` ОБЯЗАТЕЛЕН. Если функция создаёт
+  `default_rng(seed)` на каждый вызов вместо переданного модульного RNG —
+  поток пересбрасывается, и не-floor p сдвигаются на MC-шум ±0.003.
+  Скрипты передают свой модульный RNG (`RNG = np.random.default_rng(42)`).
+  Доказательство: три полных прогона с deep-diff JSON = 0 различий.
+
+- **Golden-тесты на gitignored артефакты.** Если фикстура ссылается на
+  `results/*.json`, а они gitignored — тест должен `pytest.skip`, а не
+  fail. Иначе CI падает на отсутствии артефактов.
+  (`tests/test_paper_numbers.py` + `tests/fixtures/paper_numbers.json`.)
+
+- **Smoke-тест через `--n-iter 100`.** Проверяет только структуру JSON,
+  не числа. Floor-p при 100 итерациях = 1/101 ≈ 0.0099 — это ожидаемо,
+  не ошибка. Golden-тесты — отдельно, на полных 50k артефактах.
+
+- **Deep-diff JSON при рефакторинге.** При переключении скриптов на общую
+  функцию — сравнивать полные JSON (не только ключевые поля). Это
+  доказательство «0 сдвигов», а не «примерно совпало». Факт сессии:
+  `perm_test_18mo_3band.py` — 0 различий; `spatial_analysis.py` — 0
+  (кроме `generated` timestamp); `round3_episode_robustness.py` — 0.
 
 ### Долгие фоновые загрузки (метод part-файлов / resume)
 
