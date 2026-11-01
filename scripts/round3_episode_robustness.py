@@ -6,16 +6,19 @@
  - leave-one-episode-out jackknife of the bin drops
  - cluster bootstrap by storm episode (bin-drop CIs)
 
-Output: results/round3_episode_robustness.json
+Output: results/round3_episode_robustness.json (override with --out)
 """
 
 from __future__ import annotations
 
+import argparse
 import json
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
+
+from crosscorr_lib.analysis.permutation import block_permutation_stat
 
 ROOT = Path(__file__).resolve().parents[1]
 BANDS = ("20m", "40m", "15m")
@@ -75,7 +78,6 @@ def drop_for_mask(m: pd.DataFrame, mask: np.ndarray, keep: np.ndarray | None = N
 
 
 def trend_permutation(m: pd.DataFrame, n_perm: int = N_PERM, seed: int = SEED) -> dict:
-    rng = np.random.default_rng(seed)
     score = np.full(len(m), np.nan)
     score[(m["kp"] >= 5) & (m["kp"] < 6)] = 0.0
     score[(m["kp"] >= 6) & (m["kp"] < 7)] = 1.0
@@ -83,31 +85,33 @@ def trend_permutation(m: pd.DataFrame, n_perm: int = N_PERM, seed: int = SEED) -
     resid = m["resid"].to_numpy()
     sm = ~np.isnan(score)
 
-    n = len(resid) // BLOCK * BLOCK
-    nb = n // BLOCK
-    blocks = resid[:n].reshape(nb, BLOCK)
-    sm_t = sm[:n]
-    x_t = score[:n]
-    xx = x_t[sm_t]
-    xm2 = xx.mean()
-    denom = ((xx - xm2) ** 2).sum()
     # Q0-audit fix: the observed slope must be computed on the SAME trimmed
     # series as the permutation null (rows are trimmed to n//BLOCK*BLOCK
     # before permuting; the old code used the full-length x/y here).
-    y_t = resid[:n][sm_t]
-    obs = float(((xx - xm2) * (y_t - y_t.mean())).sum() / denom)
-    count = 0
-    for _ in range(n_perm):
-        idx = rng.permutation(nb)
-        rp = blocks[idx].ravel()
+    # The trim + obs/null on one slice now live in crosscorr_lib.
+    n = len(resid) // BLOCK * BLOCK
+    sm_t = sm[:n]
+    xx = score[:n][sm_t]
+    xm2 = xx.mean()
+    denom = ((xx - xm2) ** 2).sum()
+
+    def slope(rp: np.ndarray) -> float:
         yy = rp[sm_t]
-        slope = ((xx - xm2) * (yy - yy.mean())).sum() / denom
-        if abs(slope) >= abs(obs):
-            count += 1
+        return float(((xx - xm2) * (yy - yy.mean())).sum() / denom)
+
+    res = block_permutation_stat(resid, slope, block_size=BLOCK, n_iter=n_perm, seed=seed)
+    if res is None:
+        # Degenerate input (series < 2 blocks or non-finite obs): the old
+        # inline loop silently emitted NaN obs with a floor p; report NaN.
+        return {
+            "slope_spots_per_bin": float("nan"),
+            "p_block_perm": float("nan"),
+            "n_perm": n_perm,
+        }
     return {
-        "slope_spots_per_bin": obs,
-        "p_block_perm": (1 + count) / (1 + n_perm),
-        "n_perm": n_perm,
+        "slope_spots_per_bin": float(res["obs"]),
+        "p_block_perm": float(res["p"]),
+        "n_perm": int(res["n_valid"]),
     }
 
 
@@ -145,6 +149,13 @@ def episode_trend(m: pd.DataFrame, ep: np.ndarray) -> dict:
 
 
 def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    parser.add_argument(
+        "--out",
+        default=str(ROOT / "results" / "round3_episode_robustness.json"),
+        help="output JSON path",
+    )
+    args = parser.parse_args()
     out = {
         "method": {"block": BLOCK, "n_perm": N_PERM, "n_boot": N_BOOT, "seed": SEED},
         "bands": {},
@@ -237,7 +248,8 @@ def main() -> None:
         print("loo", loo, "ordering", ordering, "/", ne)
         print("cluster CI", boot_ci)
 
-    path = ROOT / "results" / "round3_episode_robustness.json"
+    path = Path(args.out)
+    path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(out, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     print(f"\nWrote {path}")
 

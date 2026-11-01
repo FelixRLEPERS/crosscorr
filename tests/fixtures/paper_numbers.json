@@ -1,0 +1,140 @@
+{
+  "results/perm_test_18mo_3band.json": {
+    "config": {
+      "n_iter": 50000,
+      "block_size": 24,
+      "period": "2024-04-01 .. 2025-09-30"
+    },
+    "results": {
+      "20m": {
+        "N": 3920,
+        "N_storm": 169,
+        "N_quiet": 2738,
+        "delta": -17933.0,
+        "drop_pct": -25.5,
+        "p_value": 2e-05
+      },
+      "40m": {
+        "N": 3920,
+        "N_storm": 169,
+        "N_quiet": 2738,
+        "delta": -13982.0,
+        "drop_pct": -25.3,
+        "p_value": 2e-05
+      },
+      "15m": {
+        "N": 3920,
+        "N_storm": 169,
+        "N_quiet": 2738,
+        "delta": -3749.0,
+        "drop_pct": -36.8,
+        "p_value": 2e-05
+      }
+    }
+  },
+  "results/spatial_lat_groups_norm_tx.json": {
+    "params": {
+      "block": 24,
+      "n_iter": 20000,
+      "seed": 42
+    },
+    "pooled": {
+      "high": {
+        "n_storm": 169,
+        "n_quiet": 2738,
+        "delta_resid": -1.507,
+        "drop_pct": -72.7,
+        "p_value": 5e-05
+      },
+      "mid": {
+        "n_storm": 169,
+        "n_quiet": 2738,
+        "delta_resid": -56.618,
+        "drop_pct": -24.1,
+        "p_value": 5e-05
+      },
+      "low": {
+        "n_storm": 169,
+        "n_quiet": 2738,
+        "delta_resid": -1.18,
+        "drop_pct": -12.8,
+        "p_value": 5e-05
+      }
+    },
+    "per_band": {
+      "40m": {
+        "high": {
+          "drop_pct": -66.1,
+          "p_value": 5e-05
+        },
+        "mid": {
+          "drop_pct": -22.5,
+          "p_value": 5e-05
+        },
+        "low": {
+          "drop_pct": -17.8,
+          "p_value": 0.0180991
+        }
+      },
+      "20m": {
+        "high": {
+          "drop_pct": -70.0,
+          "p_value": 5e-05
+        },
+        "mid": {
+          "drop_pct": -23.4,
+          "p_value": 5e-05
+        },
+        "low": {
+          "drop_pct": -19.5,
+          "p_value": 5e-05
+        }
+      },
+      "15m": {
+        "high": {
+          "drop_pct": -82.6,
+          "p_value": 5e-05
+        },
+        "mid": {
+          "drop_pct": -32.5,
+          "p_value": 5e-05
+        },
+        "low": {
+          "drop_pct": -0.8,
+          "p_value": 0.07769612
+        }
+      }
+    }
+  },
+  "results/round3_episode_robustness.json": {
+    "method": {
+      "block": 24,
+      "n_perm": 20000,
+      "n_boot": 2000,
+      "seed": 42
+    },
+    "bands": {
+      "20m": {
+        "trend": {
+          "slope_spots_per_bin": -7635.988762783738,
+          "p_block_perm": 0.0005499725013749313,
+          "n_perm": 20000
+        }
+      },
+      "40m": {
+        "trend": {
+          "slope_spots_per_bin": -6172.858231479173,
+          "p_block_perm": 9.99950002499875e-05,
+          "n_perm": 20000
+        }
+      },
+      "15m": {
+        "trend": {
+          "slope_spots_per_bin": -1438.2401284609634,
+          "p_block_perm": 0.01294935253237338,
+          "n_perm": 20000
+        }
+      }
+    }
+  }
+}

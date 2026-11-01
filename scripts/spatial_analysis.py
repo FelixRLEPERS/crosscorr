@@ -73,6 +73,8 @@ import numpy as np
 import pandas as pd
 import requests
 
+from crosscorr_lib.analysis.permutation import block_permutation_test
+
 ROOT = Path(__file__).resolve().parents[1]
 WSPR_API = "http://db1.wspr.live/"
 HEADERS = {"User-Agent": "ionosphere-research/1.0"}
@@ -647,34 +649,21 @@ def block_perm_test(
     quiet = (merged["kp"] < 3).values
     if storm.sum() < 3 or quiet.sum() < 10:
         return None
-    resid = merged["resid"].values
-    kp_vals = merged["kp"].values
-
-    n = len(resid)
-    n_blocks = n // block_size
-    if n_blocks < 2:
+    # Q0-audit invariants (obs on the SAME trimmed series as the null) and
+    # the add-one correction live in crosscorr_lib.analysis.permutation;
+    # the caller's rng is passed through so the generator stream stays
+    # identical to the pre-refactor inline loop => bit-for-bit the same p.
+    res = block_permutation_test(
+        merged["resid"].values,
+        storm,
+        quiet,
+        block_size=block_size,
+        n_iter=n_iter,
+        rng=rng,
+    )
+    if res is None:
         return None
-    rblocks = resid[: n_blocks * block_size].reshape(n_blocks, block_size)
-    kp_use = kp_vals[: n_blocks * block_size]
-    # Q0-audit fix: obs must be computed on the SAME trimmed series as the
-    # null distribution (rows are trimmed to n_blocks*block_size before
-    # permuting; comparing an obs from the full series against that null
-    # mixes two different samples).
-    resid_t = resid[: n_blocks * block_size]
-    obs_t = float(resid_t[kp_use >= 5].mean() - resid_t[kp_use < 3].mean())
-    if not np.isfinite(obs_t):
-        return None
-    obs = obs_t
-    stats = np.empty(n_iter)
-    for i in range(n_iter):
-        order = rng.permutation(n_blocks)
-        rp = rblocks[order].ravel()
-        s = kp_use >= 5
-        q = kp_use < 3
-        stats[i] = rp[s].mean() - rp[q].mean() if s.any() and q.any() else 0.0
-    # add-one (Davison-Hinkley): a Monte-Carlo p is never exactly 0
-    p = float((1 + (np.abs(stats) >= abs(obs)).sum()) / (1 + n_iter))
-    return obs, p
+    return float(res["obs"]), float(res["p"])
 
 
 def bh_fdr(pvals: list[float]) -> list[float]:

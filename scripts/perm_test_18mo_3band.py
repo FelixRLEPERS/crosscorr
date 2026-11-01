@@ -20,6 +20,8 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+from crosscorr_lib.analysis.permutation import block_permutation_test
+
 ROOT = Path(__file__).resolve().parents[1]
 RNG = np.random.default_rng(42)
 N_ITER = 50000
@@ -47,11 +49,19 @@ parser.add_argument(
     "(selection-bias control, Phase B; default: off = raw counts)",
 )
 parser.add_argument(
+    "--n-iter",
+    type=int,
+    default=N_ITER,
+    help="permutation iterations (default 50000 = paper setting; "
+    "lower it only for smoke tests, p-values then have MC error ~ 1/sqrt(n))",
+)
+parser.add_argument(
     "--out",
     default=str(ROOT / "results" / "perm_test_18mo_3band.json"),
     help="output JSON path",
 )
 args = parser.parse_args()
+N_ITER = args.n_iter
 
 df = pd.read_parquet(ROOT / "data" / "processed" / "unified.parquet")
 full = df[(df["timestamp_utc"] >= "2024-04-01") & (df["timestamp_utc"] < "2025-10-01")]
@@ -159,34 +169,16 @@ def block_perm_test(merged, block_size=BLOCK, n_iter=N_ITER):
     if sm.sum() < 3 or qm.sum() < 10:
         return None, None, None
 
-    resid = merged["resid"].values
-    kpv = merged["kp"].values
-    n = len(resid)
-    nb = n // block_size
-    rblocks = resid[: nb * block_size].reshape(nb, block_size)
-    kpv = kpv[: nb * block_size]
-    # Q0-audit fix: obs must be computed on the SAME trimmed series as the
-    # null distribution (the arrays are trimmed to nb*block_size before
-    # permuting; computing obs on the full series compared a different
-    # statistic against the null).
-    resid_t = resid[: nb * block_size]
-    obs_t = resid_t[kpv >= 5].mean() - resid_t[kpv < 3].mean()
-    if not np.isfinite(obs_t):
+    # Q0-audit invariants (obs on the SAME trimmed series as the null) and
+    # the add-one correction live in crosscorr_lib.analysis.permutation now.
+    # RNG passthrough keeps the module-level generator stream identical to
+    # the pre-refactor inline loop => bit-for-bit the same p.
+    res = block_permutation_test(
+        merged["resid"].values, sm, qm, block_size=block_size, n_iter=n_iter, rng=RNG
+    )
+    if res is None:
         return None, None, None
-    obs = obs_t
-    stats = []
-    for _ in range(n_iter):
-        order = RNG.permutation(nb)
-        rp = rblocks[order].ravel()
-        s = kpv >= 5
-        q = kpv < 3
-        if s.sum() == 0 or q.sum() == 0:
-            continue
-        stats.append(rp[s].mean() - rp[q].mean())
-    stats = np.array(stats)
-    # Add-one (Davison-Hinkley) correction: p in Monte Carlo cannot be 0.
-    p = (1 + (np.abs(stats) >= np.abs(obs)).sum()) / (1 + len(stats))
-    return float(obs), float(p), len(stats)
+    return float(res["obs"]), float(res["p"]), int(res["n_valid"])
 
 
 results = {}
@@ -268,37 +260,21 @@ def pairwise_perm_test(merged, kp_low, kp_high, band, block_size=BLOCK, n_iter=N
     if n_low < 3 or n_high < 3:
         return None, None, None, n_low, n_high
 
-    resid = merged["resid"].values
-    kpv = merged["kp"].values
-    n = len(resid)
-    nb = n // block_size
-    rblocks = resid[: nb * block_size].reshape(nb, block_size)
-    kpv_trim = kpv[: nb * block_size]
-    # Q0-audit fix: observed difference must be computed on the SAME trimmed
-    # series as the null distribution (see block_perm_test above): trim
-    # first, then obs.
-    s_low = (kpv_trim >= kp_low[0]) & (kpv_trim < kp_low[1])
-    s_high = (kpv_trim >= kp_high[0]) & (kpv_trim < kp_high[1])
-    resid_t = resid[: nb * block_size]
-    obs_t = resid_t[s_high].mean() - resid_t[s_low].mean()
-    if not np.isfinite(obs_t):
+    # Same core as block_perm_test (Q0-audit trim + add-one live in
+    # crosscorr_lib.analysis.permutation); only the masks differ: the two
+    # Kp bins instead of storm/quiet. obs = mean(resid[bin_high]) -
+    # mean(resid[bin_low]) on the trimmed series, module RNG passed through.
+    res = block_permutation_test(
+        merged["resid"].values,
+        mask_high.values,
+        mask_low.values,
+        block_size=block_size,
+        n_iter=n_iter,
+        rng=RNG,
+    )
+    if res is None:
         return None, None, None, n_low, n_high
-    obs_diff = obs_t
-
-    stats = []
-    for _ in range(n_iter):
-        order = RNG.permutation(nb)
-        rp = rblocks[order].ravel()
-        s_low = (kpv_trim >= kp_low[0]) & (kpv_trim < kp_low[1])
-        s_high = (kpv_trim >= kp_high[0]) & (kpv_trim < kp_high[1])
-        if s_low.sum() == 0 or s_high.sum() == 0:
-            continue
-        stats.append(rp[s_high].mean() - rp[s_low].mean())
-
-    stats = np.array(stats)
-    # Add-one (Davison-Hinkley) correction: p in Monte Carlo cannot be 0.
-    p = (1 + (np.abs(stats) >= np.abs(obs_diff)).sum()) / (1 + len(stats))
-    return float(obs_diff), float(p), len(stats), n_low, n_high
+    return float(res["obs"]), float(res["p"]), int(res["n_valid"]), n_low, n_high
 
 
 print("\n=== Pairwise Kp Bin Comparison (scale-dependence) ===\n")
