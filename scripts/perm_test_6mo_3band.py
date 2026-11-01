@@ -62,7 +62,7 @@ def block_perm_test(merged, block_size=BLOCK, n_iter=N_ITER):
         stats.append(rp[s].mean() - rp[q].mean())
 
     stats = np.array(stats)
-    p = (np.abs(stats) >= np.abs(obs)).mean()
+    p = (1 + (np.abs(stats) >= np.abs(obs)).sum()) / (1 + len(stats))
     return float(obs), float(p), int(len(stats))
 
 

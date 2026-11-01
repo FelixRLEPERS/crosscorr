@@ -72,7 +72,7 @@ def block_perm_test(merged, block_size=BLOCK, n_iter=N_ITER):
             continue
         stats.append(rp[s].mean() - rp[q].mean())
     stats = np.array(stats)
-    p = (np.abs(stats) >= np.abs(obs)).mean()
+    p = (1 + (np.abs(stats) >= np.abs(obs)).sum()) / (1 + len(stats))
 
     storm_m = merged.loc[sm, "value"].mean()
     quiet_m = merged.loc[qm, "value"].mean()
