@@ -38,11 +38,10 @@ and replicated on a held-out period (Jan–Mar 2026).
 
 Preprint: [DOI: 10.5281/zenodo.23285958](https://doi.org/10.5281/zenodo.23285958)
 
-Code archive (v1.6.3): DOI registered by Zenodo on release publication ·
-previous archive (v1.6.2): [DOI: 10.5281/zenodo.23838116](https://doi.org/10.5281/zenodo.23838116)
+Code archive (v1.6.3): [DOI: 10.5281/zenodo.23855563](https://doi.org/10.5281/zenodo.23855563)
 Dataset snapshot (v11): [DOI: 10.5281/zenodo.23802881](https://doi.org/10.5281/zenodo.23802881)
 
-**Version mapping:** Manuscript (submission v1.0) corresponds to code tag `v1.6.3` and dataset snapshot v11 (DOI: `10.5281/zenodo.23802881`). The v1.6.3 code-archive DOI is registered by Zenodo on release publication; the previous archive (v1.6.2) is `10.5281/zenodo.23838116`.
+**Version mapping:** Manuscript (submission v1.0) corresponds to code tag `v1.6.3` (code archive DOI: `10.5281/zenodo.23855563`) and dataset snapshot v11 (DOI: `10.5281/zenodo.23802881`).
 
 **Key findings (5 layers):**
 
@@ -81,7 +80,7 @@ Dataset snapshot (v11): [DOI: 10.5281/zenodo.23802881](https://doi.org/10.5281/z
 | Q1 narrative audit | ✅ 7-point consistency review closed (commits `cba17ab`, `1bac504`) |
 | HamSCI community review | ✅ G. Griffiths (G3ZIL) critique addressed — 15 comments triaged, 8 sub-rows fixed (`3f68d55`) |
 | Preprint / data package | ✅ Zenodo v11 ([version DOI: 10.5281/zenodo.23802881](https://doi.org/10.5281/zenodo.23802881), [concept DOI: 10.5281/zenodo.23285958](https://doi.org/10.5281/zenodo.23285958)) |
-| Code archive | ⏳ Zenodo v1.6.3 (DOI registered on release publication; previous archive v1.6.2: [version DOI: 10.5281/zenodo.23838116](https://doi.org/10.5281/zenodo.23838116)) |
+| Code archive | ✅ Zenodo v1.6.3 ([version DOI: 10.5281/zenodo.23855563](https://doi.org/10.5281/zenodo.23855563)) |
 | Journal submission | 🟡 HOLD — ready for *Space Weather*; cover letter addressed to Dr. Steven K. Morley (EiC); awaiting HamSCI feedback (response to review in `docs/submission/`) |
 
 ---

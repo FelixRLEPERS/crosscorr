@@ -120,9 +120,25 @@ them"), re-run, and the manuscript updated.
 - **README (version mapping):** the manuscript's printed numbers now exist
   only from `218ca93` on (Dst deltas, trend p, block-size and spatial
   p-values), so the mapping line, the DOI block and the status table were
-  retagged from `v1.6.2` / `v1.6.1` (they disagreed with each other) to
-  `v1.6.3`; the v1.6.3 Zenodo DOI is written as "registered on release
-  publication" until the deposit exists.
+  retagged from `v1.6.2` / `v1.6.1` (they disagreed with each other — the
+  DOI `23838116` actually carries Zenodo `version: v1.6.1`) to `v1.6.3`.
+- **GitHub Release `v1.6.3`** published through the GitHub REST API using the
+  token already stored in git credential fill (no `gh` CLI, no env token; the
+  secret was never printed). Release id `430472875`, asset
+  `checksums_v1.6.3.txt` (807 bytes) attached.
+- **Tag `v1.6.3` moved** from `55a22c9` (pre-audit) to `5a80495` with a
+  force-push *before* the release existed, so no published release was
+  rewritten. The GitHub Releases list was checked first and contained only
+  `v1.6.2`.
+- **Zenodo deposit verified, not assumed:** the integration published
+  `10.5281/zenodo.23855563` from those release notes. The 16 513 643-byte
+  zip was downloaded back and md5-checked against Zenodo
+  (`40e184dcc11b2f3b276719df06a24a04`); its root is
+  `FelixRLEPERS-crosscorr-34c8602`, i.e. the post-force-push tag. All 6
+  `Q0-audit fix` markers plus `21\,933`, `1.45 \times 10^{-3}`,
+  `7.8 \times 10^{-2}`, `5.5\times10^{-4}`, `7{,}8 \times 10^{-2}`,
+  the retagged README, the audit report and this session-log entry were
+  found inside — so the archive ships the fixed tree, not the buggy one.
 - `checksums_v1.6.3.txt` regenerated (same 8 paths, 3 hashes moved:
   `spatial_lat_groups_norm_tx.json`, `main.pdf`, `main_ru.pdf`).
 - DoD: `ruff check .` clean, `mypy crosscorr_lib` clean (23 files),
