@@ -17,42 +17,42 @@
   "tests": [
     {
       "band": "20m",
-      "delta": -22081.40104954182,
+      "delta": -21932.58669034855,
       "p_raw": 1.999960000799984e-05,
       "exceedances": 0,
       "N_storm": 471,
       "N_quiet": 8811,
       "N_total": 12508,
       "sensitivity_block_72": {
-        "delta": -22081.40104954182,
+        "delta": -22014.04056940963,
         "p_raw": 1.999960000799984e-05,
         "exceedances": 0
       }
     },
     {
       "band": "40m",
-      "delta": -15038.180483995888,
+      "delta": -14941.392677029446,
       "p_raw": 1.999960000799984e-05,
       "exceedances": 0,
       "N_storm": 471,
       "N_quiet": 8811,
       "N_total": 12508,
       "sensitivity_block_72": {
-        "delta": -15038.180483995888,
+        "delta": -15032.72262222,
         "p_raw": 1.999960000799984e-05,
         "exceedances": 0
       }
     },
     {
       "band": "15m",
-      "delta": -5142.600477009402,
+      "delta": -5037.011280932351,
       "p_raw": 1.999960000799984e-05,
       "exceedances": 0,
       "N_storm": 471,
       "N_quiet": 8811,
       "N_total": 12508,
       "sensitivity_block_72": {
-        "delta": -5142.600477009402,
+        "delta": -4918.599319742246,
         "p_raw": 1.999960000799984e-05,
         "exceedances": 0
       }

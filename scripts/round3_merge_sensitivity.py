@@ -85,12 +85,13 @@ def boot_ci(v, st, block):
 
 def perm_p(v, storm, quiet, kind: str, n_perm=N_PERM, seed=SEED):
     rng = np.random.default_rng(seed)
-    obs = v[storm].mean() - v[quiet].mean()
     n = len(v) // BLOCK * BLOCK
     nb = n // BLOCK
     blocks = v[:n].reshape(nb, BLOCK)
     s = storm[:n]
     q = quiet[:n]
+    # Q0-audit fix: obs on the SAME trimmed series as the null.
+    obs = v[:n][s].mean() - v[:n][q].mean()
     count = 0
     for _ in range(n_perm):
         if kind == "circular":
@@ -115,11 +116,12 @@ def kp_perm_p(v, kp, n_perm=N_PERM, seed=SEED):
     rng = np.random.default_rng(seed)
     storm = kp >= 5
     quiet = kp < 3
-    obs = v[storm].mean() - v[quiet].mean()
     n = len(v) // BLOCK * BLOCK
     nb = n // BLOCK
     vv = v[:n]
     kb = kp[:n].reshape(nb, BLOCK)
+    # Q0-audit fix: obs on the SAME trimmed series as the null.
+    obs = vv[storm[:n]].mean() - vv[quiet[:n]].mean()
     count = 0
     for _ in range(n_perm):
         idx = rng.permutation(nb)

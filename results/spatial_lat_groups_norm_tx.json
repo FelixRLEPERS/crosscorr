@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-30T09:36:24Z",
+  "generated": "2026-11-01T08:53:09Z",
   "period": {
     "start": "2024-04-01",
     "end": "2025-10-01"
@@ -10,7 +10,7 @@
     "15m"
   ],
   "source": "api",
-  "n_spots_total": 1796248370,
+  "n_spots_total": 1796248372,
   "n_storm_epochs": 198,
   "n_quiet_epochs": 3035,
   "kp_coverage_pct": 99.2,
@@ -44,7 +44,7 @@
       "n_quiet_spots": 4681868,
       "storm_mean": 0.8,
       "quiet_mean": 3.0,
-      "delta_resid": -1.517,
+      "delta_resid": -1.507,
       "drop_pct": -72.7,
       "p_value": 5e-05,
       "q_fdr": 5e-05
@@ -57,7 +57,7 @@
       "n_quiet_spots": 403196040,
       "storm_mean": 212.7,
       "quiet_mean": 280.4,
-      "delta_resid": -56.944,
+      "delta_resid": -56.618,
       "drop_pct": -24.1,
       "p_value": 5e-05,
       "q_fdr": 5e-05
@@ -70,7 +70,7 @@
       "n_quiet_spots": 18423064,
       "storm_mean": 11.7,
       "quiet_mean": 13.5,
-      "delta_resid": -1.141,
+      "delta_resid": -1.18,
       "drop_pct": -12.8,
       "p_value": 5e-05,
       "q_fdr": 5e-05
@@ -86,7 +86,7 @@
         "n_quiet_spots": 564866,
         "storm_mean": 0.2,
         "quiet_mean": 0.4,
-        "delta_resid": -0.212,
+        "delta_resid": -0.214,
         "drop_pct": -66.1,
         "p_value": 5e-05,
         "q_fdr": 7.5e-05
@@ -99,7 +99,7 @@
         "n_quiet_spots": 181370284,
         "storm_mean": 110.0,
         "quiet_mean": 142.0,
-        "delta_resid": -26.095,
+        "delta_resid": -26.287,
         "drop_pct": -22.5,
         "p_value": 5e-05,
         "q_fdr": 7.5e-05
@@ -112,10 +112,10 @@
         "n_quiet_spots": 3740429,
         "storm_mean": 2.4,
         "quiet_mean": 2.9,
-        "delta_resid": -0.166,
+        "delta_resid": -0.175,
         "drop_pct": -17.8,
-        "p_value": 0.02369882,
-        "q_fdr": 0.02369882
+        "p_value": 0.0180991,
+        "q_fdr": 0.0180991
       }
     },
     "20m": {
@@ -127,7 +127,7 @@
         "n_quiet_spots": 3389504,
         "storm_mean": 0.5,
         "quiet_mean": 1.8,
-        "delta_resid": -0.871,
+        "delta_resid": -0.87,
         "drop_pct": -70.0,
         "p_value": 5e-05,
         "q_fdr": 5e-05
@@ -140,7 +140,7 @@
         "n_quiet_spots": 189214842,
         "storm_mean": 77.4,
         "quiet_mean": 101.0,
-        "delta_resid": -21.691,
+        "delta_resid": -21.521,
         "drop_pct": -23.4,
         "p_value": 5e-05,
         "q_fdr": 5e-05
@@ -153,7 +153,7 @@
         "n_quiet_spots": 11020123,
         "storm_mean": 4.8,
         "quiet_mean": 6.0,
-        "delta_resid": -0.755,
+        "delta_resid": -0.776,
         "drop_pct": -19.5,
         "p_value": 5e-05,
         "q_fdr": 5e-05
@@ -168,7 +168,7 @@
         "n_quiet_spots": 727498,
         "storm_mean": 0.1,
         "quiet_mean": 0.8,
-        "delta_resid": -0.434,
+        "delta_resid": -0.423,
         "drop_pct": -82.6,
         "p_value": 5e-05,
         "q_fdr": 7.5e-05
@@ -181,7 +181,7 @@
         "n_quiet_spots": 32610914,
         "storm_mean": 25.2,
         "quiet_mean": 37.4,
-        "delta_resid": -9.158,
+        "delta_resid": -8.811,
         "drop_pct": -32.5,
         "p_value": 5e-05,
         "q_fdr": 7.5e-05
@@ -194,10 +194,10 @@
         "n_quiet_spots": 3662512,
         "storm_mean": 4.5,
         "quiet_mean": 4.6,
-        "delta_resid": -0.219,
+        "delta_resid": -0.229,
         "drop_pct": -0.8,
-        "p_value": 0.09074546,
-        "q_fdr": 0.09074546
+        "p_value": 0.07769612,
+        "q_fdr": 0.07769612
       }
     }
   }

@@ -48,13 +48,20 @@ def block_perm_test(merged, block_size=BLOCK, n_iter=N_ITER):
     if sm.sum() < 3 or qm.sum() < 10:
         return None, None, None, None, None
 
-    obs = merged["resid"].values[sm].mean() - merged["resid"].values[qm].mean()
     resid = merged["resid"].values
     kpv = merged["kp"].values
     n = len(resid)
     nb = n // block_size
     rblocks = resid[: nb * block_size].reshape(nb, block_size)
     kpv = kpv[: nb * block_size]
+    # Q0-audit fix: obs must be computed on the SAME trimmed series as the
+    # null distribution (the arrays are trimmed to nb*block_size before
+    # permuting).
+    resid_t = resid[: nb * block_size]
+    obs_t = float(resid_t[kpv >= 5].mean() - resid_t[kpv < 3].mean())
+    if not np.isfinite(obs_t):
+        return None, None, None, None, None
+    obs = obs_t
     stats = []
     for _ in range(n_iter):
         order = RNG.permutation(nb)

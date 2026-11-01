@@ -56,10 +56,13 @@ def block_perm(resid, storm_mask, quiet_mask, n_iter=N_ITER, block=BLOCK, seed=S
     """Block permutation on the residual series, add-one (Davison-Hinkley) p."""
     n = len(resid)
     nb = n // block
-    vb = resid[: nb * block].reshape(nb, block)
+    r_t = resid[: nb * block]
+    vb = r_t.reshape(nb, block)
     sm = storm_mask[: nb * block]
     qm = quiet_mask[: nb * block]
-    obs = float(resid[storm_mask].mean() - resid[quiet_mask].mean())
+    # Q0-audit fix: obs must be computed on the SAME trimmed series as the
+    # null distribution (rows are trimmed to nb*block before permuting).
+    obs = float(r_t[sm].mean() - r_t[qm].mean())
     rng = np.random.default_rng(seed)
     cnt = 0
     for _ in range(n_iter):

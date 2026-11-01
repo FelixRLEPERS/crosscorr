@@ -649,7 +649,6 @@ def block_perm_test(
         return None
     resid = merged["resid"].values
     kp_vals = merged["kp"].values
-    obs = float(resid[storm].mean() - resid[quiet].mean())
 
     n = len(resid)
     n_blocks = n // block_size
@@ -657,6 +656,15 @@ def block_perm_test(
         return None
     rblocks = resid[: n_blocks * block_size].reshape(n_blocks, block_size)
     kp_use = kp_vals[: n_blocks * block_size]
+    # Q0-audit fix: obs must be computed on the SAME trimmed series as the
+    # null distribution (rows are trimmed to n_blocks*block_size before
+    # permuting; comparing an obs from the full series against that null
+    # mixes two different samples).
+    resid_t = resid[: n_blocks * block_size]
+    obs_t = float(resid_t[kp_use >= 5].mean() - resid_t[kp_use < 3].mean())
+    if not np.isfinite(obs_t):
+        return None
+    obs = obs_t
     stats = np.empty(n_iter)
     for i in range(n_iter):
         order = rng.permutation(n_blocks)

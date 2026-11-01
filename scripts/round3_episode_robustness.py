@@ -82,10 +82,6 @@ def trend_permutation(m: pd.DataFrame, n_perm: int = N_PERM, seed: int = SEED) -
     score[m["kp"] >= 7] = 2.0
     resid = m["resid"].to_numpy()
     sm = ~np.isnan(score)
-    x = score[sm]
-    y = resid[sm]
-    xm, ym = x.mean(), y.mean()
-    obs = float(((x - xm) * (y - ym)).sum() / ((x - xm) ** 2).sum())
 
     n = len(resid) // BLOCK * BLOCK
     nb = n // BLOCK
@@ -95,6 +91,11 @@ def trend_permutation(m: pd.DataFrame, n_perm: int = N_PERM, seed: int = SEED) -
     xx = x_t[sm_t]
     xm2 = xx.mean()
     denom = ((xx - xm2) ** 2).sum()
+    # Q0-audit fix: the observed slope must be computed on the SAME trimmed
+    # series as the permutation null (rows are trimmed to n//BLOCK*BLOCK
+    # before permuting; the old code used the full-length x/y here).
+    y_t = resid[:n][sm_t]
+    obs = float(((xx - xm2) * (y_t - y_t.mean())).sum() / denom)
     count = 0
     for _ in range(n_perm):
         idx = rng.permutation(nb)

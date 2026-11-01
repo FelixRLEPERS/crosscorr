@@ -32,6 +32,94 @@ arithmetic or a spell-checker in writing.
 
 ## Session log
 
+### 2026-11-01 — obs/null fix extended to 10 further sites in 9 scripts; re-runs; trend, Dst and spatial p-values updated
+
+Section 7 of `audit/math_science_audit_2026-11-01.md` recorded that the
+observed-statistic/null mismatch already fixed in
+`scripts/perm_test_18mo_3band.py` was still present elsewhere. A full-repository
+sweep (every `.py`, matching a trim-then-permute pattern against an `obs`
+assignment indexing an untrimmed array) found it in **9 files / 10 sites**.
+All of them were fixed on explicit human approval ("fix and re-run all of
+them"), re-run, and the manuscript updated.
+
+- **Sites fixed:** `scripts/spatial_analysis.py:652`,
+  `scripts/round3_episode_robustness.py:88`,
+  `scripts/round3_merge_sensitivity.py:88` and `:118`,
+  `scripts/replication_2026.py:51`, `scripts/perm_test_6mo_3band.py:39`,
+  `scripts/recompute_heldout_residual.py:62`, plus the gitignored
+  `scripts/diag_heldout_pval.py:29`, `tmp_audit5_stats.py:35`,
+  `tmp_B5_dst_50k.py:37`. The audit had listed 7 of these;
+  `recompute_heldout_residual.py` (which writes the held-out p-values used in
+  Table 11) and `tmp_audit5_stats.py` were added by the sweep.
+- **`scripts/eda_full.py` checked and clean** — it trims `values` and
+  `condition_mask` *before* computing `obs`.
+- **The fix:** `obs` is computed on the same array trimmed to
+  `n // block * block` as the null distribution, plus an `np.isfinite` guard
+  where the statistic could be NaN. Descriptive quantities (`drop_pct`, raw
+  storm/quiet means) remain on the untrimmed series by design, exactly as in
+  the already-fixed `perm_test_18mo_3band.py`.
+- **Attribution (no data-drift confound):** re-running the *buggy* slope
+  formula on the current data reproduces the pre-fix JSON p-values exactly —
+  20 m `0.000799960002`, 40 m `9.999500025e-05`, 15 m `0.01979901005` — so the
+  whole shift below is caused by the fix, not by the 2026-10-30 data refresh.
+
+**Re-runs and numerical consequences**
+
+| Output | Result |
+|---|---|
+| `heldout_resid_2026-10-15.json` (frozen) | **no change** — `N_total = 720`, `720 mod 24 = 0`, nothing trimmed; the `EXPECT_P` gate still passes (`[VERIFY] all three p_resid match Phase 0`) |
+| `heldout_resid_2026h1.json` | `N = 1441`, one row trimmed; 15 m p `0.0047599 -> 0.0048399` (Table 11 still prints `4.8e-3`), obs -12827.9 -> -12820.8 / -10128.9 -> -10139.3 / -3098.5 -> -3093.5 |
+| `round3_episode_robustness.json` | trend p 20 m `0.00079996 -> 0.00054997`, 40 m `9.9995e-05` unchanged, 15 m `0.019799 -> 0.012949`; slopes -7507.4 -> -7636.0 / -6206.6 -> -6172.9 / -1343.2 -> -1438.2; cluster CIs moved by ~1e-3, i.e. unchanged at the 1 dp printed in `tab:episode`; episode Spearman p unchanged |
+| `round3_merge_sensitivity.json` | all four permutation p remain at the floor `2e-5`; drop%/lag values moved by ~1e-4, i.e. identical at the 1 dp used in `tab:merge` and `tab:perm` |
+| `perm_test_dst_50k.json` | Delta -22081.4 -> -21932.6, -15038.2 -> -14941.4, -5142.6 -> -5037.0; p still at the floor |
+| `spatial_lat_groups_norm_tx.json` | 40 m low-lat p `0.02369882 -> 0.0180991`, 15 m low-lat p `0.09074546 -> 0.07769612`; all `drop_pct` unchanged; still 7/9 at the floor and 8/9 significant |
+| `spatial_lat_groups.json` | 40 m low-lat p `0.0019499 -> 0.00144993`; everything else unchanged |
+| `spatial_lat_groups_block8.json` | **no change** — `N = 3920`, divisible by `block = 8`, nothing trimmed |
+| `spatial_lat_groups_with_flares.json` | 40 m low-lat p unchanged (`1.4999e-04`); pooled drops 73.1 / 28.2 / 22.8 unchanged |
+| `flare_control_comparison_spatial.csv` | one cell changed: `40m/low` without-flares p `0.0019499 -> 0.00144993` |
+| `flare_control_comparison_perm.csv` | regenerated, **byte-identical** |
+| `perm_test_6mo_3band.json` (gitignored) | refreshed; its previous content predated the 2026-10-30 extension of `unified.parquet` (N 1435 -> 4501), so that diff is data drift, not the fix |
+| `replication_2026.py` | **fixed but not re-run**: it downloads 543 day x band chunks from `db1.wspr.live`, `results/replication_2026.json` has never existed, and the manuscript states the replication is "planned but not yet complete" |
+
+**Manuscript changes (16 sites, EN + RU)**
+
+- Section 4.2 trend test: 20 m `8\times10^{-4} -> 5.5\times10^{-4}`,
+  15 m `0.020 -> 0.013` (`main.tex:853-854`, `main_ru.tex:916-917`).
+  40 m `p \le 2\times10^{-4}` is still correct (9.9995e-05).
+- Table 6 (`tab:dst`): Delta `-22 081 -> -21 933`, `-15 038 -> -14 941`,
+  `-5 143 -> -5 037` (`main.tex:778-780`, `main_ru.tex:841-843`).
+- Block-size sensitivity: low-latitude 40 m
+  `1.95 \times 10^{-3} -> 1.45 \times 10^{-3}` (`main.tex:601`,
+  `main_ru.tex:649`); the block = 8 value `3.5 \times 10^{-4}` is unchanged
+  because that run has no trimmed rows.
+- Spatial / TX-normalisation p-values: `9.1 \times 10^{-2} -> 7.8 \times 10^{-2}`
+  (5 places per language) and `2.4 \times 10^{-2} -> 1.8 \times 10^{-2}`
+  (2 places per language) — `main.tex:1296,1301,1302,1321,1342,1343,1600` and
+  `main_ru.tex:1378,1385,1387,1406,1427,1428,1710`.
+- Qualitative claims re-checked against the new numbers and still true:
+  "eight of nine cells significant", "seven of nine at the floor", "no cell
+  becomes less significant" under `block = 8`, "block = 24 uniformly
+  conservative", "all pooled p <= 5e-5", the `103.2x` ratio, the "1-3 pp"
+  flare sensitivity, and Conclusions "6 of 9".
+- Abstract, Key Points, `tab:main`, `tab:scale`, `tab:episode`,
+  `tab:pairwise`, `tab:merge`, `tab:perm` and `tab:heldout_sensitivity`
+  required no edits: their printed values still round from the new results
+  (verified cell by cell).
+
+**Operational notes**
+
+- The four spatial re-runs used `--source api --skip-crosscheck`: the Phase-1
+  heavy sample (`ORDER BY id LIMIT 5000` plus `radians`) is reset by the public
+  endpoint after ~19 s, while Phase 2 (aggregate, 40 chunks of 14 days)
+  succeeds. The script documents `--skip-crosscheck` as not affecting Phase 2.
+- `--source local` is **not** a substitute: it only sees the five hourly
+  sample CSVs in `data/raw/wspr`. One such attempt overwrote
+  `results/spatial_lat_groups_norm_tx.json` with a run reporting
+  `N_storm = 0`; the file was restored byte-identically from a snapshot before
+  the proper API re-run.
+- DoD: `ruff check .` clean, `mypy crosscorr_lib` clean (23 files),
+  `pytest -m "not slow"` 369 passed / 2 deselected (146.22 s).
+
 ### 2026-11-01 — Math audit P0/P1 fixes: obs/null bug, FDR reporting, AI disclosure, Fig 4 caption. Bumped to v1.6.3.
 
 Full read-only math/science audit was performed first (three parallel

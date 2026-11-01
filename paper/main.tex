@@ -598,7 +598,7 @@ epochs (24\,h, one diurnal cycle) leaves every band $\times$ latitude
 cell unchanged or more significant: block = 24 is uniformly
 conservative relative to block = 8 across all nine cells; no cell
 becomes less significant (8/9 at the $p$-floor under both settings;
-low-latitude 40\,m moves from $1.95 \times 10^{-3}$ to $3.5 \times 10^{-4}$).
+low-latitude 40\,m moves from $1.45 \times 10^{-3}$ to $3.5 \times 10^{-4}$).
 
 \subsection{Effective sample size}
 
@@ -775,9 +775,9 @@ check rests on the sign and significance of the effect.
 		Band  & $N_{\text{Dst}}$  & $\Delta_{\text{observed}}$ (spots/h)
 		      & $p$-value (block)                                                    \\
 		\midrule
-		20\,m & 12\,508           & $-22\,081$                           & $\le 2 \times 10^{-5}$ \\
-		40\,m & 12\,508           & $-15\,038$                           & $\le 2 \times 10^{-5}$ \\
-		15\,m & 12\,508           & $-5\,143$                            & $\le 2 \times 10^{-5}$ \\
+		20\,m & 12\,508           & $-21\,933$                           & $\le 2 \times 10^{-5}$ \\
+		40\,m & 12\,508           & $-14\,941$                           & $\le 2 \times 10^{-5}$ \\
+		15\,m & 12\,508           & $-5\,037$                            & $\le 2 \times 10^{-5}$ \\
 		\bottomrule
 	\end{tabular}
 \end{table}
@@ -850,8 +850,8 @@ The drop approximately doubles from $Kp = 5\text{--}6$
 for 20\,m and 40\,m. At $Kp \ge 7$, the reduction reaches
 \SIrange{52}{59}{\percent} across all bands---severe but not at blackout
 levels ($\SI{100}{\percent}$ loss). A block-permutation trend test across
-the three storm bins is significant for 20\,m ($p = 8\times10^{-4}$),
-40\,m ($p \le 2\times10^{-4}$) and 15\,m ($p = 0.020$).
+the three storm bins is significant for 20\,m ($p = 5.5\times10^{-4}$),
+40\,m ($p \le 2\times10^{-4}$) and 15\,m ($p = 0.013$).
 
 The scale-dependence is supported by pairwise block permutation tests between
 $Kp$ bins (all 9 combinations; Table~\ref{tab:pairwise}). In the primary
@@ -1293,13 +1293,13 @@ over 40/20/15\,m; high/low ratio $5.7\times$; $p \le 5 \times 10^{-5}$;
 see Table~\ref{tab:spatial}). The gradient steepens with frequency: at 15\,m the auroral drop
 reaches \SI{-82.6}{\percent} while the
 low-latitude cell is near zero (\SI{-0.8}{\percent},
-$p = 9.1 \times 10^{-2}$), i.e. a ratio of $103.2\times$,
+$p = 7.8 \times 10^{-2}$), i.e. a ratio of $103.2\times$,
 consistent with trans-auroral path geometry and negative storm-phase
 $F2$ depletion. Block-permutation tests (the procedure of
 Section~3.3, 20\,000 iterations, add-one correction; normalization and
 block-size sensitivity in Section~\ref{sec:dropnorm}) are significant in eight of the nine band $\times$ latitude cells
-($p \le 2.4 \times 10^{-2}$; seven of nine at the floor); the low-latitude
-15\,m cell does not survive TX-normalization ($p = 9.1 \times 10^{-2}$).
+($p \le 1.8 \times 10^{-2}$; seven of nine at the floor); the low-latitude
+15\,m cell does not survive TX-normalization ($p = 7.8 \times 10^{-2}$).
 The reported values are flare-controlled and normalized by active
 transmitters: the 1\,325 hours (10.1\% of the full 18-month window,
 13\,152\,h) with a GOES X-ray flare of class M1.0+ are excluded. On
@@ -1318,7 +1318,7 @@ orders intact (pooled high-lat \SI{-72.7}{\percent}, mid-lat \SI{-24.1}{\percent
 low-lat \SI{-12.8}{\percent}; all pooled $p \le 5 \times 10^{-5}$), but
 the low-latitude 15\,m cell collapses from
 \SI{-11.8}{\percent} ($p = 5 \times 10^{-5}$) to
-\SI{-0.8}{\percent} ($p = 9.1 \times 10^{-2}$): the original
+\SI{-0.8}{\percent} ($p = 7.8 \times 10^{-2}$): the original
 low-latitude 15\,m drop is explained by changes in the
 active-transmitter population (selection bias) rather than by
 geomagnetic absorption, consistent with the physical expectation
@@ -1339,8 +1339,8 @@ latitudes.
 	$N_{\text{storm,spots}}$ (high/mid/low): 40\,m
 	11\,426/8\,368\,948/180\,897; 20\,m 62\,133/8\,775\,808/529\,483;
 	15\,m \textbf{7\,114}/1\,235\,837/199\,390. $p$-values: pooled cells all $p \le 5 \times 10^{-5}$; per-band, seven of nine
-	cells at the floor, low-lat 40\,m $p = 2.4 \times 10^{-2}$ and low-lat
-	15\,m $p = 9.1 \times 10^{-2}$ (not significant).}
+	cells at the floor, low-lat 40\,m $p = 1.8 \times 10^{-2}$ and low-lat
+	15\,m $p = 7.8 \times 10^{-2}$ (not significant).}
 	\label{tab:spatial}
 	\begin{tabular}{lcccc}
 		\toprule
@@ -1597,7 +1597,7 @@ establishing a unique mechanism attribution.
 	      and path populations remain a residual confounder.
 	\item \textbf{Low-latitude 15\,m selection bias:} After normalization
 	      by active transmitters the low-latitude 15\,m effect vanishes
-	      (\SI{-0.8}{\percent}, $p = 9.1 \times 10^{-2}$), while
+	      (\SI{-0.8}{\percent}, $p = 7.8 \times 10^{-2}$), while
 	      the auroral and mid-latitude gradients and the band ordering
 	      persist. This localizes the effect physically (D-layer
 	      absorption is negligible at equatorial latitudes) and
