@@ -1,7 +1,7 @@
 {
-  "generated_utc": "2026-11-02T18:50:23.975343+00:00",
+  "generated_utc": "2026-11-02T18:53:03.153109+00:00",
   "git_commit": "3c1d038ba0839e71b647bb29a7cbfb22501ac9b1",
-  "git_status_porcelain": "M .gitignore\n M CHANGELOG.md\n M CITATION.cff\n M README.md\n M docs/AI_ASSISTANCE.md\n M paper/main.tex\n M paper/main_ru.tex\n M pyproject.toml\n M results/perm_test_18mo_3band_fdr_README.md\n?? checksums_v1.6.0.txt\n?? checksums_v1.6.1.txt\n?? checksums_v1.6.2.txt\n?? checksums_v1.6.3.txt\n?? checksums_v1.6.4.txt\n?? results/perm_test_18mo_3band_fdr.json",
+  "git_status_porcelain": "M  .gitignore\nM  CHANGELOG.md\nM  CITATION.cff\nM  README.md\nM  docs/AI_ASSISTANCE.md\nM  paper/main.tex\nM  paper/main_ru.tex\nM  pyproject.toml\nM  results/perm_test_18mo_3band_fdr_README.md\nA  results/provenance_manifest_2026-11-02.json\n?? checksums_v1.6.0.txt\n?? checksums_v1.6.1.txt\n?? checksums_v1.6.2.txt\n?? checksums_v1.6.3.txt\n?? checksums_v1.6.4.txt\n?? results/perm_test_18mo_3band_fdr.json",
   "training_window": [
     "2024-04-01",
     "2025-10-01"
