@@ -3,7 +3,7 @@
 `perm_test_18mo_3band_fdr.json` (2026-10-08) was generated with
 `n_iter=5000` and no add-one correction. It is superseded by:
 
-- `perm_test_18mo_3band.json` — main permutation test, 5000 iter, add-one
+- `perm_test_18mo_3band.json` — main permutation test, 50000 iter, add-one
 - `round3_merge_sensitivity.json` — 50000 iter, add-one, Kp, flare-included
 - `perm_test_dst_50k.json` — 50000 iter, add-one, Dst
 

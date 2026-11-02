@@ -32,7 +32,18 @@ arithmetic or a spell-checker in writing.
 
 ## Session log
 
-### 2026-11-01 — obs/null fix extended to 10 further sites in 9 scripts; re-runs; trend, Dst and spatial p-values updated
+### 2026-11-02 — P2-A/B/C + P3-A fixes: flare count, v1.6.4, concept DOI, current manifest
+
+Math/science audit (`audit/math_science_audit_2026-11-02.md`) flagged three P2 findings and one P3 finding for correction before submission:
+
+1. **P2-A — flare-exclusion count (326 → 429, N = 3920).** The Limitations "Solar-flare control" item and the `tab:spatial` caption (EN+RU) conflated two subsets: "326 of 4 349" counted only storm+quiet epochs removed (29 storm + 297 quiet), but 429 total epochs are removed (29 + 297 + 103 unsettled), leaving **3 920 analysed epochs** (169 storm + 2 738 quiet + 1 013 intermediate 3 ≤ Kp < 5). Corrected: "429 of 4 349 covered epochs (9.9%; of these 326 are storm or quiet ...), leaving 3 920 analysed epochs". Caption denominator corrected from "of 4 349 total" to "of 3 920 analysed epochs". Same fixes applied to `docs/AI_ASSISTANCE.md` line above.
+2. **P2-B — version and DOI unification.** Code Availability (EN+RU) updated from "tag v1.6.2" + version DOI `23855563` to **tag v1.6.4 + concept DOI `10.5281/zenodo.23285958`** (resolves to latest release; v1.6.4 at time of submission). `pyproject.toml` `1.6.1` → `1.6.4`; `CITATION.cff` `1.6.1` → `1.6.4` + concept DOI + `date-released: 2026-11-02`; README `v1.6.3` → `v1.6.4` + concept DOI; CHANGELOG: added `[1.6.4]`, backfilled `[1.6.3]`, `[1.6.2]`.
+3. **P2-C — provenance manifest.** Regenerated `results/provenance_manifest_2026-11-02.json` (34 paths: 9 datasets, 15 artifacts, 10 scripts — all sha256 match current files). Cited in Data Availability updated from `2026-10-20` to `2026-11-02` (EN+RU). Added `.gitignore` whitelist line.
+4. **P3-A — FDR-README n_iter.** `results/perm_test_18mo_3band_fdr_README.md` line 6 claimed "main permutation test, 5000 iter" but the actual JSON has `"n_iter": 50000` in all three git revisions. Corrected to 50000. (P3-B, P3-C — withdrawn after Phase 1 diagnostics.)
+
+**Intentionally NOT changed:** headline permutation-test numbers (198 storm epochs, drop%, p-values, CIs) — these describe the primary with-flares runs and are correct as published; the flare-control item explicitly reports the flare-free subset separately.
+
+PDF EN+RU rebuilt (0 errors); DoD: `ruff`, `mypy`, `pytest -m "not slow"` (369 passed).
 
 Section 7 of `audit/math_science_audit_2026-11-01.md` recorded that the
 observed-statistic/null mismatch already fixed in
@@ -956,8 +967,9 @@ Data package v11 published on Zenodo. Version DOI: 10.5281/zenodo.23802881. Sche
      (73.1 vs 72.1, 28.2 vs 26.1, 22.8 vs 20.0), p at the permutation floor
      in both runs, so the gradient is not a flare (SID) artifact; (ii) a new
      Limitations item "Solar-flare control / Контроль солнечных вспышек":
-     1 325 flare hours remove the sampled hour of 326 of 4 349 covered epochs
-     (N_storm 198 -> 169, N_quiet 3035 -> 2738), pooled drops shift 1-2 pp,
+     1 325 flare hours remove the sampled hour of 429 of 4 349 covered epochs
+     (9.9%; of these 326 are storm or quiet: N_storm 198 -> 169, N_quiet
+     3035 -> 2738), leaving 3 920 analysed epochs, pooled drops shift 1-3 pp,
      all p stay at the floor, and the smaller epoch sample lowers power for
      secondary pairwise Kp-bin contrasts.
 - **Intentionally NOT changed (author decisions, 2026-10-30):**

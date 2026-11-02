@@ -5,6 +5,28 @@
 
 ## [Unreleased]
 
+## [1.6.4] - 2026-11-02
+### Fixed
+- Flare-exclusion count corrected (326→429 + N=3920) in Limitations "Solar-flare control" and `tab:spatial` caption, EN+RU (`paper/main.tex`, `paper/main_ru.tex`).
+- FDR-README line 6: main permutation test 5000 → 50000 iterations (`results/perm_test_18mo_3band_fdr_README.md`).
+### Changed
+- Code Availability → tag `v1.6.4` + concept DOI `10.5281/zenodo.23285958` (resolves to latest release), EN+RU.
+- `pyproject.toml` → `1.6.4`; `CITATION.cff` → `1.6.4` + concept DOI + `date-released: 2026-11-02`; README → `v1.6.4` + concept DOI.
+- Provenance manifest regenerated: `results/provenance_manifest_2026-11-02.json` (cited in Data Availability, EN+RU).
+- `checksums_v1.6.4.txt` (8 файлов; только tracked-пути).
+
+## [1.6.3] - 2026-11-01
+### Fixed
+- obs/null mismatch fix in 10 sites (9 files) — sweep after audit finding #9 (`audit/math_science_audit_2026-11-01.md`).
+- BH 5/9 → 6/9 in §4.2 (recomputed after obs/null fix).
+### Added
+- AI disclosure update (MiMo V2.6 Flash + DeepSeek V4.1 Flash in `docs/AI_ASSISTANCE.md`).
+- Fig 4 caption refinement (day/night asymmetry).
+
+## [1.6.2] - 2026-11-01
+### Changed
+- SNR point-estimate vs CI wording in Abstract (clarify point estimate vs confidence interval).
+
 ## [1.6.1] - 2026-10-31
 ### Added
 - Примечание о воспроизводимости живых API: абзац в Data Availability

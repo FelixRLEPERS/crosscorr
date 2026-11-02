@@ -1332,8 +1332,9 @@ latitudes.
 	($Kp \ge 5$) by midpoint-latitude group, 2024-04-01 -- 2025-10-01
 	(Drop\% on spots per active transmitter, Eq.~\eqref{eq:normtx};
 	definition in Section~\ref{sec:dropnorm}). $N_{\text{storm}}$ = 169
-	storm epochs of 4\,349 total (3-h $Kp$ cadence, coverage 99.2\%),
-	identical across groups (the epoch universe is shared; groups
+	storm epochs of 3\,920 analysed epochs (flare-controlled; 4\,349 of
+	4\,384 epochs covered at 3-h $Kp$ cadence, 99.2\%), identical across
+	groups (the epoch universe is shared; groups
 	partition by latitude). Pooled $N_{\text{storm,spots}}$: high-lat
 	80\,673; mid-lat 18\,380\,593; low-lat 909\,770. Per-band
 	$N_{\text{storm,spots}}$ (high/mid/low): 40\,m
@@ -1626,10 +1627,12 @@ establishing a unique mechanism attribution.
 	      windows are sampled identically.
 	\item \textbf{Solar-flare control:} The latitude-group
 	      analysis is reported with solar-flare hours excluded: the
-	      1\,325 flare hours (10.1\%) remove the sampled hour of 326 of
-	      4\,349 covered epochs ($N_{\text{storm}}$
-	      198 $\rightarrow$ 169, $N_{\text{quiet}}$ 3035 $\rightarrow$
-	      2738). The pooled drops shift by only 1--3\,pp and all
+	      1\,325 flare hours (10.1\%) remove the sampled hour of 429 of
+	      4\,349 covered epochs (9.9\%; of these, 326 are storm or quiet
+	      epochs: $N_{\text{storm}}$ 198 $\rightarrow$ 169,
+	      $N_{\text{quiet}}$ 3035 $\rightarrow$ 2738), leaving 3\,920
+	      analysed epochs (169 storm, 2\,738 quiet, 1\,013 intermediate
+	      $3 \le Kp < 5$). The pooled drops shift by only 1--3\,pp and all
 	      $p$-values stay at the permutation floor, so the auroral gradient
 	      is not a flare (SID) artifact; the smaller epoch sample lowers
 	      power for secondary pairwise $Kp$-bin contrasts.
@@ -2075,7 +2078,7 @@ All data used in this study are publicly available:
 	      repository: \path{results/round3_*.json},
 	      \path{results/snr_analysis.json},
 	      \path{results/path_distance_analysis.json}, and
-	      \path{results/provenance_manifest_2026-10-20.json}.
+	      \path{results/provenance_manifest_2026-11-02.json}.
 \end{itemize}
 \par}
 
@@ -2091,13 +2094,13 @@ delayed-upload effects.
 All analysis code is available at
 \url{https://github.com/FelixRLEPERS/crosscorr}
 under the MIT license. The exact version used for the core analysis is
-tag \texttt{v1.6.2} of that repository. The dataset snapshot is
+tag \texttt{v1.6.4} of that repository; the concept DOI
+\url{https://doi.org/10.5281/zenodo.23285958} resolves to the latest
+release (v1.6.4 at the time of submission). The dataset snapshot is
 archived at
 \url{https://doi.org/10.5281/zenodo.23802881} (version DOI of the
 v1.5.0 data record; that record contains data files only and no source
-code). The Zenodo concept DOI
-\url{https://doi.org/10.5281/zenodo.23285958} resolves to the latest
-release. The round-3 sensitivity scripts and results are included in
+code). The round-3 sensitivity scripts and results are included in
 the repository at the revision accompanying this manuscript; the
 v1.4.0 version DOI was
 \url{https://doi.org/10.5281/zenodo.23495246}. The repository includes:
