@@ -32,6 +32,19 @@ arithmetic or a spell-checker in writing.
 
 ## Session log
 
+### 2026-11-03 — Pre-submission repo hygiene: backup cleanup, legacy FDR artifact removal, checksum regeneration; tag v1.6.4 deliberately frozen
+
+Fact-check of the "final audit v1.6.4" report against the actual repository state, followed by the human's cleanup checklist. **No changes to `paper/`, analysis code, or any `results/*.json` numbers.**
+
+1. **Report verified against reality:** obs/null fix present in all 7 claimed scripts (commit `218ca93`); BH "6 of 9" (`paper/main.tex:1750`) matches all nine pairwise p-values in `results/perm_test_18mo_3band_with_flares.json`; flare count 429/4,349, N = 3,920, N_storm 198→169, N_quiet 3035→2738 confirmed EN+RU; version sync v1.6.4 across `pyproject.toml`, `CITATION.cff`, README, Code Availability.
+2. **Tag v1.6.4 NOT moved to HEAD — explicit human decision after seeing the evidence.** Zenodo record `23895056` (DOI `10.5281/zenodo.23895056`, zip md5 `a2cf3fa77b2650b766631a1ddb8d4a99`) already froze the release built from tag `f04dc4f` at 2026-11-02 19:26:26Z, and Zenodo deposits are immutable; force-pushing the tag to `213b103` would permanently desync GitHub from the DOI'd archive. The entire tag↔HEAD delta is 2 metadata lines in `results/provenance_manifest_2026-11-02.json` (`generated_utc`, `git_status_porcelain`) — no numbers, no PDFs, no code.
+3. **21 backup files removed** (copies staged in `%TEMP%\opencode\crosscorr_bak_archive`): `README.md.bak`, `paper/main.tex.bak`, `paper/references.bib.bak`, `scripts/make_paper_figures.py.bak`, two `results/*.json.bak`, and `paper/main.bak0`…`main.bak15` — all dated 2026-10-08, i.e. audit finding L8 (`audit/AUDIT_2026-10-19_scientific.md`). They were already covered by `.gitignore` (`*.bak`, `paper/*.bak*`), so no new ignore rule was required.
+4. **Legacy `results/perm_test_18mo_3band_fdr.json` removed** (explicit human decision; copy staged with the backups). It is hashed by neither the provenance manifest nor `checksums_v1.6.4.txt`; after removal the manifest re-verifies 34/34. Its `.gitignore` whitelist line was dropped and the comment updated; the duplicated `!results/provenance_manifest_2026-11-02.json` line was deduplicated.
+5. **`checksums_v1.6.0.txt`–`v1.6.4.txt` committed to git** (audit P3-C recommendation; `checksums_v1.6.0.txt` had no other copy anywhere — the v1.6.0 GitHub release carries no assets). **`checksums_v1.6.4.txt` was regenerated first:** it was written 21:59:27 while both PDFs were rebuilt at 22:05:41/44, so the two PDF hashes were stale — exactly the failure mode recorded in `docs/LESSONS.md`. Only those two lines changed; post-write verification `ok=8 mismatch=0`.
+6. **`AGENTS.md` test counters clarified:** 343 test functions = 371 collected with parametrisation; 369 passed / 2 deselected.
+
+**Known open point:** the `checksums_v1.6.4.txt` asset attached to GitHub Release v1.6.4 still carries the pre-rebuild PDF hashes and would need re-uploading to match; the Zenodo deposit contains only the source zip, which excludes the gitignored PDFs, so the DOI'd artifact is unaffected either way.
+
 ### 2026-11-02 — P2-A/B/C + P3-A fixes: flare count, v1.6.4, concept DOI, current manifest
 
 Math/science audit (`audit/math_science_audit_2026-11-02.md`) flagged three P2 findings and one P3 finding for correction before submission:

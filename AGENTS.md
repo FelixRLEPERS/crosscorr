@@ -31,7 +31,8 @@ CrossCorr — воспроизводимый научный артефакт д�
 - `crosscorr_lib/analysis/permutation.py` — block_permutation_test (в ветке refactor/block-perm-core, ещё не в main)
 - `data/scripts/` — 16 ETL-скриптов; `data/processed/unified.parquet` — gitignored
 - `scripts/` — 51 скрипт анализа
-- `tests/` — 343 test functions; pytest: **369 passed / 2 deselected в main**,
+- `tests/` — 343 test functions (371 collected с параметризацией);
+  pytest: **369 passed / 2 deselected в main**,
   **373 в ветке `refactor/block-perm-core`** (369 + 3 golden + 1 smoke)
 - `paper/` — статья (AGU)
 - `docs/` — методология, pipeline, AI_ASSISTANCE.md, LESSONS.md
