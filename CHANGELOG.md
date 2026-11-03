@@ -13,7 +13,7 @@
 - Code Availability → tag `v1.6.4` + concept DOI `10.5281/zenodo.23285958` (resolves to latest release), EN+RU.
 - `pyproject.toml` → `1.6.4`; `CITATION.cff` → `1.6.4` + concept DOI + `date-released: 2026-11-02`; README → `v1.6.4` + concept DOI.
 - Provenance manifest regenerated: `results/provenance_manifest_2026-11-02.json` (cited in Data Availability, EN+RU).
-- `checksums_v1.6.4.txt` (8 файлов; только tracked-пути).
+- `checksums_v1.6.4.txt` (8 файлов: 5 tracked + 3 локальных gitignored — `paper/main.pdf`, `paper/main_ru.pdf`, `data/processed/unified.parquet`).
 
 ## [1.6.3] - 2026-11-01
 ### Fixed
@@ -35,7 +35,7 @@
   «API dependence» — EN+RU (`paper/main.tex`, `paper/main_ru.tex`).
 - Version mapping в README: манускрипт (submission v1.0) ↔ тег кода
   `v1.6.1` ↔ dataset snapshot v11.
-- `checksums_v1.6.1.txt` (8 файлов; только tracked-пути).
+- `checksums_v1.6.1.txt` (8 файлов: 5 tracked + 3 локальных gitignored — `paper/main.pdf`, `paper/main_ru.pdf`, `data/processed/unified.parquet`).
 ### Changed
 - Cover letter (`docs/submission/Cover_Letter_SpaceWeather.tex`): дата
   зафиксирована явно (October 31, 2026 вместо `\today`), DOI кода
