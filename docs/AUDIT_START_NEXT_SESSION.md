@@ -4,6 +4,12 @@ Generated: 2026-10-15 (session 15), refreshed 2026-10-31 (v1.6.1, HOLD)
 For: next chat session (MiMo or human)
 Purpose: operational snapshot — read this first.
 
+## CrossCorr 2.0 Roadmap
+
+After Paper 1 submission (v1.6.4, Zenodo 23895056), future work is tracked in `docs/ROADMAP_v2.0.md` (branch `experimental/astro-seismology`).
+
+Pre-registration rules and spatial models catalog are there. Do not start Paper 2A/2B without reading that file first.
+
 ## 1. Where we are (state at generation)
 
 - **Mode:** HOLD — submission-ready, ждём Гэри (HamSCI Science telecon
