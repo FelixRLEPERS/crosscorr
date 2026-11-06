@@ -36,6 +36,9 @@ CrossCorr — воспроизводимый научный артефакт д�
   **373 в ветке `refactor/block-perm-core`** (369 + 3 golden + 1 smoke)
 - `paper/` — статья (AGU)
 - `docs/` — методология, pipeline, AI_ASSISTANCE.md, LESSONS.md
+- `docs/ROADMAP_v2.0.md` — стратегический план CrossCorr 2.0
+  (Paper 2A Russell-McPherron, Paper 2B Tidal triggering, Paper 3 φ-layer);
+  включая каталог пространственных моделей и правила включения (a)-(d).
 - `audit/` — версионированные аудиты (не удалять, это часть прозрачности)
 
 ## Команды
