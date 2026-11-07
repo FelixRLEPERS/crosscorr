@@ -147,3 +147,9 @@ docs/presentations/**/*.spl
 docs/presentations/**/*.fls
 docs/presentations/**/*.fdb_latexmk
 docs/presentations/**/*.synctex.gz
+# Presentation PDFs stay local (precedent: paper/*.pdf, docs/submission/*.pdf).
+# Qwen-generated backgrounds are embedded in them and Qwen Research License
+# is not compatible with this MIT repo -> never commit rendered decks.
+# The .tex sources ARE committed; \IfFileExists falls back to a flat
+# background on clones without media/generated/.
+docs/presentations/**/*.pdf
