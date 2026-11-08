@@ -1,0 +1,481 @@
+\documentclass[aspectratio=169,12pt]{beamer}
+
+%% CrossCorr -- школьная презентация (RU), preview build 2026-11-07 (v3 STARK)
+%% Engine: XeLaTeX (fontspec + кириллица). pdflatex НЕ подходит.
+%% Шрифты: Bahnschrift (заголовки/цифры; кириллица ок, U+2212 НЕТ -> ASCII '-'),
+%%         Segoe UI (текст), Cascadia Mono (технадписи, латиница).
+%% \setbg{}/\setflatbg{} -- ТОЛЬКО перед \begin{frame} (шаблон фона бимера).
+
+\usepackage{fontspec}
+\setsansfont{Segoe UI}
+\newfontfamily\techfont{Franklin Gothic Medium}
+\newfontfamily\codefont{Cascadia Mono}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usetikzlibrary{positioning,calc}
+\usepackage{amsmath}
+
+%% Phase 2A (redesign v5): display sizes x0.94, coefficient in one place
+\newcommand{\scaledfs}[2]{\fontsize{\fpeval{0.846*(#1)}}{\fpeval{0.846*(#2)}}\selectfont}
+%% Phase 2C: implicit named sizes x0.846 (whole deck -10% from 2A)
+\renewcommand{\tiny}{\fontsize{\fpeval{0.846*5}}{\fpeval{0.846*6}}\selectfont}
+\renewcommand{\scriptsize}{\fontsize{\fpeval{0.846*8}}{\fpeval{0.846*9.5}}\selectfont}
+\renewcommand{\footnotesize}{\fontsize{\fpeval{0.846*8}}{\fpeval{0.846*10}}\selectfont}
+\renewcommand{\small}{\fontsize{\fpeval{0.846*10.95}}{\fpeval{0.846*13.6}}\selectfont}
+\renewcommand{\normalsize}{\fontsize{\fpeval{0.846*12}}{\fpeval{0.846*14.5}}\selectfont}
+\renewcommand{\large}{\fontsize{\fpeval{0.846*14.4}}{\fpeval{0.846*18}}\selectfont}
+\renewcommand{\Large}{\fontsize{\fpeval{0.846*17.28}}{\fpeval{0.846*22}}\selectfont}
+\renewcommand{\LARGE}{\fontsize{\fpeval{0.846*20.74}}{\fpeval{0.846*25}}\selectfont}
+\renewcommand{\huge}{\fontsize{\fpeval{0.846*24.88}}{\fpeval{0.846*30}}\selectfont}
+\renewcommand{\Huge}{\fontsize{\fpeval{0.846*20.74}}{\fpeval{0.846*25}}\selectfont}
+
+\definecolor{bg}{HTML}{0b1220}
+\definecolor{cyan}{HTML}{00ffff}
+\definecolor{amber}{HTML}{ffbf00}
+\definecolor{txt}{HTML}{e8f1fb}
+\definecolor{dim}{HTML}{8ea0bd}
+
+\graphicspath{{G:/crosscorr/media/generated/}{figures/}}
+
+\usetheme{default}
+\mode<presentation>{
+  \setbeamercolor{background canvas}{bg=bg}
+  \setbeamercolor{normal text}{fg=txt,bg=bg}
+  \setbeamercolor{alerted text}{fg=amber}
+  \setbeamercolor{structure}{fg=cyan}
+  \setbeamercolor{frametitle}{fg=cyan,bg=bg}
+  \setbeamercolor{title}{fg=txt}
+  \setbeamercolor{subtitle}{fg=dim}
+  \setbeamercolor{date}{fg=dim}
+  \setbeamercolor{itemize item}{fg=cyan}
+  \setbeamercolor{itemize subitem}{fg=dim}
+  \setbeamercolor{enumerate item}{fg=cyan}
+  \setbeamercolor{page number in head/foot}{fg=dim}
+  \setbeamerfont{frametitle}{series=\bfseries,size=\scaledfs{14.4}{18}}
+  \setbeamerfont{title}{series=\bfseries,size=\scaledfs{20.74}{25}}
+  \setbeamertemplate{navigation symbols}{}
+  \setbeamertemplate{itemize items}[circle]
+  \setbeamertemplate{frametitle}{}
+  \setbeamertemplate{footline}{%
+    \ifx\AEmodesel\AEcapC
+      \ifx\AEchromesel\AEcfoot
+        \hbox to \paperwidth{\hskip1.1cm
+          \raisebox{0pt}[0pt][0pt]{\includegraphics[height=0.40cm]{figures/logo-square-ru-dark.png}}%
+          \hfil{\color{dim}\codefont\scriptsize SPACE WEATHER // 2026SW005535}%
+          \hfil\vphantom{\color{dim}\codefont\scriptsize\insertframenumber\,/\,\inserttotalframenumber}%
+          \hskip1.1cm}\vskip3mm
+      \fi
+      \ifx\AEchromesel\AEconair
+        \hbox to \paperwidth{\hfil{\color{dim}\codefont\scriptsize\insertframenumber\,/\,\inserttotalframenumber}\hskip1.1cm}\vskip3mm
+      \fi
+    \else
+      %% mode L (контент-слой): футлайн скрыт, но сохраняем его вертикальный
+      %% отпечаток -- тот же \vphantom от deck-футлайна (та же высота логотипа
+      %% 0.40cm) + \vskip3mm, иначе beamer смещает контент вверх на ~10px.
+      \vphantom{\hbox to \paperwidth{\hskip1.1cm
+        \raisebox{0pt}[0pt][0pt]{\includegraphics[height=0.40cm]{figures/logo-square-ru-dark.png}}%
+        \hfil{\color{dim}\codefont\scriptsize SPACE WEATHER // 2026SW005535}%
+        \hfil{\color{dim}\codefont\scriptsize00/08}%
+        \hskip1.1cm}}\vskip3mm
+    \fi
+  }
+}
+\setbeamersize{text margin left=1.1cm, text margin right=1.1cm}
+
+%% list spacing tightened (vertical balance, slides 2/6)
+\setlength{\itemsep}{3pt}
+\setlength{\topsep}{2pt}
+\setlength{\parsep}{0pt}
+
+%% ---------------- HUD ----------------
+%% #1 = номер слайда (01..08)
+\newcommand{\hud}[1]{%
+  \ifx\AEmodesel\AEcapC
+    \ifx\AEchromesel\AEchud
+      \begin{tikzpicture}[remember picture,overlay]
+        %% верхние уголки
+        \draw[cyan,line width=0.6pt] ([xshift=0.4cm,yshift=-0.4cm]current page.north west)
+            -- ([xshift=1.4cm,yshift=-0.4cm]current page.north west)
+            ([xshift=0.4cm,yshift=-0.4cm]current page.north west)
+            -- ([xshift=0.4cm,yshift=-1.4cm]current page.north west);
+        \draw[amber,line width=0.6pt] ([xshift=-0.4cm,yshift=-0.4cm]current page.north east)
+            -- ([xshift=-1.4cm,yshift=-0.4cm]current page.north east)
+            ([xshift=-0.4cm,yshift=-0.4cm]current page.north east)
+            -- ([xshift=-0.4cm,yshift=-1.4cm]current page.north east);
+        %% нижние уголки
+        \draw[amber,line width=0.6pt] ([xshift=0.4cm,yshift=0.4cm]current page.south west)
+            -- ([xshift=1.0cm,yshift=0.4cm]current page.south west)
+            ([xshift=0.4cm,yshift=0.4cm]current page.south west)
+            -- ([xshift=0.4cm,yshift=1.0cm]current page.south west);
+        \draw[cyan,line width=0.6pt] ([xshift=-0.4cm,yshift=0.4cm]current page.south east)
+            -- ([xshift=-1.0cm,yshift=0.4cm]current page.south east)
+            ([xshift=-0.4cm,yshift=0.4cm]current page.south east)
+            -- ([xshift=-0.4cm,yshift=1.0cm]current page.south east);
+        %% статус-бар (статичная часть; номер -- в отдельном слое onair)
+        \node[anchor=north west,text=dim,font=\codefont\scriptsize]
+            at ([xshift=1.7cm,yshift=-0.42cm]current page.north west) {CROSSCORR v1.6.4};
+        \node[anchor=north east,text=dim,font=\codefont\scriptsize]
+            at ([xshift=-1.7cm,yshift=-0.42cm]current page.north east)
+            {\textcolor{amber}{\textbullet} ON AIR\ \ \vphantom{{\textcolor{cyan}{#1}/08}}};
+      \end{tikzpicture}%
+    \fi
+    \ifx\AEchromesel\AEconair
+      \begin{tikzpicture}[remember picture,overlay]
+        \node[anchor=north east,text=dim,font=\codefont\scriptsize]
+            at ([xshift=-1.7cm,yshift=-0.42cm]current page.north east)
+            {{\textcolor{cyan}{#1}/08}};
+      \end{tikzpicture}%
+    \fi
+  \fi}
+
+%% заголовок слайда: #1 = технадпись (латиница), #2 = заголовок
+%% первый элемент кадра: даёт верхний отступ под HUD-заголовок
+\newcommand{\slidetitle}[2]{%
+  \vspace{1.55cm}%
+  \AElayer{\AEcur}{title}{%
+  \begin{tikzpicture}[remember picture,overlay]
+    \node[anchor=north west,align=left]
+        at ([xshift=1.1cm,yshift=-0.92cm]current page.north west){%
+      {\codefont\scriptsize\color{cyan}#1}\\[3pt]
+      {\techfont\scaledfs{17.28}{22}\bfseries\color{txt}#2}};
+    \fill[cyan] ([xshift=1.1cm,yshift=-2.20cm]current page.north west)
+        rectangle ([xshift=3.4cm,yshift=-2.235cm]current page.north west);
+    \fill[amber] ([xshift=3.55cm,yshift=-2.20cm]current page.north west)
+        rectangle ([xshift=4.05cm,yshift=-2.235cm]current page.north west);
+  \end{tikzpicture}}}
+
+%% ---------------- панели и карточки ----------------
+\tikzset{
+  panel/.style   ={draw=cyan!45,line width=0.6pt,fill=bg,fill opacity=0.58,
+                   text opacity=1,rounded corners=8pt,inner sep=9pt,align=left,
+                   text width=\dimexpr\linewidth-24pt\relax},
+  statbox/.style ={draw=cyan!45,line width=0.6pt,fill=bg,fill opacity=0.62,
+                   text opacity=1,rounded corners=8pt,inner sep=6pt,align=center,
+                   minimum height=1.60cm,minimum width=4.25cm},
+  amberbox/.style={draw=amber,line width=0.6pt,fill=bg,fill opacity=0.62,
+                   text opacity=1,rounded corners=8pt,inner sep=10pt,align=left,
+                   text width=\dimexpr\linewidth-22pt\relax},
+}
+
+%% стеклянная панель с контентом: опц. ширина (доля \linewidth), #2 = содержимое
+\newcommand{\panel}[2][0.86]{%
+  \begin{tikzpicture}
+    \node[panel,text width=#1\linewidth] {#2};
+  \end{tikzpicture}}
+
+%% фон: #1 = путь к PNG, #2 = прозрачность затемнения
+%% AE: фоны НЕ рендерим -- слой должен лежать на 100% прозрачном фоне
+\newcommand{\setbg}[2]{}
+\newcommand{\setflatbg}{}
+%% бимер заливает background canvas ЦВЕТОМ по умолчанию (проверено: сплошной
+%% #0b1220, alpha0=0%) -- шаблоны канвы должны быть пустыми:
+\setbeamertemplate{background}{}
+\setbeamertemplate{background canvas}{}
+\newcommand{\illusnote}[1]{%
+  \begin{tikzpicture}[remember picture,overlay]
+    %% ��� ᤥ ��� ����������, � ᮪�� ���⠢ �� �������-���
+    \node[anchor=north east,text=dim,font=\scriptsize] at ([xshift=-1.2em,yshift=-2.62em]current page.north east) {#1};
+  \end{tikzpicture}}
+
+\title{Магия радиоволн}
+\subtitle{Как бури на Солнце влияют на связь}
+\author{Семейный научный проект CrossCorr — Макар и Егор Петровы}
+\date{Ноябрь 2026}
+
+%% ==================== AE LAYERS (Phase 2, variant A) ====================
+%% Экспорт прозрачных слоёв для After Effects. РОВНО ОДНА активная строка-режим ниже.
+\def\AEmodesel{}        % 'L' = слой, 'C' = хром (HUD/футлайн/номера), '' = ничего
+\def\AEslidesel{}       % слайд выбранного слоя
+\def\AElayersel{}       % id выбранного слоя
+\def\AEchromesel{}      % какой хром: hud-frame | footline-frame | onair
+\def\AEcur{0}           % номер текущего слайда (вставляется в каждом frame)
+\def\AEcapL{L}
+\def\AEcapC{C}
+\def\AEchud{hud-frame}
+\def\AEcfoot{footline-frame}
+\def\AEconair{onair}
+%% видимость узлов стат-ряда слайда 5 (текст/заливка/контур отдельно: стиль
+%% statbox задаёт fill opacity=0.62 и text opacity=1 ПОСЛЕ моих ключей не
+%% перекрыть нельзя -- ключи идут в ХВОСТЕ опций и перекрывают стиль).
+%% Узел скрыт = 0/0/0 (100% alpha0, но геометрию right=... of ... держит).
+%% Макросы ТОЛЬКО в значениях: запятая внутри макроса ломает pgfkeys (проверено).
+\def\AEaf{0}\def\AEat{0}\def\AEad{0}
+\def\AEbf{0}\def\AEbt{0}\def\AEbd{0}
+\def\AEcf{0}\def\AEct{0}\def\AEcd{0}
+\def\AEidsa{stat-20m}
+\def\AEidsb{stat-40m}
+\def\AEidsc{stat-15m}
+\newif\ifAEcontent      % контент кадров рендерится только в режиме слоя
+%% \AEbody{...} -- гейт тела кадра. ВАЖНО: условие ТОЛЬКО внутри макроса!
+%% Прямой \if...\begin{env}...\end{env}\fi в теле beamer-кадра ломается
+%% ("Incomplete \ifx"), а макрос-обёртка -- работает (проверено t18/t25).
+%% \AEonly{<слайд>}{<id>}: на слайде <слайд> рендерится ТОЛЬКО слой <id>.
+%% Невыбранные слои гасятся \vphantom: ноль ширины, высота строки сохраняется
+%% -> геометрия последующих блоков 1:1 как в деке (важно для позиционирования).
+%% ВАЖНО про \node: тикз-\node НЕЛЬЗЯ оборачивать в макрос/условие
+%% ("A node must have a (possibly empty) label text", проверено tnode4/5) --
+%% узлы остаются ПРЯМЫМИ, видимость = хвостовые ключи со значениями-макросами.
+\newcommand{\AEonly}[2]{%
+  \def\AEmodesel{L}\def\AEslidesel{#1}\def\AElayersel{#2}\AEcontenttrue
+  \def\AEaf{0}\def\AEat{0}\def\AEad{0}%
+  \def\AEbf{0}\def\AEbt{0}\def\AEbd{0}%
+  \def\AEcf{0}\def\AEct{0}\def\AEcd{0}%
+  \def\AEtmpa{#2}%
+  \ifx\AEtmpa\AEidsa \def\AEaf{0.62}\def\AEat{1}\def\AEad{1}\fi
+  \ifx\AEtmpa\AEidsb \def\AEbf{0.62}\def\AEbt{1}\def\AEbd{1}\fi
+  \ifx\AEtmpa\AEidsc \def\AEcf{0.62}\def\AEct{1}\def\AEcd{1}\fi}
+%% \AEchrome{hud-frame|footline-frame|onair}: только хром, контент кадров скрыт
+\newcommand{\AEchrome}[1]{\def\AEmodesel{C}\def\AEchromesel{#1}\AEcontentfalse}
+\long\def\AEbody#1{\ifAEcontent #1\fi}
+\newcommand{\AElayer}[3]{%
+  \ifx\AEmodesel\AEcapL
+    \edef\AEtmpa{#1}\edef\AEtmpb{#2}%
+    \ifx\AEtmpa\AEslidesel
+      \ifx\AEtmpb\AElayersel #3\else\vphantom{#3}\fi
+    \else\vphantom{#3}\fi
+  \fi}
+\AEcontentfalse
+
+\begin{document}
+%% ===== РЕЖИМ ЭКСПОРТА: активна РОВНО ОДНА строка (её меняет драйвер) =====
+\AEonly{5}{stat-20m}
+%%\AEchrome{hud-frame}
+%%\AEchrome{footline-frame}
+%%\AEchrome{onair}
+
+%% ------------------------------------------------------------------ 1
+\setbg{G:/crosscorr/media/generated/pres-bg-title.png}{0.50}
+\begin{frame}[plain]
+\def\AEcur{1}
+  \hud{01}
+\AEbody{%
+  \vspace{1.10cm}
+  \begin{flushleft}
+    {\codefont\small\color{cyan}// FAMILY SCIENCE MISSION}\\[0.42cm]
+    {\techfont\scaledfs{40}{44}\selectfont\bfseries\color{txt}МАГИЯ РАДИОВОЛН}\\[0.35cm]
+    {\color{cyan}\rule{5.2cm}{1.0pt}}\hspace{0.4cm}{\color{amber}\rule{1.1cm}{1.6pt}}\\[0.38cm]
+    {\techfont\large\color{dim}Как бури на Солнце влияют на связь}\\[0.40cm]
+    {\small\color{txt}Семейный научный проект CrossCorr}\\[0.13cm]
+    {\small\color{dim}Макар и Егор Петровы$\cdot$папа Алексей}
+  \end{flushleft}
+  \vfill
+  \begin{flushleft}
+    {\codefont\scriptsize\color{amber}18 MONTHS \ \ // \ \ 3 BANDS \ \ // \ \ 39456 HOURS \ \ // \ \ 50000 SHUFFLES}\\[0.35cm]
+    \hbox to \textwidth{\hfil\includegraphics[width=0.45\textwidth]{figures/logo-horizontal-ru-dark-alpha.png}\hfil\llap{{\codefont\scriptsize\color{dim}\raisebox{0.52em}{NOV 2026}}}}\par\vspace{-3pt}
+  \end{flushleft}
+}%
+\end{frame}
+
+%% ------------------------------------------------------------------ 2
+\setbg{G:/crosscorr/media/generated/pres-bg-section.png}{0.50}
+\begin{frame}
+\def\AEcur{2}
+  \hud{02}
+\AEbody{%
+  \slidetitle{// CREW}{Кто мы и что ищем}
+  \begin{columns}[T]
+    \begin{column}{0.58\textwidth}
+      \panel{%
+        \textbf{\color{cyan}КОМАНДА}\\[2pt]
+        \begin{itemize}
+          \item Алексей — папа, архитектор проекта
+          \item Макар, 13 лет — исследования и графика
+          \item Егор, 11 лет — данные и проверки
+        \end{itemize}}
+    \end{column}
+    \begin{column}{0.38\textwidth}
+      \begin{tikzpicture}
+        \node[amberbox] (m){%
+          {\codefont\scriptsize\color{amber}PRIMARY OBJECTIVE}\\[5pt]
+          {\techfont\small\bfseries\color{txt}Понять, почему во время
+           магнитных бурь пропадает радиосвязь}};
+      \end{tikzpicture}
+    \end{column}
+  \end{columns}
+  \vspace{0.10cm}
+  \begin{tikzpicture}
+    \node[statbox,minimum height=1.45cm,fill=bg,fill opacity=0.5] (s1) {{\techfont\scaledfs{20}{20}\selectfont\bfseries\color{amber}18}\\[1pt]{\scriptsize\color{dim}МЕСЯЦЕВ ДАННЫХ}};
+    \node[statbox,minimum height=1.45cm,fill=bg,fill opacity=0.5,right=0.35cm of s1] (s2) {{\techfont\scaledfs{20}{20}\selectfont\bfseries\color{cyan}3}\\[1pt]{\scriptsize\color{dim}ДИАПАЗОНА}};
+    \node[statbox,minimum height=1.45cm,fill=bg,fill opacity=0.5,right=0.35cm of s2] (s3) {{\techfont\scaledfs{20}{20}\selectfont\bfseries\color{amber}50000}\\[1pt]{\scriptsize\color{dim}ПЕРЕСТАНОВОК}};
+  \end{tikzpicture}
+}%
+\end{frame}
+
+%% ------------------------------------------------------------------ 3
+\setbg{G:/crosscorr/media/generated/illo-ionosphere.png}{0.55}
+\begin{frame}
+\def\AEcur{3}
+  \hud{03}
+\AEbody{%
+  \slidetitle{// SENSOR GRID: PLANET-WIDE}{Наш датчик — весь мир}
+  \begin{columns}[T]
+    \begin{column}{0.55\textwidth}
+\AElayer{3}{panel}{      \panel{%
+        \begin{itemize}
+          \item \textbf{WSPR} — тысячи радиолюбителей по всей планете
+                постоянно шлют друг другу слабые сигналы
+          \item Ионосфера отражает волны обратно — как зеркало в небе
+          \item Это готовый датчик размером с планету
+        \end{itemize}}}
+    \end{column}
+    \begin{column}{0.40\textwidth}
+      \vspace{0.3cm}
+\AElayer{3}{stat-39456}{      \begin{tikzpicture}
+        \node[statbox,minimum height=2.6cm,minimum width=\linewidth] {%
+          {\techfont\scaledfs{34}{36}\selectfont\bfseries\color{amber}39456}\\[2pt]
+          {\scriptsize\color{dim}ЧАСОВ РАДИОСВЯЗИ}};
+      \end{tikzpicture}}
+    \end{column}
+  \end{columns}
+\AElayer{3}{illusnote}{  \illusnote{художественная иллюстрация}}
+}%
+\end{frame}
+
+%% ------------------------------------------------------------------ 4
+\setbg{G:/crosscorr/media/generated/pres-bg-data.png}{0.45}
+\begin{frame}
+\def\AEcur{4}
+  \hud{04}
+\AEbody{%
+  \slidetitle{// METHOD: BLOCK PERMUTATION}{Как мы считали}
+  \par
+  \begin{tikzpicture}
+    \node[statbox] (a) {{\techfont\scaledfs{24}{26}\selectfont\bfseries\color{cyan}18}\\[1pt]{\scriptsize\color{dim}МЕСЯЦЕВ: 04.2024 - 09.2025}};
+    \node[statbox,right=0.35cm of a] (b) {{\techfont\scaledfs{24}{26}\selectfont\bfseries\color{amber}3}\\[1pt]{\scriptsize\color{dim}ДИАПАЗОНА: 20 м, 40 м, 15 м}};
+    \node[statbox,right=0.35cm of b] (c) {{\techfont\scaledfs{24}{26}\selectfont\bfseries\color{cyan}50000}\\[1pt]{\scriptsize\color{dim}ПЕРЕСТАНОВОК ДАННЫХ}};
+  \end{tikzpicture}\\[0.35cm]
+  \makebox[\textwidth][c]{\panel{%
+    \begin{itemize}
+      \item Перемешивали данные 50\,000 раз, блоками по \textbf{72 часа}
+      \item Если наш сигнал сильнее 50\,000 случайных — это не случайность
+      \item Именно так отличаем настоящую связь от обмана
+    \end{itemize}}}
+}%
+\end{frame}
+
+%% ------------------------------------------------------------------ 5
+\setbg{G:/crosscorr/media/generated/pres-bg-results.png}{0.45}
+\begin{frame}
+\def\AEcur{5}
+  \hud{05}
+\AEbody{%
+  \slidetitle{// RESULT: SIGNAL LOSS}{Главное открытие}
+  \par
+  \begin{tikzpicture}
+    \node[statbox,minimum height=2.1cm,fill opacity=\AEaf,text opacity=\AEat,draw opacity=\AEad](a){{\techfont\scaledfs{30}{32}\selectfont\bfseries\color{amber}-23.9\%}\\[1pt]{\scriptsize\color{dim}20 М}};
+    \node[statbox,minimum height=2.1cm,right=0.35cm of a,fill opacity=\AEbf,text opacity=\AEbt,draw opacity=\AEbd](b){{\techfont\scaledfs{30}{32}\selectfont\bfseries\color{amber}-22.5\%}\\[1pt]{\scriptsize\color{dim}40 М}};
+    \node[statbox,minimum height=2.1cm,right=0.35cm of b,fill opacity=\AEcf,text opacity=\AEct,draw opacity=\AEcd](c){{\techfont\scaledfs{30}{32}\selectfont\bfseries\color{amber}-30.1\%}\\[1pt]{\scriptsize\color{dim}15 М}};
+  \end{tikzpicture}
+  \vspace{0.45cm}
+
+\AElayer{5}{caption}{  {\small\color{dim}Сигналов на каждую активную станцию во время бурь стало меньше. Градиент по широте:}}
+  \vspace{0.25cm}
+
+\AElayer{5}{gradient}{  \begin{tikzpicture}
+    \node[anchor=west,text=dim,font=\scriptsize] at (0,1.05) {СЕВЕР // авроральная};
+    \node[anchor=west,text=dim,font=\scriptsize] at (0,0.30) {ЭКВАТОР};
+    \fill[cyan!75,rounded corners=2pt] (3.0,0.82) rectangle (10.3,1.32);
+    \fill[amber!85,rounded corners=2pt] (3.0,0.07) rectangle (4.30,0.57);
+    \node[anchor=west,font=\techfont\large\bfseries,text=txt] at (10.5,1.07) {-72.7\%};
+    \node[anchor=west,font=\techfont\large\bfseries,text=txt] at (4.5,0.32) {-12.8\%};
+    \node[draw=amber,text=amber,rounded corners=4pt,inner sep=4pt,font=\codefont\small]
+        at (11.6,0.30) {x5.7};
+  \end{tikzpicture}}
+  \vspace{0.2cm}
+
+\AElayer{5}{pvalue}{  {\codefont\scriptsize\color{dim}P-VALUE <= 2e-5 // 50000 ITERATIONS // BLOCK = 72H}}
+}%
+\end{frame}
+
+%% ------------------------------------------------------------------ 6
+\setbg{G:/crosscorr/media/generated/illo-wspr-network.png}{0.62}
+\begin{frame}
+\def\AEcur{6}
+  \hud{06}
+\AEbody{%
+  \slidetitle{// ANOMALY LOG}{Загадка 15 метров}
+  \begin{columns}[T]
+    \begin{column}{0.56\textwidth}
+      \panel{%
+        \begin{itemize}
+          \item Сырые числа «показывали» странность: на 15 м всё
+                будто исчезает сильнее других
+          \item Оказалось: люди просто \textbf{выключали передатчики} —
+                меньше наблюдателей, меньше сигналов
+          \item Исправили: делим сигналы на число активных станций
+        \end{itemize}}
+    \end{column}
+    \begin{column}{0.40\textwidth}
+      \vspace{0.25cm}
+      \begin{tikzpicture}
+        \node[amberbox]{%
+          {\codefont\scriptsize\color{amber}SYSTEM ALERT}\\[5pt]
+          {\techfont\small\bfseries\color{txt}Урок: всегда
+           проверяй данные!}\\[4pt]
+          {\scriptsize\color{dim}сырой сигнал $\neq$ правда}};
+      \end{tikzpicture}
+    \end{column}
+  \end{columns}
+  \illusnote{художественная иллюстрация}
+}%
+\end{frame}
+
+%% ------------------------------------------------------------------ 7
+\setbg{G:/crosscorr/media/generated/illo-storm.png}{0.60}
+\begin{frame}
+\def\AEcur{7}
+  \hud{07}
+\AEbody{%
+  \slidetitle{// NEXT MISSIONS}{Что дальше: CrossCorr 2.0}
+  \begin{columns}[T]
+    \begin{column}{0.47\textwidth}
+      \begin{tikzpicture}
+        \node[panel]{%
+          {\techfont\scaledfs{26}{28}\selectfont\bfseries\color{cyan}01}\\[4pt]
+          {\techfont\small\bfseries\color{txt}Солнце и сезоны бурь}\\[4pt]
+          {\scriptsize\color{dim}Влияет ли положение Солнца
+           на сезоны? Эффект Рассела - Макферрона}};
+      \end{tikzpicture}
+    \end{column}
+    \begin{column}{0.47\textwidth}
+      \begin{tikzpicture}
+        \node[amberbox]{%
+          {\techfont\scaledfs{26}{28}\selectfont\bfseries\color{amber}02}\\[4pt]
+          {\techfont\small\bfseries\color{txt}Планеты и землетрясения}\\[4pt]
+          {\scriptsize\color{dim}Влияют ли Луна, Венера и Юпитер?
+           Кватернионы и строгая математика}};
+      \end{tikzpicture}
+    \end{column}
+  \end{columns}
+  \vspace{0.7cm}
+  \panel{%
+    \small Сначала \textbf{\color{cyan}гипотеза} \color{txt}и правила проверки, потом данные.
+    Планы: \texttt{docs/ROADMAP\_v2.0.md}}
+  \illusnote{художественная иллюстрация}
+}%
+\end{frame}
+
+%% ------------------------------------------------------------------ 8
+\setbg{G:/crosscorr/media/generated/pres-bg-final.png}{0.45}
+\begin{frame}[plain]
+\def\AEcur{8}
+  \hud{08}
+\AEbody{%
+  \vspace{0.70cm}
+  \begin{center}
+    {\codefont\small\color{cyan}// TRANSMISSION END}\\[0.35cm]
+    {\techfont\scaledfs{28}{26}\selectfont\bfseries\color{txt}
+     «Наука — это не поиск\\ совпадений, а проверка гипотез»\\[0.18cm]}
+    {\color{cyan}\rule{4.4cm}{1.0pt}}\hspace{0.3cm}{\color{amber}\rule{1.4cm}{1.6pt}}
+  \end{center}
+  \vfill
+  \begin{center}
+    \includegraphics[width=0.63\textwidth]{figures/logo-horizontal-ru-dark-alpha.png}\\[0.15cm]
+    {\codefont\scriptsize\color{dim}GITHUB.COM/FELIXRLEPERS/CROSSCORR // DOI 10.5281/ZENODO.23285958}\\[0.45cm]
+    {\techfont\large\bfseries\color{amber}Спасибо за внимание!}
+  \end{center}
+  \vspace{0.60cm}
+}%
+\end{frame}
+
+\end{document}
