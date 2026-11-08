@@ -62,7 +62,7 @@
         \hbox to \paperwidth{\hskip1.1cm
           \raisebox{0pt}[0pt][0pt]{\includegraphics[height=0.40cm]{figures/logo-square-ru-dark.png}}%
           \hfil{\color{dim}\codefont\scriptsize SPACE WEATHER // 2026SW005535}%
-          \hfil\vphantom{\color{dim}\codefont\scriptsize\insertframenumber\,/\,\inserttotalframenumber}%
+          \hfil\phantom{\color{dim}\codefont\scriptsize\insertframenumber\,/\,\inserttotalframenumber}%
           \hskip1.1cm}\vskip3mm
       \fi
       \ifx\AEchromesel\AEconair
@@ -116,7 +116,7 @@
             at ([xshift=1.7cm,yshift=-0.42cm]current page.north west) {CROSSCORR v1.6.4};
         \node[anchor=north east,text=dim,font=\codefont\scriptsize]
             at ([xshift=-1.7cm,yshift=-0.42cm]current page.north east)
-            {\textcolor{amber}{\textbullet} ON AIR\ \ \vphantom{{\textcolor{cyan}{#1}/08}}};
+            {\textcolor{amber}{\textbullet} ON AIR\ \ \phantom{{\textcolor{cyan}{#1}/08}}};
       \end{tikzpicture}%
     \fi
     \ifx\AEchromesel\AEconair
