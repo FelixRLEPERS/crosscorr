@@ -1,5 +1,33 @@
 [
   {
+    "slide": 1,
+    "mvp": false,
+    "duration_sec": 7.375,
+    "frames": 177,
+    "fps": 24,
+    "width": 768,
+    "height": 512,
+    "seed": 44,
+    "bg_prompt": "cinematic deep space above Earth's curve at night, ionosphere glowing faint cyan arc along the horizon, slow drifting stars, subtle amber city lights below clouds, dark elegant title-screen atmosphere, slow camera drift, no text",
+    "bg_style": "deep space, title screen, cyan arc",
+    "transition_in": "fade",
+    "negative_prompt": "text, numbers, logos, watermarks, fast motion, flicker, jitter, deformed, distorted, disfigured, motion smear, motion artifacts, ugly"
+  },
+  {
+    "slide": 2,
+    "mvp": false,
+    "duration_sec": 7.375,
+    "frames": 177,
+    "fps": 24,
+    "width": 768,
+    "height": 512,
+    "seed": 45,
+    "bg_prompt": "dark navy backdrop with soft cyan light sweep and gently floating luminous particles, warm amber accent glow at lower edge, calm documentary mood, slow motion, no text",
+    "bg_style": "navy, cyan sweep, particles",
+    "transition_in": "fade",
+    "negative_prompt": "text, numbers, logos, watermarks, fast motion, flicker, jitter, deformed, distorted, disfigured, motion smear, motion artifacts, ugly"
+  },
+  {
     "slide": 3,
     "mvp": true,
     "duration_sec": 6.7,
@@ -10,6 +38,20 @@
     "seed": 42,
     "bg_prompt": "aurora-like cyan waves over Earth horizon, slow shimmering, atmospheric glow, cinematic, 4k, no text, no logos, seamless loop",
     "bg_style": "ionosphere, cyan glow, slow waves",
+    "transition_in": "fade",
+    "negative_prompt": "text, numbers, logos, watermarks, fast motion, flicker, jitter, deformed, distorted, disfigured, motion smear, motion artifacts, ugly"
+  },
+  {
+    "slide": 4,
+    "mvp": false,
+    "duration_sec": 7.375,
+    "frames": 177,
+    "fps": 24,
+    "width": 768,
+    "height": 512,
+    "seed": 46,
+    "bg_prompt": "abstract dark data visualization background, faint cyan grid lines and translucent flowing curves drifting slowly, sparse amber data nodes pulsing softly, deep space blue, slow motion, no text, no numbers",
+    "bg_style": "data grid, cyan/amber, abstract",
     "transition_in": "fade",
     "negative_prompt": "text, numbers, logos, watermarks, fast motion, flicker, jitter, deformed, distorted, disfigured, motion smear, motion artifacts, ugly"
   },
@@ -25,6 +67,48 @@
     "bg_prompt": "dramatic dark background with slow cyan pulse, faint amber glow at edges, cinematic, 4k, no text, no charts, slow motion",
     "bg_style": "dramatic, dark, cyan/amber",
     "transition_in": "wipe",
+    "negative_prompt": "text, numbers, logos, watermarks, fast motion, flicker, jitter, deformed, distorted, disfigured, motion smear, motion artifacts, ugly"
+  },
+  {
+    "slide": 6,
+    "mvp": false,
+    "duration_sec": 7.375,
+    "frames": 177,
+    "fps": 24,
+    "width": 768,
+    "height": 512,
+    "seed": 47,
+    "bg_prompt": "dark globe seen from space with glowing cyan radio-network arcs connecting distant stations, slow pulsing light traveling along the arcs, faint amber city glows, cinematic slow rotation, no text",
+    "bg_style": "globe, radio network arcs, WSPR mood",
+    "transition_in": "fade",
+    "negative_prompt": "text, numbers, logos, watermarks, fast motion, flicker, jitter, deformed, distorted, disfigured, motion smear, motion artifacts, ugly"
+  },
+  {
+    "slide": 7,
+    "mvp": false,
+    "duration_sec": 7.375,
+    "frames": 177,
+    "fps": 24,
+    "width": 768,
+    "height": 512,
+    "seed": 48,
+    "bg_prompt": "dramatic view of the Sun's corona with slow coronal mass ejection, plasma streams in cyan and amber, dark space background, cinematic, slow motion, no text, no planets",
+    "bg_style": "sun corona, CME, cyan/amber plasma",
+    "transition_in": "fade",
+    "negative_prompt": "text, numbers, logos, watermarks, fast motion, flicker, jitter, deformed, distorted, disfigured, motion smear, motion artifacts, ugly"
+  },
+  {
+    "slide": 8,
+    "mvp": false,
+    "duration_sec": 7.375,
+    "frames": 177,
+    "fps": 24,
+    "width": 768,
+    "height": 512,
+    "seed": 49,
+    "bg_prompt": "calm cosmic outro, deep dark space with slow cyan shimmer and a faint amber horizon glow, gentle drifting stardust, contemplative cinematic ending, very slow motion, no text",
+    "bg_style": "cosmic outro, cyan shimmer, amber horizon",
+    "transition_in": "fade",
     "negative_prompt": "text, numbers, logos, watermarks, fast motion, flicker, jitter, deformed, distorted, disfigured, motion smear, motion artifacts, ugly"
   }
 ]

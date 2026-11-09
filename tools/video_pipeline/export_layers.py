@@ -19,6 +19,7 @@ import os
 import re
 import shutil
 import subprocess
+import sys
 
 from PIL import Image
 
@@ -103,6 +104,36 @@ def save_png(img, rel):
     os.makedirs(os.path.dirname(p), exist_ok=True)
     img.save(p)
     return p
+
+
+# ===== режим --content: цельный контент-оверлей слайда (FULL, вариант A) =====
+# Страница N рендерится в режиме L (\AEonly): chrome (hud/footline) гасится
+# vphantom'ом, \setbg пуст -> прозрачный PNG со всем контентом слайда.
+#   * слайды 2/4/6/7: id="title" -> узел \slidetitle (единственный \AElayer
+#     на странице) совпадает и рендерится, остальной контент не обёрнут
+#     в \AElayer и рендерится в режиме L безусловно;
+#   * обложки 1/8 (plain): \AElayer-узлов нет вовсе -> любой id, берём
+#     "content" (не совпадает ни с чем, ничего не гаснет).
+if "--content" in sys.argv:
+    TITLE_SLIDES = {2, 4, 6, 7}
+    arg = sys.argv[sys.argv.index("--content") + 1]
+    rc = 0
+    for n in [int(x) for x in arg.split(",")]:
+        layer_id = "title" if n in TITLE_SLIDES else "content"
+        rel = "slide-%d/block-01-content.png" % n
+        p = render("\\AEonly{%d}{%s}" % (n, layer_id), "x_content%02d" % n, n)
+        if not p:
+            print("  FAIL slide-%d" % n)
+            rc = 1
+            continue
+        dest = os.path.join(ROOT, rel)
+        os.makedirs(os.path.dirname(dest), exist_ok=True)
+        shutil.move(p, dest)
+        print(
+            "  slide-%d -> %s alpha=" % (n, rel),
+            alpha_stats(dest),
+        )
+    sys.exit(rc)
 
 
 # ===== 1) chrome renders ====================================================
