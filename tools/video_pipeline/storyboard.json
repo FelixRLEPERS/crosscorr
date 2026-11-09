@@ -1,0 +1,30 @@
+[
+  {
+    "slide": 3,
+    "mvp": true,
+    "duration_sec": 6.7,
+    "frames": 161,
+    "fps": 24,
+    "width": 768,
+    "height": 512,
+    "seed": 42,
+    "bg_prompt": "aurora-like cyan waves over Earth horizon, slow shimmering, atmospheric glow, cinematic, 4k, no text, no logos, seamless loop",
+    "bg_style": "ionosphere, cyan glow, slow waves",
+    "transition_in": "fade",
+    "negative_prompt": "text, numbers, logos, watermarks, fast motion, flicker, jitter, deformed, distorted, disfigured, motion smear, motion artifacts, ugly"
+  },
+  {
+    "slide": 5,
+    "mvp": true,
+    "duration_sec": 8.04,
+    "frames": 193,
+    "fps": 24,
+    "width": 768,
+    "height": 512,
+    "seed": 43,
+    "bg_prompt": "dramatic dark background with slow cyan pulse, faint amber glow at edges, cinematic, 4k, no text, no charts, slow motion",
+    "bg_style": "dramatic, dark, cyan/amber",
+    "transition_in": "wipe",
+    "negative_prompt": "text, numbers, logos, watermarks, fast motion, flicker, jitter, deformed, distorted, disfigured, motion smear, motion artifacts, ugly"
+  }
+]
