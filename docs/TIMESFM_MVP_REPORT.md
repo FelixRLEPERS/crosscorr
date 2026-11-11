@@ -2,7 +2,7 @@
 
 **Date:** 2026-11-11
 **Branch:** `experimental/timesfm-test`
-**Status:** Phase 2 (MVP, 20m) + Phase 3a (3-band extended forecast) complete — actual metrics from run outputs; framing revised after review (see "Revision note")
+**Status:** Phase 2 (MVP, 20m) + Phase 3a (3-band) + Phase 4 (frozen Jan–Mar 2026 confirmation) complete — forecasting confirmed at 1h (frozen skill_1h 20m = 0.435, pre-registered band met); 6–24h margins do not hold on frozen
 
 ---
 
@@ -27,6 +27,7 @@ Two experiments tested whether Google's TimesFM (a foundation model for time ser
 |---|---|---|---|
 | **A (baseline)** | How well does TimesFM forecast "normal" patterns? | MAE 8.03 / 12.83 / 13.32 (1/6/24h) vs seasonal-naive 15.13 / 15.08 / 15.06 | **Positive (narrow):** beats both naive baselines at every horizon, but the margin is modest beyond 1h |
 | **Phase 3a (3-band)** | Does it hold across 20m/40m/15m? | skill_1h: 15m 0.603, 20m 0.572, 40m 0.505 — beats naive on all 3 bands | **Positive (narrow):** confirmed cross-band; ordering reflects physical predictability (15m easiest, 40m hardest) |
+| **Phase 4 (frozen)** | Does it generalize to untouched Jan–Mar 2026? | skill_1h 20m **0.435** ∈ [0.34, 0.54]; 6–24h ≈0 (15m negative at 12/24h) | **Confirmed at 1h** (pre-registered band met); 6–24h margins **do not** generalize |
 | **B (storm-aware)** | Can TimesFM detect storms WITHOUT Kp in its input? | precision 0.026, recall 0.357, F1 0.048; **97% of alerts are false** | **Negative:** not usable for operational detection at any tested threshold |
 
 ### Pre-registered interpretation thresholds (and why they are insufficient alone)
@@ -152,6 +153,69 @@ not a bug or artifact.
   confirmed independently (MAE/pooled).
 - Does **not** establish "foundation models solve HF forecasting" — only "beats naive
   baselines on 1–6h WSPR density across 3 bands."
+
+---
+
+## Phase 4 — Frozen Confirmation (Jan–Mar 2026)
+
+**One pre-registered run, no new experiments.** Same code path as Phase 3a
+(`scripts/timesfm_forecast_phase3.py --frozen`), same 3 bands × 4 horizons, same
+baselines, same metrics. Frozen window: **2026-01-01 → 2026-04-01**; actual frozen data
+ends **2026-01-19** (456 h available → 433 forecast origins after dropping the 24h tail).
+Frozen Jan–Mar 2026 was untouched by Phase 2/3a.
+
+**Pre-registered confirmation threshold:** frozen skill_1h 20m ∈ [0.34, 0.54]
+(±0.10 around the Phase-2 MVP value 0.44) → confirmation; < 0.34 → record
+"generalizes partially" and stop.
+
+### Results (433 forecasts × 3 bands)
+
+skill = 1 − MAE_model / MAE_seasonal-naive; **Phase 3a value in parentheses:**
+
+| Band | skill 1h | skill 6h | skill 12h | skill 24h |
+|---|---|---|---|---|
+| 20m | **+0.435** (0.572) | +0.012 (0.207) | +0.017 (0.145) | +0.056 (0.093) |
+| 40m | +0.469 (0.505) | +0.174 (0.186) | +0.190 (0.131) | +0.221 (0.099) |
+| 15m | +0.388 (0.603) | +0.015 (0.226) | −0.032 (0.140) | −0.098 (0.116) |
+
+### Verdict against the pre-registered threshold
+
+- **CONFIRMED at 1h:** frozen skill_1h 20m = **0.435**, inside [0.34, 0.54].
+  All 3 bands are positive at 1h (0.39–0.47) on held-out data.
+- **6–24h does NOT hold:** 20m skill at 6/12h collapses to ≈0 (0.012/0.017),
+  15m turns **negative** at 12h/24h (−0.032/−0.098 — worse than seasonal-naive).
+  Only 40m retains a modest positive margin at every horizon (0.17–0.22).
+- **Difficulty ordering preserved:** MAE/pooled at 1h gives **15m < 20m < 40m**,
+  identical to Phase 3a — the physical ordering (15m/MUF easiest, 40m/D-layer
+  hardest) survives held-out data.
+- **Skill-magnitude ordering flipped** (frozen 1h: 40m > 20m > 15m vs 3a:
+  15m > 20m > 40m) — consistent with the Phase 3a caveat: cross-band skill
+  *magnitude* depends on the band's own (shifting) baseline and is not a stable
+  cross-band quantity. The frozen window was far more volatile (std: 40m 81.4 vs
+  33.4 in 3a; 20m 46.7 vs 35.6), so denominators moved per band.
+- **24h identity holds** (persistence == seasonal-naive on all 3 bands, bit-exact).
+
+### Caveats (frozen-specific)
+
+- The frozen window is **harder than 2025**: higher volatility on every band
+  (40m std 2.4× Phase 3a) — confirmation was earned on a more active period, not an easy one.
+- **Context gap:** Oct–Dec 2025 has no data in `unified.parquet`, so every frozen
+  origin's 512h context crosses a 3-month gap (last pre-gap row: 2025-09-30 23:00).
+  This affects all bands/horizons equally and does not favor the model.
+- n = 433 origins per band — small; 1h margins are stable across bands, long-horizon
+  margins are not.
+
+### Honest assessment (Phase 4)
+
+- **The headline claim survives held-out confirmation:** TimesFM beats
+  persistence and seasonal-naive at **1h** on frozen Jan–Mar 2026 (skill 0.39–0.47,
+  20m 0.435 within the pre-registered band).
+- **The 6–24h claim does not:** what Phase 3a showed as modest positive margins
+  (0.09–0.23) is ≈0 or negative on frozen for 20m/15m. Final framing must say
+  "**beats naive baselines at 1h; no usable margin at 6–24h**" (40m a partial exception).
+- Quantile/interval forecasts: **not run** (deferred as a separate task).
+- This closes the forecasting branch: positive at 1h (narrow, confirmed), no
+  longer-horizon generalization. Not a claim that foundation models solve HF forecasting.
 
 ---
 
@@ -285,24 +349,32 @@ B fails as a detector (97% FP at every tested threshold).
   `results/timesfm_mvp_20m_expB_records.csv`
 - **Visualization:** `results/timesfm_mvp_20m_visualization.png`
 - **Phase 3a script:** `scripts/timesfm_forecast_phase3.py`
-- **Phase 3a results:** `results/timesfm_phase3_forecast.json` (3 bands),
-  `results/timesfm_phase3_{20m,40m,15m}_records.csv`
+- **Phase 3a results:** `results/timesfm_phase3_forecast.json` (3 bands)
+- **Phase 3a raw records:** `results/timesfm_phase3_{20m,40m,15m}_records.csv` —
+  raw records on disk, not committed (2.5MB each, intermediate artifact)
 - **Phase 3a visualization:** `results/timesfm_phase3_visualization.png`
+- **Phase 4 (frozen) results:** `results/timesfm_phase4_frozen.json`
+- **Phase 4 raw records:** `results/timesfm_phase4_frozen_{20m,40m,15m}_records.csv` —
+  raw records on disk, not committed (intermediate artifact, same as Phase 3a)
+- **Phase 4 visualization:** `results/timesfm_phase4_frozen_visualization.png`
 - **Venv:** `.venv-timesfm/` (Python 3.11, timesfm 3.0.2, torch CPU)
 
 ---
 
 ## Publication Framing (two stories, not one)
 
-**Forecasting — positive, narrow, worth writing up:**
+**Forecasting — positive at 1h, confirmed on frozen; no margin beyond:**
 > *"Foundation models for HF propagation forecasting: TimesFM beats persistence and
-> seasonal-naive baselines on 1–6h horizons for WSPR spot density, confirmed across
-> 20m/40m/15m."*
-- Useful for HamSCI operations (short-horizon baseline prediction).
-- Honest scope: large margin at 1h (skill 0.51–0.60 across bands), modest at 6h/24h (0.09–0.23).
-- Cross-band: ordering is physical (15m/MUF easiest, 40m/D-layer hardest); skill *magnitude*
-  is not cross-band comparable (different baselines), but MAE/pooled independently confirms
-  the ordering.
+> seasonal-naive baselines at 1h for WSPR spot density (skill 0.39–0.47 across
+> 20m/40m/15m), confirmed on frozen Jan–Mar 2026."*
+- Useful for HamSCI operations (one-hour-ahead baseline prediction).
+- Honest scope: **1h confirmed** (frozen 20m skill 0.435, within pre-registered
+  [0.34, 0.54]); **6–24h does not hold** on frozen (≈0 for 20m/15m, negative 15m at
+  12–24h; only 40m keeps 0.17–0.22).
+- Cross-band: difficulty ordering is physical and survives held-out (15m/MUF easiest,
+  40m/D-layer hardest by MAE/pooled); skill *magnitude* is not cross-band comparable
+  (band-specific, shifting baselines — frozen ordering even flipped while MAE/pooled
+  ordering held).
 - Does **not** claim storm detection or causal insight.
 
 **Detection — negative, publishable as a bounded negative result:**
@@ -311,27 +383,32 @@ B fails as a detector (97% FP at every tested threshold).
 - The value is the boundary: it tells the community where foundation models stop helping.
 
 **This MVP does NOT support** the claim "foundation models are useful for the ionosphere"
-in general. It supports the narrow claim: **for 1–6h forecasting, TimesFM beats naive
-baselines across 3 bands.** For CrossCorr 2.0, TimesFM is a *forecasting supplement* to
-block permutation, never a replacement for Kp-based detection.
+in general. It supports the narrow claim: **for 1h forecasting, TimesFM beats naive
+baselines across 3 bands on held-out data; at 6–24h it does not.** For CrossCorr 2.0,
+TimesFM is a *1h forecasting supplement* to block permutation, never a replacement for
+Kp-based detection.
 
 ---
 
-## What's Next (Phase 4)
+## What's Next (branch closed)
 
-**Forecasting — Phase 3a complete; remaining:**
-1. ✅ Seasonal-naive baseline everywhere (done — Phase 3a uses persistence + seasonal-naive + mean-24h).
-2. ✅ Extended pseudo-test — all available 2025 data (Jan–Sep, 6,552 h; Oct–Dec 2025 has no data).
-3. ✅ All 3 bands: 20m, 40m, 15m (done).
-4. **Frozen Jan – Mar 2026 — confirmation only**, untouched until Phase 4.
-5. Keep the framing: "TimesFM beats naive baselines on 1–6h HF forecasting across 3 bands."
-6. Optional: quantile forecast (TimesFM returns intervals) for operator-facing
-   "expect a drop of X±Y with P%" — adds value without needing better MAE.
+**Forecasting — all phases complete:**
+1. ✅ Seasonal-naive baseline everywhere (Phase 2 onward).
+2. ✅ Extended pseudo-test, all available 2025 data (Jan–Sep, 6,552 h).
+3. ✅ All 3 bands: 20m, 40m, 15m (Phase 3a).
+4. ✅ **Frozen Jan–Mar 2026 confirmation (Phase 4):** pre-registered 1h threshold met;
+   6–24h margins recorded as not generalizing.
+5. ✅ Final framing: "beats naive baselines at 1h; no usable 6–24h margin."
+6. Quantile / interval forecasts — **deferred**, separate task (1–2 days of tuning +
+   calibration), not a blocker for CrossCorr 2.0.
 
-**Detection — stop (confirmed negative):**
+**Detection — closed (confirmed negative):**
 - The 2σ→5σ sweep confirms no usable operating point (see table). No further threshold search.
 - **Do not** fine-tune TimesFM on storms — leaves the pre-registered frame, turns discovery into fitting.
-- Document as a bounded negative result.
+- Documented as a bounded negative result.
+
+**No further TimesFM experiments planned on this branch** — the exploration question
+("does a foundation model help?") is answered: **at 1h, yes, confirmed; beyond 1h, no.**
 
 ---
 
@@ -339,12 +416,14 @@ block permutation, never a replacement for Kp-based detection.
 
 **What we learned:**
 - TimesFM zero-shot forecasts 20m spot density **better than both naive baselines** at
-  1/6/24h: MAE 8.03/12.83/13.32 vs seasonal-naive 15.13/15.08/15.06. Margin is large only
-  at 1h (−47%); modest at 6h/24h (−15%/−12%).
-- **Phase 3a confirms it across 3 bands** (6,552 h each): skill_1h 0.505–0.603, beats naive
-  at every horizon. The cross-band ordering (15m easiest → 40m hardest) is **physical**
-  (MUF single-mechanism vs D-layer multi-mechanism), confirmed by two independent metrics,
-  not a normalization artifact.
+  1/6/24h on the 2025 pseudo-test: MAE 8.03/12.83/13.32 vs seasonal-naive 15.13/15.08/15.06.
+- **Phase 3a confirms it across 3 bands** (6,552 h each): skill_1h 0.505–0.603. The
+  cross-band difficulty ordering (15m easiest → 40m hardest) is **physical** (MUF
+  single-mechanism vs D-layer multi-mechanism), confirmed by two independent metrics.
+- **Phase 4 confirms the 1h claim on frozen Jan–Mar 2026** (pre-registered threshold met:
+  20m skill_1h 0.435 ∈ [0.34, 0.54]) — and **refutes the 6–24h extension**: margins that
+  were 0.09–0.23 in Phase 3a collapse to ≈0 (20m/15m), negative for 15m at 12–24h; only
+  40m holds (0.17–0.22). Difficulty ordering by MAE/pooled survived unchanged.
 - Storm detection from context-excluded residuals **fails operationally**: precision 0.026
   (97% FP) at 2σ; the post-hoc sweep never exceeds 6.7% precision while recall collapses.
   The model has a ~2× lift over base rate — a real but useless storm-correlated signal.
@@ -353,15 +432,16 @@ block permutation, never a replacement for Kp-based detection.
   pre-registering detector metrics (register precision, or F1, not recall alone).
 
 **What we didn't test:**
-- Frozen held-out (Jan–Mar 2026) — reserved for Phase 4
 - Fine-tuning / adaptation to geophysics — zero-shot only (and deliberately so for detection)
-- Quantile / interval forecasts — proposed for Phase 4 (operator-facing value)
+- Quantile / interval forecasts — deferred as a separate task
+- Context across the Oct–Dec 2025 data gap (frozen contexts unavoidably span it)
 
 **Limitations:**
 - Pseudo-test is only 3 months (2,160 hours, 28 storm hours) → recall CI is wide
   (10/28 detected; ±1 storm hour moves recall by ~0.036).
 - Pseudo-test lies inside the train window (walk-forward by timestamp, same year) —
-  possible temporal leakage; the frozen 2026 window is the real check.
+  possible temporal leakage; the frozen 2026 window was the real check — Phase 4
+  confirmed the 1h margin but not 6–24h (see Phase 4).
 - TimesFM pretrained on generic time series, not geophysics; CPU-only inference limited
   us to a single config (context 512h, batch 8).
 - Experiment B's "no storms in train" is context exclusion, not retraining — an inherent
@@ -385,10 +465,11 @@ block permutation, never a replacement for Kp-based detection.
 - ✅ Branch: `experimental/timesfm-test` (isolated)
 - ✅ No synthetic data (real WSPR data only)
 - ✅ No math MCP for main statistics (computed in the run scripts, reported verbatim from JSON)
-- ✅ Frozen Jan–Mar 2026 window untouched
+- ✅ Frozen Jan–Mar 2026 window used **only once**, for the pre-registered Phase 4
+  confirmation run — never for tuning or exploration
 
 ---
 
 **Prepared by:** MiMo (OpenCode agent)
-**Reviewed by:** [independent review incorporated 2026-11-11; Phase 3a cross-band review same day]
-**Status:** Forecasting → Phase 3a complete (3 bands, positive narrow); next Phase 4 frozen confirmation + optional quantile. Detection → closed as negative result.
+**Reviewed by:** [independent review incorporated 2026-11-11; Phase 3a cross-band review same day; Phase 4 run per user's pre-registered protocol]
+**Status:** Forecasting → **branch closed**: 1h confirmed on frozen (skill_1h 20m 0.435, band met), 6–24h margins do not generalize; quantile deferred. Detection → closed as negative result.

@@ -11,6 +11,9 @@ Three baselines on identical origins/actuals:
 Metrics per horizon (1/6/12/24h): MAE, RMSE, plus skill score
   skill = 1 - MAE_model / MAE_baseline   (vs seasonal-naive and vs persistence)
 
+Phase 4 (frozen confirmation, same code path, one run, no new experiments):
+  .venv-timesfm\\Scripts\\python.exe scripts\\timesfm_forecast_phase3.py --frozen
+
 Usage:
   .venv-timesfm\\Scripts\\python.exe scripts\\timesfm_forecast_phase3.py
   .venv-timesfm\\Scripts\\python.exe scripts\\timesfm_forecast_phase3.py --bands 20m
@@ -62,7 +65,24 @@ parser.add_argument(
     action="store_true",
     help="Skip model inference; recompute metrics from existing per-band records CSVs",
 )
+parser.add_argument(
+    "--frozen",
+    action="store_true",
+    help=(
+        "Phase 4: frozen Jan-Mar 2026 confirmation run. Overrides the pseudo-test "
+        "window and output names (results/timesfm_phase4_frozen.json)."
+    ),
+)
 args = parser.parse_args()
+
+# Phase 4: frozen held-out window (Jan-Mar 2026; actual data ends mid-Jan 2026)
+records_prefix = "timesfm_phase3"
+out_name = "timesfm_phase3_forecast.json"
+if args.frozen:
+    args.pseudo_start = "2026-01-01"
+    args.pseudo_end = "2026-04-01"
+    records_prefix = "timesfm_phase4_frozen"
+    out_name = "timesfm_phase4_frozen.json"
 
 horizons = sorted(set(args.horizons))
 max_h = max(horizons)
@@ -228,7 +248,7 @@ def run_band(band: str) -> dict:
     metrics = compute_metrics(rec_df)
 
     # Save per-hour records for visualization
-    rec_path = ROOT / "results" / f"timesfm_phase3_{band}_records.csv"
+    rec_path = ROOT / "results" / f"{records_prefix}_{band}_records.csv"
     rec_df.to_csv(rec_path, index=False, encoding="utf-8")
     print(f"  [{band}] Records -> {rec_path}")
 
@@ -247,7 +267,7 @@ def run_band(band: str) -> dict:
 
 def from_records_band(band: str) -> dict:
     """Recompute metrics for one band from its existing records CSV (no model)."""
-    rec_path = ROOT / "results" / f"timesfm_phase3_{band}_records.csv"
+    rec_path = ROOT / "results" / f"{records_prefix}_{band}_records.csv"
     if not rec_path.exists():
         raise FileNotFoundError(f"{band}: {rec_path} not found; run inference first")
     rec_df = pd.read_csv(rec_path)
@@ -277,15 +297,16 @@ for band in args.bands:
 # ============================================================
 # 4. Save
 # ============================================================
-out_path = ROOT / "results" / "timesfm_phase3_forecast.json"
+out_path = ROOT / "results" / out_name
 with open(out_path, "w", encoding="utf-8") as f:
     json.dump(results, f, indent=2, ensure_ascii=False)
     f.write("\n")
 print(f"\n[save] Saved {out_path}")
 
 # Summary table
+label = "PHASE 4 FROZEN CONFIRMATION" if args.frozen else "PHASE 3a SUMMARY"
 print("\n" + "=" * 70)
-print("PHASE 3a SUMMARY (skill = 1 - MAE_model / MAE_seasonal_naive)")
+print(f"{label} (skill = 1 - MAE_model / MAE_seasonal_naive)")
 print("=" * 70)
 for band in args.bands:
     b = results["bands"][band]

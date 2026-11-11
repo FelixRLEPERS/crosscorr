@@ -1,0 +1,217 @@
+{
+  "config": {
+    "bands": [
+      "20m",
+      "40m",
+      "15m"
+    ],
+    "pseudo_start": "2026-01-01",
+    "pseudo_end": "2026-04-01",
+    "context_window": 512,
+    "horizons": [
+      1,
+      6,
+      12,
+      24
+    ],
+    "from_records": false,
+    "frozen": true
+  },
+  "bands": {
+    "20m": {
+      "band": "20m",
+      "n_total": 13608,
+      "n_pseudo": 456,
+      "n_forecasts": 433,
+      "pseudo_start": "2026-01-01",
+      "pseudo_end": "2026-04-01",
+      "context_window": 512,
+      "horizons": [
+        1,
+        6,
+        12,
+        24
+      ],
+      "metrics": {
+        "horizon_1h": {
+          "mae": 9.662111221784508,
+          "rmse": 13.161274679894177,
+          "n_samples": 433,
+          "baseline_mae": {
+            "persistence": 14.955051500692315,
+            "seasonal_naive": 17.10431602960969,
+            "mean24": 38.78824021093441
+          },
+          "skill_vs_seasonal_naive": 0.43510683472766776,
+          "skill_vs_persistence": 0.3539232398272103
+        },
+        "horizon_6h": {
+          "mae": 16.598435898107304,
+          "rmse": 21.393041761415414,
+          "n_samples": 433,
+          "baseline_mae": {
+            "persistence": 56.83744895058889,
+            "seasonal_naive": 16.804668874906312,
+            "mean24": 39.20671816681702
+          },
+          "skill_vs_seasonal_naive": 0.01227236182600222,
+          "skill_vs_persistence": 0.707966557180689
+        },
+        "horizon_12h": {
+          "mae": 16.24925572426504,
+          "rmse": 20.695901076190232,
+          "n_samples": 433,
+          "baseline_mae": {
+            "persistence": 72.09468359373844,
+            "seasonal_naive": 16.53787552366714,
+            "mean24": 39.55047698582918
+          },
+          "skill_vs_seasonal_naive": 0.01745204811761092,
+          "skill_vs_persistence": 0.7746122888085423
+        },
+        "horizon_24h": {
+          "mae": 15.628613824503537,
+          "rmse": 20.318242760102308,
+          "n_samples": 433,
+          "baseline_mae": {
+            "persistence": 16.55666569825841,
+            "seasonal_naive": 16.55666569825841,
+            "mean24": 38.656256022382784
+          },
+          "skill_vs_seasonal_naive": 0.05605306591728154,
+          "skill_vs_persistence": 0.05605306591728154
+        }
+      }
+    },
+    "40m": {
+      "band": "40m",
+      "n_total": 13608,
+      "n_pseudo": 456,
+      "n_forecasts": 433,
+      "pseudo_start": "2026-01-01",
+      "pseudo_end": "2026-04-01",
+      "context_window": 512,
+      "horizons": [
+        1,
+        6,
+        12,
+        24
+      ],
+      "metrics": {
+        "horizon_1h": {
+          "mae": 15.285211771796815,
+          "rmse": 70.55679535097602,
+          "n_samples": 433,
+          "baseline_mae": {
+            "persistence": 22.343298437378586,
+            "seasonal_naive": 28.794459598263753,
+            "mean24": 37.857831248197776
+          },
+          "skill_vs_seasonal_naive": 0.4691613600305775,
+          "skill_vs_persistence": 0.3158927803503777
+        },
+        "horizon_6h": {
+          "mae": 23.802331521195043,
+          "rmse": 78.80540703948294,
+          "n_samples": 433,
+          "baseline_mae": {
+            "persistence": 52.522343397958664,
+            "seasonal_naive": 28.820561383326957,
+            "mean24": 38.41016461433167
+          },
+          "skill_vs_seasonal_naive": 0.17411978189415211,
+          "skill_vs_persistence": 0.5468151270242039
+        },
+        "horizon_12h": {
+          "mae": 22.792775841089604,
+          "rmse": 78.61358239004362,
+          "n_samples": 433,
+          "baseline_mae": {
+            "persistence": 60.09313090887787,
+            "seasonal_naive": 28.153516966981698,
+            "mean24": 37.83527013815088
+          },
+          "skill_vs_seasonal_naive": 0.19041106417287557,
+          "skill_vs_persistence": 0.6207091310377655
+        },
+        "horizon_24h": {
+          "mae": 21.955598893696052,
+          "rmse": 77.99118969672239,
+          "n_samples": 433,
+          "baseline_mae": {
+            "persistence": 28.19246521219112,
+            "seasonal_naive": 28.19246521219112,
+            "mean24": 38.91551268781596
+          },
+          "skill_vs_seasonal_naive": 0.22122458151684066,
+          "skill_vs_persistence": 0.22122458151684066
+        }
+      }
+    },
+    "15m": {
+      "band": "15m",
+      "n_total": 13608,
+      "n_pseudo": 456,
+      "n_forecasts": 433,
+      "pseudo_start": "2026-01-01",
+      "pseudo_end": "2026-04-01",
+      "context_window": 512,
+      "horizons": [
+        1,
+        6,
+        12,
+        24
+      ],
+      "metrics": {
+        "horizon_1h": {
+          "mae": 4.989034292115781,
+          "rmse": 6.963857357960962,
+          "n_samples": 433,
+          "baseline_mae": {
+            "persistence": 8.46415344999372,
+            "seasonal_naive": 8.156318808385606,
+            "mean24": 28.9552745637311
+          },
+          "skill_vs_seasonal_naive": 0.3883227949615583,
+          "skill_vs_persistence": 0.4105690165483139
+        },
+        "horizon_6h": {
+          "mae": 7.916506645552591,
+          "rmse": 10.827153797873715,
+          "n_samples": 433,
+          "baseline_mae": {
+            "persistence": 39.771887533431574,
+            "seasonal_naive": 8.03712595604369,
+            "mean24": 29.127887282225043
+          },
+          "skill_vs_seasonal_naive": 0.015007766600994565,
+          "skill_vs_persistence": 0.8009522017556218
+        },
+        "horizon_12h": {
+          "mae": 8.224815085237593,
+          "rmse": 11.250105421941917,
+          "n_samples": 433,
+          "baseline_mae": {
+            "persistence": 56.40100619831268,
+            "seasonal_naive": 7.97311772114231,
+            "mean24": 29.13212775865588
+          },
+          "skill_vs_seasonal_naive": -0.03156824882039011,
+          "skill_vs_persistence": 0.8541725469166603
+        },
+        "horizon_24h": {
+          "mae": 8.490684123007767,
+          "rmse": 11.914187514831793,
+          "n_samples": 433,
+          "baseline_mae": {
+            "persistence": 7.735683839744428,
+            "seasonal_naive": 7.735683839744428,
+            "mean24": 28.499991297730038
+          },
+          "skill_vs_seasonal_naive": -0.09759968205839753,
+          "skill_vs_persistence": -0.09759968205839753
+        }
+      }
+    }
+  }
+}
