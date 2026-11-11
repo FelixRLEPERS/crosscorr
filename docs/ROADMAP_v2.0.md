@@ -182,7 +182,15 @@ results are seen. Without (d), (a)-(c) can be met retroactively.
 - Do NOT touch main, tags, or Zenodo until a new submission round begins.
 - Do NOT claim "confirmed" without out-of-sample replication.
 
-## 8. Next Steps (after Paper 1 submission)
+## 8. Completed explorations (negative & narrow-positive results)
+
+- **TimesFM 1h forecasting (branch: experimental/timesfm-test, commit 4fd096a).**
+  Foundation model (Google TimesFM 3.0.2) vs persistence/seasonal-naive on WSPR spot density.
+  Result: **1h forecasting confirmed** (skill 0.39-0.47 across 20m/40m/15m, frozen Jan-Mar 2026 20m=0.435, pre-registered band met). **6-24h does NOT generalize** (frozen: 20m/15m ≈0 or negative). Detection: bounded negative (97% FP across 2σ-5σ).
+  Use: optional 1h-forecasting tool for future HamSCI operational integration, NOT replacement for block permutation (detection vs forecasting — different questions).
+  Quantile forecasting: deferred to separate HamSCI note.
+
+## 9. Next Steps (after Paper 1 submission)
 
 1. Update this file with actual pre-registration dates and thresholds.
 2. Create branch paper-2a/russell-mcpherron from experimental/astro-seismology.
