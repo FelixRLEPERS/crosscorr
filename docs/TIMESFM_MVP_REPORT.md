@@ -51,12 +51,20 @@ Recall = 0.357 formally lands in the "partial" band, **but these thresholds boun
 |---|---|---|---|---|
 | 1h | **8.03** | 14.81 | 15.13 | **−47%** |
 | 6h | **12.83** | 51.82 ⚠️ | 15.08 | **−15%** |
-| 24h | **13.32** | 15.06 | 15.06 | **−12%** |
+| 24h | **13.32** | 15.06 † | 15.06 † | **−12%** |
 
 *Baselines computed on identical origins and actuals (`results/timesfm_mvp_20m_baselines.json`).
 Persistence = hold the last observed value. Seasonal-naive = value from the same hour of
 the previous day. ⚠️ = persistence at 6h is inflated by the diurnal phase mismatch and is
 **not a fair comparison** — read the seasonal-naive column.*
+
+*† = the two baselines are **identical by construction at 24h**, hence the bit-identical
+15.06. Both are anchored at the prediction origin g, not at the target time g+h−1:
+persistence uses `values[g−1]`, seasonal-naive uses `values[g−(25−h)]`. At h=24 that lag
+is `25−24 = 1`, so seasonal-naive collapses to `values[g−1]` = persistence. At 1h and 6h
+the lags differ (g−24 and g−19 vs g−1), so the two baselines genuinely differ there. This
+is an arithmetic identity, not a data duplication bug; it does not affect any conclusion
+(TimesFM 13.32 beats the single shared baseline either way).*
 
 **Interpretation:**
 - **1h (−47%):** the real, useful result. TimesFM clearly beats both naive baselines on
