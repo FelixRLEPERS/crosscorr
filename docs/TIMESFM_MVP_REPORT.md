@@ -2,31 +2,39 @@
 
 **Date:** 2026-11-11
 **Branch:** `experimental/timesfm-test`
-**Status:** Phase 2 complete (MVP) — actual metrics filled from run outputs
+**Status:** Phase 2 complete (MVP) — actual metrics filled from run outputs; framing revised after review (see "Revision note")
+
+---
+
+## Revision note (2026-11-11, post-review)
+
+An independent review of the first draft flagged two framing problems. Both are corrected here:
+
+1. **Experiment A's 6h "−75% vs persistence" was a strawman.** Persistence MAE 51.82 at 6h is an artifact of the diurnal cycle (a 6h-ahead hold-last-value forecast is phase-shifted; at 24h the phase realigns, so persistence recovers to 15.06). A **seasonal-naive baseline** (same hour, previous day) is the honest comparison: it gives ~15 MAE at every horizon, so the true TimesFM margin at 6h is **−15%**, not −75%.
+2. **Experiment B is a negative result, not a "partial" one.** The pre-registered recall band (0.3–0.6 → "partial") labels anything above 0.3 as partial by construction; it says nothing about precision. At the pre-registered 2σ point TimesFM flags 391 hours for 28 storms — **97% false positives** (precision 0.026). A post-hoc threshold sweep (2/3/4/5σ) confirms no usable operating point exists.
+
+**Net:** forecasting is a narrow but real positive; detection is a negative. Two stories, not one.
 
 ---
 
 ## Executive Summary
 
-Two experiments tested whether Google's TimesFM (foundation model for time series) can either (A) forecast WSPR spot density or (B) detect geomagnetic storms without Kp index in training.
+Two experiments tested whether Google's TimesFM (a foundation model for time series) can either (A) forecast WSPR spot density or (B) detect geomagnetic storms without Kp in its input.
 
 ### Key Findings
 
-| Experiment | Question | Result |
-|---|---|---|
-| **A (baseline)** | How well does TimesFM forecast "normal" patterns? | MAE 8.03 (1h) / 12.83 (6h) / 13.32 (24h); beats persistence at every horizon |
-| **B (storm-aware)** | Can TimesFM detect storms WITHOUT Kp in training? | **recall = 0.357**, precision = 0.026, F1 = 0.048 |
+| Experiment | Question | Result | Verdict |
+|---|---|---|---|
+| **A (baseline)** | How well does TimesFM forecast "normal" patterns? | MAE 8.03 / 12.83 / 13.32 (1/6/24h) vs seasonal-naive 15.13 / 15.08 / 15.06 | **Positive (narrow):** beats both naive baselines at every horizon, but the margin is modest beyond 1h |
+| **B (storm-aware)** | Can TimesFM detect storms WITHOUT Kp in its input? | precision 0.026, recall 0.357, F1 0.048; **97% of alerts are false** | **Negative:** not usable for operational detection at any tested threshold |
 
-### Interpretation Thresholds (pre-registered)
+### Pre-registered interpretation thresholds (and why they are insufficient alone)
 
 - **Recall ≥ 0.6**: TimesFM catches storms without Kp → useful for anomaly detection
-- **Recall 0.3–0.6**: Partial detection → complementary to Kp, not replacement
-- **Recall < 0.3**: TimesFM does NOT replace Kp-based detection → limited to forecasting
+- **Recall 0.3–0.6**: "Partial detection"
+- **Recall < 0.3**: does NOT replace Kp-based detection
 
-**Verdict: recall = 0.357 ∈ [0.3, 0.6) → partial detection.** TimesFM *partially* catches
-storms from forecast residuals alone (no Kp in its input), but it does **not** replace
-Kp-based detection. Precision is very low (0.026): 381 false positives vs 10 true positives
-at the pre-registered 2σ threshold.
+Recall = 0.357 formally lands in the "partial" band, **but these thresholds bound recall only**. A detector with precision 0.026 is unusable operationally regardless of recall: an operator would receive 391 alerts per quarter of which 10 are real. The honest reading (including precision, which the pre-registered band did not constrain) is **negative for operational detection**.
 
 ---
 
@@ -39,58 +47,80 @@ at the pre-registered 2σ threshold.
 
 ### Results
 
-| Horizon | MAE | RMSE | N samples | Persistence MAE | Persistence RMSE |
-|---|---|---|---|---|---|
-| 1h | **8.03** | 10.44 | 2160 | 14.81 | 18.92 |
-| 6h | **12.83** | 16.61 | 2160 | 51.82 | 62.98 |
-| 24h | **13.32** | 17.41 | 2160 | 15.06 | 19.84 |
+| Horizon | TimesFM MAE | Persistence MAE | Seasonal-naive MAE | TimesFM vs seasonal-naive |
+|---|---|---|---|---|
+| 1h | **8.03** | 14.81 | 15.13 | **−47%** |
+| 6h | **12.83** | 51.82 ⚠️ | 15.08 | **−15%** |
+| 24h | **13.32** | 15.06 | 15.06 | **−12%** |
 
-*Persistence baseline (`results/timesfm_mvp_20m_persistence_baseline.json`): predict the
-last observed value; same origins and same actuals, so numbers are directly comparable.*
+*Baselines computed on identical origins and actuals (`results/timesfm_mvp_20m_baselines.json`).
+Persistence = hold the last observed value. Seasonal-naive = value from the same hour of
+the previous day. ⚠️ = persistence at 6h is inflated by the diurnal phase mismatch and is
+**not a fair comparison** — read the seasonal-naive column.*
 
 **Interpretation:**
-- TimesFM beats persistence at **every** horizon: −46% MAE at 1h, −75% at 6h, −12% at 24h.
-- Error grows with horizon as expected (8.03 → 12.83 → 13.32) but saturates: the 6h→24h
-  increase is small, i.e. the model converges to the seasonal/quiet-time level.
-- The 6h persistence MAE of 51.82 (vs 15.06 at 24h) reflects the strong diurnal cycle:
-  a 6h-ahead naive forecast is systematically out of phase, while at 24h the phase realigns.
-- These are errors on the *normalized* density scale (`spots / n_unique_tx`).
+- **1h (−47%):** the real, useful result. TimesFM clearly beats both naive baselines on
+  the short horizon where autocorrelation is high. This supports operational use "one hour
+  before degradation."
+- **6h (−15%):** honest margin. Persistence's 51.82 is an artifact (diurnal phase); against
+  the fair seasonal-naive baseline the gain is modest but positive.
+- **24h (−12%):** seasonal-naive equals persistence here (both = value at origin−1, since
+  lag 24h wraps to the previous hour), so the two baseline columns coincide; the margin is
+  modest.
+- Error grows then saturates (8.03 → 12.83 → 13.32): the model converges to the
+  seasonal/quiet-time level rather than tracking storm excursions.
 
 ---
 
 ## Experiment B: Storm-Aware Detection
 
-**Train:** Apr 2024 – Sep 2025 (**storms EXCLUDED**: 198 storm hours removed → 12,954 h, 0 storms)
+**Train:** Apr 2024 – Sep 2025 (**storms EXCLUDED from context**: 198 storm hours removed → 12,954 h, 0 storms)
 **Pseudo-test:** Jan – Mar 2025 (walk-forward, 2,160 h, 28 storm hours)
-**Detection:** `|residual| > 2 × rolling_std(168h, center=True)`
+**Pre-registered detector:** `|residual| > 2 × rolling_std(168h, center=True)`
 
-> **Design note:** TimesFM is run zero-shot (no fine-tuning on our data), so its only
+> **Design note (important):** TimesFM runs zero-shot (no fine-tuning), so its only
 > "training" input is the context window. "Train without storms" is therefore implemented
 > as *excluding storm epochs (Kp ≥ 5) from the context history* (`build_context()` via
-> `nonstorm_idx`), not as a fine-tuning split. Kp is never an input to the model in either
-> experiment — it only defines the ground-truth labels.
+> `nonstorm_idx`), **not** as a fine-tuning split. Kp is never an input to the model — it
+> only defines ground-truth labels. Consequently this experiment does **not** test "can
+> TimesFM learn a storm-free baseline"; it tests "**given a non-storm context, does the
+> model flag a storm as an anomaly?**" The answer is: weakly, and with overwhelming noise.
 
-### Results
+### Pre-registered result (2σ)
 
 | Metric | Value |
 |---|---|
 | Precision | 0.0256 |
-| **Recall** | **0.3571** |
+| Recall | 0.3571 |
 | F1 | 0.0477 |
 | TP / FP / FN / TN | 10 / 381 / 18 / 1751 |
-| Total storms in test (Kp ≥ 5 hours) | 28 |
-| Total anomalies detected | 391 |
+| Storm hours in test (Kp ≥ 5) | 28 |
+| Alerts fired | 391 |
+| **False-positive share of alerts** | **97.4%** |
 
-**Interpretation:**
-- **Recall 0.357 → "partial detection" band (0.3–0.6).** The residual-based detector finds
-  10 of 28 storm hours with no Kp information at all — better than chance, but far from
-  reliable.
-- **Precision 0.026 is the weak point:** with a 2σ threshold on a 168h rolling band, 381 of
-  391 flagged hours are not storms. The detector fires on many non-storm disturbances
-  (quiet-time variability, diurnal misfit) — so as an *alerting* mechanism it is unusable
-  without further tuning.
-- Per the pre-registered thresholds: **TimesFM partially catches storms but does not
-  replace Kp-based detection.**
+**Interpretation:** TimesFM, given a non-storm context, flags storms weakly (recall 0.36)
+but with a **97% false-positive rate**. No operational deployment could absorb 391 alerts
+per quarter where 10 are real. **Kp-based detection remains the appropriate method.**
+
+The model does carry a weak storm-correlated signal: precision 0.026 is ~2× the base rate
+(28/2160 = 1.3%), i.e. a small lift over random. But a 2× lift at 2% precision is not a
+detector.
+
+### Post-hoc threshold sweep (sanity check, not pre-registered)
+
+To confirm the negative rather than rest on a single operating point, the σ threshold was
+swept on the same records (`results/timesfm_mvp_20m_threshold_sweep.json`):
+
+| σ | Alerts | TP | FP | Precision | Recall | F1 |
+|---|---|---|---|---|---|---|
+| 2 | 391 | 10 | 381 | 0.026 | 0.357 | 0.048 |
+| 3 | 124 | 3 | 121 | 0.024 | 0.107 | 0.040 |
+| 4 | 35 | 1 | 34 | 0.029 | 0.036 | 0.032 |
+| 5 | 15 | 1 | 14 | 0.067 | 0.036 | 0.047 |
+
+**No usable operating point exists.** Raising σ buys no precision (0.024 → 0.067 across
+2σ→5σ, always < 7%) while recall collapses (0.357 → 0.036). Even at 5σ, 14 of 15 alerts
+are false. **Threshold tuning cannot rescue detection — the result is negative.**
 
 ---
 
@@ -103,7 +133,7 @@ The paper's validated results (block permutation, `results/perm_test_18mo_3band_
 | **Method** | Statistical hypothesis test | Time series forecasting |
 | **Question** | "Is the storm effect real?" | "What happens next N hours?" |
 | **20m effect size** | −23.9% drop (p=2e-5) | MAE 8.03 / 12.83 / 13.32 (1/6/24h) |
-| **Ground truth** | Kp ≥ 5 (external) | Self-supervised forecast + Kp labels only for scoring |
+| **Ground truth** | Kp ≥ 5 (external) | Self-supervised forecast; Kp only for labels |
 | **Interpretation** | Storm causes drop | Model predicts normal pattern |
 
 ### Key Insight
@@ -113,12 +143,13 @@ The paper's validated results (block permutation, `results/perm_test_18mo_3band_
 - **Block permutation** proves causality: "Storms cause spot density drop (p < 2e-5)"
 - **TimesFM** forecasts: "Based on history, spot density will be X in N hours"
 
-They are **complementary, not competing**. This MVP does not show TimesFM is better or
-worse than block permutation — the methods are incommensurable. What the MVP establishes:
+They are **complementary, not competing, and not rankable** — this MVP does not and cannot
+show TimesFM is "better or worse." What the MVP establishes:
 
-- Forecasting the quiet-time baseline works (beats persistence at all horizons).
-- Storm *detection* from residuals alone is partial (recall 0.357) and noisy
-  (precision 0.026) → Kp remains essential for detection.
+- Forecasting the quiet-time baseline works: TimesFM beats persistence *and*
+  seasonal-naive at 1/6/24h, with a large margin only at 1h.
+- Storm detection from residual anomalies **fails**: 97% false positives at every tested
+  threshold. Kp remains essential.
 
 ---
 
@@ -150,16 +181,13 @@ worse than block permutation — the methods are incommensurable. What the MVP e
 
 **Why two experiments?**
 
-TimesFM is a foundation model trained on diverse time series. It may:
-1. Learn storm patterns during training → predict them well (low residual)
-2. Not generalize to geomagnetic storms → predict poorly (high residual)
+TimesFM may (1) learn storm patterns → predict them well (low residual), or (2) fail to
+generalize → predict poorly (high residual). **A** tests (1); **B** tests (2) by removing
+storms from the context so the model must predict "normal" patterns, then checking whether
+residual spikes flag unseen storms.
 
-**Experiment A** tests (1): if MAE is low, model captures storm dynamics.
-**Experiment B** tests (2): by removing storms from the context, we force the model to
-predict "normal" patterns. If residual spikes during unseen storms → anomaly detection works.
-
-**Outcome:** A works as a forecaster (beats persistence); B is *partial* — residuals carry
-some storm signal (recall 0.357) but the 2σ detector is dominated by false positives.
+**Outcome:** A works as a modest forecaster (beats both baselines, big margin only at 1h);
+B fails as a detector (97% FP at every tested threshold).
 
 ---
 
@@ -168,69 +196,87 @@ some storm signal (recall 0.357) but the 2σ detector is dominated by false posi
 - **Script:** `scripts/timesfm_mvp_20m.py`
 - **Results A:** `results/timesfm_mvp_20m_expA.json`
 - **Results B:** `results/timesfm_mvp_20m_expB.json`
+- **Baselines (persistence + seasonal-naive):** `results/timesfm_mvp_20m_baselines.json`
+- **Threshold sweep (post-hoc):** `results/timesfm_mvp_20m_threshold_sweep.json`
 - **Per-hour forecasts:** `results/timesfm_mvp_20m_expA_records.csv`,
   `results/timesfm_mvp_20m_expB_records.csv`
-- **Persistence baseline:** `results/timesfm_mvp_20m_persistence_baseline.json`
 - **Visualization:** `results/timesfm_mvp_20m_visualization.png`
 - **Venv:** `.venv-timesfm/` (Python 3.11, timesfm 3.0.2, torch CPU)
 
 ---
 
+## Publication Framing (two stories, not one)
+
+**Forecasting — positive, narrow, worth writing up:**
+> *"Foundation models for HF propagation forecasting: TimesFM beats persistence and
+> seasonal-naive baselines on 1–6h horizons for 20m WSPR spot density."*
+- Useful for HamSCI operations (short-horizon baseline prediction).
+- Honest scope: large margin at 1h (−47%), modest at 6h/24h (−15%/−12%).
+- Does **not** claim storm detection or causal insight.
+
+**Detection — negative, publishable as a bounded negative result:**
+> *"Foundation models do not replace Kp-based storm detection at pre-registered or
+> swept thresholds: 97% false positives across 2σ–5σ."*
+- The value is the boundary: it tells the community where foundation models stop helping.
+
+**This MVP does NOT support** the claim "foundation models are useful for the ionosphere"
+in general. It supports the narrow claim: **for 1–6h forecasting, TimesFM beats naive
+baselines.** For CrossCorr 2.0, TimesFM is a *forecasting supplement* to block permutation,
+never a replacement for Kp-based detection.
+
+---
+
 ## What's Next (Phase 3)
 
-**Recommendation: proceed to Phase 3 selectively** — the forecasting result (A) is solid
-and worth confirming; the detection result (B) is partial and needs threshold work before
-any "Kp-free detection" claim.
+**Forecasting — proceed:**
+1. **Seasonal-naive baseline everywhere** (already added; carry into all Phase-3 comparisons — persistence alone is a strawman at 6h+).
+2. Expand pseudo-test: Jan – Dec 2025 (12 months, walk-forward).
+3. All 3 bands: 20m, 40m, 15m.
+4. Frozen Jan – Mar 2026 — confirmation only, untouched until then.
+5. Keep the framing: "TimesFM beats naive baselines on 1–6h HF forecasting."
 
-1. **Full pseudo-test:** Jan – Dec 2025 (12 months, walk-forward)
-2. **All 3 bands:** 20m, 40m, 15m
-3. **Frozen confirmation:** Jan – Mar 2026 (untouched so far)
-4. **Detection tuning (B):** sweep the σ threshold (2σ → 3σ) and band length; report the
-   precision–recall trade-off instead of a single operating point. If recall cannot be
-   pushed ≥ 0.6 at usable precision, document the negative result.
-5. **Comparison with paper:** does the forecast degradation align with the −23.9% drop?
-
-If detection stays below the bar:
-
-1. **Document negative result:** "Foundation models don't replace domain-specific detection"
-2. **Focus on forecasting:** use TimesFM for predicting baseline (quiet-time) patterns
-3. **CrossCorr 2.0:** TimesFM as feature extractor, not detector
+**Detection — stop (after confirming the negative):**
+- The 2σ→5σ sweep already confirms no usable operating point (see table above). No further threshold search is warranted.
+- **Do not** fine-tune TimesFM on storms to improve detection — that leaves the
+  pre-registered exploration frame and turns discovery into fitting.
+- Document as a bounded negative result.
 
 ---
 
 ## Honest Assessment
 
 **What we learned:**
-- TimesFM zero-shot forecasts 20m spot density better than persistence at 1/6/24h
-  (MAE 8.03 / 12.83 / 13.32 vs 14.81 / 51.82 / 15.06).
-- Storm detection from context-excluded residuals is **partial**: recall 0.357
-  (pre-registered band: "complementary to Kp, not replacement"), precision 0.026.
-- A 2σ / 168h rolling threshold produces 391 alerts for 28 storm hours — the threshold,
-  not the model, may be the binding limitation; this was a single pre-registered operating
-  point, not a tuned detector.
+- TimesFM zero-shot forecasts 20m spot density **better than both naive baselines** at
+  1/6/24h: MAE 8.03/12.83/13.32 vs seasonal-naive 15.13/15.08/15.06. Margin is large only
+  at 1h (−47%); modest at 6h/24h (−15%/−12%).
+- Storm detection from context-excluded residuals **fails operationally**: precision 0.026
+  (97% FP) at 2σ; the post-hoc sweep never exceeds 6.7% precision while recall collapses.
+  The model has a ~2× lift over base rate — a real but useless storm-correlated signal.
+- The pre-registered recall band alone would have labelled this "partial"; **precision was
+  the binding constraint the band did not capture.** Recorded here as a lesson for
+  pre-registering detector metrics (register precision, or F1, not recall alone).
 
 **What we didn't test:**
 - Frozen held-out (Jan–Mar 2026) — reserved for Phase 3
 - Multi-band generalization — Phase 3
-- Fine-tuning / adaptation to geophysics — zero-shot only
-- Threshold sweep for detection — single point (2σ) only
-- Causal interpretation — block permutation already proves this
+- Fine-tuning / adaptation to geophysics — zero-shot only (and deliberately so for detection)
+- Longer pseudo-test (only 3 months)
 
 **Limitations:**
 - Pseudo-test is only 3 months (2,160 hours, 28 storm hours) → recall CI is wide
-  (10/28 detected; a couple of hours swing moves recall by ~0.07).
-- Pseudo-test lies inside the train window (walk-forward by timestamp, but same year) —
+  (10/28 detected; ±1 storm hour moves recall by ~0.036).
+- Pseudo-test lies inside the train window (walk-forward by timestamp, same year) —
   possible temporal leakage; the frozen 2026 window is the real check.
 - TimesFM pretrained on generic time series, not geophysics; CPU-only inference limited
   us to a single config (context 512h, batch 8).
-- Experiment B's "no storms in train" is context exclusion, not retraining — an honest
-  limitation of the zero-shot design.
+- Experiment B's "no storms in train" is context exclusion, not retraining — an inherent
+  property of the zero-shot design, now explicit.
 
-**Both outcomes are publishable:**
-- **Success (forecasting):** "Foundation models forecast quiet-time WSPR density baselines"
-- **Partial/failure (detection):** "Foundation models don't replace Kp-based storm
-  detection at pre-registered thresholds" — the current evidence points here for
-  detection, while forecasting is a positive result.
+**Both outcomes are publishable, and they are two different papers/sections:**
+- **Forecasting (positive):** "Foundation models forecast HF/WSPR baselines better than
+  naive methods on 1–6h horizons."
+- **Detection (negative):** "Foundation models don't replace Kp-based storm detection —
+  97% false positives across all tested thresholds."
 
 ---
 
@@ -249,5 +295,5 @@ If detection stays below the bar:
 ---
 
 **Prepared by:** MiMo (OpenCode agent)
-**Reviewed by:** [Pending]
-**Status:** Awaiting Phase 3 decision
+**Reviewed by:** [independent review incorporated 2026-11-11]
+**Status:** Forecasting → Phase 3 (seasonal-naive baseline); Detection → closed as negative result

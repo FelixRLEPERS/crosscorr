@@ -60,7 +60,8 @@ results/*
 # experiment outputs tracked; records CSVs are covered by !results/*.csv.
 !results/timesfm_mvp_20m_expA.json
 !results/timesfm_mvp_20m_expB.json
-!results/timesfm_mvp_20m_persistence_baseline.json
+!results/timesfm_mvp_20m_baselines.json
+!results/timesfm_mvp_20m_threshold_sweep.json
 !results/timesfm_mvp_20m_visualization.png
 
 # Extended held-out window 2026h1 (Jan-Jun 2026; session 2026-10-27)

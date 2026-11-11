@@ -1,0 +1,56 @@
+{
+  "note": "POST-HOC sweep (not pre-registered); exp B context w/o storms, 168h rolling band",
+  "n_hours": 2160,
+  "n_storms": 28,
+  "base_rate": 0.013,
+  "sweep": [
+    {
+      "sigma": 2,
+      "alerts": 391,
+      "tp": 10,
+      "fp": 381,
+      "fn": 18,
+      "tn": 1751,
+      "precision": 0.0256,
+      "recall": 0.3571,
+      "f1": 0.0477,
+      "lift_vs_base_rate": 1.97
+    },
+    {
+      "sigma": 3,
+      "alerts": 124,
+      "tp": 3,
+      "fp": 121,
+      "fn": 25,
+      "tn": 2011,
+      "precision": 0.0242,
+      "recall": 0.1071,
+      "f1": 0.0395,
+      "lift_vs_base_rate": 1.87
+    },
+    {
+      "sigma": 4,
+      "alerts": 35,
+      "tp": 1,
+      "fp": 34,
+      "fn": 27,
+      "tn": 2098,
+      "precision": 0.0286,
+      "recall": 0.0357,
+      "f1": 0.0317,
+      "lift_vs_base_rate": 2.2
+    },
+    {
+      "sigma": 5,
+      "alerts": 15,
+      "tp": 1,
+      "fp": 14,
+      "fn": 27,
+      "tn": 2118,
+      "precision": 0.0667,
+      "recall": 0.0357,
+      "f1": 0.0465,
+      "lift_vs_base_rate": 5.14
+    }
+  ]
+}
