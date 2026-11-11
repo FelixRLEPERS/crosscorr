@@ -136,6 +136,7 @@ ignore = [
 "tools/video_pipeline/build_ae_layers.py" = ["UP031", "B007"]
 "tools/video_pipeline/export_layers.py" = ["UP031", "B007"]
 "tools/video_pipeline/export_blocks.py" = ["UP031"]
+"tools/video_pipeline/split_blocks.py" = ["UP031", "B007", "B905"]
 
 [tool.mypy]
 # python_version=3.12: numpy 2.x stubs use PEP 695 syntax.
