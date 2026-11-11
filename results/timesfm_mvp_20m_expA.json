@@ -1,0 +1,35 @@
+{
+  "config": {
+    "experiment": "A",
+    "pseudo_test_months": 3,
+    "context_window": 512,
+    "horizons": [
+      1,
+      6,
+      24
+    ],
+    "anomaly_threshold": 2.0,
+    "train_hours": 13152,
+    "pseudo_test_hours": 2160,
+    "train_storms": 198,
+    "pseudo_test_storms": 28,
+    "n_forecasts": 2160
+  },
+  "metrics": {
+    "horizon_1h": {
+      "mae": 8.025581477984899,
+      "rmse": 10.443648300233814,
+      "n_samples": 2160
+    },
+    "horizon_6h": {
+      "mae": 12.828427954387207,
+      "rmse": 16.607122670476492,
+      "n_samples": 2160
+    },
+    "horizon_24h": {
+      "mae": 13.31730490635771,
+      "rmse": 17.407260438391006,
+      "n_samples": 2160
+    }
+  }
+}

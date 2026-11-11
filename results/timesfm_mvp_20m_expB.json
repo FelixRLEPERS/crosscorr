@@ -1,0 +1,32 @@
+{
+  "config": {
+    "experiment": "B",
+    "pseudo_test_months": 3,
+    "context_window": 512,
+    "horizons": [
+      1,
+      6,
+      24
+    ],
+    "anomaly_threshold": 2.0,
+    "train_hours": 12954,
+    "pseudo_test_hours": 2160,
+    "train_storms": 0,
+    "pseudo_test_storms": 28,
+    "n_forecasts": 2160
+  },
+  "metrics": {
+    "detection": {
+      "precision": 0.02557544757033248,
+      "recall": 0.35714285714285715,
+      "f1": 0.04773269689737471,
+      "tp": 10,
+      "fp": 381,
+      "fn": 18,
+      "tn": 1751,
+      "n_storms": 28,
+      "n_anomalies": 391
+    }
+  },
+  "interpretation": "TimesFM partially catches storms (0.3-0.6 recall)"
+}

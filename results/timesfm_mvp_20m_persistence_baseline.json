@@ -1,0 +1,20 @@
+{
+  "method": "persistence (pred = value at origin-1)",
+  "horizons": {
+    "horizon_1h": {
+      "mae": 14.809655531475856,
+      "rmse": 18.918839041431145,
+      "n_samples": 2160
+    },
+    "horizon_6h": {
+      "mae": 51.820467768375856,
+      "rmse": 62.984549436866104,
+      "n_samples": 2160
+    },
+    "horizon_24h": {
+      "mae": 15.061062704914011,
+      "rmse": 19.840129810403067,
+      "n_samples": 2160
+    }
+  }
+}

@@ -4,6 +4,7 @@ __pycache__/
 *.egg-info/
 .venv/
 venv/
+.venv-timesfm*/
 
 # Streamlit
 .streamlit/secrets.toml
@@ -55,6 +56,13 @@ results/*
 !results/heldout_3band_15m_2026-10-15.parquet
 !results/heldout_3band_20m_2026-10-15.parquet
 !results/heldout_3band_40m_2026-10-15.parquet
+# TimesFM MVP (branch experimental/timesfm-test, 2026-11-11): keep the
+# experiment outputs tracked; records CSVs are covered by !results/*.csv.
+!results/timesfm_mvp_20m_expA.json
+!results/timesfm_mvp_20m_expB.json
+!results/timesfm_mvp_20m_persistence_baseline.json
+!results/timesfm_mvp_20m_visualization.png
+
 # Extended held-out window 2026h1 (Jan-Jun 2026; session 2026-10-27)
 !results/heldout_3band_15m_2026h1.parquet
 !results/heldout_3band_20m_2026h1.parquet
