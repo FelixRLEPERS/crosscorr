@@ -179,6 +179,8 @@ same picture.
 
 ## Core rx geography
 
+627 rx — широкая панель (активны хотя бы раз в каждом году 2017-2025). Это больше, чем 55-77 rx из Qwen (те были активны в каждом году в конкретном месяце). Для band-day FE(rx) достаточно 627; для FE(день-года) внутри месяца нужно 55-77. Оба критерия валидны, разные уровни строгости.
+
 Core receivers = `rx_sign` with spots in **≥9 distinct years of 2017–2025**
 (2017-01-01 ≤ time < 2026-01-01), `band = 14` (20m). Coordinates via
 `any(rx_lat)`, `any(rx_lon)`; regions from a coarse lat/lon box
