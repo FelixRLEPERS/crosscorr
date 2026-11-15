@@ -177,6 +177,32 @@ same picture.
 - **Does not:** say anything about effect size, β, harmonics, or IMF polarity.
   This is a span audit, NOT an effect analysis.
 
+## Core rx geography
+
+Core receivers = `rx_sign` with spots in **≥9 distinct years of 2017–2025**
+(2017-01-01 ≤ time < 2026-01-01), `band = 14` (20m). Coordinates via
+`any(rx_lat)`, `any(rx_lon)`; regions from a coarse lat/lon box
+classification (full table in `results/archive_span_core_geo.json`,
+gitignored).
+
+**627 core receivers:**
+
+| Region | Count | Share |
+|--------|-------|-------|
+| Europe | 337 | 53.8% |
+| North America | 224 | 35.7% |
+| Oceania | 34 | 5.4% |
+| South America | 14 | 2.2% |
+| Asia | 12 | 1.9% |
+| Other | 4 | 0.6% |
+| Africa | 2 | 0.3% |
+
+**Conclusion: 627 core rx, mostly Europe + North America (89.5%)** — the
+persistent receiver panel is a Northern-hemisphere Western sample; Africa and
+Asia together hold 2.1%. This is a **limitation for global inference**:
+band-day results generalize to the WSPR receiving network that Europe/NA
+dominate, not to a geographically uniform global panel.
+
 ## Conclusion — composition bias is real
 
 - **Coverage span: 2010–2026 (17 years)** — days are dense enough everywhere
@@ -214,9 +240,11 @@ until that decision.
 `results/archive_span_p0.json` (gitignored): `by_year_raw` (38 cells),
 `coverage` (38 cells), `coverage_fraction`, `pair_recurrence_ge5y`
 (`not_available` — original full-span attempt), `usable_span_coverage_only`,
-`validation`. The hash-sample K_years=5 result (8 years, frac 0.67%,
-histogram), the 2013 gap dates and the January-sample pair intersections are
-recorded only in this document, not the JSON.
+`validation`. Core-rx geography (627 rows with region tags) is written to
+`results/archive_span_core_geo.json` (gitignored). The hash-sample
+K_years=5 result (8 years, frac 0.67%, histogram), the 2013 gap dates and
+the January-sample pair intersections are recorded only in this document,
+not the JSONs.
 
 **Not pushed. Not tagged. Not sent to Zenodo. `paper/`, `audit/`, `main`
 untouched.**
