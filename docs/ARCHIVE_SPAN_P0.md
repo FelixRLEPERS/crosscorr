@@ -179,13 +179,36 @@ same picture.
 
 ## Core rx geography
 
-627 rx — широкая панель (активны хотя бы раз в каждом году 2017-2025). Это больше, чем 55-77 rx из Qwen (те были активны в каждом году в конкретном месяце). Для band-day FE(rx) достаточно 627; для FE(день-года) внутри месяца нужно 55-77. Оба критерия валидны, разные уровни строгости.
+627 rx — широкая панель. Явный критерий: `rx_sign` со спотами в **≥9
+различных годах окна 2017–2025** (2017-01-01 ≤ time < 2026-01-01, `band =
+14`, 20m), **any-year / без месячного фильтра** — это не пересечение
+месячных панелей, а чистый годовой критерий. Источник: wspr.live-запрос
+`GROUP BY rx_sign HAVING uniq(toYear(time)) >= 9` c `any(rx_lat)` /
+`any(rx_lon)`, сырой результат сохранён в tool-output
+`tool_1df272e4e001k3jaK6CF8hsTMe` (поле `n_core: 627`), постпроцессинг —
+`tmp_core_geo.py` → `results/archive_span_core_geo.json` (поле
+`definition`).
+
+Это **не** то же число, что у внешней модели: 717–812 rx там — это «≥5 лет
+из 9 **по каждому месяцу отдельно**» (панель меняется от месяца к месяцу),
+а 55–77 rx — «присутствие во всех 9 годах **внутри конкретного месяца**»
+(узкая панель). Три разных критерия, три разные строгости, 627 не является
+их пересечением. Для band-day FE(rx) достаточно 627 (any-year панель);
+для FE(день-года) внутри месяца нужна месячная панель 55-77. Если предрег
+2A наследует критерий — наследовать надо явную формулировку выше, а не
+голое число.
 
 Core receivers = `rx_sign` with spots in **≥9 distinct years of 2017–2025**
-(2017-01-01 ≤ time < 2026-01-01), `band = 14` (20m). Coordinates via
-`any(rx_lat)`, `any(rx_lon)`; regions from a coarse lat/lon box
-classification (full table in `results/archive_span_core_geo.json`,
-gitignored).
+(2017-01-01 ≤ time < 2026-01-01), `band = 14` (20m), **any-year (no month
+filter)** — not a monthly-panel intersection. Source query: wspr.live
+`GROUP BY rx_sign HAVING uniq(toYear(time)) >= 9` with `any(rx_lat)` /
+`any(rx_lon)`; raw result in tool-output
+`tool_1df272e4e001k3jaK6CF8hsTMe` (`n_core: 627`), post-processed by
+`tmp_core_geo.py` → `results/archive_span_core_geo.json` (gitignored,
+`definition` field). Coordinates via the same `any()` aggregates; regions
+from a coarse lat/lon box classification. This 627 criterion is distinct
+from the external model's 717–812 (≥5 of 9 years per-month) and 55–77
+(all 9 years within one month); none is derived from the others.
 
 **627 core receivers:**
 
