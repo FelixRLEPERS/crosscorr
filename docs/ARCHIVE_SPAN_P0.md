@@ -90,22 +90,85 @@ coverage fraction ≥ 80% on **both** bands, through 2026.
 (0.041, 0.452); from 2010 onward both bands stay ≥ 0.995 except 2013
 (0.860, still ≥ 0.80) and 2026 (0.874, still ≥ 0.80).
 
+## Follow-up probes (same read-only session)
+
+Two open questions from the first pass were closed with additional GET queries.
+
+### 1. 2013 anomaly — root cause found
+
+The 0.860 coverage is **not** days that fell just below the ≥1000 threshold. It
+is a **contiguous 51-day archive gap**: no rows exist at all for
+
+**2013-01-09 → 2013-02-28** (verified two independent ways: LEFT JOIN anti-join
+and `NOT IN`, both = 51 days).
+
+The rest of 2013 is fully dense: 314 present days, min daily count 7,308 (20m),
+max 119,212, mean 64,049 — nowhere near the 1000/day threshold. Both bands
+(20m and 40m) show the same 314 present days, so the gap is **archive-wide,
+not band-specific** — consistent with a data-collection outage, not a query
+artifact. `314/365 = 0.860` explains the fraction directly.
+
+Impact on 2A: FE(day-of-year) loses ~51 observations for calendar days in
+mid-Jan through end-Feb (a period that includes RM-relevant months). This
+reduces N_eff for those months but does not remove any calendar day entirely —
+every date except this one block is present across the full 2010–2026 span.
+
+### 2. Pair recurrence — sampled panel stability (still not full K_years=5)
+
+The full-span `K_years ≥ 5` query stayed unavailable (408/timeout). Instead,
+per-year unique `(tx_sign, rx_sign)` counts and their **pairwise intersections**
+were measured on a January-month sample of three years:
+
+| Year (Jan) | unique pairs |
+|------------|--------------|
+| 2015 | 259,119 |
+| 2018 | 886,615 |
+| 2021 | 1,405,843 |
+
+| Intersection | shared pairs | share of smaller side |
+|--------------|--------------|-----------------------|
+| 2015 ∩ 2018 | 18,254 | 7.0% |
+| 2015 ∩ 2021 | 10,914 | 4.2% |
+| 2018 ∩ 2021 | 59,032 | 6.7% |
+
+**Interpretation:** pair overlap is **below 10% in every comparison** — the
+panel turns over heavily between years (the pair universe grows ~5× from 2015
+to 2021). This is a real composition-stability concern, not a blocker: it means
+band-day FE may run on a **different panel of pairs each year**. A full
+K_years=5 recurrence check remains un-run; this is a sample, not the specified
+metric.
+
 ## What this does and does not mean
 
 - **Does:** documents the archive's usable span for extraction design.
 - **Does not:** say anything about effect size, β, harmonics, or IMF polarity.
   This is a span audit, NOT an effect analysis.
 
+## Honest caveats
+
+- **Coverage-only span 17 years is an upper bound.** Pair recurrence (the
+  metric that would confirm panel stability across the full span) is still
+  `not_available`; the January-sample intersections above suggest heavy pair
+  turnover, which could narrow the *effective* span for pair-stable analysis
+  to as little as 5–7 years. Do not treat 2010–2026 as settled until a full
+  K_years=5 check runs.
+- 2013's 51-day gap and the sub-10% pair overlap are both recorded here for
+  transparency; neither is a hard blocker for extraction design, but both
+  feed into how N_eff and panel composition are handled downstream.
+
 ## Next step
 
-Usable span (2010–2026, 17 years) ≥ 5 years → proceed to extraction design.
-Had it been < 5 years, task 2A would close here.
+Usable span (2010–2026, 17 years) ≥ 5 years → extraction design *possible*,
+but gate it on a full pair-recurrence check first. Had span been < 5 years,
+task 2A would close here — it does not.
 
 ## Raw data
 
 `results/archive_span_p0.json` (gitignored): `by_year_raw` (38 cells),
 `coverage` (38 cells), `coverage_fraction`, `pair_recurrence_ge5y`
 (`not_available` + reason), `usable_span_coverage_only`, `validation`.
+Follow-up probe results (2013 gap dates, January-sample pair intersections)
+are recorded only in this document, not the JSON.
 
 **Not pushed. Not tagged. Not sent to Zenodo. `paper/`, `audit/`, `main`
 untouched.**
