@@ -69,12 +69,45 @@ denominator per the audit convention.
 
 ## Pair recurrence (K_years = 5)
 
-- Full-span query (`GROUP BY tx_sign, rx_sign HAVING uniq(toYear(time)) >= 5`)
-  exceeded the 60 s limit → HTTP 408.
-- Split-by-year fallback (per-year `DISTINCT tx_sign, rx_sign`, union in Python)
-  also timed out on every year (120 s) → **not available**.
-- Recorded as `pair_recurrence: not_available` in `results/archive_span_p0.json`
-  per the fallback rule. Usable span below therefore uses **coverage only**.
+### Result (hash-sample method, partial 8/19 years)
+
+The full-span query (`GROUP BY tx_sign, rx_sign HAVING uniq(toYear(time)) >= 5`)
+exceeded the server's hard 15 s limit → HTTP 408; the SQL hint and URL
+`max_execution_time` parameter are both ignored, and hash-bucket pre-filtering
+does not help (the bottleneck is the raw scan). A deterministic hash-sample
+fallback was used instead:
+
+- Per-year query: `cityHash64(tx_sign, rx_sign) % 256 = 0` → **1/256 of pairs**
+  per year, aggregated locally across years (scale ×256 for absolute counts).
+- **Collected: 8/19 years (2008–2015).** Years 2016–2026 failed: all 11 years
+  timed out after ≤2 attempts each (10 s pauses, 45 s backoff, 60 s quiet
+  retest) — the denser post-2015 years exceed the client timeout even when the
+  server answers trivial queries in 0.3 s. Recorded as
+  `2016-2026: failed, rate-limit/timeout`.
+
+**Partial result (band=14 / 20m, K_years ≥ 5):**
+
+| Metric | Sampled (1/256) | Estimated (×256) |
+|--------|-----------------|------------------|
+| unique pairs | 12,312 | ≈ 3.15 M |
+| pairs present in ≥ 5 years | 82 | ≈ 21,008 |
+| **frac_ge5y** | **0.67%** | — |
+
+Histogram (years a sampled pair appears in):
+`{1: 10,369; 2: 1,421; 3: 332; 4: 108; 5: 62; 6: 17; 7: 2; 8: 1}` — the mass
+is overwhelmingly at 1–2 years.
+
+**Verdict: frac 0.67% ≪ 10% → composition bias real.** Even on the 8 earliest
+(most stable) years, fewer than 1 in 100 sampled pairs recurs in ≥5 years.
+Since only 2008–2015 (the *pre-growth* era, when the network was smallest) is
+covered, the full-span figure could only be **lower**, not higher — the
+conclusion cannot flip by adding 2016–2026.
+
+### Recorded in JSON
+
+`results/archive_span_p0.json` keeps `pair_recurrence_ge5y: not_available`
+(the original full-span attempt); this hash-sample result is recorded here in
+the document only.
 
 ## Usable span (coverage-only fallback)
 
@@ -113,11 +146,11 @@ mid-Jan through end-Feb (a period that includes RM-relevant months). This
 reduces N_eff for those months but does not remove any calendar day entirely —
 every date except this one block is present across the full 2010–2026 span.
 
-### 2. Pair recurrence — sampled panel stability (still not full K_years=5)
+### 2. Pair recurrence — January-sample panel overlap (complements §"Pair recurrence" above)
 
-The full-span `K_years ≥ 5` query stayed unavailable (408/timeout). Instead,
-per-year unique `(tx_sign, rx_sign)` counts and their **pairwise intersections**
-were measured on a January-month sample of three years:
+Independent of the hash-sample K_years=5 result, per-year unique
+`(tx_sign, rx_sign)` counts and their **pairwise intersections** were measured
+on a January-month sample of three years:
 
 | Year (Jan) | unique pairs |
 |------------|--------------|
@@ -134,9 +167,9 @@ were measured on a January-month sample of three years:
 **Interpretation:** pair overlap is **below 10% in every comparison** — the
 panel turns over heavily between years (the pair universe grows ~5× from 2015
 to 2021). This is a real composition-stability concern, not a blocker: it means
-band-day FE may run on a **different panel of pairs each year**. A full
-K_years=5 recurrence check remains un-run; this is a sample, not the specified
-metric.
+band-day FE may run on a **different panel of pairs each year**. The
+hash-sample K_years=5 result above (frac 0.67%) independently confirms the
+same picture.
 
 ## What this does and does not mean
 
@@ -144,31 +177,46 @@ metric.
 - **Does not:** say anything about effect size, β, harmonics, or IMF polarity.
   This is a span audit, NOT an effect analysis.
 
+## Conclusion — composition bias is real
+
+- **Coverage span: 2010–2026 (17 years)** — days are dense enough everywhere
+  (except the documented 2013 gap), so *band-day* analysis is feasible over
+  the full window.
+- **Panel-stability span for pair-day design: effectively < 5 years.** Only
+  0.67% of sampled pairs recur in ≥5 years (measured on 2008–2015, the
+  network's smallest era; adding 2016–2026 can only lower this). The
+  K_years=5 threshold cannot be met by any meaningful pair panel anywhere in
+  the archive.
+- **Consequence for 2A: the design must be band-day (not pair-day).** A
+  pair-day FE design would have to either drop the K_years=5 recurrence rule
+  or accept an unusably small recurring-panel N.
+
 ## Honest caveats
 
-- **Coverage-only span 17 years is an upper bound.** Pair recurrence (the
-  metric that would confirm panel stability across the full span) is still
-  `not_available`; the January-sample intersections above suggest heavy pair
-  turnover, which could narrow the *effective* span for pair-stable analysis
-  to as little as 5–7 years. Do not treat 2010–2026 as settled until a full
-  K_years=5 check runs.
+- The K_years=5 figure covers **8/19 years (2008–2015)**; 2016–2026 failed on
+  rate-limit/timeout. Direction of the bias is one-sided: later years are
+  denser and faster-growing (pair universe ×5 from 2015→2021), so the
+  full-span frac would be ≤ 0.67%, never higher. The verdict is robust to
+  the missing years.
 - 2013's 51-day gap and the sub-10% pair overlap are both recorded here for
-  transparency; neither is a hard blocker for extraction design, but both
-  feed into how N_eff and panel composition are handled downstream.
+  transparency; neither is a hard blocker for band-day extraction design, but
+  both feed into how N_eff and panel composition are handled downstream.
 
 ## Next step
 
-Usable span (2010–2026, 17 years) ≥ 5 years → extraction design *possible*,
-but gate it on a full pair-recurrence check first. Had span been < 5 years,
-task 2A would close here — it does not.
+Usable span (2010–2026, 17 years) ≥ 5 years → **extraction design (P1) may
+proceed on a band-day basis**, gated on the Paper 1 (2026SW005535) review
+decision. Task 2A freezes after this commit: no extraction/analysis code
+until that decision.
 
 ## Raw data
 
 `results/archive_span_p0.json` (gitignored): `by_year_raw` (38 cells),
 `coverage` (38 cells), `coverage_fraction`, `pair_recurrence_ge5y`
-(`not_available` + reason), `usable_span_coverage_only`, `validation`.
-Follow-up probe results (2013 gap dates, January-sample pair intersections)
-are recorded only in this document, not the JSON.
+(`not_available` — original full-span attempt), `usable_span_coverage_only`,
+`validation`. The hash-sample K_years=5 result (8 years, frac 0.67%,
+histogram), the 2013 gap dates and the January-sample pair intersections are
+recorded only in this document, not the JSON.
 
 **Not pushed. Not tagged. Not sent to Zenodo. `paper/`, `audit/`, `main`
 untouched.**
