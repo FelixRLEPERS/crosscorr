@@ -114,6 +114,13 @@ BH procedure itself, WSPR-side data.
    §2.2/§4.2 wording changes.
 6. Update `docs/AI_ASSISTANCE.md` in the same commit as any `paper/` edit (AGU rule).
 
+Text-level corrections in v1.6.5:
+
+- [ ] (a) §2.2 comparative sentence "fewer storm hours than Kp (471 vs 594)" becomes
+  false after fix (886 > 594) and must be rewritten.
+- [ ] (b) Open Research URL `dst_realtime` → `dst_provisional` (code uses provisional;
+  verified: `paper/main.tex:2074` vs `DST_BASE` in `download_space_weather.py`).
+
 ## 6. Expected impact on conclusions (hypothesis, to be confirmed by recompute)
 
 - Dst is the *corroborating* index (Kp is primary per §3); the Kp-side conclusions do
