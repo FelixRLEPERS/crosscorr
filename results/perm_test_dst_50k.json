@@ -17,42 +17,42 @@
   "tests": [
     {
       "band": "20m",
-      "delta": -21932.58669034855,
+      "delta": -25260.46353359841,
       "p_raw": 1.999960000799984e-05,
       "exceedances": 0,
-      "N_storm": 471,
-      "N_quiet": 8811,
-      "N_total": 12508,
+      "N_storm": 886,
+      "N_quiet": 8962,
+      "N_total": 13152,
       "sensitivity_block_72": {
-        "delta": -22014.04056940963,
+        "delta": -25166.41086487334,
         "p_raw": 1.999960000799984e-05,
         "exceedances": 0
       }
     },
     {
       "band": "40m",
-      "delta": -14941.392677029446,
+      "delta": -17845.959476942477,
       "p_raw": 1.999960000799984e-05,
       "exceedances": 0,
-      "N_storm": 471,
-      "N_quiet": 8811,
-      "N_total": 12508,
+      "N_storm": 886,
+      "N_quiet": 8962,
+      "N_total": 13152,
       "sensitivity_block_72": {
-        "delta": -15032.72262222,
+        "delta": -17729.79952093801,
         "p_raw": 1.999960000799984e-05,
         "exceedances": 0
       }
     },
     {
       "band": "15m",
-      "delta": -5037.011280932351,
+      "delta": -6009.128831257615,
       "p_raw": 1.999960000799984e-05,
       "exceedances": 0,
-      "N_storm": 471,
-      "N_quiet": 8811,
-      "N_total": 12508,
+      "N_storm": 886,
+      "N_quiet": 8962,
+      "N_total": 13152,
       "sensitivity_block_72": {
-        "delta": -4918.599319742246,
+        "delta": -5937.990727535125,
         "p_raw": 1.999960000799984e-05,
         "exceedances": 0
       }

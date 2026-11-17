@@ -245,7 +245,7 @@ download dates and freeze status are listed in Table~\ref{tab:provenance}.
 		GFZ Potsdam            & $Kp$ index                & 3\,h
 		                       & Apr 2024 -- Sep 2025; Jan -- Mar 2026 (no $Kp$ data Oct -- Dec 2025) & 5\,069                                                   \\
 		WDC Kyoto & $Dst$ index (provisional) & 1\,h
-		& Apr 2024 -- Sep 2025 & 12\,508 \\
+		& Apr 2024 -- Sep 2025 & 13\,152 \\
 		\bottomrule
 	\end{tabularx}
 \end{table}
@@ -346,11 +346,11 @@ provisional endpoint. $Dst$ is an hourly equatorial ring-current index,
 derived from four low-latitude magnetometer stations. It provides finer
 temporal resolution than $Kp$ (hourly versus 3-hourly) and serves as an
 independent storm proxy. The provisional data cover all 18 months of the
-training period (mean $Dst = \SI{-11.5}{nT}$, minimum
-$Dst = \SI{-96}{nT}$). A total of 471 hours satisfy $Dst < \SI{-50}{nT}$.
-This selection covers fewer storm hours than the $Kp$-based selection
-(471 versus 594 hours, i.e.\ 198 three-hour epochs) but provides a
-larger matched sample at the finer hourly resolution (12\,508 hourly
+training period (mean $Dst = \SI{-14.7}{nT}$, minimum
+$Dst = \SI{-406}{nT}$). A total of 886 hours satisfy $Dst < \SI{-50}{nT}$.
+This selection covers more storm hours than the $Kp$-based selection
+(886 versus 594 hours, i.e.\ 198 three-hour epochs) but provides a
+larger matched sample at the finer hourly resolution (13\,152 hourly
 values versus 4\,349 three-hour epochs).
 
 The F10.7 solar radio flux (NOAA SWPC) was considered as a covariate, but
@@ -762,9 +762,9 @@ check rests on the sign and significance of the effect.
 	\centering
 	\caption{Dst-based check: $Dst < \SI{-50}{nT}$ versus
 		$Dst > \SI{-20}{nT}$. $N_{\text{Dst}}$ is the total number of
-		matched hours per band ($N_{\text{storm}} = 471$ at
-		$Dst < \SI{-50}{nT}$, $N_{\text{quiet}} = 8\,811$ at
-		$Dst > \SI{-20}{nT}$). The remaining 3\,226 matched hours with
+		matched hours per band ($N_{\text{storm}} = 886$ at
+		$Dst < \SI{-50}{nT}$, $N_{\text{quiet}} = 8\,962$ at
+		$Dst > \SI{-20}{nT}$). The remaining 3\,304 matched hours with
 		$-50 \le Dst \le -20$\,nT are excluded from this comparison.
 		$\Delta$ is the difference of mean residuals (month $\times$ hour
 		baseline model, without the day-of-week term); $p$ is the minimum
@@ -775,9 +775,9 @@ check rests on the sign and significance of the effect.
 		Band  & $N_{\text{Dst}}$  & $\Delta_{\text{observed}}$ (spots/h)
 		      & $p$-value (block)                                                    \\
 		\midrule
-		20\,m & 12\,508           & $-21\,933$                           & $\le 2 \times 10^{-5}$ \\
-		40\,m & 12\,508           & $-14\,941$                           & $\le 2 \times 10^{-5}$ \\
-		15\,m & 12\,508           & $-5\,037$                            & $\le 2 \times 10^{-5}$ \\
+		20\,m & 13\,152           & $-25\,261$                           & $\le 2 \times 10^{-5}$ \\
+		40\,m & 13\,152           & $-17\,846$                           & $\le 2 \times 10^{-5}$ \\
+		15\,m & 13\,152           & $-6\,009$                            & $\le 2 \times 10^{-5}$ \\
 		\bottomrule
 	\end{tabular}
 \end{table}
@@ -2071,7 +2071,7 @@ All data used in this study are publicly available:
 	\item $Kp$ index: GFZ Potsdam
 	      (\url{https://kp.gfz-potsdam.de/app/json/}).
 	\item $Dst$ index (provisional): WDC Kyoto
-	      (\url{http://wdc.kugi.kyoto-u.ac.jp/dst_realtime/}).
+	      (\url{http://wdc.kugi.kyoto-u.ac.jp/dst_provisional/}).
 	\item Unified parquet dataset and analysis scripts: Zenodo,
 	      \url{https://doi.org/10.5281/zenodo.23285958}.
 	\item Round-3 uncertainty and sensitivity artifacts in the code

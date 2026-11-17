@@ -124,42 +124,62 @@ def fetch_kp(start_date: str, end_date: str, out_dir: Path) -> Path:
 # ── Dst ──────────────────────────────────────────────────────────
 
 
-def _parse_dst_line(line: str) -> list[tuple[int, int, int]] | None:
-    """Разобрать строку вида DSTyymm*ddRRX020 0 v1 v2 ... v24.
+#: Длина заголовка WDC Kyoto: DST(3)+yymm(4)+*(1)+dd(2)+RRX(3)+code(3).
+_DST_HDR_LEN = 16
+#: Ширина числового поля payload (4 символа, знак включён).
+_DST_FIELD = 4
+#: Часовых значений в суточной строке.
+_DST_N_HOURS = 24
+#: Payload = base + 24 часа + среднее суточное = 26 полей.
+_DST_PAYLOAD_FIELDS = _DST_N_HOURS + 2
 
-    Формат:
-        DSTyymm*ddRRRxx base_value hourly_0 ... hourly_23
+
+def _parse_dst_line(line: str) -> list[tuple[int, int, int]] | None:
+    """Разобрать строку вида DSTyymm*ddRRX020 + base + 24 часа + среднее.
+
+    Формат (fixed-width, проверен на реальных строках WDC Kyoto)::
+
+        DST2405*11PPX120   0-313-390-406-395...-167-287
+        ^^^^^^^^^^^^^^^^^^ ^^^^ ^^^^^^^^^^^^^^^^^^^^^^^^
+        заголовок 16 симв. base   24 часовых поля по 4 символа (+ среднее)
+
+    Разбор **позиционный**: ``base = line[16:20]``, часы
+    ``line[20 + 4*i : 24 + 4*i]``. Отрицательные значения шириной 4 символа
+    (``-406``, ``-131``) печатаются вплотную — ``-406-395`` — и слитый
+    ``line.split() + int()`` выбрасывал такой токен, а при нехватке значений
+    и **весь день** (баг v1.6.4: 644 пропущенных часа, floor −96 nT вместо
+    −406 nT; исправлено в v1.6.5). Позиционный разбор делит поля точно.
 
     base_value пропускается (не используется в расчёте Dst).
     Возвращает список (day, hour, dst_nt) или None если не строка данных.
     """
-    line = line.strip()
-    if not line or line.startswith(("#", ":", "-", "<")):
+    if not line.startswith("DST"):
+        return None
+    # base + хотя бы 24 часовых поля (среднее суточное опционально).
+    if len(line) < _DST_HDR_LEN + _DST_FIELD * (_DST_N_HOURS + 1):
         return None
 
-    parts = line.split()
-    if len(parts) < 3:
+    payload = line[_DST_HDR_LEN:]
+    fields = re.findall(r"-?\d{1,4}", payload)
+    if len(fields) < _DST_N_HOURS + 1:
         return None
 
-    header = parts[0]
-    if not header.startswith("DST"):
-        return None
-
-    day_str = header.split("*")[1][:2] if "*" in header else None
+    day_str = line.split("*")[1][:2] if "*" in line else None
     try:
         day = int(day_str)
     except (TypeError, ValueError):
         return None
 
-    values = []
-    for token in parts[1:]:
-        try:
-            values.append(int(token))
-        except ValueError:
-            continue
+    try:
+        base = int(payload[:_DST_FIELD])
+        hourly = [
+            int(payload[_DST_FIELD * (i + 1) : _DST_FIELD * (i + 2)]) for i in range(_DST_N_HOURS)
+        ]
+    except ValueError:
+        return None
 
-    hourly = values[1:25] if len(values) >= 25 else values[1:]
-    if len(hourly) < 24:
+    # Sanity: regex-токены должны начинаться с того же base, что и срез.
+    if int(fields[0]) != base:
         return None
 
     return [(day, h, v) for h, v in enumerate(hourly) if v != 9999]
@@ -176,7 +196,9 @@ def fetch_dst(start_date: str, end_date: str, out_dir: Path) -> Path:
     """
     try:
         start_dt = pd.Timestamp(start_date, tz="UTC")
-        end_dt = pd.Timestamp(end_date, tz="UTC")
+        # end_date включается целиком (до 23:59): без этого последние 23 часа
+        # каждого диапазона отбрасывались фильтром ts <= end_dt (баг v1.6.4).
+        end_dt = pd.Timestamp(end_date, tz="UTC") + pd.Timedelta(hours=23)
     except Exception as e:
         raise DataFetchError(f"Dst: неверный формат даты: {e}") from e
 
