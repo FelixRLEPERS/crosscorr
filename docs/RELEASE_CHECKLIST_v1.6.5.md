@@ -50,27 +50,58 @@ for nothing. Zenodo deposits are immutable; do not spend a version id early.
 - [ ] **4. (optional) Disclosure** of the parser correction in §2.2 / Table 2 or
       in the response letter, for the transparency of the published record.
 
-## NOT REPRODUCED — verification-round item 5
+## NOT REPRODUCED — verification-round item 5 (flag RETRACTED 2026-11-18)
 
 - Claimed RU PLS error: «снижается на 22,5–30,1 **бури**» → «**процента**».
   **No such text exists** in `main_ru.tex`, `main_ru.pdf`, or anywhere else in
   the repo (searched 2026-11-18). Actual state: `main_ru.tex:167` reads
   «снижается на 22,5--30,1 **%**» — correct Russian; EN `main.tex:132` says
-  "falls by 22.5--30.1 percent". Action: ask the verifier for the exact
-  location; fix only if a real instance is found. Do not "fix" `%` → `процента`
-  speculatively.
+  "falls by 22.5--30.1 percent".
+- **The verifier retracted the flag** (2026-11-18): their source was a stale /
+  corrupted text extraction of `main_ru.pdf` from a KB copy (line 92 there read
+  «…30,1 бури»), not the actual file. No fix needed; do not "fix" `%` →
+  `процента` speculatively.
+- **Residual control (non-blocking, done):** the sent PDFs == current repo PDFs
+  — mtimes unchanged since the 2026-11-17 23:48 build/send, SHA-256 == the
+  `checksums_v1.6.5.txt` pins, and both copies are archived in
+  `audit/pdf_snapshot_2026-11-17_v1.6.5/`. Caveat: the email attachment itself
+  cannot be re-hashed from here — the identity argument is "the files attached
+  were the ones in `paper/` at send time, and those bytes are pinned + archived".
 
-## After items 1–4 are approved (release sequence, not now)
+## After items 1–4 are approved (release sequence — ORDER FIXED 2026-11-18)
 
-1. Apply edits → rebuild `paper/main.pdf` + `paper/main_ru.pdf`
-   (latexmk; must be 0 errors / 0 undefined refs).
-2. Regenerate `checksums_v1.6.5.txt` (or bump to the tag's version name) —
-   PDF hashes are build-dependent byte-pins (CreationDate/ID are not
+Supersedes the earlier order (build → checksums → AI_ASSISTANCE → merge → tag):
+it produced PDFs from a NON-final source and could leave the tag pointing at
+intermediate checksums. The reliable sequence:
+
+1. **Finalize ALL source edits** — items 1–4 above (Code Availability pin,
+   data DOI, Table 2 date, disclosure) **+ `docs/AI_ASSISTANCE.md`** (AGU rule).
+2. **Build PDFs from the FINAL source** — `latexmk -pdf main.tex` /
+   `main_ru.tex`; must be 0 errors / 0 undefined references.
+3. **Regenerate `checksums_v1.6.5.txt`** — byte-pins of exactly the PDFs built
+   in step 2 (PDF hashes are build-dependent: CreationDate/ID are not
    reproducible without `SOURCE_DATE_EPOCH`).
-3. Update `docs/AI_ASSISTANCE.md` in the same commit (AGU rule).
-4. Commit to `fix/dst-parser`, push, merge to `main` **only after human review**.
-5. Tag `v1.6.5` → push tag → GitHub Release → Zenodo deposit → verify by
-   downloading the zip + checksums (LESSONS order: tag → push → release).
+4. **Commit everything in one commit** (source + checksums + AI_ASSISTANCE),
+   push `fix/dst-parser`.
+5. **Merge to `main`** — only after human review.
+6. **Tag `v1.6.5`** — the tag's tree then contains the final sources and the
+   consistent checksums (PDF bytes themselves are gitignored; archive them as
+   Release assets and/or a new `audit/pdf_snapshot_*` dir — see below).
+7. **GitHub Release** (attach the final PDFs + `checksums_v1.6.5.txt` as
+   assets — this is what a third party can actually download).
+8. **Zenodo deposit** → verify by downloading the zip + checksums
+   (LESSONS order: tag → push → release → Zenodo).
+
+## Sent-PDF byte archive (closed 2026-11-18)
+
+The bytes of the PDFs sent to the editorial office are archived in
+`audit/pdf_snapshot_2026-11-17_v1.6.5/` (`main.pdf`, `main_ru.pdf`, README with
+provenance). Verified: snapshot SHA-256 == `checksums_v1.6.5.txt` pins ==
+`paper/*.pdf` on disk (mtimes unchanged since the 2026-11-17 23:48 send). This
+closes the chain "what the editor received ↔ what the archive holds" —
+`sha256sum -c` now has something to compare against even after `paper/` is
+rebuilt. Do NOT overwrite this directory when PDFs are rebuilt for the release;
+snapshot the new bytes separately.
 
 ## Conventions for this file
 
