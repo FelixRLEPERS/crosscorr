@@ -1,3 +1,11 @@
+# checksums_v1.6.5.txt - SHA-256 pins for the Dst-correction artifacts (v1.6.5).
+# Generated 2026-11-18; branch fix/dst-parser (commit 441d65c added this file).
+# Format: <sha256><two spaces><path> - sha256sum compatible.
+# 'sha256sum -c' prints a cosmetic 'improperly formatted' WARNING for the
+# '#' lines below; the checksum verdict and exit code are unaffected.
+#
+# SECTION 1 - tracked in git: present on any clone.
+#   Check on a fresh clone:  head -n 363 checksums_v1.6.5.txt | sha256sum -c -
 f25c31913353c141577c05ad202f4be8615149888a2383935a609bec5a971030  .coverage_report.txt
 da174810e963e9aa366a35869a3f062e5e499bd406b31cb5cf2e60fb299133de  .cursorrules
 7ca6ec9b7a4c24881326253297b483cdf4ab150e53f8106ec272ed28e79f4ea9  .env.example
@@ -353,6 +361,18 @@ aa858ad9264321ed7d03bd84a1bbe6ced9fe742e4ac09bf82a3dc563164a1bf5  tests/test_sta
 1250918571b19e48bbc061327817b85d7f6d0afe9dff955554227cf90388973f  tests/test_unify_schema.py
 873ac8381516e24d0491735080084b39922deafd50c021cd7f467e5ae759c966  tests/test_visualization.py
 35f8d43e3af88f58fb5a24cd788d1bf6d07c43488d70fd840b30d3c23f36eb77  zenodo_data/README.md
+#
+# SECTION 2 - LOCAL regenerated artifacts (gitignored, NOT in a fresh clone):
+#   paper/main.pdf, paper/main_ru.pdf - latexmk -pdf build of 2026-11-17 23:48
+#     (the bytes sent to the editor). PDF CreationDate/ID make the build
+#     non-reproducible, so these two lines PIN THE EXACT BYTES of the sent
+#     PDFs, not a reproducible-build target (determinism would need
+#     SOURCE_DATE_EPOCH at build time).
+#   data/processed/unified.parquet - rebuilt 2026-11-17 by refetch
+#     (data/scripts/download_space_weather.py, fixed parser) +
+#     data/scripts/unify_schema.py.
+#   On a fresh clone these 3 files are absent: regenerate them first
+#     (LaTeX build / refetch+unify), or check only SECTION 1 (head -n 363).
 5ca543f89b494e0108560cfa00e73be0a0e9980a56f4e0df3dff149f29f1fcff  paper/main.pdf
 550df6ae5d02367515d61730ff664bd6a7762e1bda73a52a82b4e74b5c214904  paper/main_ru.pdf
 2eeb6cbf7f572787f809f716e1c326690d78a48135d8efcc571ab38ba36601d8  data/processed/unified.parquet
