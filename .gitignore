@@ -153,3 +153,5 @@ docs/presentations/**/*.synctex.gz
 # The .tex sources ARE committed; \IfFileExists falls back to a flat
 # background on clones without media/generated/.
 docs/presentations/**/*.pdf
+# Correction-note PDF is an emailed attachment, stays local (same precedent as above).
+docs/CORRECTION_NOTE_*.pdf
