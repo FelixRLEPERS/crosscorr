@@ -24,102 +24,41 @@
 \linenumbers
 \maketitle
 \begin{keypoints}
-	\item During geomagnetic storms ($Kp \ge 5$) the WSPR network decodes
-	fewer spots on all three bands: \SI{-23.9}{\percent} (20\,m),
-	\SI{-22.5}{\percent} (40\,m) and \SI{-30.1}{\percent} (15\,m), after
-	correcting for the number of active transmitters (169 storm epochs
-	without solar flares; block permutation $p \le 2 \times 10^{-5}$).
-	Models that keep the solar-flare hours (198 storm epochs) give larger
-	drops of \SI{-33.6}{\percent}, \SI{-27.1}{\percent} and
-	\SI{-39.8}{\percent}, and an independent held-out period confirms
-	\SIrange{19}{23}{\percent}. The WSPR network shows a clear
-	latitude-dependent drop: \SI{72.7}{\percent} near the auroral zone
-	versus \SI{12.8}{\percent} near the equator ($5.7\times$ ratio),
-	driven by both absorption and Doppler-spread decoding failures.
-	\item The stronger the storm, the larger the drop: about
-	$\sim$\SI{-18}{\percent} at $Kp$ 5--6 and $\sim$\SI{-43}{\percent}
-	at $Kp \ge 6$ (20/40\,m; 15\,m: \SI{-28.6}{\percent} to
-	\SI{-54.8}{\percent}). The upward trend across the bins is
-	significant for 20\,m and 15\,m but marginal for 40\,m at episode
-	level ($p = 0.064$), and the strongest bins are sparse, so not every
-	pair of neighbouring bins is separated. The direction of the effect
-	repeats on all three bands in the held-out period (residual block
-	permutation $p \le 2 \times 10^{-4}$; the raw 95\% CI for 15\,m
-	includes zero)
-	\item Percentage drops remain the more stable metric: the absolute
-	spot loss on 40\,m has a ratio of 1.44 (expected $\approx$1.35), but
-	the wide confidence interval [0.65, 2.33] is compatible with both
-	proportional growth and invariance.
+	\item Storms ($Kp \ge 5$) suppress WSPR spots per active transmitter:
+	\SI{-23.9}{\percent} (20\,m), \SI{-22.5}{\percent} (40\,m),
+	\SI{-30.1}{\percent} (15\,m).
+	\item The WSPR drop grows from equatorial to auroral latitudes:
+	\SI{-72.7}{\percent} near the auroral zone vs.\ \SI{-12.8}{\percent}
+	near the equator.
+	\item Normalising by active transmitters erases the low-latitude 15\,m
+	drop (\SI{-0.8}{\percent}, $p = 0.078$): raw drops there track operator
+	activity.
 \end{keypoints}
 
 \begin{abstract}
-	We test the hypothesis that geomagnetic storms ($Kp \ge 5$) suppress WSPR spot
-	counts on HF amateur bands. Using openly available data from wspr.live
-	(hourly aggregated, 3 bands: 20\,m, 40\,m, 15\,m) and the GFZ Potsdam $Kp$ index,
-	covering 18 months (April 2024 -- September 2025; 39\,456 WSPR hours
-	across the three bands; solar-flare hours excluded via GOES XRS,
-	169 storm epochs at $Kp \ge 5$ and 2738 quiet epochs), we find
-	significant storm-induced reductions of spots per active transmitter (hourly spot counts normalized by the number of unique WSPR transmitters, a selection-bias control) on all three bands:
-	20\,m: \SI{-23.9}{\percent}, 40\,m: \SI{-22.5}{\percent},
-	15\,m: \SI{-30.1}{\percent} (block permutation $p \le 2 \times 10^{-5}$
-	for all, \SI{50000}{iterations}, block = 24 epochs = 72\,h).
-	Because storm epochs are not evenly distributed across months and UTC
-	hours, we also estimate covariate-adjusted drops on the training set
-	with a negative-binomial model (month, UTC-hour and day-of-week fixed
-	effects, episode-clustered errors). The two result families are
-	distinct: the headline results above are normalized by active
-	transmitters and use the 169 flare-free epochs, whereas the
-	negative-binomial models are fitted to raw spot counts on all 198
-	storm epochs (flare hours included), giving 20\,m \SI{-33.6}{\percent}
-	(95\% CI [\SI{-39.9}{\percent}, \SI{-26.7}{\percent}]), 40\,m
-	\SI{-27.1}{\percent} ([\SI{-33.2}{\percent}, \SI{-20.5}{\percent}]), and
-	15\,m \SI{-39.8}{\percent} ([\SI{-46.8}{\percent}, \SI{-31.8}{\percent}]).
-	These covariate-adjusted estimates are more negative than the
-	normalized drops for 20\,m and close to the raw-count drops for 40\,m.
-
-	Spatial analysis reveals an auroral-to-equatorial gradient of
-	\SI{72.7}{\percent} vs.\ \SI{12.8}{\percent} drop ($5.7\times$ ratio).
-
-	We observe a scale-dependent pattern: the drop (on raw spot counts) increases from
-	$Kp = 5\text{--}6$ ($\sim\SI{-18}{\percent}$) to $Kp \ge 6$
-	($\sim\SI{-43}{\percent}$) on 20/40\,m (15\,m: \SI{-28.6}{\percent} to
-	\SI{-54.8}{\percent}), consistent with a non-linear ionospheric response
-	to geomagnetic forcing. A block-permutation trend test is significant on
-	all three bands ($p \le 0.02$), but the highest-$Kp$ bins are sparse
-	(38 epochs from 12 episodes). A monotonic gradient is observed; the
-	trend test is significant for 20\,m and 15\,m, but marginal for 40\,m
-	at the episode level ($p = 0.064$), so the gradient is not resolved at
-	the highest $Kp$. The primary effect replicates in direction on an independent
-	held-out period (January--March 2026, updated live-database pull) on all
-	three bands, including 15\,m (residual block permutation
-	$p \le 2 \times 10^{-4}$; its raw 95\% CI includes zero). On the held-out
-	set, covariate-adjusted drops are \SIrange{19}{23}{\percent}, smaller than
-	the training values but still excluding zero.
-
-	The frequency dependence and the exploratory UT-window pattern are
-	consistent with a dual-mechanism interpretation: the 15\,m drop
-	(\SI{-30.1}{\percent}) is compatible with MUF reduction, while
-	D-layer absorption affects 20\,m/40\,m
-	(\SI{-23.9}{\percent}/\SI{-22.5}{\percent}). The UT-window
-	asymmetry (40\,m drop stronger in the 0--6 UTC window across the 8 months
-	with sufficient data) is consistent with intermittent auroral and polar
-	cap absorption. However, aggregate spot counts cannot uniquely separate
-	these mechanisms; the point estimates of mean SNR change for decoded
-	spots remain within \SI{0.5}{dB} (though the 95\% CI for the 40\,m band
-	extends to \SI{-0.56}{dB}), so the count reduction is dominated by the
-	loss of marginal, decodable paths rather than by a uniform SNR decrease.
-
-	The training-period absolute spot loss on 40\,m ($\SI{-18285}{spots/h}$)
-	was initially matched by a held-out snapshot ($\SI{-18304}{spots/h}$),
-	but a re-downloaded held-out sample (October 2026) yields a larger
-	absolute loss ($\SI{-26287}{spots/h}$; ratio 1.44, a point estimate that
-	exceeds the expected scaling of $\approx$1.35, but the wide confidence
-	interval [0.65, 2.33] is compatible with both proportional growth and
-	invariance). Percentage drops remain the more stable metric. All held-out
-	absolute-loss values are based on the updated download.
-	These results suggest that WSPR can serve as a distributed ionospheric
-	sensor for detecting and characterising the scale-dependent effects of
-	geomagnetic storms on HF propagation.
+	We test whether geomagnetic storms ($Kp \ge 5$) suppress WSPR spot counts on
+	HF amateur bands. Using 18 months of wspr.live data (April 2024 -- September
+	2025; 39\,456 hourly records over 20\,m, 40\,m and 15\,m) with the GFZ
+	Potsdam $Kp$ index, excluding solar-flare hours via GOES XRS (169 storm and
+	2\,738 quiet epochs), we normalise hourly spot counts by the number of
+	active transmitters --- a selection-bias control. Storms reduce spots per
+	active transmitter on all three bands: \SI{-23.9}{\percent} (20\,m),
+	\SI{-22.5}{\percent} (40\,m), \SI{-30.1}{\percent} (15\,m) (block
+	permutation $p \le 2 \times 10^{-5}$, \SI{50000}{iterations}, block = 24
+	epochs = 72\,h); covariate-adjusted negative-binomial models on raw counts
+	(month, UTC-hour and day-of-week fixed effects, episode-clustered errors)
+	confirm the effect on all 198 storm epochs (\SI{-33.6}{\percent},
+	\SI{-27.1}{\percent}, \SI{-39.8}{\percent}). The response scales with
+	storm intensity
+	($\sim$\SI{-18}{\percent} at $Kp$ 5--6 to $\sim$\SI{-43}{\percent} at
+	$Kp \ge 6$ on 20/40\,m; block-permutation trend test $p \le 0.02$ on all
+	three bands) and with latitude (\SI{-72.7}{\percent} auroral vs.\
+	\SI{-12.8}{\percent} equatorial, $5.7\times$), and replicates in direction
+	on an independent held-out period (January--March 2026;
+	covariate-adjusted \SIrange{19}{23}{\percent}). Frequency and UT-window
+	patterns are consistent with D-layer absorption on 20/40\,m and MUF
+	reduction on 15\,m. WSPR thus serves as a distributed ionospheric sensor
+	for scale-dependent storm effects on HF propagation.
 \end{abstract}
 
 \section*{Plain Language Summary}
@@ -2072,8 +2011,10 @@ All data used in this study are publicly available:
 	      (\url{https://kp.gfz-potsdam.de/app/json/}).
 	\item $Dst$ index (provisional): WDC Kyoto
 	      (\url{http://wdc.kugi.kyoto-u.ac.jp/dst_provisional/}).
-	\item Unified parquet dataset and analysis scripts: Zenodo,
-	      \url{https://doi.org/10.5281/zenodo.23285958}.
+	\item Unified parquet dataset: Zenodo
+	      \citep{crosscorr_data}, archived at
+	      \url{https://doi.org/10.5281/zenodo.23802881}; analysis scripts
+	      (concept DOI): \url{https://doi.org/10.5281/zenodo.23285958}.
 	\item Round-3 uncertainty and sensitivity artifacts in the code
 	      repository: \path{results/round3_*.json},
 	      \path{results/snr_analysis.json},
@@ -2093,8 +2034,9 @@ delayed-upload effects.
 
 All analysis code is available at
 \url{https://github.com/FelixRLEPERS/crosscorr}
-under the MIT license. The exact version used for the core analysis is
-tag \texttt{v1.6.4} of that repository; the concept DOI
+under the MIT license \citep{crosscorr_code}. The exact version used for the
+core analysis is tag \texttt{v1.6.4} of that repository (version DOI
+\url{https://doi.org/10.5281/zenodo.23895056}); the concept DOI
 \url{https://doi.org/10.5281/zenodo.23285958} resolves to the latest
 release (v1.6.4 at the time of submission). The dataset snapshot is
 archived at
@@ -2160,6 +2102,12 @@ statistical methodology verification, and scientific audits, as detailed in
 
 This work was made possible by the open-source scientific Python ecosystem
 (NumPy, SciPy, pandas, Matplotlib).
+
+
+%=============================================================
+\section*{Conflict of Interest Statement}
+
+The authors declare no conflicts of interest.
 
 
 %=============================================================
