@@ -2,8 +2,7 @@
 
 **Journal:** Space Weather (AGU)
 **Editor:** Jiaojiao Zhang
-**Date:** 2026-11-19
-**Branch:** `fix/dst-parser` (files prepared, not yet committed — per instruction)
+**Date:** 2026-11-20
 
 ---
 
