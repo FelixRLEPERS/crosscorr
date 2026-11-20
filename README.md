@@ -31,6 +31,11 @@
 | Kp ≥ 7 | −52%        | −53%        | −59%         |
 | **All Kp ≥ 5** | **−27.7%** | **−27.2%** | **−38.7%** |
 
+Primary flare-free set (169 storm epochs): spots **per active transmitter**
+drop by **−23.9%** (20m), **−22.5%** (40m), **−30.1%** (15m) —
+block permutation, *p* = 2×10⁻⁵. Bin rows above are the flare-included
+sensitivity set (198 epochs).
+
 Based on 18 months (Apr 2024 – Sep 2025) of hourly WSPR data
 from [wspr.live](https://wspr.live), 198 storm epochs.
 Confirmed independently by Kp and Dst indices, all 4 seasons,
@@ -41,7 +46,7 @@ Preprint: [DOI: 10.5281/zenodo.23285958](https://doi.org/10.5281/zenodo.23285958
 Code archive (v1.6.4): [concept DOI: 10.5281/zenodo.23285958](https://doi.org/10.5281/zenodo.23285958) (resolves to latest release)
 Dataset snapshot (v11): [DOI: 10.5281/zenodo.23802881](https://doi.org/10.5281/zenodo.23802881)
 
-**Version mapping:** Manuscript (submission v1.0) corresponds to code tag `v1.6.4` (concept DOI: `10.5281/zenodo.23285958`, resolves to latest release) and dataset snapshot v11 (DOI: `10.5281/zenodo.23802881`).
+**Version mapping:** Manuscript (resubmission, ms. 2026SW005535, 2026-11-20) corresponds to code base tag `v1.6.4` plus the Dst parser correction (branch `fix/dst-parser`; Zenodo release pending) and dataset snapshot v11 (DOI: `10.5281/zenodo.23802881`). Concept DOI: `10.5281/zenodo.23285958` (resolves to latest release).
 
 **Key findings (5 layers):**
 
@@ -54,12 +59,37 @@ Dataset snapshot (v11): [DOI: 10.5281/zenodo.23802881](https://doi.org/10.5281/z
    wspr.live download: ratio 1.44, outside the training CI. Absolute
    loss is reported as a descriptive quantity; frozen snapshots are
    required for metric-stability claims.
-4. **Day/night asymmetry:** 40m night > day in 9/10 months (auroral/PCA
-   absorption), but intermittent — not every storm activates it.
+4. **UT-window asymmetry:** competing mechanisms across the diurnal
+   cycle — 20m drops more in UT-day (12–18 UTC: −29% vs −21% on 40m),
+   40m drops more in UT-night (0–6 UTC: −30% vs −25% on 20m),
+   consistent with MUF suppression by day and auroral/PCA absorption at
+   night. UT sectors, not local day/night.
 5. **Independent replication:** Primary hypothesis replicates on held-out
    data (all p ≤ 0.014). Scale-dependence replicates at matched Kp bins.
 
-![Frequency-dependent WSPR response to Kp](docs/figures/main_result.png)
+### Figures
+
+Final manuscript figures ([`paper/figures/`](paper/figures/)):
+
+**Figure 1 — Data example.** Kp index and WSPR spot density over a two-month window:
+
+<img src="paper/figures/fig1_kp_timeseries.png" alt="Kp index and WSPR spot density, two-month example" width="720"/>
+
+**Figure 2 — Main result: scale-dependent spot reduction by Kp bin** (flare-included, 198 epochs):
+
+<img src="paper/figures/fig2_scale_dependence.png" alt="Scale-dependent WSPR spot reduction by Kp bin, three bands" width="720"/>
+
+**Figure 3 — Frequency dependence of the WSPR storm response** (three bands):
+
+<img src="paper/figures/fig3_frequency_dependence.png" alt="Frequency dependence of the WSPR storm response" width="600"/>
+
+**Figure 4 — UT-window asymmetry** (UT-day 12–18 UTC vs UT-night 0–6 UTC; UT-sector composites, not local day/night):
+
+<img src="paper/figures/fig4_day_night_asymmetry.png" alt="UT-window asymmetry of the WSPR storm response" width="720"/>
+
+**Figure 5 — Absolute spot loss across periods** (training vs held-out; database-mutability caution):
+
+<img src="paper/figures/fig5_baseline_invariance.png" alt="Absolute spot loss across training and held-out periods" width="600"/>
 
 📄 Full report: [`docs/first_result.md`](docs/first_result.md)
 🛰 Data pipeline: [`docs/DATA_PIPELINE.md`](docs/DATA_PIPELINE.md)
@@ -73,6 +103,7 @@ Dataset snapshot (v11): [DOI: 10.5281/zenodo.23802881](https://doi.org/10.5281/z
 | Data pipeline | ✅ Operational (fetch → unify → analysis) |
 | Real-data analysis | ✅ 18 months × 3 bands, p<0.0001 |
 | Statistical core | ✅ Reference-validated (max-stat, FDR, IAAFT) |
+| Dst parser correction | ✅ Parser fixed, statistics rerun (commit `74ed959`, v1.6.5); correction note: [`docs/CORRECTION_NOTE_2026-11-17.md`](docs/CORRECTION_NOTE_2026-11-17.md) |
 | CI | ✅ Blocking (ruff, mypy, pytest) |
 | Tests | ✅ 369 passed |
 | Independent audit | ✅ Qwen 3.8 27B + external LLM audit |
@@ -81,7 +112,7 @@ Dataset snapshot (v11): [DOI: 10.5281/zenodo.23802881](https://doi.org/10.5281/z
 | HamSCI community review | ✅ G. Griffiths (G3ZIL) critique addressed — 15 comments triaged, 8 sub-rows fixed (`3f68d55`) |
 | Preprint / data package | ✅ Zenodo v11 ([version DOI: 10.5281/zenodo.23802881](https://doi.org/10.5281/zenodo.23802881), [concept DOI: 10.5281/zenodo.23285958](https://doi.org/10.5281/zenodo.23285958)) |
 | Code archive | ✅ Zenodo v1.6.4 ([concept DOI: 10.5281/zenodo.23285958](https://doi.org/10.5281/zenodo.23285958), resolves to latest release) |
-| Journal submission | 🟡 HOLD — ready for *Space Weather*; cover letter addressed to Dr. Steven K. Morley (EiC); awaiting HamSCI feedback (response to review in `docs/submission/`) |
+| Journal submission | 🟡 Resubmission to *Space Weather* (ms. 2026SW005535, editor Dr. Jiaojiao Zhang) via AGU GEMS, 2026-11-20; cover letter: [`docs/RESPONSE_TO_EDITOR.md`](docs/RESPONSE_TO_EDITOR.md) |
 
 ---
 
@@ -328,7 +359,8 @@ If you use this work, please cite:
 @misc{crosscorr2026,
   author       = {Petrov, Alexey and Petrov, Makar},
   title        = {Scale-dependent WSPR response to geomagnetic storms:
-                  frequency dependence and network-size effects on absolute loss},
+                  frequency dependence and exploratory period-to-period
+                  scaling of absolute loss},
   year         = {2026},
   publisher    = {Zenodo},
   doi          = {10.5281/zenodo.23285958},
