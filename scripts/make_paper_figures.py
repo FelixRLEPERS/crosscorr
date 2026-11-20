@@ -187,7 +187,7 @@ for band in BANDS:
 # ═════════════════════════════════════════════════════════════════════
 #  FIGURE 4: Day/Night Asymmetry with error bars
 # ═════════════════════════════════════════════════════════════════════
-print("\n=== Figure 4: Day/Night Asymmetry ===")
+print("\n=== Figure 4: UT-day/UT-night Asymmetry ===")
 
 results_dn = {}
 ci_dn = {}
@@ -246,7 +246,7 @@ for band in BANDS:
             "N_quiet": len(q),
         }
 
-print("=== Day/Night Bootstrap Results ===")
+print("=== UT-day/UT-night Bootstrap Results ===")
 for k, v in results_dn.items():
     print(
         f"  {k}: drop={v['drop_pct']:.1f}% [{v['ci_lo']:.1f}, {v['ci_hi']:.1f}] storm={v['N_storm']} quiet={v['N_quiet']}"
@@ -295,7 +295,7 @@ bars1 = ax.bar(
     x - width / 2,
     day_drops,
     width,
-    label="Day (12:00-18:00 UTC, epochs 12/15)",
+    label="UT-day (12:00-18:00 UTC, epochs 12/15)",
     color="#FFB347",
     edgecolor="black",
     linewidth=0.5,
@@ -307,7 +307,7 @@ bars2 = ax.bar(
     x + width / 2,
     night_drops,
     width,
-    label="Night (00:00-06:00 UTC, epochs 0/3)",
+    label="UT-night (00:00-06:00 UTC, epochs 0/3)",
     color="#4A6FA5",
     edgecolor="black",
     linewidth=0.5,
@@ -345,7 +345,7 @@ ax.set_xticks(x)
 ax.set_xticklabels(BANDS, fontsize=12)
 ax.set_ylabel("Spot reduction during Kp\u22655 (%)", fontsize=12)
 ax.set_title(
-    "Day/Night Asymmetry of WSPR Storm Response\n"
+    "UT-day / UT-night Asymmetry of WSPR Storm Response\n"
     "(18-month training, April 2024 \u2013 September 2025, with 95% bootstrap CI)",
     fontsize=13,
     fontweight="bold",
@@ -531,26 +531,74 @@ print(f"[OK] {path_fig1} ({path_fig1.stat().st_size} bytes)")
 # ═════════════════════════════════════════════════════════════════════
 print("\n=== Figure 3: Frequency dependence ===")
 
+# Bars show the headline per-transmitter, flare-free point estimates from
+# results/perm_test_18mo_3band_norm_tx.json (spot rate normalised by
+# n_unique_tx from the unified.parquet meta, flare hours excluded;
+# N_storm = 169, N_quiet = 2738, n_iter = 50000, p = 2e-5) so that the
+# figure matches the caption and Table 4.  The 95% CI is recomputed here
+# by iid bootstrap on the SAME norm-tx flare-free storm/quiet series with
+# the run's own n_iter; the JSON does not store percentiles.
+# Replicates scripts/perm_test_18mo_3band.py --norm-tx --exclude-flares.
+norm_tx = json.loads((ROOT / "results" / "perm_test_18mo_3band_norm_tx.json").read_text("utf-8"))
+cfg_tx = norm_tx["config"]
+assert cfg_tx["norm_tx"]["enabled"] is True, "norm-tx must be enabled"
+assert cfg_tx["flare_filter"]["exclude_flares"] is True, "flare filter must be on"
+n_iter_tx = int(cfg_tx["n_iter"])
+flare_threshold = float(cfg_tx["flare_filter"]["threshold_w_m2"])
+
+
+def _parse_n_tx(meta_str):
+    """n_unique_tx out of the unified.parquet meta JSON string (NaN if absent)."""
+    try:
+        obj = json.loads(meta_str) if isinstance(meta_str, str) else (meta_str or {})
+    except (TypeError, ValueError):
+        return float("nan")
+    v = obj.get("n_unique_tx") if isinstance(obj, dict) else None
+    try:
+        return float(v)
+    except (TypeError, ValueError):
+        return float("nan")
+
+
+# Flare-hour exclusion (GOES XRS 1-8A hourly max >= threshold)
+goes = full[full["detector_type"] == "goes_xray"][["timestamp_utc", "value"]].copy()
+goes["hour"] = goes["timestamp_utc"].dt.floor("1h")
+goes_h = goes.groupby("hour")["value"].max()
+flare_hours = pd.DatetimeIndex(goes_h[goes_h >= flare_threshold].index)
+wspr_tx = wspr[~wspr["hour"].isin(flare_hours)].copy()
+
+# Normalised spot rate: value / n_unique_tx(hour, band) from meta
+n_tx = wspr_tx["meta"].apply(_parse_n_tx)
+assert not (n_tx.isna() | (n_tx <= 0)).any(), "n_unique_tx missing/<=0 in meta"
+wspr_tx["value"] = wspr_tx["value"] / n_tx
+
 freq_drops = {}
 freq_ci = {}
 for band in BANDS:
-    sub = wspr[wspr["band"] == band].copy()
-    merged = pd.merge(sub, kp_h, left_on="hour", right_on="hour", how="inner")
-    merged["resid"] = merged["value"] - merged.groupby(["month", "hour_of_day", "day_of_week"])[
-        "value"
-    ].transform("mean")
-    s = merged[merged["kp"] >= 5]
-    q = merged[merged["kp"] < 3]
-    sv, qv = s["value"].values, q["value"].values
-    sn, qn = len(sv), len(qv)
-    drop_dist = []
-    for _ in range(N_BOOT):
-        sm = RNG.choice(sv, size=sn).mean()
-        qm = RNG.choice(qv, size=qn).mean()
-        drop_dist.append(100 * (sm - qm) / qm)
-    drop_dist = np.array(drop_dist)
-    freq_drops[band] = float(-drop_dist.mean())
-    freq_ci[band] = (float(-np.percentile(drop_dist, 97.5)), float(-np.percentile(drop_dist, 2.5)))
+    merged = pd.merge(wspr_tx[wspr_tx["band"] == band], kp_h, on="hour", how="inner").sort_values(
+        "hour"
+    )
+    storm = merged.loc[merged["kp"] >= 5, "value"].values
+    quiet = merged.loc[merged["kp"] < 3, "value"].values
+    # Point estimate must reproduce the headline run (0.1 pp rounding)
+    drop = float(100 * (storm.mean() - quiet.mean()) / quiet.mean())
+    expected = float(norm_tx["results"][band]["drop_pct"])
+    assert len(storm) == int(norm_tx["results"][band]["N_storm"]), f"fig3 {band}: N_storm"
+    assert len(quiet) == int(norm_tx["results"][band]["N_quiet"]), f"fig3 {band}: N_quiet"
+    assert abs(drop - expected) < 0.06, f"fig3 {band}: {drop:.3f} != {expected:.3f}"
+    freq_drops[band] = -expected  # positive = reduction shown on the bar
+    drop_dist = np.empty(n_iter_tx)
+    for i in range(n_iter_tx):
+        sm = RNG.choice(storm, size=storm.size).mean()
+        qm = RNG.choice(quiet, size=quiet.size).mean()
+        drop_dist[i] = -100 * (sm - qm) / qm  # positive reduction
+    freq_ci[band] = (float(np.percentile(drop_dist, 2.5)), float(np.percentile(drop_dist, 97.5)))
+    print(
+        f"  {band}: drop {freq_drops[band]:.1f}% "
+        f"[{freq_ci[band][0]:.1f}, {freq_ci[band][1]:.1f}] "
+        f"(point estimate check {drop:.3f} vs {expected:.3f}, "
+        f"N_storm={len(storm)}, N_quiet={len(quiet)})"
+    )
 
 freqs_mhz = {"20m": 14.0956, "40m": 7.0401, "15m": 21.0961}
 fig, ax = plt.subplots(figsize=(8, 5.5))

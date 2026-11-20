@@ -678,7 +678,7 @@ block = 24 epochs = 72\,h). On spots per active transmitter the
 effect is strongest on 15\,m (\SI{-30.1}{\percent}) and nearly
 identical on 20\,m and 40\,m (\SI{-23.9}{\percent} and
 \SI{-22.5}{\percent}); the corresponding raw-count drops are
-$-25.5$\%, $-25.3$\% and $-36.8$\%. After covariate
+$-25.5$\%, $-25.3$\% and $-36.8$\% (flare-free, 169 epochs). After covariate
 adjustment the 20\,m drop increases in magnitude to \SI{-33.6}{\percent}
 (95\% CI [\SI{-39.9}{\percent}, \SI{-26.7}{\percent}]): storm epochs are
 over-represented at 00 UTC and in June 2025, when the 20\,m quiet baseline is
@@ -733,7 +733,7 @@ definition of Eq.~\eqref{eq:drop}.
 	\includegraphics[width=\textwidth]{figures/fig2_scale_dependence.png}
 	\caption{Scale-dependent WSPR spot reduction: binned analysis
 		for the three HF bands (20\,m, 40\,m, 15\,m; 18-month training
-		period). Spot reduction (raw values, Eq.~\eqref{eq:drop}) is shown
+		period; flare-included, 198 epochs). Spot reduction (raw values, Eq.~\eqref{eq:drop}) is shown
 		for the three storm bins ($Kp$ 5--6, 6--7, $\ge$7); the quiet
 		reference ($Kp<3$) is the zero level of the bars, not a plotted bin.
 		The gradient across storm bins is consistent with a scale-dependent
@@ -750,7 +750,8 @@ definition of Eq.~\eqref{eq:drop}.
 	\footnotesize
 	\setlength{\tabcolsep}{3pt}
 	\caption{Scale-dependence: spot drop (\%) by $Kp$ bin for all three
-		bands (training period, raw spot values, Eq.~\eqref{eq:drop}); $N$
+		bands (training period, raw spot values, Eq.~\eqref{eq:drop};
+		flare-included, 198 epochs); $N$
 		is the number of storm epochs in the bin (shared across bands), and
 		the number in parentheses is the number of independent storm
 		episodes contributing. CIs are 95\% iid bootstrap intervals
